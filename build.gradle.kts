@@ -4,27 +4,31 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 
 plugins {
-    alias(idofrontLibs.plugins.mia.kotlin.multiplatform)
-    alias(idofrontLibs.plugins.kotlinx.serialization)
-    alias(idofrontLibs.plugins.compose)
+    alias(idofrontLibs.plugins.mia.kotlin.multiplatform) apply false
+    alias(idofrontLibs.plugins.compose) apply false
+    kotlin("android") version idofrontLibs.versions.kotlin.get() apply false
 //    id("de.undercouch.download") version "5.3.1"
 }
 
-repositories {
-    google()
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    maven("https://maven.fabricmc.net")
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    }
 }
 
 kotlin {
-//    androidTarget {
-//        compilations.all {
-//            kotlinOptions {
-//                jvmTarget = "1.8"
-//            }
-//        }
-//    }
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
+    applyDefaultHierarchyTemplate()
+
 
     jvm("desktop")
 
@@ -73,8 +77,8 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
+//            implementation(compose.ui)
+//            implementation(compose.components.resources)
         }
     }
 }
