@@ -2,10 +2,7 @@ package me.dvyy.tasks
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -19,7 +16,7 @@ fun App() {
         colorScheme = darkColorScheme(),
     ) {
         CompositionLocalProvider(AppStateProvider provides AppState()) {
-            Surface(Modifier.fillMaxSize()) {
+            Scaffold(Modifier.fillMaxSize()) {
                 HomeScreen()
             }
         }

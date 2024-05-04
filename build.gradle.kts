@@ -4,9 +4,9 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 
 plugins {
-    alias(idofrontLibs.plugins.mia.kotlin.multiplatform) apply false
-    alias(idofrontLibs.plugins.compose) apply false
-    kotlin("android") version idofrontLibs.versions.kotlin.get() apply false
+    alias(idofrontLibs.plugins.mia.kotlin.multiplatform)
+    alias(idofrontLibs.plugins.compose)
+//    kotlin("android") version idofrontLibs.versions.kotlin.get() apply false
 //    id("de.undercouch.download") version "5.3.1"
 }
 
@@ -20,13 +20,13 @@ allprojects {
 }
 
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
-    }
+//    androidTarget {
+//        compilations.all {
+//            kotlinOptions {
+//                jvmTarget = "1.8"
+//            }
+//        }
+//    }
     applyDefaultHierarchyTemplate()
 
 
@@ -73,6 +73,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
         }
         commonMain.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0-RC.2")
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
