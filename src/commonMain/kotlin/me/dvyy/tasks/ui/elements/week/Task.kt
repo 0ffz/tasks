@@ -1,6 +1,7 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
@@ -39,11 +42,11 @@ fun Task(
     )
     Surface(
         color = adjustedHighlight,
-        modifier = Modifier.padding(4.dp),
+        modifier = Modifier.padding(4.dp).height(34.dp),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         var active by remember { mutableStateOf(false) }
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(32.dp)
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
             .onPointerEvent(PointerEventType.Enter) { active = true }
             .onPointerEvent(PointerEventType.Exit) { active = false }) {
             BasicTextField(
@@ -55,11 +58,14 @@ fun Task(
                 textStyle = MaterialTheme.typography.bodyLarge
                     .copy(
                         color = textColor,
-                        textDecoration = textDecoration
+                        textDecoration = textDecoration,
                     ),
+                decorationBox = { innerTextField ->
+                    Row(Modifier.padding(start = 12.dp), verticalAlignment = Alignment.CenterVertically) { innerTextField() }
+                },
                 modifier = Modifier.weight(1f, true)
+//                    .padding(start = 16.dp)
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
                     .onKeyEvent { event ->
                         if (event.isCtrlPressed && event.key == Key.E && event.type == KeyEventType.KeyDown) {
                             onTab()

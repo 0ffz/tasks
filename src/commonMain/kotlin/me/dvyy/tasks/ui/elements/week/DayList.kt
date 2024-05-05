@@ -17,15 +17,12 @@ import kotlinx.datetime.LocalDate
 fun DayList(
     date: LocalDate,
     isToday: Boolean,
+    height: Int,
 ) {
     Column(Modifier.fillMaxHeight().fillMaxWidth()) {
         DayTitle(date, isToday)
-        HorizontalDivider(
-            thickness = 2.dp,
-            color = MaterialTheme.colorScheme.onSecondaryContainer
-        )
         Column(Modifier.padding(16.dp)) {
-            repeat(8) {
+            repeat(height) {
                 Timeslot {
                     var taskName by remember { mutableStateOf("Tast $it") }
                     var highlight by remember { mutableStateOf(Highlights.Unmarked) }
@@ -56,13 +53,13 @@ enum class Highlights(
 
 @Composable
 fun DayTitle(date: LocalDate, isToday: Boolean) {
+    val color =
+        if (isToday) MaterialTheme.colorScheme.tertiary
+        else MaterialTheme.colorScheme.onPrimaryContainer
     Row(
         Modifier.padding(12.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
-        val color =
-            if (isToday) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onPrimaryContainer
         Text(
             "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
             Modifier.weight(1f, true),
@@ -73,9 +70,13 @@ fun DayTitle(date: LocalDate, isToday: Boolean) {
         Text(
             date.dayOfWeek.name.lowercase().capitalize().take(3),
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+            color = color.copy(alpha = 0.6f)
         )
     }
+    HorizontalDivider(
+        thickness = 2.dp,
+        color = color
+    )
 }
 
 
