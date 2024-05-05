@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("idofrontLibs") {
             from("com.mineinabyss:catalog:$idofrontVersion")
-            version("compose", "1.6.2")
+            version("compose", "1.6.10-rc01")
         }
     }
 }

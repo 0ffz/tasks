@@ -73,6 +73,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
         }
         commonMain.dependencies {
+            implementation("com.mohamedrejeb.dnd:compose-dnd:0.2.0")
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0-RC.2")
             implementation(compose.runtime)
             implementation(compose.foundation)

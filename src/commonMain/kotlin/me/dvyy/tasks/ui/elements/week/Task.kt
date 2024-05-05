@@ -1,12 +1,11 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text2.BasicTextField2
+import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.TaskAlt
@@ -20,12 +19,14 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun Task(
     name: String,
@@ -40,19 +41,24 @@ fun Task(
     val textColor by animateColorAsState(
         MaterialTheme.colorScheme.onPrimaryContainer.run { if (completed) copy(alpha = 0.3f) else this }
     )
+
     Surface(
         color = adjustedHighlight,
         modifier = Modifier.padding(4.dp).height(34.dp),
         shape = MaterialTheme.shapes.extraLarge
     ) {
+//        val textState by remember(name) {
+//            mutableStateOf(TextFieldValue(name).copy(selection = TextRange(name.length)))
+//        }
+//        val focusRequester = remember { FocusRequester() }
         var active by remember { mutableStateOf(false) }
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
             .onPointerEvent(PointerEventType.Enter) { active = true }
             .onPointerEvent(PointerEventType.Exit) { active = false }) {
-            BasicTextField(
-                name,
+            BasicTextField2(
+                value = name,
                 enabled = !completed,
-                singleLine = true,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 onValueChange = onNameChange,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 textStyle = MaterialTheme.typography.bodyLarge
@@ -60,11 +66,13 @@ fun Task(
                         color = textColor,
                         textDecoration = textDecoration,
                     ),
-                decorationBox = { innerTextField ->
-                    Row(Modifier.padding(start = 12.dp), verticalAlignment = Alignment.CenterVertically) { innerTextField() }
+                decorator = { innerTextField ->
+                    Row(
+                        Modifier.padding(start = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) { innerTextField() }
                 },
                 modifier = Modifier.weight(1f, true)
-//                    .padding(start = 16.dp)
                     .fillMaxSize()
                     .onKeyEvent { event ->
                         if (event.isCtrlPressed && event.key == Key.E && event.type == KeyEventType.KeyDown) {
@@ -73,7 +81,6 @@ fun Task(
                         } else false
                     }
             )
-//            AnimatedVisibility(active, enter = fadeIn(tween(50)), exit = fadeOut(tween(50))) {
             if (active) {
                 IconButton(
                     onClick = { completed = !completed },
