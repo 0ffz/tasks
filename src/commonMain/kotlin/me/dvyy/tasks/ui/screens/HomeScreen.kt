@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
+import me.dvyy.tasks.state.Constants
 import me.dvyy.tasks.ui.elements.week.DayList
 
 @Composable
@@ -22,7 +23,7 @@ fun WeekView() {
     val today = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
     val weekStart = today.minus(today.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY)
     BoxWithConstraints {
-        val columns = remember(constraints) { if (constraints.maxWidth < 1200) 1 else 7 }
+        val columns = remember(constraints) { if (constraints.maxWidth < Constants.WEEK_VIEW_MIN_WIDTH) 1 else 7 }
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
