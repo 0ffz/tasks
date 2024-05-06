@@ -23,9 +23,15 @@ object Tasks {
         this.date.update { newDate }
     }
 
+    private var id = 0L
+
     // TODO pass task, return state, private constructor in state?
-    fun AppState.createTask(state: TaskState) {
+    fun AppState.createTask(task: Task): TaskState {
+        val state = TaskState(id++, task.name, task.date)
         tasks[state.uuid] = state
-        loadDate(state.date.value).tasks.update { it + state }
+        loadDate(task.date).tasks.update { it + state }
+        return state
     }
 }
+
+class Task(val name: String, val date: LocalDate)

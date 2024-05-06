@@ -6,6 +6,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import me.dvyy.tasks.logic.Task
 import me.dvyy.tasks.logic.Tasks.createTask
 
 val AppStateProvider = compositionLocalOf<AppState> { error("No local versions provided") }
@@ -35,7 +36,7 @@ class AppState {
     val loadedDates = mutableMapOf<LocalDate, DateState>()
 
     init {
-        createTask(TaskState(1, "A simple thing", today))
-        createTask(TaskState(2, "Another task", today))
+        createTask(Task("A simple thing", today))
+        createTask(Task("Another task", today))
     }
 }
