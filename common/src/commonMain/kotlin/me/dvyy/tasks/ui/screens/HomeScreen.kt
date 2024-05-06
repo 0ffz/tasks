@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import me.dvyy.tasks.logic.Tasks
@@ -70,13 +70,11 @@ fun WeekView() {
                                     task.changeDate(app, targetDate.date)
                                 }
 
-                                targetDate.tasks.update { tasks ->
-                                    tasks.toMutableList().apply {
-                                        val index = indexOf(target)
-                                        println("Index was $index, tasks $this")
-                                        remove(task)
-                                        add(index, task)
-                                    }
+                                targetDate.tasks.apply {
+                                    val index = indexOf(target)
+                                    println("Index was $index, tasks $this")
+                                    remove(task)
+                                    add(index, task)
                                 }
                             }
                         },
@@ -85,4 +83,16 @@ fun WeekView() {
             }
         }
     }
+}
+
+class Ref(var value: Int)
+
+// Note the inline function below which ensures that this function is essentially
+// copied at the call site to ensure that its logging only recompositions from the
+// original call site.
+@Composable
+inline fun LogCompositions(msg: String) {
+    val ref = remember { Ref(0) }
+    SideEffect { ref.value++ }
+    println("Compositions: $msg ${ref.value}")
 }

@@ -2,6 +2,7 @@ package me.dvyy.tasks.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableStateListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -29,7 +30,7 @@ class TaskState(
 }
 
 data class DateState(val date: LocalDate) {
-    val tasks = MutableStateFlow(listOf<TaskState>())
+    val tasks = mutableStateListOf<TaskState>()
 }
 
 class AppState {

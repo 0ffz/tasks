@@ -16,13 +16,9 @@ dependencyResolutionManagement {
         maven("https://repo.mineinabyss.com/releases")
         maven("https://repo.mineinabyss.com/snapshots")
     }
-
-    versionCatalogs {
-        create("idofrontLibs") {
-            from("com.mineinabyss:catalog:$idofrontVersion")
-            version("compose", "1.6.10-rc01")
-        }
-    }
 }
 
 rootProject.name = "tasks"
+
+
+include("android", "common", "desktop")

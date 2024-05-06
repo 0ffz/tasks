@@ -1,18 +1,15 @@
 package me.dvyy.tasks.ui.elements.week
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.onClick
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
@@ -28,7 +25,6 @@ import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DayList(
     date: LocalDate,
@@ -47,8 +43,6 @@ fun DayList(
     ) {
         DayTitle(state.date, isToday)
 
-        val tasks by state.tasks.collectAsState()
-
         Column(
             modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
                 .dropTarget(
@@ -58,6 +52,7 @@ fun DayList(
                     onDragEnter = { onDragEnterColumn(state, it) },
                 )
         ) {
+            val tasks = state.tasks
             LazyColumn(state = lazyListState) {
                 items(tasks, key = { it.uuid }) { task ->
                     ReorderableItem(
@@ -93,7 +88,6 @@ fun DayList(
                                 }
 
                             },
-                            modifier = Modifier.alpha(if (isDragging) 0f else 1f)
                         )
                     }
                     HorizontalDivider()
@@ -102,8 +96,12 @@ fun DayList(
             val emptySpace = remember(fullHeight) {
                 if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(40.dp)
             }
-            Box(modifier = emptySpace.fillMaxWidth().onClick {
-                if (tasks.last().name.value.isNotEmpty())
+            Box(
+                modifier = emptySpace.fillMaxWidth().clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+//                if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
                     app.createTask(Task("", state.date), focus = true)
             })
         }

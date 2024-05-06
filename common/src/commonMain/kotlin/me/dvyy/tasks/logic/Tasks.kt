@@ -17,8 +17,8 @@ object Tasks {
         val task = this
         val date = date.value
         if (date == newDate) return
-        app.loadedDates[date]?.tasks?.update { it - task }
-        app.loadedDates[newDate]?.tasks?.update { it + task }
+        app.loadedDates[date]?.tasks?.remove(task)
+        app.loadedDates[newDate]?.tasks?.add(task)
         println("Changing task date: $date -> $newDate")
         this.date.update { newDate }
     }
@@ -29,13 +29,13 @@ object Tasks {
     fun AppState.createTask(task: Task, focus: Boolean = false): TaskState {
         val state = TaskState(id++, task.name, task.date)
         tasks[state.uuid] = state
-        loadDate(task.date).tasks.update { it + state }
+        loadDate(task.date).tasks.add(state)
         if (focus) state.focusRequested.value = true
         return state
     }
 
     fun TaskState.delete(app: AppState) {
-        app.loadedDates[date.value]?.tasks?.update { it - this }
+        app.loadedDates[date.value]?.tasks?.remove(this)
         app.tasks.remove(uuid)
     }
 }

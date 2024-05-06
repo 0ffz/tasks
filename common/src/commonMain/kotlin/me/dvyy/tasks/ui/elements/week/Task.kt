@@ -1,7 +1,6 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -14,7 +13,6 @@ import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
@@ -24,8 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
@@ -33,17 +29,14 @@ import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun Task(
     task: TaskState,
-    onNameChange: (String) -> Unit,
+    onNameChange: (String) -> Unit = {},
     modifier: Modifier = Modifier,
-    onKeyEvent: (KeyEvent) -> Boolean
+    onKeyEvent: (KeyEvent) -> Boolean = { false }
 ) {
-    val app = LocalAppState
     val completed by task.completed.collectAsState()
-    val taskName by task.name.collectAsState()
     val highlight by task.highlight.collectAsState()
     val adjustedHighlight by animateColorAsState(
         if (completed && highlight.color != Color.Transparent) highlight.color.copy(
@@ -70,9 +63,13 @@ fun Task(
         shape = MaterialTheme.shapes.extraLarge
     ) {
         var active by remember { mutableStateOf(false) }
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+        Row(
+            verticalAlignment = Alignment.CenterVertically, modifier = Modifier/*
             .onPointerEvent(PointerEventType.Enter) { active = true }
-            .onPointerEvent(PointerEventType.Exit) { active = false }) {
+            .onPointerEvent(PointerEventType.Exit) { active = false }*/
+        ) {
+            val app = LocalAppState
+            val taskName by task.name.collectAsState()
 
             Icon(
                 Icons.Rounded.DragIndicator, contentDescription = "Completed",
