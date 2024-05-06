@@ -75,6 +75,7 @@ kotlin {
         commonMain.dependencies {
             implementation("com.mohamedrejeb.dnd:compose-dnd:0.2.0")
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0-RC.2")
+            implementation(idofrontLibs.kotlinx.coroutines)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

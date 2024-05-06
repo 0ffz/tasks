@@ -2,8 +2,10 @@ package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.material.icons.Icons
@@ -19,45 +21,37 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
-import kotlin.math.roundToInt
+import me.dvyy.tasks.state.TaskState
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun Task(
-    name: String,
+    task: TaskState,
     onNameChange: (String) -> Unit,
     highlight: Color = Color.Transparent,
+    modifier: Modifier = Modifier,
     onTab: () -> Unit,
 ) {
-    var completed by remember { mutableStateOf(false) }
-    val adjustedHighlight by
-    animateColorAsState(if (completed && highlight != Color.Transparent) highlight.copy(alpha = 0.1f) else highlight)
-    val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
+    val adjustedHighlight by animateColorAsState(if (task.completed && highlight != Color.Transparent) highlight.copy(alpha = 0.1f) else highlight)
+    val textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
-        MaterialTheme.colorScheme.onPrimaryContainer.run { if (completed) copy(alpha = 0.3f) else this }
+        MaterialTheme.colorScheme.onPrimaryContainer.run { if (task.completed) copy(alpha = 0.3f) else this }
     )
 
     Surface(
         color = adjustedHighlight,
-        modifier = Modifier.padding(4.dp).height(34.dp),
+        modifier = Modifier.padding(4.dp).height(34.dp).then(modifier),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-//        val textState by remember(name) {
-//            mutableStateOf(TextFieldValue(name).copy(selection = TextRange(name.length)))
-//        }
-//        val focusRequester = remember { FocusRequester() }
         var active by remember { mutableStateOf(false) }
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
             .onPointerEvent(PointerEventType.Enter) { active = true }
             .onPointerEvent(PointerEventType.Exit) { active = false }) {
             BasicTextField2(
-                value = name,
-                enabled = !completed,
+                value = task.name,
+                enabled = !task.completed,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 onValueChange = onNameChange,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -83,10 +77,10 @@ fun Task(
             )
             if (active) {
                 IconButton(
-                    onClick = { completed = !completed },
+                    onClick = { task.completed = !task.completed },
                     colors = IconButtonDefaults.iconButtonColors(),
                 ) {
-                    if (completed) {
+                    if (task.completed) {
                         Icon(Icons.Rounded.TaskAlt, contentDescription = "Completed")
                     } else {
                         Icon(Icons.Rounded.RadioButtonUnchecked, contentDescription = "Mark as completed")
