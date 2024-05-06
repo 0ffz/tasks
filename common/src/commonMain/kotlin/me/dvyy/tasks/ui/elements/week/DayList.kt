@@ -10,7 +10,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
@@ -52,6 +54,7 @@ fun DayList(
                     onDragEnter = { onDragEnterColumn(state, it) },
                 )
         ) {
+            val focusManager = LocalFocusManager.current
             val tasks = state.tasks
             LazyColumn(state = lazyListState) {
                 items(tasks, key = { it.uuid }) { task ->
@@ -64,6 +67,11 @@ fun DayList(
                             onDragEnterItem(task, it)
                         },
                     ) {
+                        fun nextTaskOrNew() {
+                            if (task.name.value.isNotEmpty() && tasks.lastOrNull() == task) {
+                                app.createTask(Task("", date), focus = true)
+                            } else focusManager.moveFocus(FocusDirection.Down)
+                        }
                         Task(
                             task,
                             onNameChange = {
@@ -79,8 +87,8 @@ fun DayList(
                                         true
                                     }
 
-                                    event.key == Key.Enter && tasks.last() == task && task.name.value.isNotEmpty() -> {
-                                        app.createTask(Task("", date), focus = true)
+                                    event.key == Key.Enter && tasks.lastOrNull() == task -> {
+                                        nextTaskOrNew()
                                         true
                                     }
 
@@ -88,6 +96,9 @@ fun DayList(
                                 }
 
                             },
+                            onNext = {
+                                nextTaskOrNew()
+                            }
                         )
                     }
                     HorizontalDivider()
@@ -101,9 +112,9 @@ fun DayList(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
-//                if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
-                    app.createTask(Task("", state.date), focus = true)
-            })
+                    if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
+                        app.createTask(Task("", state.date), focus = true)
+                })
         }
     }
 }

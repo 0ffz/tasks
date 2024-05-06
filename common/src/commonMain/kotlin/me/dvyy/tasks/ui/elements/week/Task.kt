@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragIndicator
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
@@ -22,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
@@ -34,7 +37,8 @@ fun Task(
     task: TaskState,
     onNameChange: (String) -> Unit = {},
     modifier: Modifier = Modifier,
-    onKeyEvent: (KeyEvent) -> Boolean = { false }
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
+    onNext: () -> Unit = {},
 ) {
     val completed by task.completed.collectAsState()
     val highlight by task.highlight.collectAsState()
@@ -87,6 +91,8 @@ fun Task(
                         color = textColor,
                         textDecoration = textDecoration,
                     ),
+                keyboardActions = KeyboardActions(onNext = { onNext() }),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 decorationBox = { innerTextField ->
                     Row(
 //                        Modifier.padding(start = 12.dp),
