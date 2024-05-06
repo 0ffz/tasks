@@ -65,7 +65,6 @@ fun DayList(
                         data = task,
                         zIndex = 1f,
                         onDragEnter = {
-
                             onDragEnterItem(task, it)
                         },
                     ) {
@@ -99,8 +98,6 @@ fun DayList(
 fun NewTask(dateState: DateState, modifier: Modifier = Modifier) {
     val app = LocalAppState
     Box(modifier.onClick {
-        app.createTask(Task("", dateState.date))
-    }) {
-
-    }
+        app.createTask(Task("", dateState.date)).focusRequested.value = true
+    })
 }

@@ -32,6 +32,11 @@ object Tasks {
         loadDate(task.date).tasks.update { it + state }
         return state
     }
+
+    fun TaskState.delete(app: AppState) {
+        app.loadedDates[date.value]?.tasks?.update { it - this }
+        app.tasks.remove(uuid)
+    }
 }
 
 class Task(val name: String, val date: LocalDate)

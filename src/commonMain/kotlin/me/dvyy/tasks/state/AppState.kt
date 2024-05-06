@@ -25,6 +25,7 @@ class TaskState(
     val date = MutableStateFlow(date)
     val completed = MutableStateFlow(false)
     val highlight = MutableStateFlow(Highlights.Unmarked)
+    val focusRequested = MutableStateFlow(false)
 }
 
 data class DateState(val date: LocalDate) {

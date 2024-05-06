@@ -16,6 +16,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.*
@@ -24,6 +27,8 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
+import me.dvyy.tasks.logic.Tasks.delete
+import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
@@ -34,6 +39,7 @@ fun Task(
     modifier: Modifier = Modifier,
     onTab: () -> Unit,
 ) {
+    val app = LocalAppState
     val completed by task.completed.collectAsState()
     val taskName by task.name.collectAsState()
     val highlight by task.highlight.collectAsState()
@@ -42,10 +48,19 @@ fun Task(
             alpha = 0.1f
         ) else highlight.color
     )
+    val focusRequester = remember { FocusRequester() }
+    val focusRequested by task.focusRequested.collectAsState()
+    LaunchedEffect(focusRequested) {
+        if (focusRequested) {
+            task.focusRequested.value = false
+            focusRequester.requestFocus()
+        }
+    }
     val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
         MaterialTheme.colorScheme.onPrimaryContainer.run { if (completed) copy(alpha = 0.3f) else this }
     )
+    var hasBeenFocused by remember { mutableStateOf(false) }
 
     Surface(
         color = adjustedHighlight,
@@ -86,6 +101,12 @@ fun Task(
                             onTab()
                             true
                         } else false
+                    }
+                    .focusRequester(focusRequester)
+                    .onFocusEvent {
+                        if (it.isFocused) {
+                            hasBeenFocused = true
+                        } else if (hasBeenFocused && taskName.isEmpty()) task.delete(app)
                     }
             )
             if (active) {
