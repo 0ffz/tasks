@@ -23,6 +23,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.state.TaskState
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
@@ -34,10 +35,12 @@ fun Task(
     modifier: Modifier = Modifier,
     onTab: () -> Unit,
 ) {
-    val adjustedHighlight by animateColorAsState(if (task.completed && highlight != Color.Transparent) highlight.copy(alpha = 0.1f) else highlight)
-    val textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
+    val completed by task.completed.collectAsState()
+    val taskName by task.name.collectAsState()
+    val adjustedHighlight by animateColorAsState(if (completed && highlight != Color.Transparent) highlight.copy(alpha = 0.1f) else highlight)
+    val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
-        MaterialTheme.colorScheme.onPrimaryContainer.run { if (task.completed) copy(alpha = 0.3f) else this }
+        MaterialTheme.colorScheme.onPrimaryContainer.run { if (completed) copy(alpha = 0.3f) else this }
     )
 
     Surface(
@@ -50,8 +53,8 @@ fun Task(
             .onPointerEvent(PointerEventType.Enter) { active = true }
             .onPointerEvent(PointerEventType.Exit) { active = false }) {
             BasicTextField2(
-                value = task.name,
-                enabled = !task.completed,
+                value = taskName,
+                enabled = !completed,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 onValueChange = onNameChange,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -77,10 +80,10 @@ fun Task(
             )
             if (active) {
                 IconButton(
-                    onClick = { task.completed = !task.completed },
+                    onClick = { task.completed.update { !completed } },
                     colors = IconButtonDefaults.iconButtonColors(),
                 ) {
-                    if (task.completed) {
+                    if (completed) {
                         Icon(Icons.Rounded.TaskAlt, contentDescription = "Completed")
                     } else {
                         Icon(Icons.Rounded.RadioButtonUnchecked, contentDescription = "Mark as completed")

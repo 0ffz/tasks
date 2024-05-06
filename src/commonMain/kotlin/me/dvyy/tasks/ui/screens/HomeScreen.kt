@@ -1,17 +1,20 @@
 package me.dvyy.tasks.ui.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import me.dvyy.tasks.logic.Tasks
@@ -51,42 +54,35 @@ fun WeekView() {
                         onDragEnterColumn = { date, state ->
                             println("Entered column ${date.date}")
                             val task = state.data
-                            task.changeDate(app, date.date)
+                            Tasks.singleThread.launch {
+                                task.changeDate(app, date.date)
+                            }
                         },
                         onDragEnterItem = { target, state ->
                             val task = state.data
 
                             Tasks.singleThread.launch {
-                                if(target == task) return@launch
-                                val targetDate = app.loadedDates[target.date] ?: return@launch
-                                val taskDate = app.loadedDates[task.date]
+                                if (target == task) return@launch
+                                val targetDate = app.loadedDates[target.date.value] ?: return@launch
+                                val taskDate = app.loadedDates[task.date.value]
                                 println("Reordering in target ${targetDate}, task: ${taskDate},")
 
-                                if(taskDate != targetDate) {
+                                if (taskDate != targetDate) {
                                     task.changeDate(app, targetDate.date)
-                                    return@launch
                                 }
 
-                                targetDate.tasks.apply {
-                                    val index = indexOf(target)
-                                    remove(task)
-                                    add(index, task)
+                                targetDate.tasks.update { tasks ->
+                                    tasks.toMutableList().apply {
+                                        val index = indexOf(target)
+                                        println("Index was $index, tasks $this")
+                                        remove(task)
+                                        add(index, task)
+                                    }
                                 }
                             }
                         },
                     )
                 }
-//                item {
-//                    Column {
-//                        repeat(2) {
-//                            DayList(
-//                                weekStart.plus(DatePeriod(days = 5 + it)),
-//                                isToday = isToday(5 + it),
-//                                height = 4,
-//                            )
-//                        }
-//                    }
-//                }
             }
         }
     }

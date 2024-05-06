@@ -1,6 +1,7 @@
 package me.dvyy.tasks.state
 
 import androidx.compose.runtime.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -17,13 +18,13 @@ class TaskState(
     name: String,
     date: LocalDate,
 ) {
-    var name by mutableStateOf(name)
-    var date by mutableStateOf(date)
-    var completed by mutableStateOf(false)
+    var name = MutableStateFlow(name)
+    var date = MutableStateFlow(date)
+    var completed = MutableStateFlow(false)
 }
 
 data class DateState(val date: LocalDate) {
-    val tasks = mutableStateListOf<TaskState>()
+    val tasks = MutableStateFlow(listOf<TaskState>())
 }
 
 class AppState {

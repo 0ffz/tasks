@@ -27,11 +27,10 @@ import me.dvyy.tasks.state.TaskState
 fun DayList(
     date: LocalDate,
     isToday: Boolean,
-    modifier: Modifier = Modifier,
     reorderState: ReorderState<TaskState>,
     onDragEnterColumn: (dateState: DateState, state: DraggedItemState<TaskState>) -> Unit,
     onDragEnterItem: (target: TaskState, state: DraggedItemState<TaskState>) -> Unit,
-) = Box(modifier) {
+) {
     val lazyListState = rememberLazyListState()
     val app = LocalAppState
     val state = remember(date) { app.loadDate(date) }
@@ -45,10 +44,11 @@ fun DayList(
         )
     ) {
         DayTitle(state.date, isToday)
+        val tasks by state.tasks.collectAsState()
         LazyColumn(
             state = lazyListState, modifier = Modifier.padding(16.dp).heightIn(max = 1000.dp)
         ) {
-            items(state.tasks, key = { it.uuid }) { task ->
+            items(tasks, key = { it.uuid }) { task ->
                 var highlight by remember { mutableStateOf(Highlights.Unmarked) }
                 val highlightAnimate by animateColorAsState(highlight.color)
 
