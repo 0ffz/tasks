@@ -16,12 +16,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.style.TextDecoration
@@ -37,7 +39,7 @@ fun Task(
     task: TaskState,
     onNameChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    onTab: () -> Unit,
+    onKeyEvent: (KeyEvent) -> Boolean
 ) {
     val app = LocalAppState
     val completed by task.completed.collectAsState()
@@ -75,7 +77,7 @@ fun Task(
             Icon(
                 Icons.Rounded.DragIndicator, contentDescription = "Completed",
                 tint = textColor,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 8.dp).alpha(0.2f)
             )
             BasicTextField(
                 value = taskName,
@@ -96,12 +98,7 @@ fun Task(
                 },
                 modifier = Modifier.weight(1f, true)
                     .fillMaxSize()
-                    .onKeyEvent { event ->
-                        if (event.isCtrlPressed && event.key == Key.E && event.type == KeyEventType.KeyDown) {
-                            onTab()
-                            true
-                        } else false
-                    }
+                    .onKeyEvent(onKeyEvent)
                     .focusRequester(focusRequester)
                     .onFocusEvent {
                         if (it.isFocused) {

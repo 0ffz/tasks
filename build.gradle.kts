@@ -122,6 +122,7 @@ kotlin {
 
 compose.desktop {
     application {
+        jvmArgs += listOf("-Xss500K")
         mainClass = "MainKt"
 
         nativeDistributions {

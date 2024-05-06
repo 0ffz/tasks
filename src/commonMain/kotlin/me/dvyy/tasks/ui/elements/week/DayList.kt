@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
@@ -27,6 +28,7 @@ import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DayList(
     date: LocalDate,
@@ -57,7 +59,6 @@ fun DayList(
                 )
         ) {
             LazyColumn(state = lazyListState) {
-                println("Recomposing with ${tasks.map { it.name.value }}")
                 items(tasks, key = { it.uuid }) { task ->
                     ReorderableItem(
                         state = reorderState,
@@ -74,10 +75,23 @@ fun DayList(
                                 println("Updating to $it")
                                 task.name.value = it
                             },
-                            onTab = {
-                                task.highlight.update {
-                                    Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
+                            onKeyEvent = { event ->
+                                when {
+                                    event.type == KeyEventType.KeyDown && event.isCtrlPressed && event.key == Key.E -> {
+                                        task.highlight.update {
+                                            Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
+                                        }
+                                        true
+                                    }
+
+                                    event.key == Key.Enter && tasks.last() == task && task.name.value.isNotEmpty() -> {
+                                        app.createTask(Task("", date), focus = true)
+                                        true
+                                    }
+
+                                    else -> false
                                 }
+
                             },
                             modifier = Modifier.alpha(if (isDragging) 0f else 1f)
                         )
@@ -88,16 +102,10 @@ fun DayList(
             val emptySpace = remember(fullHeight) {
                 if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(40.dp)
             }
-            NewTask(state, modifier = emptySpace.fillMaxWidth())
+            Box(modifier = emptySpace.fillMaxWidth().onClick {
+                if (tasks.last().name.value.isNotEmpty())
+                    app.createTask(Task("", state.date), focus = true)
+            })
         }
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun NewTask(dateState: DateState, modifier: Modifier = Modifier) {
-    val app = LocalAppState
-    Box(modifier.onClick {
-        app.createTask(Task("", dateState.date)).focusRequested.value = true
-    })
 }

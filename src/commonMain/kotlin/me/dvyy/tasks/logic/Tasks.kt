@@ -26,10 +26,11 @@ object Tasks {
     private var id = 0L
 
     // TODO pass task, return state, private constructor in state?
-    fun AppState.createTask(task: Task): TaskState {
+    fun AppState.createTask(task: Task, focus: Boolean = false): TaskState {
         val state = TaskState(id++, task.name, task.date)
         tasks[state.uuid] = state
         loadDate(task.date).tasks.update { it + state }
+        if (focus) state.focusRequested.value = true
         return state
     }
 
