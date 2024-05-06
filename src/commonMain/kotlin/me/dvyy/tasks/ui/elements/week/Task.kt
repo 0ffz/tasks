@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldLineLimits
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DragIndicator
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.material3.*
@@ -31,13 +31,17 @@ import me.dvyy.tasks.state.TaskState
 fun Task(
     task: TaskState,
     onNameChange: (String) -> Unit,
-    highlight: Color = Color.Transparent,
     modifier: Modifier = Modifier,
     onTab: () -> Unit,
 ) {
     val completed by task.completed.collectAsState()
     val taskName by task.name.collectAsState()
-    val adjustedHighlight by animateColorAsState(if (completed && highlight != Color.Transparent) highlight.copy(alpha = 0.1f) else highlight)
+    val highlight by task.highlight.collectAsState()
+    val adjustedHighlight by animateColorAsState(
+        if (completed && highlight.color != Color.Transparent) highlight.color.copy(
+            alpha = 0.1f
+        ) else highlight.color
+    )
     val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
         MaterialTheme.colorScheme.onPrimaryContainer.run { if (completed) copy(alpha = 0.3f) else this }
@@ -52,10 +56,16 @@ fun Task(
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
             .onPointerEvent(PointerEventType.Enter) { active = true }
             .onPointerEvent(PointerEventType.Exit) { active = false }) {
-            BasicTextField2(
+
+            Icon(
+                Icons.Rounded.DragIndicator, contentDescription = "Completed",
+                tint = textColor,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            BasicTextField(
                 value = taskName,
                 enabled = !completed,
-                lineLimits = TextFieldLineLimits.SingleLine,
+                singleLine = true,
                 onValueChange = onNameChange,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 textStyle = MaterialTheme.typography.bodyLarge
@@ -63,9 +73,9 @@ fun Task(
                         color = textColor,
                         textDecoration = textDecoration,
                     ),
-                decorator = { innerTextField ->
+                decorationBox = { innerTextField ->
                     Row(
-                        Modifier.padding(start = 12.dp),
+//                        Modifier.padding(start = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) { innerTextField() }
                 },

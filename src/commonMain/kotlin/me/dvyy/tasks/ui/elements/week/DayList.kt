@@ -1,15 +1,16 @@
 package me.dvyy.tasks.ui.elements.week
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.onClick
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
@@ -17,6 +18,7 @@ import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
+import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.logic.Dates.loadDate
 import me.dvyy.tasks.logic.Task
@@ -39,49 +41,55 @@ fun DayList(
     val state = remember(date) { app.loadDate(date) }
 
     Column(
-        Modifier.dropTarget(
-            key = state.date,
-            state = reorderState.dndState,
-            dropAnimationEnabled = false,
-            onDragEnter = { onDragEnterColumn(state, it) },
-        )
+        Modifier.fillMaxSize()
     ) {
         DayTitle(state.date, isToday)
+
         val tasks by state.tasks.collectAsState()
 
-        LazyColumn(
-            state = lazyListState, modifier = Modifier.padding(16.dp).heightIn(max = 1000.dp)
+        Column(
+            modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
+                .dropTarget(
+                    key = state.date,
+                    state = reorderState.dndState,
+                    dropAnimationEnabled = false,
+                    onDragEnter = { onDragEnterColumn(state, it) },
+                )
         ) {
-            items(tasks, key = { it.uuid }) { task ->
-                var highlight by remember { mutableStateOf(Highlights.Unmarked) }
-                val highlightAnimate by animateColorAsState(highlight.color)
+            LazyColumn(state = lazyListState) {
+                println("Recomposing with ${tasks.map { it.name.value }}")
+                items(tasks, key = { it.uuid }) { task ->
+                    ReorderableItem(
+                        state = reorderState,
+                        key = task,
+                        data = task,
+                        zIndex = 1f,
+                        onDragEnter = {
 
-                ReorderableItem(
-                    state = reorderState,
-                    key = task,
-                    data = task,
-                    zIndex = 1f,
-                    onDragEnter = { onDragEnterItem(task, it) },
-                ) {
-                    Task(
-                        task,
-                        onNameChange = { /* TODO task.text = it*/ },
-                        highlight = highlightAnimate,
-                        onTab = {
-                            highlight =
-                                Highlights.entries[(highlight.ordinal + 1) % Highlights.entries.size]
+                            onDragEnterItem(task, it)
                         },
-                        modifier = Modifier.alpha(if (isDragging) 0f else 1f)
-                    )
+                    ) {
+                        Task(
+                            task,
+                            onNameChange = {
+                                println("Updating to $it")
+                                task.name.value = it
+                            },
+                            onTab = {
+                                task.highlight.update {
+                                    Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
+                                }
+                            },
+                            modifier = Modifier.alpha(if (isDragging) 0f else 1f)
+                        )
+                    }
+                    HorizontalDivider()
                 }
-                HorizontalDivider()
             }
-            item {
-                val emptySpace = remember(fullHeight) {
-                    if (fullHeight) Modifier.fillParentMaxHeight() else Modifier.height(40.dp)
-                }
-                NewTask(state, modifier = emptySpace.fillMaxWidth())
+            val emptySpace = remember(fullHeight) {
+                if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(40.dp)
             }
+            NewTask(state, modifier = emptySpace.fillMaxWidth())
         }
     }
 }

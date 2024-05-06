@@ -1,6 +1,7 @@
 package me.dvyy.tasks.state
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -8,6 +9,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import me.dvyy.tasks.logic.Task
 import me.dvyy.tasks.logic.Tasks.createTask
+import me.dvyy.tasks.ui.elements.week.Highlights
 
 val AppStateProvider = compositionLocalOf<AppState> { error("No local versions provided") }
 
@@ -19,9 +21,10 @@ class TaskState(
     name: String,
     date: LocalDate,
 ) {
-    var name = MutableStateFlow(name)
-    var date = MutableStateFlow(date)
-    var completed = MutableStateFlow(false)
+    val name = MutableStateFlow(name)
+    val date = MutableStateFlow(date)
+    val completed = MutableStateFlow(false)
+    val highlight = MutableStateFlow(Highlights.Unmarked)
 }
 
 data class DateState(val date: LocalDate) {
