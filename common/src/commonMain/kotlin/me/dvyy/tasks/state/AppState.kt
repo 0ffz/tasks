@@ -3,7 +3,6 @@ package me.dvyy.tasks.state
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.mutableStateListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -31,14 +30,16 @@ class TaskState(
     val focusRequested = MutableStateFlow(false)
 }
 
+@Stable
 data class DateState(val date: LocalDate) {
-    val tasks = mutableStateListOf<TaskState>()
+    val tasks = MutableStateFlow(listOf<TaskState>())
 }
 
 class AppState {
     val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
     val tasks = mutableMapOf<Long, TaskState>()
+    val selectedTask = MutableStateFlow<TaskState?>(null)
 
     val loadedDates = mutableMapOf<LocalDate, DateState>()
 

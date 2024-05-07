@@ -6,10 +6,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-composeCompiler {
-    stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
-}
-
 kotlin {
     jvm {
         compilations.all {

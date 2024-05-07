@@ -1,10 +1,9 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,8 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -27,8 +24,10 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.delete
+import me.dvyy.tasks.platforms.onHoverIfAvailable
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 
@@ -47,32 +46,38 @@ fun Task(
             alpha = 0.1f
         ) else highlight.color
     )
-    val focusRequester = remember { FocusRequester() }
-    val focusRequested by task.focusRequested.collectAsState()
-    LaunchedEffect(focusRequested) {
-        if (focusRequested) {
-            task.focusRequested.value = false
-            focusRequester.requestFocus()
-        }
-    }
+//    val focusRequester = remember { FocusRequester() }
+//    val focusRequested by task.focusRequested.collectAsState()
+//    LaunchedEffect(focusRequested) {
+//        if (focusRequested) {
+//            task.focusRequested.value = false
+//            focusRequester.requestFocus()
+//        }
+//    }
     val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
         MaterialTheme.colorScheme.onPrimaryContainer.run { if (completed) copy(alpha = 0.3f) else this }
     )
     var hasBeenFocused by remember { mutableStateOf(false) }
 
+//    var active by remember { mutableStateOf(false) }
+    val app = LocalAppState
     Surface(
         color = adjustedHighlight,
-        modifier = Modifier.padding(4.dp).height(34.dp).then(modifier),
+        modifier = Modifier.padding(4.dp).height(34.dp).then(modifier).clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = { app.selectedTask.value = task },
+        ),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        var active by remember { mutableStateOf(false) }
         Row(
-            verticalAlignment = Alignment.CenterVertically, modifier = Modifier/*
-            .onPointerEvent(PointerEventType.Enter) { active = true }
-            .onPointerEvent(PointerEventType.Exit) { active = false }*/
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.onHoverIfAvailable(
+                onEnter = { app.selectedTask.value = task },
+                onExit = { app.selectedTask.value = null }
+            )
         ) {
-            val app = LocalAppState
             val taskName by task.name.collectAsState()
 
             Icon(
@@ -80,17 +85,24 @@ fun Task(
                 tint = textColor,
                 modifier = Modifier.padding(horizontal = 8.dp).alpha(0.2f)
             )
-            BasicTextField(
+            val active by app.selectedTask.map { it == task }.collectAsState(false)
+            val textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = textColor,
+                textDecoration = textDecoration,
+            )
+            println("Recomposing ${task.name.value}")
+            if (!active) Text(
+                taskName,
+                Modifier.fillMaxWidth(),
+                style = textStyle,
+            )
+            else BasicTextField(
                 value = taskName,
-                enabled = !completed,
+                enabled = !completed && active,
                 singleLine = true,
                 onValueChange = onNameChange,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                textStyle = MaterialTheme.typography.bodyLarge
-                    .copy(
-                        color = textColor,
-                        textDecoration = textDecoration,
-                    ),
+                textStyle = textStyle,
                 keyboardActions = KeyboardActions(onNext = { onNext() }),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 decorationBox = { innerTextField ->
@@ -102,7 +114,7 @@ fun Task(
                 modifier = Modifier.weight(1f, true)
                     .fillMaxSize()
                     .onKeyEvent(onKeyEvent)
-                    .focusRequester(focusRequester)
+//                    .focusRequester(focusRequester)
                     .onFocusEvent {
                         if (it.isFocused) {
                             hasBeenFocused = true

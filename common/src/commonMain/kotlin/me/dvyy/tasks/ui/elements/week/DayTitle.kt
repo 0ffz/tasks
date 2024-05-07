@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 
@@ -18,7 +19,7 @@ fun DayTitle(date: LocalDate, isToday: Boolean) {
         if (isToday) MaterialTheme.colorScheme.tertiary
         else MaterialTheme.colorScheme.onPrimaryContainer
     Row(
-        Modifier.padding(12.dp),
+        Modifier.padding(4.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
         Text(
@@ -27,10 +28,13 @@ fun DayTitle(date: LocalDate, isToday: Boolean) {
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = color,
+            maxLines = 1,
         )
         Text(
             date.dayOfWeek.name.lowercase().capitalize().take(3),
             style = MaterialTheme.typography.headlineSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Clip,
             color = color.copy(alpha = 0.6f)
         )
     }

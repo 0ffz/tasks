@@ -5,12 +5,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,7 @@ import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.logic.Dates.loadDate
 import me.dvyy.tasks.logic.Task
 import me.dvyy.tasks.logic.Tasks.createTask
+import me.dvyy.tasks.platforms.PlatformSpecifics
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
@@ -35,14 +37,12 @@ fun DayList(
     onDragEnterColumn: (dateState: DateState, state: DraggedItemState<TaskState>) -> Unit,
     onDragEnterItem: (target: TaskState, state: DraggedItemState<TaskState>) -> Unit,
     fullHeight: Boolean,
+    modifier: Modifier = Modifier,
 ) {
-    val lazyListState = rememberLazyListState()
     val app = LocalAppState
     val state = remember(date) { app.loadDate(date) }
 
-    Column(
-        Modifier.fillMaxSize()
-    ) {
+    Column(modifier) {
         DayTitle(state.date, isToday)
 
         Column(
@@ -54,12 +54,10 @@ fun DayList(
                     onDragEnter = { onDragEnterColumn(state, it) },
                 )
         ) {
-            val tasks = state.tasks
+            val tasks by state.tasks.collectAsState()
             LazyColumn {
                 items(tasks, key = { it.uuid }) { task ->
-//                    TestTask(task, StableWrap(date))
-                    val date = remember { StableWrap(date) }
-                    ReorderableTask(date, task, onDragEnterItem, reorderState)
+                    ReorderableTask(state, task, onDragEnterItem, reorderState)
                 }
             }
             val emptySpace = remember(fullHeight) {
@@ -77,24 +75,13 @@ fun DayList(
     }
 }
 
-//@Composable
-//fun TestTask(task: TaskState, date: StableWrap<LocalDate>) {
-//    val name by task.name.collectAsState()
-//    println("Recomposing ${task.name} $date!")
-//    Text("Hey $name")
-//}
-
-@Stable
-data class StableWrap<T>(val data: T)
-
 @Composable
 fun ReorderableTask(
-    date: StableWrap<LocalDate>,
+    date: DateState,
     task: TaskState,
     onDragEnterItem: (target: TaskState, state: DraggedItemState<TaskState>) -> Unit,
     reorderState: ReorderState<TaskState>,
 ) {
-    val date = date.data
     val app = LocalAppState
     val focusManager = LocalFocusManager.current
     println("Recomposing ${task.name} $date!")
@@ -102,15 +89,18 @@ fun ReorderableTask(
         state = reorderState,
         key = task,
         data = task,
+        dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
         zIndex = 1f,
         onDragEnter = {
             onDragEnterItem(task, it)
         },
     ) {
         fun nextTaskOrNew() {
-//            if (task.name.value.isNotEmpty() && tasks.lastOrNull() == task) {
-            app.createTask(Task("", date), focus = true)
-//            } else focusManager.moveFocus(FocusDirection.Down)
+            if (date.tasks.value.lastOrNull() != task) {
+                focusManager.moveFocus(FocusDirection.Down)
+            } else if (task.name.value.isNotEmpty()) {
+                app.createTask(Task("", date.date), focus = true)
+            }
         }
         Task(
             task,
@@ -119,18 +109,19 @@ fun ReorderableTask(
                 task.name.value = it
             },
             onKeyEvent = { event ->
+                if (event.type != KeyEventType.KeyDown) return@Task false
                 when {
-                    event.type == KeyEventType.KeyDown && event.isCtrlPressed && event.key == Key.E -> {
+                    event.isCtrlPressed && event.key == Key.E -> {
                         task.highlight.update {
                             Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
                         }
                         true
                     }
 
-//                    event.key == Key.Enter && tasks.lastOrNull() == task -> {
-//                        nextTaskOrNew()
-//                        true
-//                    }
+                    event.key == Key.Enter -> {
+                        nextTaskOrNew()
+                        true
+                    }
 
                     else -> false
                 }
@@ -142,4 +133,38 @@ fun ReorderableTask(
         )
     }
     HorizontalDivider()
+}
+
+@Composable
+fun NonlazyGrid(
+    columns: Int,
+    itemCount: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable() (Int) -> Unit
+) {
+    Column(modifier = modifier) {
+        var rows = (itemCount / columns)
+        if (itemCount.mod(columns) > 0) {
+            rows += 1
+        }
+
+        for (rowId in 0 until rows) {
+            val firstIndex = rowId * columns
+
+            Row {
+                for (columnId in 0 until columns) {
+                    val index = firstIndex + columnId
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        if (index < itemCount) {
+                            content(index)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
