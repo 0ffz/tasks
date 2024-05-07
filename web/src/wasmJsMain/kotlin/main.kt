@@ -4,7 +4,7 @@ import me.dvyy.tasks.App
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    CanvasBasedWindow(canvasElementId = "ComposeTarget", applyDefaultStyles = false) {
+    CanvasBasedWindow(canvasElementId = "ComposeTarget") {
         App()
     }
 }
