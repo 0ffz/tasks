@@ -1,6 +1,7 @@
 package me.dvyy.tasks.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateListOf
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ val AppStateProvider = compositionLocalOf<AppState> { error("No local versions p
 val LocalAppState: AppState
     @Composable get() = AppStateProvider.current
 
+@Stable
 class TaskState(
     val uuid: Long,
     name: String,

@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
+}
+
+composeCompiler {
+    stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
 }
 
 kotlin {
@@ -63,6 +68,7 @@ kotlin {
         }
     }
 }
+
 
 android {
     namespace = "me.dvyy"

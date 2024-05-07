@@ -3,6 +3,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
+}
+
+composeCompiler {
+    stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
 }
 
 kotlin {
@@ -10,7 +15,6 @@ kotlin {
         compilations.all {
             kotlinOptions.jvmTarget = "17"
         }
-        withJava()
     }
     sourceSets {
         val jvmMain by getting {
@@ -23,6 +27,9 @@ kotlin {
     }
 }
 
+compose {
+
+}
 compose.desktop {
     application {
         mainClass = "MainKt"

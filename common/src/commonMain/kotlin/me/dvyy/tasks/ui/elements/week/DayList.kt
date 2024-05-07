@@ -8,9 +8,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -54,54 +54,12 @@ fun DayList(
                     onDragEnter = { onDragEnterColumn(state, it) },
                 )
         ) {
-            val focusManager = LocalFocusManager.current
             val tasks = state.tasks
-            LazyColumn(state = lazyListState) {
+            LazyColumn {
                 items(tasks, key = { it.uuid }) { task ->
-                    ReorderableItem(
-                        state = reorderState,
-                        key = task,
-                        data = task,
-                        zIndex = 1f,
-                        onDragEnter = {
-                            onDragEnterItem(task, it)
-                        },
-                    ) {
-                        fun nextTaskOrNew() {
-                            if (task.name.value.isNotEmpty() && tasks.lastOrNull() == task) {
-                                app.createTask(Task("", date), focus = true)
-                            } else focusManager.moveFocus(FocusDirection.Down)
-                        }
-                        Task(
-                            task,
-                            onNameChange = {
-                                println("Updating to $it")
-                                task.name.value = it
-                            },
-                            onKeyEvent = { event ->
-                                when {
-                                    event.type == KeyEventType.KeyDown && event.isCtrlPressed && event.key == Key.E -> {
-                                        task.highlight.update {
-                                            Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
-                                        }
-                                        true
-                                    }
-
-                                    event.key == Key.Enter && tasks.lastOrNull() == task -> {
-                                        nextTaskOrNew()
-                                        true
-                                    }
-
-                                    else -> false
-                                }
-
-                            },
-                            onNext = {
-                                nextTaskOrNew()
-                            }
-                        )
-                    }
-                    HorizontalDivider()
+//                    TestTask(task, StableWrap(date))
+                    val date = remember { StableWrap(date) }
+                    ReorderableTask(date, task, onDragEnterItem, reorderState)
                 }
             }
             val emptySpace = remember(fullHeight) {
@@ -117,4 +75,71 @@ fun DayList(
                 })
         }
     }
+}
+
+//@Composable
+//fun TestTask(task: TaskState, date: StableWrap<LocalDate>) {
+//    val name by task.name.collectAsState()
+//    println("Recomposing ${task.name} $date!")
+//    Text("Hey $name")
+//}
+
+@Stable
+data class StableWrap<T>(val data: T)
+
+@Composable
+fun ReorderableTask(
+    date: StableWrap<LocalDate>,
+    task: TaskState,
+    onDragEnterItem: (target: TaskState, state: DraggedItemState<TaskState>) -> Unit,
+    reorderState: ReorderState<TaskState>,
+) {
+    val date = date.data
+    val app = LocalAppState
+    val focusManager = LocalFocusManager.current
+    println("Recomposing ${task.name} $date!")
+    ReorderableItem(
+        state = reorderState,
+        key = task,
+        data = task,
+        zIndex = 1f,
+        onDragEnter = {
+            onDragEnterItem(task, it)
+        },
+    ) {
+        fun nextTaskOrNew() {
+//            if (task.name.value.isNotEmpty() && tasks.lastOrNull() == task) {
+            app.createTask(Task("", date), focus = true)
+//            } else focusManager.moveFocus(FocusDirection.Down)
+        }
+        Task(
+            task,
+            onNameChange = {
+                println("Updating to $it")
+                task.name.value = it
+            },
+            onKeyEvent = { event ->
+                when {
+                    event.type == KeyEventType.KeyDown && event.isCtrlPressed && event.key == Key.E -> {
+                        task.highlight.update {
+                            Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
+                        }
+                        true
+                    }
+
+//                    event.key == Key.Enter && tasks.lastOrNull() == task -> {
+//                        nextTaskOrNew()
+//                        true
+//                    }
+
+                    else -> false
+                }
+
+            },
+            onNext = {
+                nextTaskOrNew()
+            }
+        )
+    }
+    HorizontalDivider()
 }

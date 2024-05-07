@@ -11,10 +11,10 @@ androidx-espresso-core = "3.5.1"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.1.5"
 compose = "1.6.7"
-compose-plugin = "1.6.2"
+compose-plugin = "1.6.10-rc01"
 composeDnd = "0.2.0"
 junit = "4.13.2"
-kotlin = "1.9.23"
+kotlin = "2.0.0-RC2"
 kotlinxDatetime = "0.6.0-RC.2"
 ktor = "2.3.10"
 logback = "1.5.6"
@@ -46,3 +46,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
