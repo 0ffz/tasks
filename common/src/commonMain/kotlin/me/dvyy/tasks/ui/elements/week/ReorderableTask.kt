@@ -1,5 +1,6 @@
 package me.dvyy.tasks.ui.elements.week
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
@@ -34,7 +35,8 @@ fun ReorderableTask(
         data = task,
         dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
         zIndex = 1f,
-        onDragEnter = { onDragEnterItem(task, it) }
+        dropAnimationSpec = tween(0),
+        onDragEnter = { onDragEnterItem(task, it) },
     ) {
         fun nextTaskOrNew() {
             if (date.tasks.value.lastOrNull() != task) {
@@ -59,6 +61,7 @@ fun ReorderableTask(
                             }
                             true
                         }
+
                         event.key == Key.Escape -> {
                             app.selectedTask.value = null
                             true

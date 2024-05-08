@@ -10,6 +10,7 @@ plugins {
 
 composeCompiler {
     stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
+    enableStrongSkippingMode = true
 }
 
 kotlin {
