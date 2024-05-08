@@ -59,6 +59,10 @@ fun ReorderableTask(
                             }
                             true
                         }
+                        event.key == Key.Escape -> {
+                            app.selectedTask.value = null
+                            true
+                        }
 
                         event.key == Key.Enter -> {
                             nextTaskOrNew()

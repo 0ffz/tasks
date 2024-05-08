@@ -1,5 +1,6 @@
 package me.dvyy.tasks.ui.elements.week
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -35,7 +36,7 @@ fun DayList(
     val app = LocalAppState
     val state = remember(date) { app.loadDate(date) }
 
-    Column(modifier) {
+    Column(modifier.animateContentSize().fillMaxWidth()) {
         DayTitle(state.date, isToday)
 
         Column(

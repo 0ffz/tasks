@@ -65,7 +65,7 @@ fun Task(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
             onClick = { app.selectedTask.value = task },
-        )
+        ).onKeyEvent(interactions.onKeyEvent)
     ) {
         TaskSelectedSurface(active)
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -143,7 +143,6 @@ fun TaskTextField(
         },
         modifier = modifier
             .fillMaxHeight()
-            .onKeyEvent(interactions.onKeyEvent)
             .focusRequester(focusRequester)
             .onFocusEvent {
                 focused = it.isFocused
