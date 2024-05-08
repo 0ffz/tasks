@@ -30,7 +30,10 @@ object Tasks {
         val state = TaskState(id++, task.name, task.date)
         tasks[state.uuid] = state
         loadDate(task.date).tasks.update { it + state }
-        if (focus) state.focusRequested.value = true
+        if (focus) {
+            selectedTask.value = state
+            state.focusRequested.value = true
+        }
         return state
     }
 

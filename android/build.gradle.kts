@@ -12,8 +12,8 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 }
 
-val androidKeystoreFile: String? by properties
-val androidKeystorePassword: String? by properties
+val androidKeystoreFile: String? by project
+val androidKeystorePassword: String? by project
 android {
     compileSdk = 34
     namespace = "me.dvyy"
@@ -54,7 +54,8 @@ android {
                 // Includes a local, custom Proguard rules file
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            if (androidKeystoreFile != null)
+                signingConfig = signingConfigs.getByName("release")
         }
     }
 }

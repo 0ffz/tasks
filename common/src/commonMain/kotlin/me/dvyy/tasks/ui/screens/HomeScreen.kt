@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
@@ -31,7 +29,6 @@ fun HomeScreen() {
     WeekView()
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WeekView() {
     val today = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
@@ -45,15 +42,21 @@ fun WeekView() {
             onClick = { app.selectedTask.value = null },
         )
     ) {
-        val columns = remember(constraints) { if (constraints.maxWidth < Constants.WEEK_VIEW_MIN_WIDTH) 1 else 7 }
+        LaunchedEffect(constraints) {
+            app.isSmallScreen.emit(constraints.maxWidth < Constants.WEEK_VIEW_MIN_WIDTH)
+        }
+        val isSmallScreen by app.isSmallScreen.collectAsState()
+        val columns = remember(isSmallScreen) { if (isSmallScreen) 1 else 7 }
         val reorderState = rememberReorderState<TaskState>()
         val scrollState = rememberScrollState()
+        val scrollModifier = remember(isSmallScreen) {
+            if (isSmallScreen) Modifier.verticalScroll(scrollState) else Modifier
+        }
         ReorderContainer(state = reorderState) {
             NonlazyGrid(
                 columns = columns,
                 itemCount = 7,
-//                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.fillMaxSize().verticalScroll(scrollState)
+                modifier = scrollModifier.fillMaxSize()
             ) { dayIndex ->
                 fun isToday(index: Int) = index == today.dayOfWeek.ordinal
                 val day = weekStart.plus(DatePeriod(days = dayIndex))

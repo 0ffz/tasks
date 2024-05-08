@@ -35,16 +35,17 @@ data class DateState(val date: LocalDate) {
     val tasks = MutableStateFlow(listOf<TaskState>())
 }
 
+@Stable
 class AppState {
     val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
     val tasks = mutableMapOf<Long, TaskState>()
     val selectedTask = MutableStateFlow<TaskState?>(null)
-
+    val isSmallScreen = MutableStateFlow(false)
     val loadedDates = mutableMapOf<LocalDate, DateState>()
 
     init {
-        createTask(Task("A simple thing", today))
+        createTask(Task("A complicated thing", today))
         createTask(Task("Another task", today))
     }
 }
