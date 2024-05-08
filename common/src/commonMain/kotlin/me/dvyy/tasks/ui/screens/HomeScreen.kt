@@ -3,7 +3,6 @@ package me.dvyy.tasks.ui.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -18,9 +17,9 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import me.dvyy.tasks.logic.Tasks
 import me.dvyy.tasks.logic.Tasks.changeDate
-import me.dvyy.tasks.state.Constants
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
+import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.week.DayList
 import me.dvyy.tasks.ui.elements.week.NonlazyGrid
 
@@ -43,7 +42,7 @@ fun WeekView() {
         )
     ) {
         LaunchedEffect(constraints) {
-            app.isSmallScreen.emit(constraints.maxWidth < Constants.WEEK_VIEW_MIN_WIDTH)
+            app.isSmallScreen.emit(constraints.maxWidth < AppConstants.VIEW_SMALL_MAX_WIDTH)
         }
         val isSmallScreen by app.isSmallScreen.collectAsState()
         val columns = remember(isSmallScreen) { if (isSmallScreen) 1 else 7 }

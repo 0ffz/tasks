@@ -1,19 +1,15 @@
 package me.dvyy.tasks.ui.elements.week
 
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.vector.Group
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.createTask
 import me.dvyy.tasks.platforms.PlatformSpecifics
@@ -30,16 +26,13 @@ fun ReorderableTask(
 ) {
     val app = LocalAppState
     val focusManager = LocalFocusManager.current
-    println("Recomposing ${task.name} $date!")
-    val dragAfterLongPress by app.isSmallScreen
-        .map { it || PlatformSpecifics.preferLongPressDrag }
-        .collectAsState(false)
-
+    val active by task.isActive(app)
     ReorderableItem(
+        enabled = !active,
         state = reorderState,
         key = task,
         data = task,
-        dragAfterLongPress = dragAfterLongPress,
+        dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
         zIndex = 1f,
         onDragEnter = { onDragEnterItem(task, it) }
     ) {
@@ -52,32 +45,32 @@ fun ReorderableTask(
         }
         Task(
             task,
-            onNameChange = {
-                println("Updating to $it")
-                task.name.value = it
-            },
-            onKeyEvent = { event ->
-                if (event.type != KeyEventType.KeyDown) return@Task false
-                when {
-                    event.isCtrlPressed && event.key == Key.E -> {
-                        task.highlight.update {
-                            Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
+            interactions = TaskInteractions(
+                onNameChange = {
+                    println("Updating to $it")
+                    task.name.value = it
+                },
+                onKeyEvent = { event ->
+                    if (event.type != KeyEventType.KeyDown) return@TaskInteractions false
+                    when {
+                        event.isCtrlPressed && event.key == Key.E -> {
+                            task.highlight.update {
+                                Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
+                            }
+                            true
                         }
-                        true
+
+                        event.key == Key.Enter -> {
+                            nextTaskOrNew()
+                            true
+                        }
+
+                        else -> false
                     }
 
-                    event.key == Key.Enter -> {
-                        nextTaskOrNew()
-                        true
-                    }
-
-                    else -> false
-                }
-
-            },
-            onNext = {
-                nextTaskOrNew()
-            }
+                },
+                keyboardActions = KeyboardActions(onNext = { nextTaskOrNew() })
+            ),
         )
     }
     HorizontalDivider()

@@ -2,8 +2,10 @@ package me.dvyy.tasks.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -28,6 +30,11 @@ class TaskState(
     val completed = MutableStateFlow(false)
     val highlight = MutableStateFlow(Highlights.Unmarked)
     val focusRequested = MutableStateFlow(false)
+
+    @Composable
+    fun isActive(app: AppState) = app.selectedTask
+        .map { it == this }
+        .collectAsState(false)
 }
 
 @Stable
