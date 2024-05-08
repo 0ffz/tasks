@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
@@ -80,8 +81,10 @@ fun Task(
 @Composable
 fun TaskSelectedSurface(visible: Boolean) {
     val elevation by animateFloatAsState(if (visible) 1f else 0f)
+    val color = if (elevation == 0f) Color.Transparent else MaterialTheme.colorScheme.surface
     Surface(
         Modifier.fillMaxSize(),
+        color = color,
         tonalElevation = elevation.dp,
     ) { }
 }
