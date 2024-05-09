@@ -37,6 +37,7 @@ fun HomeScreen() {
 @Composable
 fun WeekView() {
     val app = LocalAppState
+    val scrollState = rememberScrollState()
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = {}) {
             Icon(Icons.Rounded.Settings, contentDescription = "Settings")
@@ -52,14 +53,13 @@ fun WeekView() {
             LaunchedEffect(constraints) {
                 app.isSmallScreen.emit(constraints.maxWidth < AppConstants.VIEW_SMALL_MAX_WIDTH)
             }
-            val isSmallScreen by app.isSmallScreen.collectAsState()
-            val columns = remember(isSmallScreen) { if (isSmallScreen) 1 else 7 }
             val reorderState = rememberReorderState<TaskState>()
-            val scrollState = rememberScrollState()
-            val scrollModifier = remember(isSmallScreen) {
-                if (isSmallScreen) Modifier.verticalScroll(scrollState) else Modifier
-            }
             ReorderContainer(state = reorderState) {
+                val isSmallScreen by app.isSmallScreen.collectAsState()
+                val columns = remember(isSmallScreen) { if (isSmallScreen) 1 else 7 }
+                val scrollModifier = remember(isSmallScreen) {
+                    if (isSmallScreen) Modifier.verticalScroll(scrollState) else Modifier
+                }
                 NonlazyGrid(
                     columns = columns,
                     itemCount = 7,
@@ -110,8 +110,10 @@ fun WeekView() {
             }
         }
     }
-    val selectedTask by app.selectedTask.collectAsState()
-    TaskOptions(selectedTask)
+    Box {
+        val selectedTask by app.selectedTask.collectAsState()
+        TaskOptions(selectedTask)
+    }
 }
 
 class Ref(var value: Int)

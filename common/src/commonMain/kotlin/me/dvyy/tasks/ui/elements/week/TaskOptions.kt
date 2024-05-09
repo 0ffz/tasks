@@ -25,12 +25,6 @@ fun TaskOptions(task: TaskState?) = Box(Modifier) {
             skipHiddenState = false,
         )
     )
-//    val isKeyboardOpen by keyboardAsState()
-    LaunchedEffect(task) {
-        println("Task was $task")
-        if (task == null) sheetState.bottomSheetState.hide()
-        else sheetState.bottomSheetState.expand()
-    }
     Box {
         val currentState = sheetState.bottomSheetState.currentValue
         LaunchedEffect(currentState) {

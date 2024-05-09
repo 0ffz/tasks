@@ -16,7 +16,6 @@ import me.dvyy.tasks.platforms.PersistentStore
 import me.dvyy.tasks.serialization.Task
 import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.week.Highlight
-import kotlin.time.measureTime
 
 val AppStateProvider = compositionLocalOf<AppState> { error("No local versions provided") }
 
@@ -72,16 +71,13 @@ class AppState {
     }
 
     fun saveDay(state: DateState) {
-        val time = measureTime {
-            store.saveDay(state.date, state.tasks.value.map {
-                Task(
-                    uuid = it.uuid,
-                    name = it.name.value,
-                    completed = it.completed.value
-                )
-            })
-        }
-        println("Saving took $time")
+        store.saveDay(state.date, state.tasks.value.map {
+            Task(
+                uuid = it.uuid,
+                name = it.name.value,
+                completed = it.completed.value
+            )
+        })
     }
 
     private var saveQueued: Boolean = false
@@ -93,7 +89,6 @@ class AppState {
             if (saveQueued) return@launch
             saveQueued = true
             delay(AppConstants.bufferTaskSaves)
-            println("Saving ${daysToSave.size} days")
             daysToSave.forEach { saveDay(it) }
             daysToSave.clear()
             saveQueued = false

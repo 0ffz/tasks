@@ -37,7 +37,7 @@ fun ReorderableTask(
         zIndex = 1f,
         dropAnimationSpec = tween(0),
         onDragEnter = {
-            app.selectedTask.value = task
+            app.selectedTask.value = it.data
             onDragEnterItem(task, it)
         },
     ) {
@@ -52,7 +52,7 @@ fun ReorderableTask(
             task,
             interactions = TaskInteractions(
                 onNameChange = {
-                    app.queueSaveDay(date)
+//                    app.queueSaveDay(date)
                     task.name.value = it
                 },
                 onKeyEvent = { event ->

@@ -35,19 +35,19 @@ import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 
 @Immutable
 data class TaskInteractions(
-    val onKeyEvent: (KeyEvent) -> Boolean,
-    val keyboardActions: KeyboardActions,
-    val onNameChange: (String) -> Unit,
+    val onKeyEvent: (KeyEvent) -> Boolean = { false },
+    val keyboardActions: KeyboardActions = KeyboardActions(),
+    val onNameChange: (String) -> Unit = {},
 )
 
 @Composable
 fun Task(
     task: TaskState,
-    modifier: Modifier = Modifier,
-    interactions: TaskInteractions,
+    interactions: TaskInteractions = TaskInteractions(),
 ) {
     val app = LocalAppState
     var isHovered by remember { mutableStateOf(false) }
+    println("Recomposing task ${task.name.value}")
 
     Box(
         modifier = Modifier
@@ -58,7 +58,6 @@ fun Task(
             .height(AppConstants.taskHeight)
             .clickableWithoutRipple { app.selectedTask.value = task }
             .onKeyEvent(interactions.onKeyEvent)
-            .then(modifier)
     ) {
         val active by task.isActive(app)
         TaskSelectedSurface(active)
