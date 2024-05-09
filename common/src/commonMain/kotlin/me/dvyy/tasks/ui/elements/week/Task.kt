@@ -2,8 +2,6 @@ package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -32,6 +30,7 @@ import me.dvyy.tasks.platforms.onHoverIfAvailable
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.ui.AppConstants
+import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 
 @Immutable
 data class TaskInteractions(
@@ -46,28 +45,28 @@ fun Task(
     modifier: Modifier = Modifier,
     interactions: TaskInteractions,
 ) {
+    val app = LocalAppState
+    var isHovered by remember { mutableStateOf(false) }
 //    val highlight by task.highlight.collectAsState()
 //    val adjustedHighlight by animateColorAsState(
 //        if (completed && highlight.color != Color.Transparent) highlight.color.copy(
 //            alpha = 0.1f
 //        ) else highlight.color
 //    )
-    val app = LocalAppState
-
-    var isHovered by remember { mutableStateOf(false) }
-    val active by task.isActive(app)
 
     Box(
         contentAlignment = Alignment.CenterStart,
-        modifier = Modifier.onHoverIfAvailable(
-            onEnter = { isHovered = true },
-            onExit = { isHovered = false }
-        ).height(AppConstants.taskHeight).then(modifier).clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = { app.selectedTask.value = task },
-        ).onKeyEvent(interactions.onKeyEvent)
+        modifier = Modifier
+            .onHoverIfAvailable(
+                onEnter = { isHovered = true },
+                onExit = { isHovered = false }
+            )
+            .height(AppConstants.taskHeight)
+            .clickableWithoutRipple { app.selectedTask.value = task }
+            .onKeyEvent(interactions.onKeyEvent)
+            .then(modifier)
     ) {
+        val active by task.isActive(app)
         TaskSelectedSurface(active)
         Row(verticalAlignment = Alignment.CenterVertically) {
             val completed by task.completed.collectAsState()

@@ -49,7 +49,6 @@ fun ReorderableTask(
             task,
             interactions = TaskInteractions(
                 onNameChange = {
-                    println("Updating to $it")
                     app.queueSaveDay(date)
                     task.name.value = it
                 },

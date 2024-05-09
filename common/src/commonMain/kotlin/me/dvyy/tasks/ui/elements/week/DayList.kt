@@ -1,15 +1,10 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
@@ -21,6 +16,7 @@ import me.dvyy.tasks.logic.Tasks.createEmptyTask
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
+import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 
 @Composable
 fun DayList(
@@ -35,6 +31,7 @@ fun DayList(
     val app = LocalAppState
     val state = remember(date) { app.loadDate(date) }
 
+
     Column(modifier.animateContentSize().fillMaxWidth()) {
         DayTitle(state.date, isToday)
 
@@ -48,6 +45,11 @@ fun DayList(
                 )
         ) {
             val tasks by state.tasks.collectAsState()
+
+            LaunchedEffect(tasks) {
+                app.queueSaveDay(state)
+            }
+
             LazyColumn {
                 items(tasks, key = { it.uuid }) { task ->
                     ReorderableTask(state, task, onDragEnterItem, reorderState)
@@ -56,14 +58,10 @@ fun DayList(
             val emptySpace = remember(fullHeight) {
                 if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(40.dp)
             }
-            Box(
-                modifier = emptySpace.fillMaxWidth().clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
-                        state.createEmptyTask(app, focus = true)
-                })
+            Box(modifier = emptySpace.fillMaxWidth().clickableWithoutRipple {
+                if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
+                    state.createEmptyTask(app, focus = true)
+            })
         }
     }
 }

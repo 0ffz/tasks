@@ -1,7 +1,5 @@
 package me.dvyy.tasks.ui.screens
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,6 +19,7 @@ import me.dvyy.tasks.logic.Tasks.changeDate
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.ui.AppConstants
+import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.ui.elements.week.DayList
 import me.dvyy.tasks.ui.elements.week.NonlazyGrid
 
@@ -34,11 +33,7 @@ fun WeekView() {
     val app = LocalAppState
 
     BoxWithConstraints(
-        Modifier.padding(8.dp).clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = { app.selectedTask.value = null },
-        )
+        Modifier.padding(8.dp).clickableWithoutRipple { app.selectedTask.value = null }
     ) {
         LaunchedEffect(constraints) {
             app.isSmallScreen.emit(constraints.maxWidth < AppConstants.VIEW_SMALL_MAX_WIDTH)
