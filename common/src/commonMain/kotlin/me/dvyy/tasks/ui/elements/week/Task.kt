@@ -60,7 +60,7 @@ fun Task(
             .onKeyEvent(interactions.onKeyEvent)
     ) {
         val active by task.isActive(app)
-        TaskSelectedSurface(active)
+//        TaskSelectedSurface(active)
         Box(
             Modifier.padding(horizontal = 8.dp).fillMaxHeight(),
             contentAlignment = Alignment.CenterStart,
