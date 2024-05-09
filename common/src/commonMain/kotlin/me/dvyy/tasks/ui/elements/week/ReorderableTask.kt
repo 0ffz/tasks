@@ -36,7 +36,10 @@ fun ReorderableTask(
         dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
         zIndex = 1f,
         dropAnimationSpec = tween(0),
-        onDragEnter = { onDragEnterItem(task, it) },
+        onDragEnter = {
+            app.selectedTask.value = task
+            onDragEnterItem(task, it)
+        },
     ) {
         fun nextTaskOrNew() {
             if (date.tasks.value.lastOrNull() != task) {
@@ -57,7 +60,7 @@ fun ReorderableTask(
                     when {
                         event.isCtrlPressed && event.key == Key.E -> {
                             task.highlight.update {
-                                Highlights.entries[(it.ordinal + 1) % Highlights.entries.size]
+                                Highlight.entries[(it.ordinal + 1) % Highlight.entries.size]
                             }
                             true
                         }

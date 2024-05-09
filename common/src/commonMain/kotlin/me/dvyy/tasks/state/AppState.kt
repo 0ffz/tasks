@@ -15,7 +15,7 @@ import me.dvyy.tasks.logic.Tasks.createTask
 import me.dvyy.tasks.platforms.PersistentStore
 import me.dvyy.tasks.serialization.Task
 import me.dvyy.tasks.ui.AppConstants
-import me.dvyy.tasks.ui.elements.week.Highlights
+import me.dvyy.tasks.ui.elements.week.Highlight
 import kotlin.time.measureTime
 
 val AppStateProvider = compositionLocalOf<AppState> { error("No local versions provided") }
@@ -32,7 +32,7 @@ class TaskState(
     val name = MutableStateFlow(name)
     val date = MutableStateFlow(date)
     val completed = MutableStateFlow(false)
-    val highlight = MutableStateFlow(Highlights.Unmarked)
+    val highlight = MutableStateFlow(Highlight.Unmarked)
     val focusRequested = MutableStateFlow(false)
 
     @Composable

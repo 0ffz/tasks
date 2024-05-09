@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,6 +17,7 @@ import me.dvyy.tasks.logic.Tasks.createEmptyTask
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
+import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 
 @Composable
@@ -56,12 +58,17 @@ fun DayList(
                 }
             }
             val emptySpace = remember(fullHeight) {
-                if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(40.dp)
+                if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(AppConstants.taskHeight)
             }
             Box(modifier = emptySpace.fillMaxWidth().clickableWithoutRipple {
                 if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
                     state.createEmptyTask(app, focus = true)
-            })
+            }) {
+                Column {
+                    Spacer(modifier = Modifier.height(AppConstants.taskHeight))
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                }
+            }
         }
     }
 }

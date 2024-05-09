@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
@@ -47,15 +48,8 @@ fun Task(
 ) {
     val app = LocalAppState
     var isHovered by remember { mutableStateOf(false) }
-//    val highlight by task.highlight.collectAsState()
-//    val adjustedHighlight by animateColorAsState(
-//        if (completed && highlight.color != Color.Transparent) highlight.color.copy(
-//            alpha = 0.1f
-//        ) else highlight.color
-//    )
 
     Box(
-        contentAlignment = Alignment.CenterStart,
         modifier = Modifier
             .onHoverIfAvailable(
                 onEnter = { isHovered = true },
@@ -68,11 +62,38 @@ fun Task(
     ) {
         val active by task.isActive(app)
         TaskSelectedSurface(active)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            val completed by task.completed.collectAsState()
+        Box(
+            Modifier.padding(horizontal = 8.dp).fillMaxHeight(),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            TaskHighlight(task)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val completed by task.completed.collectAsState()
 
-            TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true))
-            if (active || isHovered) TaskCheckBox(completed, task)
+                TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true))
+                if (active || isHovered) TaskCheckBox(completed, task)
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskHighlight(task: TaskState) {
+    val highlight by task.highlight.collectAsState()
+    val completed by task.completed.collectAsState()
+    val name by task.name.collectAsState()
+    val adjustedHighlight by animateColorAsState(
+        if (completed && highlight.color != Color.Transparent) highlight.color.copy(
+            alpha = 0.1f
+        ) else highlight.color
+    )
+    Surface(
+        color = adjustedHighlight,
+        shape = MaterialTheme.shapes.extraLarge,
+        modifier = Modifier
+    ) {
+        TaskTextPadding {
+            Text(name, Modifier.alpha(0f))
         }
     }
 }
@@ -100,15 +121,16 @@ fun TaskTextField(
     val taskName by task.name.collectAsState()
     val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
-        MaterialTheme.colorScheme.onPrimaryContainer.run { if (completed) copy(alpha = 0.3f) else this }
+        MaterialTheme.colorScheme.onSurface.run { if (completed) copy(alpha = 0.3f) else this }
     )
     val textStyle = MaterialTheme.typography.bodyLarge.copy(
         color = textColor,
         textDecoration = textDecoration,
     )
     val focusRequester = remember { FocusRequester() }
+    val focusRequested by task.focusRequested.collectAsState()
 
-    if (!active) {
+    if (!active && !focusRequested) {
         TaskTextPadding(modifier.focusRequester(focusRequester)) {
             Text(
                 taskName,
@@ -122,18 +144,18 @@ fun TaskTextField(
 
     // Otherwise render full text field
     var focused by remember { mutableStateOf(false) }
-    val focusRequested by task.focusRequested.collectAsState()
     var hasBeenFocused by remember { mutableStateOf(false) }
 
     LaunchedEffect(focusRequested) {
         if (focusRequested) {
             task.focusRequested.value = false
             focusRequester.requestFocus()
+            app.selectedTask.value = task
         }
     }
     BasicTextField(
         value = taskName,
-        readOnly = completed || !active,
+        readOnly = completed || (!active && !focusRequested),
         singleLine = true,
         onValueChange = interactions.onNameChange,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -141,7 +163,9 @@ fun TaskTextField(
         keyboardActions = interactions.keyboardActions,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         decorationBox = { innerTextField ->
-            Row(verticalAlignment = Alignment.CenterVertically) { TaskTextPadding { innerTextField() } }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TaskTextPadding { innerTextField() }
+            }
         },
         modifier = modifier
             .fillMaxHeight()
@@ -159,7 +183,10 @@ fun TaskTextField(
 
 @Composable
 fun TaskTextPadding(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Box(modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+    Box(
+        modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
         content()
     }
 }

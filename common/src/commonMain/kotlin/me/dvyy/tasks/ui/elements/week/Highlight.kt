@@ -2,7 +2,7 @@ package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.ui.graphics.Color
 
-enum class Highlights(
+enum class Highlight(
     val color: Color
 ) {
     Unmarked(Color.Transparent),
