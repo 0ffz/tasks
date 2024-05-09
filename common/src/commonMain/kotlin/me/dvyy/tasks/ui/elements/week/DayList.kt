@@ -17,8 +17,7 @@ import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.logic.Dates.loadDate
-import me.dvyy.tasks.logic.Task
-import me.dvyy.tasks.logic.Tasks.createTask
+import me.dvyy.tasks.logic.Tasks.createEmptyTask
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
@@ -63,7 +62,7 @@ fun DayList(
                     indication = null
                 ) {
                     if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
-                        app.createTask(Task("", state.date), focus = true)
+                        state.createEmptyTask(app, focus = true)
                 })
         }
     }

@@ -1,12 +1,14 @@
 package me.dvyy.tasks.logic
 
+import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
-import me.dvyy.tasks.logic.Dates.loadDate
+import me.dvyy.tasks.serialization.Task
 import me.dvyy.tasks.state.AppState
+import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.TaskState
 
 object Tasks {
@@ -23,15 +25,19 @@ object Tasks {
         this.date.update { newDate }
     }
 
-    private var id = 0L
 
-    // TODO pass task, return state, private constructor in state?
-    fun AppState.createTask(task: Task, focus: Boolean = false): TaskState {
-        val state = TaskState(id++, task.name, task.date)
-        tasks[state.uuid] = state
-        loadDate(task.date).tasks.update { it + state }
+    fun getTaskUUID() = uuid4()
+
+    fun DateState.createEmptyTask(app: AppState, focus: Boolean = false): TaskState {
+        return createTask(app, Task(getTaskUUID(), name = "", completed = false), focus)
+    }
+
+    fun DateState.createTask(app: AppState, task: Task, focus: Boolean = false): TaskState {
+        val state = TaskState(task.uuid, task.name, date)
+        app.tasks[state.uuid] = state
+        tasks.update { it + state }
         if (focus) {
-            selectedTask.value = state
+            app.selectedTask.value = state
             state.focusRequested.value = true
         }
         return state
@@ -43,4 +49,3 @@ object Tasks {
     }
 }
 
-class Task(val name: String, val date: LocalDate)

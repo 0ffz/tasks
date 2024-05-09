@@ -14,7 +14,8 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.*
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.plus
 import me.dvyy.tasks.logic.Tasks
 import me.dvyy.tasks.logic.Tasks.changeDate
 import me.dvyy.tasks.state.LocalAppState
@@ -30,8 +31,6 @@ fun HomeScreen() {
 
 @Composable
 fun WeekView() {
-    val today = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
-    val weekStart = today.minus(today.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY)
     val app = LocalAppState
 
     BoxWithConstraints(
@@ -57,8 +56,8 @@ fun WeekView() {
                 itemCount = 7,
                 modifier = scrollModifier.fillMaxSize()
             ) { dayIndex ->
-                fun isToday(index: Int) = index == today.dayOfWeek.ordinal
-                val day = weekStart.plus(DatePeriod(days = dayIndex))
+                fun isToday(index: Int) = index == app.today.dayOfWeek.ordinal
+                val day = app.weekStart.plus(DatePeriod(days = dayIndex))
                 DayList(
                     day,
                     isToday = isToday(dayIndex),

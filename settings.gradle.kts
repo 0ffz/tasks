@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 rootProject.name = "tasks"
 
 
-include("android", "common", "desktop", "web")
+include("android", "common", "desktop", "web", "server")

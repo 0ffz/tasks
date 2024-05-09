@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 composeCompiler {
@@ -47,6 +48,9 @@ kotlin {
                 implementation(compose.materialIconsExtended)
                 implementation(libs.compose.dnd)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.serialization.cbor)
+                implementation(libs.uuid)
             }
         }
         val androidMain by getting {

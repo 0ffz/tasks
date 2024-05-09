@@ -12,7 +12,7 @@ import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import kotlinx.coroutines.flow.update
-import me.dvyy.tasks.logic.Tasks.createTask
+import me.dvyy.tasks.logic.Tasks.createEmptyTask
 import me.dvyy.tasks.platforms.PlatformSpecifics
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
@@ -42,7 +42,7 @@ fun ReorderableTask(
             if (date.tasks.value.lastOrNull() != task) {
                 focusManager.moveFocus(FocusDirection.Down)
             } else if (task.name.value.isNotEmpty()) {
-                app.createTask(me.dvyy.tasks.logic.Task("", date.date), focus = true)
+                date.createEmptyTask(app, focus = true)
             }
         }
         Task(
@@ -50,6 +50,7 @@ fun ReorderableTask(
             interactions = TaskInteractions(
                 onNameChange = {
                     println("Updating to $it")
+                    app.queueSaveDay(date)
                     task.name.value = it
                 },
                 onKeyEvent = { event ->
