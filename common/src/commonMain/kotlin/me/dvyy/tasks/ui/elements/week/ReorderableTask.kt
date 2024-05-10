@@ -1,7 +1,6 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.createEmptyTask
+import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.platforms.PlatformSpecifics
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
@@ -45,10 +45,7 @@ fun ReorderableTask(
         },
         modifier = Modifier
             .onFocusEvent {
-                println("${task.name.value} focus is ${it}")
-                if (it.isFocused) {
-                    app.selectedTask.value = task
-                }
+                if (it.isFocused) app.selectedTask.value = task
             }
     ) {
         fun nextTaskOrNew() {
@@ -62,10 +59,17 @@ fun ReorderableTask(
             task,
             interactions = TaskInteractions(
                 onNameChange = {
-//                    app.queueSaveDay(date)
+                    app.queueSaveDay(date)
                     task.name.value = it
                 },
                 onKeyEvent = { event ->
+                    if (event.key == Key.Backspace) {
+                        if (task.name.value.isEmpty()) {
+                            focusManager.moveFocus(FocusDirection.Up)
+                            task.delete(app)
+                        }
+                        return@TaskInteractions false
+                    }
                     if (event.type != KeyEventType.KeyDown) return@TaskInteractions false
                     when {
                         event.isCtrlPressed && event.key == Key.E -> {

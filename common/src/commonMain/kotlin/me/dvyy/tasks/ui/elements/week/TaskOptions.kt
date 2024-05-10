@@ -9,7 +9,6 @@ import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.filterNotNull
@@ -37,7 +36,6 @@ fun TaskOptions(task: TaskState?) = Box(Modifier) {
             }
         }
     }
-    println("Recomposing taskoptions")
     BottomSheetScaffold(
         sheetTonalElevation = 2.dp,
         sheetPeekHeight = 0.dp,

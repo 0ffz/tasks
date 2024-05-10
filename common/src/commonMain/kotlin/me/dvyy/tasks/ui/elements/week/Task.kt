@@ -25,7 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.platforms.onHoverIfAvailable
@@ -48,10 +48,6 @@ fun Task(
 ) {
     val app = LocalAppState
     var isHovered by remember { mutableStateOf(false) }
-    println("Recomposing task ${task.name.value}")
-
-    var focused by remember { mutableStateOf(false) }
-    var hasBeenFocused by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .onHoverIfAvailable(
@@ -63,6 +59,14 @@ fun Task(
             .onKeyEvent(interactions.onKeyEvent)
     ) {
         val active by task.isActive(app)
+
+        // Remove task if it's empty and deselected
+        LaunchedEffect(Unit) {
+            snapshotFlow { active }
+                .drop(1)
+                .collect { if (!active && task.name.value.isEmpty()) task.delete(app) }
+        }
+
         TaskSelectedSurface(active)
         Box(
             Modifier.padding(horizontal = 8.dp).fillMaxHeight(),
@@ -134,6 +138,8 @@ fun TaskTextField(
     )
     val focusRequester = remember { FocusRequester() }
     val focusRequested by task.focusRequested.collectAsState()
+
+
     if (!active) {
         TaskTextPadding(modifier) {
             Text(
@@ -155,13 +161,6 @@ fun TaskTextField(
             focusRequester.requestFocus()
         }
     }
-//
-//    DisposableEffect(activeOnlyFalse) {
-//        println("Running delete with $activeOnlyFalse")
-//        if (!activeOnlyFalse && task.name.value.isEmpty()) {
-//            task.delete(app)
-//        }
-//    }
     BasicTextField(
         value = taskName,
         readOnly = completed || (!active),
