@@ -1,6 +1,7 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -52,21 +53,21 @@ fun DayList(
                 app.queueSaveDay(state)
             }
 
-            LazyColumn {
+            LazyColumn(modifier = Modifier.focusGroup()) {
                 items(tasks, key = { it.uuid }) { task ->
                     ReorderableTask(state, task, onDragEnterItem, reorderState)
                 }
-            }
-            val emptySpace = remember(fullHeight) {
-                if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(AppConstants.taskHeight)
-            }
-            Box(modifier = emptySpace.fillMaxWidth().clickableWithoutRipple {
-                if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
-                    state.createEmptyTask(app, focus = true)
-            }) {
-                Column {
-                    Spacer(modifier = Modifier.height(AppConstants.taskHeight))
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                item {
+//                    val emptySpace = remember(fullHeight) {
+//                        if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(AppConstants.taskHeight)
+//                    }
+                    Column(Modifier.fillMaxSize().clickableWithoutRipple {
+                        if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
+                            state.createEmptyTask(app, focus = true)
+                    }) {
+                        Spacer(modifier = Modifier.height(AppConstants.taskHeight))
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    }
                 }
             }
         }

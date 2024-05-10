@@ -1,11 +1,14 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
@@ -40,6 +43,13 @@ fun ReorderableTask(
             app.selectedTask.value = it.data
             onDragEnterItem(task, it)
         },
+        modifier = Modifier
+            .onFocusEvent {
+                println("${task.name.value} focus is ${it}")
+                if (it.isFocused) {
+                    app.selectedTask.value = task
+                }
+            }
     ) {
         fun nextTaskOrNew() {
             if (date.tasks.value.lastOrNull() != task) {

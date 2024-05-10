@@ -7,6 +7,7 @@ import androidx.compose.runtime.compositionLocalOf
 import com.benasher44.uuid.Uuid
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
@@ -37,6 +38,7 @@ class TaskState(
     @Composable
     fun isActive(app: AppState) = app.selectedTask
         .map { it == this }
+        .distinctUntilChanged()
         .collectAsState(false)
 }
 

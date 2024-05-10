@@ -76,7 +76,7 @@ fun HighlightButton(task: TaskState, highlight: Highlight) {
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = highlight.color,
         ),
-        modifier = Modifier.size(25.dp).focusProperties { canFocus = false },
+        modifier = Modifier.size(25.dp),
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface),
         shape = CircleShape,
         onClick = {

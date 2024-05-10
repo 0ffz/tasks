@@ -37,6 +37,7 @@ object Tasks {
         app.tasks[state.uuid] = state
         tasks.update { it + state }
         if (focus) {
+            app.selectedTask.value = state
             state.focusRequested.value = true
         }
         return state

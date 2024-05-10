@@ -2,6 +2,7 @@ package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -16,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.KeyEvent
@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.platforms.onHoverIfAvailable
@@ -49,6 +50,8 @@ fun Task(
     var isHovered by remember { mutableStateOf(false) }
     println("Recomposing task ${task.name.value}")
 
+    var focused by remember { mutableStateOf(false) }
+    var hasBeenFocused by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .onHoverIfAvailable(
@@ -66,7 +69,10 @@ fun Task(
             contentAlignment = Alignment.CenterStart,
         ) {
             TaskHighlight(task)
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.focusGroup(),
+            ) {
                 val completed by task.completed.collectAsState()
 
                 TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true))
@@ -128,33 +134,37 @@ fun TaskTextField(
     )
     val focusRequester = remember { FocusRequester() }
     val focusRequested by task.focusRequested.collectAsState()
-
-    if (!active && !focusRequested) {
-        TaskTextPadding(modifier.focusRequester(focusRequester)) {
+    if (!active) {
+        TaskTextPadding(modifier) {
             Text(
                 taskName,
                 style = textStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .focusRequester(focusRequester)
             )
         }
         return
     }
 
     // Otherwise render full text field
-    var focused by remember { mutableStateOf(false) }
-    var hasBeenFocused by remember { mutableStateOf(false) }
-
     LaunchedEffect(focusRequested) {
         if (focusRequested) {
             task.focusRequested.value = false
             focusRequester.requestFocus()
-            app.selectedTask.value = task
         }
     }
+//
+//    DisposableEffect(activeOnlyFalse) {
+//        println("Running delete with $activeOnlyFalse")
+//        if (!activeOnlyFalse && task.name.value.isEmpty()) {
+//            task.delete(app)
+//        }
+//    }
     BasicTextField(
         value = taskName,
-        readOnly = completed || (!active && !focusRequested),
+        readOnly = completed || (!active),
         singleLine = true,
         onValueChange = interactions.onNameChange,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -169,14 +179,6 @@ fun TaskTextField(
         modifier = modifier
             .fillMaxHeight()
             .focusRequester(focusRequester)
-            .onFocusEvent {
-                focused = it.isFocused
-                if (it.isFocused) {
-                    hasBeenFocused = true
-                } else if (hasBeenFocused && taskName.isEmpty()) {
-                    task.delete(app)
-                }
-            }
     )
 }
 
