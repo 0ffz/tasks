@@ -27,7 +27,6 @@ fun DayList(
     isToday: Boolean,
     reorderState: ReorderState<TaskState>,
     onDragEnterColumn: (dateState: DateState, state: DraggedItemState<TaskState>) -> Unit,
-    onDragEnterItem: (target: TaskState, state: DraggedItemState<TaskState>) -> Unit,
     fullHeight: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -37,7 +36,6 @@ fun DayList(
 
     Column(modifier.animateContentSize().fillMaxWidth()) {
         DayTitle(state.date, isToday)
-
         Column(
             modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
                 .dropTarget(
@@ -53,21 +51,21 @@ fun DayList(
                 app.queueSaveDay(state)
             }
 
-            LazyColumn(modifier = Modifier.focusGroup()) {
-                items(tasks, key = { it.uuid }) { task ->
-                    ReorderableTask(state, task, onDragEnterItem, reorderState)
-                }
-                item {
-//                    val emptySpace = remember(fullHeight) {
-//                        if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(AppConstants.taskHeight)
-//                    }
-                    Column(Modifier.fillMaxSize().clickableWithoutRipple {
-                        if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
-                            state.createEmptyTask(app, focus = true)
-                    }) {
-                        Spacer(modifier = Modifier.height(AppConstants.taskHeight))
-                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            Column {
+                LazyColumn(modifier = Modifier.focusGroup()) {
+                    items(tasks, key = { it.uuid }) { task ->
+                        ReorderableTask(state, task)
                     }
+                }
+                val emptySpace = remember(fullHeight) {
+                    if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(AppConstants.taskHeight)
+                }
+                Column(emptySpace.clickableWithoutRipple {
+                    if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)
+                        state.createEmptyTask(app, focus = true)
+                }) {
+                    Spacer(modifier = Modifier.height(AppConstants.taskHeight))
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 }
             }
         }

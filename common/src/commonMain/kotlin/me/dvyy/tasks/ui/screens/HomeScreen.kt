@@ -27,7 +27,9 @@ import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.ui.elements.week.DayList
+import me.dvyy.tasks.ui.elements.week.LocalTaskReorder
 import me.dvyy.tasks.ui.elements.week.NonlazyGrid
+import me.dvyy.tasks.ui.elements.week.TaskReorder
 
 @Composable
 fun HomeScreen() {
@@ -61,25 +63,9 @@ fun WeekView() {
                 val scrollModifier = remember(isSmallScreen) {
                     if (isSmallScreen) Modifier.verticalScroll(scrollState) else Modifier
                 }
-                NonlazyGrid(
-                    columns = columns,
-                    itemCount = 7,
-                    modifier = scrollModifier.fillMaxSize()
-                ) { dayIndex ->
-                    fun isToday(index: Int) = index == app.today.dayOfWeek.ordinal
-                    val day = app.weekStart.plus(DatePeriod(days = dayIndex))
-                    DayList(
-                        day,
-                        isToday = isToday(dayIndex),
-                        fullHeight = columns != 1,
-                        reorderState = reorderState,
-                        onDragEnterColumn = { date, state ->
-                            println("Entered column ${date.date}")
-                            val task = state.data
-                            Tasks.singleThread.launch {
-                                task.changeDate(app, date.date)
-                            }
-                        },
+                val reorder = remember {
+                    TaskReorder(
+                        state = reorderState,
                         onDragEnterItem = { target, state ->
                             val task = state.data
 
@@ -102,19 +88,37 @@ fun WeekView() {
                                     }
                                 }
                             }
-                        },
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .padding(bottom = if (dayIndex == 6) 200.dp else 0.dp)
-                    )
+                        })
+                }
+                CompositionLocalProvider(LocalTaskReorder provides reorder) {
+                    NonlazyGrid(
+                        columns = columns,
+                        itemCount = 7,
+                        modifier = scrollModifier.fillMaxSize()
+                    ) { dayIndex ->
+                        fun isToday(index: Int) = index == app.today.dayOfWeek.ordinal
+                        val day = app.weekStart.plus(DatePeriod(days = dayIndex))
+                        DayList(
+                            day,
+                            isToday = isToday(dayIndex),
+                            reorderState = reorderState,
+                            onDragEnterColumn = { date, state ->
+                                println("Entered column ${date.date}")
+                                val task = state.data
+                                Tasks.singleThread.launch {
+                                    task.changeDate(app, date.date)
+                                }
+                            },
+                            fullHeight = !isSmallScreen,
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .padding(bottom = if (dayIndex == 6) 200.dp else 0.dp)
+                        )
+                    }
                 }
             }
         }
     }
-//    Box {
-//        val selectedTask by app.selectedTask.collectAsState()
-//        TaskOptions(selectedTask)
-//    }
 }
 
 class Ref(var value: Int)

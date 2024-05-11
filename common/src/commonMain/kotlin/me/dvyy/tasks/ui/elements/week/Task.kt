@@ -1,9 +1,11 @@
 package me.dvyy.tasks.ui.elements.week
 
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.focusGroup
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,17 +19,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.delete
+import me.dvyy.tasks.platforms.PlatformSpecifics
 import me.dvyy.tasks.platforms.onHoverIfAvailable
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
@@ -48,13 +54,13 @@ fun Task(
 ) {
     val app = LocalAppState
     var isHovered by remember { mutableStateOf(false) }
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .onHoverIfAvailable(
                 onEnter = { isHovered = true },
                 onExit = { isHovered = false }
             )
-            .height(AppConstants.taskHeight)
+            .heightIn(min = AppConstants.taskHeight)
             .clickableWithoutRipple { app.selectedTask.value = task }
             .onKeyEvent(interactions.onKeyEvent)
     ) {
@@ -67,20 +73,33 @@ fun Task(
                 .collect { if (!active && task.name.value.isEmpty()) task.delete(app) }
         }
 
-        TaskSelectedSurface(active)
-        Box(
-            Modifier.padding(horizontal = 8.dp).fillMaxHeight(),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            TaskHighlight(task)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.focusGroup(),
-            ) {
-                val completed by task.completed.collectAsState()
+        println("Recomposing task")
+        TaskSelectedSurface(task, active) {
+            val completed by task.completed.collectAsState()
+            val alpha by animateFloatAsState(if (completed) 0.3f else 1f)
+            Column(Modifier.alpha(alpha)) {
+                Box(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    TaskHighlight(task)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        val isSmall by app.isSmallScreen.collectAsState()
 
-                TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true))
-                if (active || isHovered) TaskCheckBox(completed, task)
+                        TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true))
+                        if (isSmall || isHovered)
+                            TaskCheckBox(completed, task)
+                    }
+                }
+                AnimatedVisibility(
+                    active,
+                    enter = fadeIn(tween(delayMillis = 100)) + expandVertically(),
+                    exit = fadeOut(tween(durationMillis = 100)) + shrinkVertically()
+                ) {
+                    TaskOptions(task)
+                }
             }
         }
     }
@@ -89,17 +108,12 @@ fun Task(
 @Composable
 fun TaskHighlight(task: TaskState) {
     val highlight by task.highlight.collectAsState()
-    val completed by task.completed.collectAsState()
     val name by task.name.collectAsState()
-    val adjustedHighlight by animateColorAsState(
-        if (completed && highlight.color != Color.Transparent) highlight.color.copy(
-            alpha = 0.1f
-        ) else highlight.color
-    )
+    val adjustedHighlight by animateColorAsState(highlight.color)
     Surface(
         color = adjustedHighlight,
         shape = MaterialTheme.shapes.extraLarge,
-        modifier = Modifier
+        modifier = Modifier.height(AppConstants.taskHighlightHeight)
     ) {
         TaskTextPadding {
             Text(name, Modifier.alpha(0f))
@@ -108,14 +122,59 @@ fun TaskHighlight(task: TaskState) {
 }
 
 @Composable
-fun TaskSelectedSurface(visible: Boolean) {
+fun TaskSelectedSurface(
+    task: TaskState,
+    visible: Boolean,
+    content: @Composable () -> Unit
+) {
+    val reorder = LocalTaskReorder.current
     val elevation by animateFloatAsState(if (visible) 1f else 0f)
-    val color = if (elevation == 0f) Color.Transparent else MaterialTheme.colorScheme.surface
+    val cornerShape by animateDpAsState(if (visible) 20.dp else 0.dp)
+    val padding by animateDpAsState(if (visible) 10.dp else 0.dp)
+    val app = LocalAppState
+    var size by remember { mutableStateOf(IntSize.Zero) }
     Surface(
-        Modifier.fillMaxSize(),
-        color = color,
-        tonalElevation = elevation.dp,
-    ) { }
+        modifier = Modifier.padding(vertical = padding),
+        shape = RoundedCornerShape(cornerShape),
+        color = CardDefaults.elevatedCardColors().containerColor,
+        tonalElevation = elevation.dp, //CardDefaults.elevatedCardElevation()
+    ) {
+        ReorderableItem(
+            state = reorder.state,
+            key = task,
+            data = task,
+            dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
+            zIndex = 1f,
+            dropAnimationSpec = tween(0),
+            draggableContent = {
+                LaunchedEffect(Unit) {
+                    app.selectedTask.value = null
+                }
+                Surface(
+                    tonalElevation = 1.dp,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge
+                ) {
+                    TaskTextPadding {
+                        val name by task.name.collectAsState()
+                        Text(name, Modifier.height(AppConstants.taskHeight))
+                    }
+                }
+            },
+            content = {},
+            onDragEnter = { reorder.onDragEnterItem(task, it) },
+            modifier = Modifier
+                .size(size.width.dp, size.height.dp)
+//                    .background(Color.Red)
+                .onFocusEvent {
+                    if (it.isFocused) app.selectedTask.value = task
+                }
+        )
+        Box(Modifier.onSizeChanged { size = it }) {
+            content()
+        }
+
+    }
 }
 
 @Composable
@@ -130,7 +189,7 @@ fun TaskTextField(
     val taskName by task.name.collectAsState()
     val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
-        MaterialTheme.colorScheme.onSurface.run { if (completed) copy(alpha = 0.3f) else this }
+        MaterialTheme.colorScheme.onSurface
     )
     val textStyle = MaterialTheme.typography.bodyLarge.copy(
         color = textColor,
@@ -147,8 +206,7 @@ fun TaskTextField(
                 style = textStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .focusRequester(focusRequester)
+                modifier = Modifier.focusRequester(focusRequester)
             )
         }
         return
@@ -184,7 +242,7 @@ fun TaskTextField(
 @Composable
 fun TaskTextPadding(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(
-        modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        modifier.height(AppConstants.taskHeight).padding(AppConstants.taskTextPadding),
         contentAlignment = Alignment.CenterStart
     ) {
         content()
@@ -196,7 +254,7 @@ fun TaskCheckBox(completed: Boolean, task: TaskState) {
     IconButton(
         onClick = { task.completed.update { !completed } },
         colors = IconButtonDefaults.iconButtonColors(),
-        modifier = Modifier.size(AppConstants.taskHeight).fillMaxSize()
+        modifier = Modifier.size(AppConstants.taskHeight)
     ) {
         when {
             completed -> Icon(Icons.Rounded.TaskAlt, contentDescription = "Completed")

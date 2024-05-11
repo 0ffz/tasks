@@ -49,7 +49,8 @@ data class DateState(val date: LocalDate) {
 
 @Stable
 class AppState {
-    val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val timezone = TimeZone.currentSystemDefault()
+    val today = Clock.System.now().toLocalDateTime(timezone).date
     val weekStart = today.minus(today.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY)
     val store = PersistentStore()
 
