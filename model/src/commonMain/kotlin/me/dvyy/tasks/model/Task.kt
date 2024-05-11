@@ -1,4 +1,4 @@
-package me.dvyy.tasks.serialization
+package me.dvyy.tasks.model
 
 import com.benasher44.uuid.Uuid
 import kotlinx.serialization.KSerializer
@@ -11,7 +11,7 @@ import kotlinx.serialization.encoding.Encoder
 class Task(
     @Serializable(with = UuidSerializer::class)
     val uuid: Uuid,
-    val name: String,
+    val name: String = "",
     val completed: Boolean = true,
 )
 

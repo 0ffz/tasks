@@ -13,8 +13,9 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import me.dvyy.tasks.logic.Tasks
 import me.dvyy.tasks.logic.Tasks.createTask
+import me.dvyy.tasks.model.Task
 import me.dvyy.tasks.platforms.PersistentStore
-import me.dvyy.tasks.serialization.Task
+import me.dvyy.tasks.sync.SyncClient
 import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.week.Highlight
 
@@ -29,6 +30,7 @@ class TaskState(
     name: String,
     date: LocalDate,
 ) {
+    val syncStatus = MutableStateFlow(SyncStatus.LOCAL_ONLY)
     val name = MutableStateFlow(name)
     val date = MutableStateFlow(date)
     val completed = MutableStateFlow(false)
@@ -40,6 +42,16 @@ class TaskState(
         .map { it == this }
         .distinctUntilChanged()
         .collectAsState(false)
+
+    fun toTask(): Task = Task(
+        uuid = uuid,
+        name = name.value,
+        completed = completed.value
+    )
+}
+
+enum class SyncStatus {
+    LOCAL_ONLY, UPDATED, PULLED
 }
 
 @Stable
@@ -59,6 +71,8 @@ class AppState {
     val isSmallScreen = MutableStateFlow(false)
     val loadedDates = mutableMapOf<LocalDate, DateState>()
 
+    val sync = SyncClient("http://localhost:8080", this)
+
     init {
         (0..6).map { weekStart.plus(DatePeriod(days = it)) }
             .forEach { day ->
@@ -75,11 +89,7 @@ class AppState {
 
     fun saveDay(state: DateState) {
         store.saveDay(state.date, state.tasks.value.map {
-            Task(
-                uuid = it.uuid,
-                name = it.name.value,
-                completed = it.completed.value
-            )
+            it.toTask()
         })
     }
 

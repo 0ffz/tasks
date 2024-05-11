@@ -2,9 +2,6 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlinx.serialization)
-//    kotlin("jvm") version "1.9.24"
-//    id("io.ktor.plugin") version "2.3.10"
-//    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.24"
 }
 
 application {
@@ -19,11 +16,18 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":model"))
+    implementation(libs.uuid)
+    implementation(libs.kotlinx.serialization.json)
+
     implementation(libs.ktor.server.core)
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
+    implementation(libs.ktor.serialization.json)
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
+
     implementation("org.jetbrains.exposed:exposed-core:0.41.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.41.1")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.41.1")
+
     implementation("com.h2database:h2:2.1.214")
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-client-core-jvm")

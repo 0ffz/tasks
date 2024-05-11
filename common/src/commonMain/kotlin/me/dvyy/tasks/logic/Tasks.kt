@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
-import me.dvyy.tasks.serialization.Task
+import me.dvyy.tasks.model.Task
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.TaskState
@@ -32,7 +32,12 @@ object Tasks {
         return createTask(app, Task(getTaskUUID(), name = "", completed = false), focus)
     }
 
-    fun DateState.createTask(app: AppState, task: Task, focus: Boolean = false): TaskState {
+    fun DateState.createTask(
+        app: AppState,
+        task: Task,
+        focus: Boolean = false,
+        updateDateTaskList: Boolean = true,
+    ): TaskState {
         val state = TaskState(task.uuid, task.name, date)
         app.tasks[state.uuid] = state
         tasks.update { it + state }

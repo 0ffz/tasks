@@ -1,0 +1,16 @@
+GET http://localhost:8080/dates
+Content-Type: application/json
+
+[
+  "2024-04-11"
+]
+
+###
+#POST http://localhost:8080/dates
+#Content-Type: application/json
+#
+#{
+#  "2024-04-11": {
+#    ""
+#  }
+#}

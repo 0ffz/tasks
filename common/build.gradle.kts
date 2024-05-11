@@ -42,6 +42,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(project(":model"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
@@ -51,12 +52,22 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.serialization.cbor)
                 implementation(libs.uuid)
+
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.serialization.json.eap)
+                implementation(libs.ktor.client.content.negotiation)
+            }
+        }
+        val desktopMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.okhttp)
             }
         }
         val androidMain by getting {
             dependencies {
                 api(libs.androidx.appcompat)
                 api(libs.androidx.core.ktx)
+                implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.activity.compose)
 //                api("androidx.appcompat:appcompat:1.5.1")
 //                api("androidx.core:core-ktx:1.9.0")
