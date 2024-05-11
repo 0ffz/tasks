@@ -1,7 +1,6 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,7 +32,6 @@ fun DayList(
     val app = LocalAppState
     val state = remember(date) { app.loadDate(date) }
 
-
     Column(modifier.animateContentSize().fillMaxWidth()) {
         DayTitle(state.date, isToday)
         Column(
@@ -50,9 +48,8 @@ fun DayList(
             LaunchedEffect(tasks) {
                 app.queueSaveDay(state)
             }
-
             Column {
-                LazyColumn(modifier = Modifier.focusGroup()) {
+                LazyColumn {
                     items(tasks, key = { it.uuid }) { task ->
                         ReorderableTask(state, task)
                     }

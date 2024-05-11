@@ -48,8 +48,6 @@ fun WeekView() {
     }) {
         BoxWithConstraints(
             Modifier
-//                .imePadding()
-//                .navigationBarsPadding()
                 .padding(horizontal = 8.dp)
                 .clickableWithoutRipple { app.selectedTask.value = null }
         ) {
@@ -82,7 +80,7 @@ fun WeekView() {
                                 targetDate.tasks.update {
                                     it.toMutableList().apply {
                                         val index = indexOf(target)
-                                        println("Index was $index, tasks $this")
+                                        println("Index was $index, tasks ${this.map { it.name.value }}")
                                         remove(task)
                                         add(index, task)
                                     }

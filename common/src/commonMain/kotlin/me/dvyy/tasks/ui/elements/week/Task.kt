@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -18,22 +19,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.delete
-import me.dvyy.tasks.platforms.PlatformSpecifics
 import me.dvyy.tasks.platforms.onHoverIfAvailable
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
@@ -61,20 +59,22 @@ fun Task(
                 onExit = { isHovered = false }
             )
             .heightIn(min = AppConstants.taskHeight)
+            .focusProperties { canFocus = false }
             .clickableWithoutRipple { app.selectedTask.value = task }
             .onKeyEvent(interactions.onKeyEvent)
     ) {
         val active by task.isActive(app)
-
-        // Remove task if it's empty and deselected
         LaunchedEffect(Unit) {
             snapshotFlow { active }
                 .drop(1)
-                .collect { if (!active && task.name.value.isEmpty()) task.delete(app) }
+                .collect {
+                    println("Deleting $active")
+                    if (!active && task.name.value.isEmpty()) task.delete(app)
+                }
         }
 
         println("Recomposing task")
-        TaskSelectedSurface(task, active) {
+        TaskSelectedSurface(active) {
             val completed by task.completed.collectAsState()
             val alpha by animateFloatAsState(if (completed) 0.3f else 1f)
             Column(Modifier.alpha(alpha)) {
@@ -88,7 +88,10 @@ fun Task(
                     ) {
                         val isSmall by app.isSmallScreen.collectAsState()
 
-                        TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true))
+                        TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true)
+                            .onFocusEvent {
+                                if (it.isFocused) app.selectedTask.value = task
+                            })
                         if (isSmall || isHovered)
                             TaskCheckBox(completed, task)
                     }
@@ -96,7 +99,11 @@ fun Task(
                 AnimatedVisibility(
                     active,
                     enter = fadeIn(tween(delayMillis = 100)) + expandVertically(),
-                    exit = fadeOut(tween(durationMillis = 100)) + shrinkVertically()
+                    exit = fadeOut(tween(durationMillis = 100)) + shrinkVertically(),
+                    modifier = Modifier
+                        .pointerInput(Unit) {
+                            detectDragGestures { _, _ -> }
+                        }
                 ) {
                     TaskOptions(task)
                 }
@@ -123,57 +130,19 @@ fun TaskHighlight(task: TaskState) {
 
 @Composable
 fun TaskSelectedSurface(
-    task: TaskState,
     visible: Boolean,
     content: @Composable () -> Unit
 ) {
-    val reorder = LocalTaskReorder.current
     val elevation by animateFloatAsState(if (visible) 1f else 0f)
     val cornerShape by animateDpAsState(if (visible) 20.dp else 0.dp)
     val padding by animateDpAsState(if (visible) 10.dp else 0.dp)
-    val app = LocalAppState
-    var size by remember { mutableStateOf(IntSize.Zero) }
     Surface(
         modifier = Modifier.padding(vertical = padding),
         shape = RoundedCornerShape(cornerShape),
         color = CardDefaults.elevatedCardColors().containerColor,
         tonalElevation = elevation.dp, //CardDefaults.elevatedCardElevation()
     ) {
-        ReorderableItem(
-            state = reorder.state,
-            key = task,
-            data = task,
-            dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
-            zIndex = 1f,
-            dropAnimationSpec = tween(0),
-            draggableContent = {
-                LaunchedEffect(Unit) {
-                    app.selectedTask.value = null
-                }
-                Surface(
-                    tonalElevation = 1.dp,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.extraLarge
-                ) {
-                    TaskTextPadding {
-                        val name by task.name.collectAsState()
-                        Text(name, Modifier.height(AppConstants.taskHeight))
-                    }
-                }
-            },
-            content = {},
-            onDragEnter = { reorder.onDragEnterItem(task, it) },
-            modifier = Modifier
-                .size(size.width.dp, size.height.dp)
-//                    .background(Color.Red)
-                .onFocusEvent {
-                    if (it.isFocused) app.selectedTask.value = task
-                }
-        )
-        Box(Modifier.onSizeChanged { size = it }) {
-            content()
-        }
-
+        content()
     }
 }
 
@@ -199,18 +168,18 @@ fun TaskTextField(
     val focusRequested by task.focusRequested.collectAsState()
 
 
-    if (!active) {
-        TaskTextPadding(modifier) {
-            Text(
-                taskName,
-                style = textStyle,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.focusRequester(focusRequester)
-            )
-        }
-        return
-    }
+//    if (!active) {
+//        TaskTextPadding(modifier) {
+//            Text(
+//                taskName,
+//                style = textStyle,
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis,
+//                modifier = Modifier.focusRequester(focusRequester)
+//            )
+//        }
+//        return
+//    }
 
     // Otherwise render full text field
     LaunchedEffect(focusRequested) {
