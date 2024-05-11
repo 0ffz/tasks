@@ -92,7 +92,7 @@ fun Task(
                             .onFocusEvent {
                                 if (it.isFocused) app.selectedTask.value = task
                             })
-                        if (isSmall || isHovered)
+                        if (isSmall || isHovered || active)
                             TaskCheckBox(completed, task)
                     }
                 }
@@ -166,7 +166,6 @@ fun TaskTextField(
     )
     val focusRequester = remember { FocusRequester() }
     val focusRequested by task.focusRequested.collectAsState()
-
 
 //    if (!active) {
 //        TaskTextPadding(modifier) {
