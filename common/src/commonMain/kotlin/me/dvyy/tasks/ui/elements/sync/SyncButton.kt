@@ -9,6 +9,7 @@ import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.SyncProblem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 import me.dvyy.tasks.state.LocalAppState
 
 @Composable
-fun SyncButton() {
+fun SyncButton(snackbarHostState: SnackbarHostState) {
     var inProgress by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val app = LocalAppState
@@ -33,6 +34,10 @@ fun SyncButton() {
                 } catch (e: IOException) {
                     isError = true
                     e.printStackTrace()
+                    launch {
+                        snackbarHostState
+                            .showSnackbar("Error syncing: ${e.message ?: "Unknown error"}", withDismissAction = true)
+                    }
                 } finally {
                     inProgress = false
                 }

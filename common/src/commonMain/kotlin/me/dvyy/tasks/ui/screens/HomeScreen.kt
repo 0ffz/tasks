@@ -1,18 +1,15 @@
 package me.dvyy.tasks.ui.screens
 
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
@@ -43,14 +40,27 @@ fun HomeScreen() {
 fun WeekView() {
     val app = LocalAppState
     val scrollState = rememberScrollState()
-    Scaffold(floatingActionButton = {
-        Row {
-            SyncButton()
-            FloatingActionButton(onClick = {}) {
-                Icon(Icons.Rounded.Settings, contentDescription = "Settings")
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    Scaffold(
+        floatingActionButton = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                var toggled by remember { mutableStateOf(false) }
+                SyncButton(snackbarHostState)
+                AnimatedVisibility(toggled) {
+                    SmallFloatingActionButton(onClick = {}) {
+                        Icon(Icons.Rounded.Cloud, contentDescription = "Server setup")
+                    }
+                }
+                FloatingActionButton(onClick = { toggled = !toggled }) {
+                    Icon(Icons.Rounded.Settings, contentDescription = "Settings")
+                }
             }
-        }
-    }) {
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
         BoxWithConstraints(
             Modifier
                 .padding(horizontal = 8.dp)
