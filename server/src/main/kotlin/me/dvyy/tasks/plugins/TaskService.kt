@@ -4,10 +4,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.Task
 import me.dvyy.tasks.plugins.TaskService.Tasks.completed
+import me.dvyy.tasks.plugins.TaskService.Tasks.date
 import me.dvyy.tasks.plugins.TaskService.Tasks.title
 import me.dvyy.tasks.plugins.TaskService.Tasks.uuid
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -35,14 +37,14 @@ class TaskService(private val database: Database) {
             .map { Task(it[uuid], it[title], it[completed]) }
     }
 
-    suspend fun update(date: LocalDate, tasks: List<Task>) {
+    suspend fun update(forDate: LocalDate, tasks: List<Task>) {
         dbQuery {
-            Tasks.deleteWhere { Tasks.date eq date }
+            Tasks.deleteWhere { date eq forDate or uuid.inList(tasks.map { it.uuid }) }
             Tasks.batchInsert(tasks) { task ->
                 this[uuid] = task.uuid
                 this[title] = task.name
                 this[completed] = task.completed
-                this[Tasks.date] = date
+                this[date] = forDate
             }
         }
     }

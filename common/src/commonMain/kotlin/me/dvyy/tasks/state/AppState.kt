@@ -72,7 +72,7 @@ class AppState {
     val isSmallScreen = MutableStateFlow(false)
     val loadedDates = mutableMapOf<LocalDate, DateState>()
 
-    val sync = SyncClient("http://localhost:8080", this)
+    val sync = SyncClient("http://localhost:4000", this)
     val snackbarHostState = SnackbarHostState()
 
     init {
@@ -80,11 +80,12 @@ class AppState {
             (0..6).map { weekStart.plus(DatePeriod(days = it)) }
                 .forEach { day ->
                     val state = DateState(day)
-                    val tasks = store.loadTasksForDay(day)
-                    tasks.forEach { state.createTask(this@AppState, it) }
+                    store.loadTasksForDay(day)
+                        .onSuccess { it.forEach { state.createTask(this@AppState, it) } }
+                        .onFailure { it.printStackTrace() }
                     loadedDates[day] = state
                 }
-            sync.sync()
+//                sync.sync()
         }
     }
 

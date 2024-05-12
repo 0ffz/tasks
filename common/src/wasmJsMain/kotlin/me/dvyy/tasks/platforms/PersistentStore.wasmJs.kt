@@ -15,11 +15,13 @@ actual class PersistentStore {
         localStorage[date.toString()] = byteArray.toHexString()
     }
 
-    actual fun loadTasksForDay(date: LocalDate): List<Task> {
-        val hexString = localStorage.getItem(date.toString()) ?: return emptyList()
-        return AppFormats.cbor.decodeFromByteArray(
-            ListSerializer(Task.serializer()),
-            hexString.hexToByteArray()
-        )
+    actual fun loadTasksForDay(date: LocalDate): Result<List<Task>> {
+        val hexString = localStorage.getItem(date.toString()) ?: return Result.success(emptyList())
+        return runCatching {
+            AppFormats.cbor.decodeFromByteArray(
+                ListSerializer(Task.serializer()),
+                hexString.hexToByteArray()
+            )
+        }
     }
 }

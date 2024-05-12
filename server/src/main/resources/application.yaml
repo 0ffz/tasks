@@ -3,6 +3,6 @@ ktor:
     modules:
       - me.dvyy.tasks.ApplicationKt.module
   deployment:
-    port: "$PORT:8080"
+    port: "$PORT:4000"
 database:
   url: "$DATABASE_URL:jdbc:h2:file:./build/db"

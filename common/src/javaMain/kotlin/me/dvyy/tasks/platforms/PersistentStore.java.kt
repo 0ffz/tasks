@@ -11,7 +11,7 @@ import me.dvyy.tasks.model.Task
 import kotlin.io.path.*
 
 @OptIn(ExperimentalSerializationApi::class)
-actual class PersistentStore {
+actual class PersistentStore actual constructor() {
     val dirs = AppDirs("tasks", "dvyy")
     val dataPath = Path(dirs.getUserDataDir())
 
@@ -27,9 +27,11 @@ actual class PersistentStore {
         AppFormats.json.encodeToStream(ListSerializer(Task.serializer()), tasks, path.outputStream())
     }
 
-    actual fun loadTasksForDay(date: LocalDate): List<Task> {
+    actual fun loadTasksForDay(date: LocalDate): Result<List<Task>> {
         val path = tasksPath(date)
-        if (!path.exists()) return listOf()
-        return AppFormats.json.decodeFromStream(ListSerializer(Task.serializer()), path.inputStream())
+        if (!path.exists()) return Result.success(listOf())
+        return kotlin.runCatching {
+            AppFormats.json.decodeFromStream(ListSerializer(Task.serializer()), path.inputStream())
+        }
     }
 }

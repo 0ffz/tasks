@@ -29,7 +29,11 @@ object Tasks {
     fun getTaskUUID() = uuid4()
 
     fun DateState.createEmptyTask(app: AppState, focus: Boolean = false): TaskState {
-        return createTask(app, Task(getTaskUUID(), name = "", completed = false), focus)
+        return createTask(
+            app,
+            Task(getTaskUUID(), name = "", completed = false),
+            focus
+        )!! // UUID clash is effectively impossible
     }
 
     fun DateState.createTask(
@@ -37,10 +41,11 @@ object Tasks {
         task: Task,
         focus: Boolean = false,
         updateDateTaskList: Boolean = true,
-    ): TaskState {
+    ): TaskState? {
         val state = TaskState(task.uuid, task.name, date)
+        if (app.tasks.contains(task.uuid)) return null
         app.tasks[state.uuid] = state
-        tasks.update { it + state }
+        if (updateDateTaskList) tasks.update { it + state }
         if (focus) {
             app.selectedTask.value = state
             state.focusRequested.value = true

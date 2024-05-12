@@ -7,18 +7,17 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.utils.io.errors.*
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
+import me.dvyy.tasks.logic.Tasks
 import me.dvyy.tasks.logic.Tasks.createTask
 import me.dvyy.tasks.model.AppFormats
 import me.dvyy.tasks.model.Task
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.SyncStatus
-import me.dvyy.tasks.state.TaskState
 
 class SyncClient(val url: String, val app: AppState) {
     val inProgress = MutableStateFlow(false)
@@ -53,51 +52,62 @@ class SyncClient(val url: String, val app: AppState) {
         client.get("${url}/date/${date.toEpochDays()}").body()
 
     /** Ensures any currently loaded dates are synced with the server. */
-    suspend fun sync() = coroutineScope {
-        if (inProgress.value) return@coroutineScope
+    suspend fun sync() = withContext(Tasks.singleThread.coroutineContext) {
+        if (inProgress.value) return@withContext
         inProgress.emit(true)
         isError.emit(false)
         try {
             val dateStates = app.loadedDates.values.toList()
             val dates = dateStates.map { it.date }
-            val syncedTasks: List<List<Task>> = getLatestTasks(dates).mapIndexed { i, serverTasks ->
-                val date = dateStates[i]
-                val serverTasksByUUID = serverTasks.associateByTo(mutableMapOf()) { it.uuid }
-                val mergedTasks = mutableListOf<TaskState>()
+            val serverTasksByDate: List<List<Task>> = getLatestTasks(dates)
 
-                date.tasks.value.forEachIndexed { index, localTask ->
-                    val serverTask = serverTasksByUUID[localTask.uuid]
-                    val syncStatus = localTask.syncStatus.value
+            // Filter out local deletions/modifications from received server tasks
+            val incomingUpdates = serverTasksByDate.map {
+                it.filter { task ->
                     when {
-                        // We made changes locally since last sync (prefer client)
-                        syncStatus != SyncStatus.SYNCED || serverTask != null -> {
-                            if (mergedTasks.lastIndex < index) {
-                                mergedTasks.add(localTask)
-                            } else {
-                                mergedTasks.add(index, localTask)
-                            }
-                            serverTasksByUUID.remove(localTask.uuid)
-                        }
-                        // Task was deleted on server and untouched locally (remove)
-                        else -> {
-                            app.tasks.remove(localTask.uuid)
-                        }
+                        // Remove tasks on server we've deleted locally
+                        task.uuid in diffRemoved -> false
+                        // Ignore tasks we've updated locally since last sync
+                        app.tasks[task.uuid]?.syncStatus?.value == SyncStatus.SYNCED -> false
+                        else -> true
                     }
                 }
+            }
 
-                // Remaining tasks are ones the server has that we don't
-                serverTasksByUUID.values.forEachIndexed { index, task ->
-                    if (task.uuid in diffRemoved) return@forEachIndexed
-                    mergedTasks.add(date.createTask(app, task))
-                }
+            // Calculate any local tasks that should be deleted
+            val uuidsOnServer = serverTasksByDate.flatten().mapTo(mutableSetOf()) { it.uuid }
+            val queuedDeletions = app.tasks.values
+                .asSequence()
+                // Only delete tasks that weren't modified locally
+                .filter { it.syncStatus.value == SyncStatus.SYNCED }
+                .map { it.uuid }
+                // Delete anything no longer on the server
+                .minus(uuidsOnServer)
+                .toSet()
 
-                mergedTasks.forEach { it.syncStatus.value = SyncStatus.SYNCED }
-                date.tasks.value = mergedTasks
-                mergedTasks.map { it.toTask() }
+            // Remove deleted tasks from map
+            queuedDeletions.forEach { uuid ->
+                app.tasks.remove(uuid)
+            }
+
+            // Update local date states to reflect changes
+            val updatedTasksByDate = dateStates.mapIndexed { i, date ->
+                val currTasks = date.tasks.value
+                val updatedTasks = currTasks
+                    // Remove deleted
+                    .filter { it.uuid !in queuedDeletions }
+                    // Create states for update tasks and append to the end of the list
+                    // mapNotNull to filter any clashing uuids (keep local)
+                    .plus(incomingUpdates[i].mapNotNull { date.createTask(app, it, updateDateTaskList = false) })
+                // TODO sorting
+                date.tasks.value = updatedTasks
+                updatedTasks.map { it.toTask() }
             }
             diffRemoved.clear()
-            sendTasks(dates.zip(syncedTasks).toMap())
-        } catch (e: IOException) {
+
+            // Send synced tasks back to server
+            sendTasks(dates.zip(updatedTasksByDate).toMap())
+        } catch (e: Exception) {
             e.printStackTrace()
             launch {
                 app.snackbarHostState
