@@ -22,5 +22,10 @@ object AppFormats {
         serializersModule = binaryModule
     }
 
-    val json = Json { serializersModule = networkModule }
+    val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+        encodeDefaults = false
+        serializersModule = networkModule
+    }
 }

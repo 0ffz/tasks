@@ -43,12 +43,14 @@ fun DayList(
                     onDragEnter = { onDragEnterColumn(state, it) },
                 )
         ) {
-            val tasks by state.tasks.collectAsState()
-
-            LaunchedEffect(tasks) {
-                app.queueSaveDay(state)
-            }
             Column {
+                val tasks by state.tasks.collectAsState()
+
+                // Queue save when task deleted
+                LaunchedEffect(tasks) {
+                    app.queueSaveDay(state)
+                }
+
                 LazyColumn {
                     items(tasks, key = { it.uuid }) { task ->
                         ReorderableTask(state, task)

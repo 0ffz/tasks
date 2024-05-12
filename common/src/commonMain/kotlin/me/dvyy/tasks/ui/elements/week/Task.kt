@@ -33,7 +33,9 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.platforms.onHoverIfAvailable
+import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
+import me.dvyy.tasks.state.SyncStatus
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
@@ -52,6 +54,7 @@ fun Task(
 ) {
     val app = LocalAppState
     var isHovered by remember { mutableStateOf(false) }
+
     BoxWithConstraints(
         modifier = Modifier
             .onHoverIfAvailable(
@@ -72,7 +75,6 @@ fun Task(
                     if (!active && task.name.value.isEmpty()) task.delete(app)
                 }
         }
-
         println("Recomposing task")
         TaskSelectedSurface(active) {
             val completed by task.completed.collectAsState()
@@ -108,6 +110,22 @@ fun Task(
                     TaskOptions(task)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun QueueSaveWhenModified(dateState: DateState, task: TaskState) {
+    val name by task.name.collectAsState()
+    val date by task.date.collectAsState()
+    val completed by task.completed.collectAsState()
+    val app = LocalAppState
+    LaunchedEffect(task) {
+        // Drop 1 to ignore initial state, for existing tasks this means they're already saved, for new ones, it's the empty state
+        snapshotFlow { arrayOf(name, date, completed) }.drop(1).collect {
+            task.syncStatus.value = SyncStatus.LOCAL_MODIFIED
+            println("Collected ${task.name.value} in ${dateState.date}")
+            app.queueSaveDay(dateState)
         }
     }
 }

@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
@@ -40,8 +39,6 @@ fun HomeScreen() {
 fun WeekView() {
     val app = LocalAppState
     val scrollState = rememberScrollState()
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         floatingActionButton = {
             Column(
@@ -49,7 +46,7 @@ fun WeekView() {
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 var toggled by remember { mutableStateOf(false) }
-                SyncButton(snackbarHostState)
+                SyncButton()
                 AnimatedVisibility(toggled) {
                     SmallFloatingActionButton(onClick = {}) {
                         Icon(Icons.Rounded.Cloud, contentDescription = "Server setup")
@@ -60,7 +57,7 @@ fun WeekView() {
                 }
             }
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         BoxWithConstraints(
             Modifier
                 .padding(horizontal = 8.dp)
@@ -92,14 +89,15 @@ fun WeekView() {
                                     task.changeDate(app, targetDate.date)
                                 }
 
-                                targetDate.tasks.update {
-                                    it.toMutableList().apply {
+                                targetDate.tasks.emit(
+                                    targetDate.tasks.value.toMutableList().apply {
                                         val index = indexOf(target)
                                         println("Index was $index, tasks ${this.map { it.name.value }}")
+                                        if (index == -1) return@launch
                                         remove(task)
                                         add(index, task)
                                     }
-                                }
+                                )
                             }
                         })
                 }

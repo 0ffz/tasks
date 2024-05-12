@@ -58,12 +58,20 @@ kotlin {
                 implementation(libs.ktor.client.content.negotiation)
             }
         }
+        val javaMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("ca.gosyer:kotlin-multiplatform-appdirs:1.2.0")
+            }
+        }
         val desktopMain by getting {
+            dependsOn(javaMain)
             dependencies {
                 implementation(libs.ktor.client.okhttp)
             }
         }
         val androidMain by getting {
+            dependsOn(javaMain)
             dependencies {
                 api(libs.androidx.appcompat)
                 api(libs.androidx.core.ktx)

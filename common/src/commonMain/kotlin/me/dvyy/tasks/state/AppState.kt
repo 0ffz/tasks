@@ -1,5 +1,6 @@
 package me.dvyy.tasks.state
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
@@ -51,7 +52,7 @@ class TaskState(
 }
 
 enum class SyncStatus {
-    LOCAL_ONLY, UPDATED, PULLED
+    LOCAL_ONLY, LOCAL_MODIFIED, SYNCED
 }
 
 @Stable
@@ -72,15 +73,19 @@ class AppState {
     val loadedDates = mutableMapOf<LocalDate, DateState>()
 
     val sync = SyncClient("http://localhost:8080", this)
+    val snackbarHostState = SnackbarHostState()
 
     init {
-        (0..6).map { weekStart.plus(DatePeriod(days = it)) }
-            .forEach { day ->
-                val state = DateState(day)
-                val tasks = store.loadTasksForDay(day)
-                tasks.forEach { state.createTask(this, it) }
-                loadedDates[day] = state
-            }
+        Tasks.singleThread.launch {
+            (0..6).map { weekStart.plus(DatePeriod(days = it)) }
+                .forEach { day ->
+                    val state = DateState(day)
+                    val tasks = store.loadTasksForDay(day)
+                    tasks.forEach { state.createTask(this@AppState, it) }
+                    loadedDates[day] = state
+                }
+            sync.sync()
+        }
     }
 
     fun saveTasks() {

@@ -8,10 +8,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.key.*
@@ -44,6 +41,10 @@ fun ReorderableTask(
 ) {
     val app = LocalAppState
     val focusManager = LocalFocusManager.current
+
+    QueueSaveWhenModified(date, task)
+
+
     fun nextTaskOrNew() {
         val tasks = date.tasks.value
         if (tasks.lastOrNull() != task) {
@@ -54,6 +55,12 @@ fun ReorderableTask(
     }
 
     val reorder = LocalTaskReorder.current
+    val onDragEnter = remember(task) {
+        { it: DraggedItemState<TaskState> ->
+            app.selectedTask.value = null
+            reorder.onDragEnterItem(task, it)
+        }
+    }
     ReorderableItem(
         state = reorder.state,
         key = task,
@@ -73,18 +80,13 @@ fun ReorderableTask(
                 }
             }
         },
-        onDragEnter = {
-            app.selectedTask.value = null
-            reorder.onDragEnterItem(task, it)
-        },
+        onDragEnter = onDragEnter,
     ) {
+        println("Recomposed task ${task}")
         Task(
             task,
             interactions = TaskInteractions(
-                onNameChange = {
-                    app.queueSaveDay(date)
-                    task.name.value = it
-                },
+                onNameChange = { task.name.value = it },
                 onKeyEvent = { event ->
                     if (event.key == Key.Backspace) {
                         if (task.name.value.isEmpty()) {

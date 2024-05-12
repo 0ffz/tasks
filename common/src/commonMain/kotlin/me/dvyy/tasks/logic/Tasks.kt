@@ -51,6 +51,7 @@ object Tasks {
     fun TaskState.delete(app: AppState) {
         app.loadedDates[date.value]?.tasks?.update { it - this }
         app.tasks.remove(uuid)
+        app.sync.diffRemoved.add(uuid)
     }
 }
 
