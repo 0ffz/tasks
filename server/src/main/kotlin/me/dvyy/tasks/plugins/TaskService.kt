@@ -9,7 +9,7 @@ import me.dvyy.tasks.plugins.TaskService.Tasks.title
 import me.dvyy.tasks.plugins.TaskService.Tasks.uuid
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.notInList
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -39,8 +39,11 @@ class TaskService(private val database: Database) {
 
     suspend fun update(forDate: LocalDate, tasks: List<Task>) {
         dbQuery {
-            Tasks.deleteWhere { date eq forDate or uuid.inList(tasks.map { it.uuid }) }
-            Tasks.batchInsert(tasks) { task ->
+            // Delete any tasks that are no longer present for this date
+            Tasks.deleteWhere { date eq forDate and uuid.notInList(tasks.map { it.uuid }) }
+
+            // Insert or replace any new tasks
+            Tasks.batchReplace(tasks) { task ->
                 this[uuid] = task.uuid
                 this[title] = task.name
                 this[completed] = task.completed

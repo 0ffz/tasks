@@ -12,11 +12,13 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable
-class Task(
+data class Task(
     val uuid: @Contextual Uuid,
     val name: String = "",
     val completed: Boolean = true,
+    val syncStatus: SyncStatus = SyncStatus.SYNCED,
 )
+
 
 fun LongArray.toUuid() = Uuid(this[0], this[1])
 

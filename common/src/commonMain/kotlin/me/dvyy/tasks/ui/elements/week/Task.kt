@@ -32,10 +32,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.delete
+import me.dvyy.tasks.model.SyncStatus
 import me.dvyy.tasks.platforms.onHoverIfAvailable
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
-import me.dvyy.tasks.state.SyncStatus
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple

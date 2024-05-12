@@ -15,9 +15,9 @@ import kotlinx.serialization.json.Json
 import me.dvyy.tasks.logic.Tasks
 import me.dvyy.tasks.logic.Tasks.createTask
 import me.dvyy.tasks.model.AppFormats
+import me.dvyy.tasks.model.SyncStatus
 import me.dvyy.tasks.model.Task
 import me.dvyy.tasks.state.AppState
-import me.dvyy.tasks.state.SyncStatus
 
 class SyncClient(val url: String, val app: AppState) {
     val inProgress = MutableStateFlow(false)
@@ -100,13 +100,20 @@ class SyncClient(val url: String, val app: AppState) {
                     // mapNotNull to filter any clashing uuids (keep local)
                     .plus(incomingUpdates[i].mapNotNull { date.createTask(app, it, updateDateTaskList = false) })
                 // TODO sorting
+                updatedTasks.forEach { it.syncStatus.value = SyncStatus.SYNCED }
                 date.tasks.value = updatedTasks
                 updatedTasks.map { it.toTask() }
             }
             diffRemoved.clear()
+            app.saveTasks()
 
             // Send synced tasks back to server
-            sendTasks(dates.zip(updatedTasksByDate).toMap())
+            val changedDates = dates
+                .zip(updatedTasksByDate)
+                .filterIndexed { index, (_, tasks) -> serverTasksByDate[index] != tasks }
+                .toMap()
+            if (changedDates.isNotEmpty())
+                sendTasks(changedDates)
         } catch (e: Exception) {
             e.printStackTrace()
             launch {

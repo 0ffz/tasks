@@ -6,10 +6,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
+import me.dvyy.tasks.model.SyncStatus
 import me.dvyy.tasks.model.Task
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.TaskState
+import me.dvyy.tasks.ui.elements.week.Highlight
 
 object Tasks {
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -31,7 +33,12 @@ object Tasks {
     fun DateState.createEmptyTask(app: AppState, focus: Boolean = false): TaskState {
         return createTask(
             app,
-            Task(getTaskUUID(), name = "", completed = false),
+            Task(
+                getTaskUUID(),
+                name = "",
+                completed = false,
+                syncStatus = SyncStatus.LOCAL_ONLY,
+            ),
             focus
         )!! // UUID clash is effectively impossible
     }
@@ -42,7 +49,14 @@ object Tasks {
         focus: Boolean = false,
         updateDateTaskList: Boolean = true,
     ): TaskState? {
-        val state = TaskState(task.uuid, task.name, date)
+        val state = TaskState(
+            uuid = task.uuid,
+            name = task.name,
+            date = date,
+            syncStatus = task.syncStatus,
+            completed = task.completed,
+            highlight = Highlight.Unmarked, //TODO store highlight
+        )
         if (app.tasks.contains(task.uuid)) return null
         app.tasks[state.uuid] = state
         if (updateDateTaskList) tasks.update { it + state }

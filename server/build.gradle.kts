@@ -22,6 +22,7 @@ dependencies {
 
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.serialization.json)
+    implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
 
     implementation("org.jetbrains.exposed:exposed-core:0.41.1")
