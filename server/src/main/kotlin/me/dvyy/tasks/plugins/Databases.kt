@@ -44,7 +44,9 @@ fun Application.configureDatabases() {
             call.respond(HttpStatusCode.Created)
         }
         get("/dates") {
-            val dates = call.receive<List<LocalDate>>()
+            val dates = call.parameters["dates"]
+                ?.split(",")
+                ?.map { LocalDate.parse(it) } ?: error("Dates must be specified")
             val tasks = dates.map {
                 async { taskService.tasksForDate(it) }
             }.awaitAll()

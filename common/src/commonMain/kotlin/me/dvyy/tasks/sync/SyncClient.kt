@@ -8,7 +8,9 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.json.Json
 import me.dvyy.tasks.logic.Tasks.createTask
+import me.dvyy.tasks.model.AppFormats
 import me.dvyy.tasks.model.Task
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.SyncStatus
@@ -17,7 +19,12 @@ import me.dvyy.tasks.state.TaskState
 class SyncClient(val url: String, val app: AppState) {
     val client = HttpClient {
         install(ContentNegotiation) {
-            json()
+            json(json = Json {
+                prettyPrint = true
+                isLenient = true
+                ignoreUnknownKeys = true
+                serializersModule = AppFormats.networkModule
+            })
         }
     }
 
@@ -28,11 +35,11 @@ class SyncClient(val url: String, val app: AppState) {
         }
     }
 
-    suspend fun getLatestTasks(dates: List<LocalDate>): List<List<Task>> =
-        client.get("${url}/dates") {
-            contentType(ContentType.Application.Json)
-            setBody(dates)
-        }.body()
+    suspend fun getLatestTasks(dates: List<LocalDate>): List<List<Task>> {
+        return client.get("${url}/dates") {
+            parameter("dates", dates.joinToString(separator = ",") { it.toString() })
+        }.body<List<List<Task>>>()
+    }
 
     suspend fun getLatestTasks(date: LocalDate): List<Task> =
         client.get("${url}/date/${date.toEpochDays()}").body()

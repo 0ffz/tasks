@@ -1,34 +1,48 @@
 package me.dvyy.tasks.model
 
 import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuidFrom
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.LongArraySerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 class Task(
-    @Serializable(with = UuidSerializer::class)
-    val uuid: Uuid,
+    val uuid: @Contextual Uuid,
     val name: String = "",
     val completed: Boolean = true,
 )
 
-@Serializable
-class UuidSurrogate(val msb: Long, val lsb: Long) {
-    fun toUuid() = Uuid(msb, lsb)
-}
+fun LongArray.toUuid() = Uuid(this[0], this[1])
 
 object UuidSerializer : KSerializer<Uuid> {
-    override val descriptor: SerialDescriptor = UuidSurrogate.serializer().descriptor
-    private val surrogate = UuidSurrogate.serializer()
+    val surrogate = LongArraySerializer()
+    override val descriptor: SerialDescriptor = surrogate.descriptor
 
     override fun deserialize(decoder: Decoder): Uuid {
-        return decoder.decodeSerializableValue(surrogate).toUuid()
+        val array = decoder.decodeSerializableValue(surrogate)
+        require(array.size == 2) { "UUID expected a long array of size 2, but found ${array.size}" }
+        return array.toUuid()
     }
 
     override fun serialize(encoder: Encoder, value: Uuid) {
-        encoder.encodeSerializableValue(surrogate, UuidSurrogate(value.mostSignificantBits, value.leastSignificantBits))
+        encoder.encodeSerializableValue(surrogate, longArrayOf(value.mostSignificantBits, value.leastSignificantBits))
+    }
+}
+
+object UuidAsStringSerializer : KSerializer<Uuid> {
+    override val descriptor: SerialDescriptor = String.serializer().descriptor
+
+    override fun deserialize(decoder: Decoder): Uuid {
+        return uuidFrom(decoder.decodeString())
+    }
+
+    override fun serialize(encoder: Encoder, value: Uuid) {
+        encoder.encodeString(value.toString())
     }
 }
