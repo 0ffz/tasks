@@ -40,4 +40,10 @@ class TaskState(
         completed = completed.value,
         syncStatus = syncStatus.value,
     )
+
+    fun updateToMatch(task: Task) {
+        name.value = task.name
+        completed.value = task.completed
+        syncStatus.value = task.syncStatus
+    }
 }

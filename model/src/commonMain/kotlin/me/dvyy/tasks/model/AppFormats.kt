@@ -25,7 +25,7 @@ object AppFormats {
     val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
-        encodeDefaults = true
+        encodeDefaults = false
         serializersModule = networkModule
     }
 }

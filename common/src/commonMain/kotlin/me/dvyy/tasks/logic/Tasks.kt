@@ -24,6 +24,7 @@ object Tasks {
         app.loadedDates[date]?.tasks?.update { it - task }
         app.loadedDates[newDate]?.tasks?.update { it + task }
         println("Changing task date: $date -> $newDate")
+        task.syncStatus.value = SyncStatus.LOCAL_MODIFIED
         this.date.update { newDate }
     }
 

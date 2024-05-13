@@ -120,7 +120,7 @@ fun QueueSaveWhenModified(dateState: DateState, task: TaskState) {
     val date by task.date.collectAsState()
     val completed by task.completed.collectAsState()
     val app = LocalAppState
-    LaunchedEffect(task) {
+    LaunchedEffect(Unit) {
         // Drop 1 to ignore initial state, for existing tasks this means they're already saved, for new ones, it's the empty state
         snapshotFlow { arrayOf(name, date, completed) }.drop(1).collect {
             task.syncStatus.value = SyncStatus.LOCAL_MODIFIED
