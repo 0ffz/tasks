@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.AppStateProvider
 import me.dvyy.tasks.ui.screens.HomeScreen
+import me.dvyy.tasks.ui.screens.auth.AuthDialog
 
 @Composable
 fun App() {
@@ -26,6 +27,7 @@ fun App() {
                     HomeScreen()
                 }
             }
+            AuthDialog()
         }
     }
 }

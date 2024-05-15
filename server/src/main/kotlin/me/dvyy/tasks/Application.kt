@@ -3,6 +3,7 @@ package me.dvyy.tasks
 import io.ktor.server.application.*
 import me.dvyy.tasks.plugins.configureCORS
 import me.dvyy.tasks.plugins.configureDatabases
+import me.dvyy.tasks.plugins.configureSecurity
 import me.dvyy.tasks.plugins.configureSerialization
 
 fun main(args: Array<String>) {
@@ -10,9 +11,8 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureSecurity()
     configureCORS()
     configureSerialization()
     configureDatabases()
-//    configureSecurity()
-//    configureRouting()
 }

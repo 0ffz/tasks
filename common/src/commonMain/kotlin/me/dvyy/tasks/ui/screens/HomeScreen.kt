@@ -31,10 +31,11 @@ import me.dvyy.tasks.ui.elements.week.TaskReorder
 
 @Composable
 fun HomeScreen() {
-    WeekView()
+    Column(Modifier.padding(horizontal = 16.dp)) {
+        WeekView()
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekView() {
     val app = LocalAppState
@@ -52,16 +53,19 @@ fun WeekView() {
                         Icon(Icons.Rounded.Cloud, contentDescription = "Server setup")
                     }
                 }
-                FloatingActionButton(onClick = { toggled = !toggled }) {
-                    Icon(Icons.Rounded.Settings, contentDescription = "Settings")
+                Row {
+                    val username by app.auth.username.collectAsState()
+                    Text(username, style = MaterialTheme.typography.labelLarge)
+                    FloatingActionButton(onClick = { toggled = !toggled }) {
+                        Icon(Icons.Rounded.Settings, contentDescription = "Settings")
+                    }
+
                 }
             }
         },
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         BoxWithConstraints(
-            Modifier
-                .padding(horizontal = 8.dp)
-                .clickableWithoutRipple { app.selectedTask.value = null }
+            Modifier.clickableWithoutRipple { app.selectedTask.value = null }
         ) {
             LaunchedEffect(constraints) {
                 app.isSmallScreen.emit(constraints.maxWidth < AppConstants.VIEW_SMALL_MAX_WIDTH)
@@ -121,9 +125,7 @@ fun WeekView() {
                                 }
                             },
                             fullHeight = !isSmallScreen,
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .padding(bottom = if (dayIndex == 6) 200.dp else 0.dp)
+                            modifier = Modifier.padding(bottom = if (dayIndex == 6) 200.dp else 0.dp)
                         )
                     }
                 }

@@ -2,6 +2,7 @@ package me.dvyy.tasks.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -22,36 +23,41 @@ fun Application.configureDatabases() {
     )
     val taskService = TaskService(database)
     routing {
-        // Single date routes
-        get("/date/{epochDays}") {
-            val date = call.getDate()
-            call.respond(HttpStatusCode.OK, taskService.tasksForDate(date))
-        }
-
-        post("/date/{epochDays}") {
-            val date = call.getDate()
-            val tasks = call.receive<List<Task>>()
-            taskService.update(date, tasks)
-            call.respond(HttpStatusCode.Created)
-        }
-
-        // Bulk date routes
-        get("/dates") {
-            val dates = call.parameters["dates"]
-                ?.split(",")
-                ?.map { LocalDate.parse(it) } ?: error("Dates must be specified")
-            val tasks = dates.map {
-                async { taskService.tasksForDate(it) }
-            }.awaitAll()
-            call.respond(HttpStatusCode.OK, tasks)
-        }
-
-        post("/dates") {
-            val tasksPerDate = call.receive<Map<LocalDate, List<Task>>>()
-            tasksPerDate.forEach { (date, tasks) ->
-                taskService.update(date, tasks)
+        authenticate {
+            get("/test") {
+                call.respond(HttpStatusCode.OK, "Hello, ${call.principal<UserSession>()}!")
             }
-            call.respond(HttpStatusCode.Created)
+            // Single date routes
+            get("/date/{epochDays}") {
+                val date = call.getDate()
+                call.respond(HttpStatusCode.OK, taskService.tasksForDate(date))
+            }
+
+            post("/date/{epochDays}") {
+                val date = call.getDate()
+                val tasks = call.receive<List<Task>>()
+                taskService.update(date, tasks)
+                call.respond(HttpStatusCode.Created)
+            }
+
+            // Bulk date routes
+            get("/dates") {
+                val dates = call.parameters["dates"]
+                    ?.split(",")
+                    ?.map { LocalDate.parse(it) } ?: error("Dates must be specified")
+                val tasks = dates.map {
+                    async { taskService.tasksForDate(it) }
+                }.awaitAll()
+                call.respond(HttpStatusCode.OK, tasks)
+            }
+
+            post("/dates") {
+                val tasksPerDate = call.receive<Map<LocalDate, List<Task>>>()
+                tasksPerDate.forEach { (date, tasks) ->
+                    taskService.update(date, tasks)
+                }
+                call.respond(HttpStatusCode.Created)
+            }
         }
     }
 }

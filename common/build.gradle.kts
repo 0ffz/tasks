@@ -56,6 +56,9 @@ kotlin {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.serialization.json.eap)
                 implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.client.auth)
+                implementation("com.russhwolf:multiplatform-settings:1.1.1")
+                implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
             }
         }
         val javaMain by creating {

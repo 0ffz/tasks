@@ -31,6 +31,7 @@ class AppState {
     val selectedTask = MutableStateFlow<TaskState?>(null)
     val isSmallScreen = MutableStateFlow(false)
     val loadedDates = mutableMapOf<LocalDate, DateState>()
+    val auth = Auth()
 
     val sync = SyncClient("http://localhost:4000", this)
     val snackbarHostState = SnackbarHostState()

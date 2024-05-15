@@ -3,6 +3,8 @@ package me.dvyy.tasks.sync
 import com.benasher44.uuid.Uuid
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -26,7 +28,7 @@ class SyncClient(val url: String, val app: AppState) {
     val isError = MutableStateFlow(false)
     val diffRemoved = mutableSetOf<Uuid>()
 
-    val client = HttpClient {
+    private val baseClient = HttpClient {
         install(ContentNegotiation) {
             json(json = Json {
                 prettyPrint = true
@@ -35,6 +37,26 @@ class SyncClient(val url: String, val app: AppState) {
                 serializersModule = AppFormats.networkModule
             })
         }
+    }
+
+    private var client = baseClient
+
+    fun HttpClient.withAuth(auth: () -> DigestAuthCredentials?): HttpClient {
+        return config {
+            install(Auth) {
+                digest {
+                    credentials { auth() }
+                }
+            }
+        }
+    }
+
+    fun updateAuth() {
+        client = baseClient.withAuth { app.auth.getAuth() }
+    }
+
+    suspend fun checkAuth(auth: DigestAuthCredentials): Boolean {
+        return client.withAuth { auth }.get("$url/auth/check").status == HttpStatusCode.OK
     }
 
     suspend fun sendTasks(tasksPerDate: Map<LocalDate, List<Task>>) {
