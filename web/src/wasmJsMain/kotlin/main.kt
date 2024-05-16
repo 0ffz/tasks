@@ -1,6 +1,6 @@
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.CanvasBasedWindow
-import me.dvyy.tasks.App
+import me.dvyy.tasks.ui.App
 import org.w3c.dom.Window
 
 external val window: Window

@@ -3,7 +3,7 @@ package me.dvyy.tasks.ui.screens.auth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Login
+import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -27,7 +27,7 @@ fun AuthDialog() {
     }
     AlertDialog(
         onDismissRequest = { dismiss() },
-        icon = { Icon(Icons.AutoMirrored.Rounded.Login, contentDescription = "Login icon") },
+        icon = { Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Login icon") },
         title = { Text("Login") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

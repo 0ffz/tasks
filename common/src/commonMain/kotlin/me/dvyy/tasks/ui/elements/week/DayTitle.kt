@@ -17,7 +17,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun DayTitle(date: LocalDate, isToday: Boolean, loading: Boolean) {
+fun DayTitle(
+    date: LocalDate,
+    isToday: Boolean,
+    loading: Boolean,
+    showDivider: Boolean = true,
+) {
     val color =
         if (isToday) MaterialTheme.colorScheme.tertiary
         else MaterialTheme.colorScheme.onPrimaryContainer
@@ -41,7 +46,7 @@ fun DayTitle(date: LocalDate, isToday: Boolean, loading: Boolean) {
             color = color.copy(alpha = 0.6f)
         )
     }
-    Box {
+    if (showDivider) Box {
         if (!loading) HorizontalDivider(
             thickness = 2.dp,
             color = color

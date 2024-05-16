@@ -7,10 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import com.benasher44.uuid.Uuid
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.datetime.*
+import me.dvyy.tasks.logic.Dates.getOrLoadDate
 import me.dvyy.tasks.logic.Tasks
 import me.dvyy.tasks.platforms.PersistentStore
 import me.dvyy.tasks.sync.SyncClient
@@ -39,9 +39,15 @@ class AppState {
     val activeDialog = MutableStateFlow<AppDialog?>(null)
     val drawerState = DrawerState(initialValue = DrawerValue.Closed)
 
-    fun loadTasksForWeek() {
-        loadedDates.clear()
-        tasks.clear()
+    suspend fun loadTasksForWeek() = withContext(Tasks.singleThread.coroutineContext) {
+        (0..6)
+            .map { weekStart.value.plus(DatePeriod(days = it)) }
+            .map { day ->
+                async(Tasks.ioThread.coroutineContext) {
+                    getOrLoadDate(day)
+                }
+            }
+            .awaitAll()
     }
 
     fun saveTasks() {

@@ -16,4 +16,6 @@ object Dates {
             }
         }
     }
+
+    fun AppState.getDateIfLoaded(date: LocalDate) = loadedDates[date]
 }

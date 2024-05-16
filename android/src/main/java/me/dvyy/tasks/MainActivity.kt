@@ -1,11 +1,11 @@
-package me.dvyy
+package me.dvyy.tasks
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import ca.gosyer.appdirs.impl.attachAppDirs
-import me.dvyy.tasks.App
+import me.dvyy.tasks.ui.App
 
 
 class MainActivity : ComponentActivity() {

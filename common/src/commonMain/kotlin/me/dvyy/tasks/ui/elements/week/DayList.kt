@@ -12,6 +12,7 @@ import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.datetime.LocalDate
+import me.dvyy.tasks.logic.Dates.getDateIfLoaded
 import me.dvyy.tasks.logic.Dates.getOrLoadDate
 import me.dvyy.tasks.logic.Tasks.createEmptyTask
 import me.dvyy.tasks.state.DateState
@@ -30,7 +31,7 @@ fun DayList(
     modifier: Modifier = Modifier,
 ) {
     val app = LocalAppState
-    val producedState by produceState<DateState?>(initialValue = null, date) {
+    val producedState by produceState<DateState?>(initialValue = app.getDateIfLoaded(date), date) {
         value = null
         value = app.getOrLoadDate(date)
     }
@@ -63,7 +64,7 @@ fun DayList(
                     }
                 }
                 val emptySpace = remember(fullHeight) {
-                    if (fullHeight) Modifier.fillMaxHeight() else Modifier.height(AppConstants.taskHeight)
+                    /*if (fullHeight) Modifier.fillMaxHeight() else */Modifier.height(AppConstants.taskHeight)
                 }
                 Column(emptySpace.clickableWithoutRipple {
                     if (tasks.lastOrNull()?.name?.value?.isEmpty() != true)

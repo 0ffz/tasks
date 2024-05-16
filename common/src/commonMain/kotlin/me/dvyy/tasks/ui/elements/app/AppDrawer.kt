@@ -1,4 +1,4 @@
-package me.dvyy.tasks
+package me.dvyy.tasks.ui.elements.app
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import me.dvyy.tasks.NoRippleInteractionSource
 import me.dvyy.tasks.state.AppDialog
 import me.dvyy.tasks.state.LocalAppState
 

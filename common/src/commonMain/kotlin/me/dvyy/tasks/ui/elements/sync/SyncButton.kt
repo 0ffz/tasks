@@ -5,8 +5,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Sync
-import androidx.compose.material.icons.rounded.SyncProblem
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
@@ -35,8 +35,8 @@ fun SyncButton() {
         val inProgress by app.sync.inProgress.collectAsState()
         val isError by app.sync.isError.collectAsState()
         val icon = remember(isError) {
-            if (isError) Icons.Rounded.SyncProblem
-            else Icons.Rounded.Sync
+            if (isError) Icons.Outlined.SyncProblem
+            else Icons.Outlined.Sync
         }
         Icon(
             icon,

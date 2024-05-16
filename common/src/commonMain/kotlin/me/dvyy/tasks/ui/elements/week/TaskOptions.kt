@@ -3,7 +3,9 @@ package me.dvyy.tasks.ui.elements.week
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,25 +19,39 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import me.dvyy.tasks.logic.Tasks.changeDate
+import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.ui.AppConstants
 
 @Composable
-fun TaskOptions(task: TaskState?) = Box(Modifier) {
-    Box(Modifier.padding(horizontal = AppConstants.taskTextPadding, vertical = 4.dp)) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            val rememberedTask by snapshotFlow { task }.filterNotNull().collectAsState(task)
-            if (rememberedTask == null) return
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                HighlightButton(rememberedTask!!, Highlight.Unmarked)
-                HighlightButton(rememberedTask!!, Highlight.Important)
-                HighlightButton(rememberedTask!!, Highlight.InProgress)
-                TaskDatePicker(rememberedTask!!)
+fun TaskOptions(
+    task: TaskState?,
+    submitAction: (() -> Unit)? = null
+) = Box(Modifier.padding(horizontal = AppConstants.taskTextPadding, vertical = 4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        val rememberedTask by snapshotFlow { task }.filterNotNull().collectAsState(task)
+        if (rememberedTask == null) return
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            HighlightButton(rememberedTask!!, Highlight.Unmarked)
+            HighlightButton(rememberedTask!!, Highlight.Important)
+            HighlightButton(rememberedTask!!, Highlight.InProgress)
+            TaskDatePicker(rememberedTask!!)
+            Spacer(Modifier.weight(1f))
+            if (submitAction != null) {
+                FilledIconButton(onClick = submitAction) {
+                    Icon(Icons.Outlined.Done, contentDescription = "Submit")
+                }
+            } else {
+                val app = LocalAppState
+                IconButton(onClick = { rememberedTask!!.delete(app) }) {
+                    Icon(Icons.Outlined.Delete, contentDescription = "Delete")
+                }
             }
+
         }
     }
 }
@@ -52,7 +68,7 @@ fun TaskDatePicker(task: TaskState) {
 
     AssistChip(
         label = { Text("Move") },
-        leadingIcon = { Icon(Icons.Rounded.CalendarMonth, contentDescription = "Move") },
+        leadingIcon = { Icon(Icons.Outlined.CalendarMonth, contentDescription = "Move") },
         onClick = { showDatePicker = true },
     )
     if (showDatePicker) DatePickerDialog(

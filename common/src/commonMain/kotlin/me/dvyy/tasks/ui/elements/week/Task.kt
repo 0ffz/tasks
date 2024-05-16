@@ -11,8 +11,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.RadioButtonUnchecked
-import androidx.compose.material.icons.rounded.TaskAlt
+import androidx.compose.material.icons.outlined.RadioButtonUnchecked
+import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -85,9 +85,7 @@ fun Task(
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     TaskHighlight(task)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         val isSmall by app.isSmallScreen.collectAsState()
 
                         TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true)
@@ -172,7 +170,6 @@ fun TaskTextField(
     interactions: TaskInteractions,
     modifier: Modifier = Modifier,
 ) {
-    val app = LocalAppState
     val taskName by task.name.collectAsState()
     val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
@@ -243,8 +240,8 @@ fun TaskCheckBox(completed: Boolean, task: TaskState) {
         modifier = Modifier.size(AppConstants.taskHeight)
     ) {
         when {
-            completed -> Icon(Icons.Rounded.TaskAlt, contentDescription = "Completed")
-            else -> Icon(Icons.Rounded.RadioButtonUnchecked, contentDescription = "Mark as completed")
+            completed -> Icon(Icons.Outlined.TaskAlt, contentDescription = "Completed")
+            else -> Icon(Icons.Outlined.RadioButtonUnchecked, contentDescription = "Mark as completed")
         }
     }
 }
