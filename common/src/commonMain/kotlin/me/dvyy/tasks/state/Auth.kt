@@ -13,7 +13,6 @@ class Auth {
     val settings = Settings()
     val username = MutableStateFlow(settings.get<String>(KEY_USERNAME))
 
-
     fun setAuth(username: String, password: String) {
         settings[KEY_USERNAME] = username
         settings[KEY_PASSWORD] = password

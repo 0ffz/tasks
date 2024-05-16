@@ -66,22 +66,10 @@ fun WeekView() {
                     })
             }
             CompositionLocalProvider(LocalTaskReorder provides reorder) {
-                val weekStart by app.weekStart.collectAsState()
+                val weekStart by app.time.weekStart.collectAsState()
                 LaunchedEffect(weekStart) {
                     app.loadTasksForWeek()
                 }
-//                val padding = WindowInsets.ime
-//                val density = LocalDensity.current
-//                LaunchedEffect(density) {
-//                    println(padding)
-//                    var prev = 0f
-//                    snapshotFlow { padding.getBottom(density) }
-//                        .collectLatest {
-//                            scrollState.scrollBy((it - prev))
-//                            println("Padding ${it - prev}")
-//                            prev = it.toFloat()
-//                        }
-//                }
                 Column {
                     NonlazyGrid(
                         columns = columns,
@@ -91,7 +79,7 @@ fun WeekView() {
                         val day = weekStart.plus(DatePeriod(days = dayIndex))
                         DayList(
                             day,
-                            isToday = day == app.today,
+                            isToday = day == app.time.today,
                             reorderState = reorderState,
                             onDragEnterColumn = { date, state ->
                                 println("Entered column ${date.date}")

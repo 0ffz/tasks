@@ -7,7 +7,9 @@ import androidx.compose.runtime.Stable
 import com.benasher44.uuid.Uuid
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.datetime.*
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 import me.dvyy.tasks.logic.Dates.getOrLoadDate
 import me.dvyy.tasks.logic.Tasks
 import me.dvyy.tasks.platforms.PersistentStore
@@ -15,10 +17,8 @@ import me.dvyy.tasks.sync.SyncClient
 
 @Stable
 class AppState {
-    val timezone = TimeZone.currentSystemDefault()
-    val today = Clock.System.now().toLocalDateTime(timezone).date
-    val weekStart = MutableStateFlow(today.minus(today.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY))
     val store = PersistentStore()
+    val time = TimeState()
 
     val tasks = mutableMapOf<Uuid, TaskState>()
     val selectedTask = MutableStateFlow<TaskState?>(null)
@@ -32,7 +32,7 @@ class AppState {
 
     suspend fun loadTasksForWeek() = withContext(Tasks.ioThread.coroutineContext) {
         (0..6)
-            .map { weekStart.value.plus(DatePeriod(days = it)) }
+            .map { time.weekStart.value.plus(DatePeriod(days = it)) }
             .map { day ->
                 async(Tasks.ioThread.coroutineContext) {
                     getOrLoadDate(day)
@@ -64,13 +64,5 @@ class AppState {
             daysToSave.clear()
             saveQueued = false
         }
-    }
-
-    fun nextWeek() {
-        weekStart.value = weekStart.value.plus(1, DateTimeUnit.WEEK)
-    }
-
-    fun previousWeek() {
-        weekStart.value = weekStart.value.minus(1, DateTimeUnit.WEEK)
     }
 }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import me.dvyy.tasks.state.AppDialog
 import me.dvyy.tasks.state.LocalAppState
-import me.dvyy.tasks.ui.screens.auth.AuthDialog
+import me.dvyy.tasks.ui.elements.sync.AuthDialog
 
 @Composable
 fun AppDialogs() {

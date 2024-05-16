@@ -6,16 +6,16 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import me.dvyy.tasks.state.AppStateProvider
+import me.dvyy.tasks.state.LocalTimeState
 
 @Composable
 fun AppTopBarActions() {
-    val app = AppStateProvider.current
+    val time = LocalTimeState.current
     // Previous and next icon buttons
-    FilledTonalIconButton(onClick = { app.previousWeek() }) {
+    FilledTonalIconButton(onClick = { time.previousWeek() }) {
         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Previous")
     }
-    FilledTonalIconButton(onClick = { app.nextWeek() }) {
+    FilledTonalIconButton(onClick = { time.nextWeek() }) {
         Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = "Next")
     }
 }

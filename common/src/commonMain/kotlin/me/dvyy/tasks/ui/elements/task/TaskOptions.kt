@@ -23,6 +23,7 @@ import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.state.AppConstants
 import me.dvyy.tasks.state.LocalAppState
+import me.dvyy.tasks.state.LocalTimeState
 import me.dvyy.tasks.state.TaskState
 
 @Composable
@@ -63,8 +64,9 @@ fun TaskDatePicker(task: TaskState) {
     var showDatePicker by remember { mutableStateOf(false) }
     val taskDate by task.date.collectAsState()
     val app = LocalAppState
+    val time = LocalTimeState.current
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = taskDate.atStartOfDayIn(app.timezone).toEpochMilliseconds()
+        initialSelectedDateMillis = taskDate.atStartOfDayIn(time.timezone).toEpochMilliseconds()
     )
 
     AssistChip(

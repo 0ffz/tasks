@@ -1,4 +1,4 @@
-package me.dvyy.tasks.ui.screens.auth
+package me.dvyy.tasks.ui.elements.sync
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

@@ -11,10 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import me.dvyy.tasks.state.AppResponsiveUI
-import me.dvyy.tasks.state.AppState
-import me.dvyy.tasks.state.AppStateProvider
-import me.dvyy.tasks.state.LocalResponsiveUI
+import me.dvyy.tasks.state.*
 import me.dvyy.tasks.ui.elements.app.AppDialogs
 import me.dvyy.tasks.ui.elements.app.AppDrawer
 import me.dvyy.tasks.ui.elements.app.AppTopBar
@@ -29,12 +26,15 @@ fun App(state: AppState? = null) {
         val app = state ?: remember { AppState() }
         val windowSizeClass = calculateWindowSizeClass()
         val responsive = remember(windowSizeClass) { AppResponsiveUI(windowSizeClass) }
-        CompositionLocalProvider(AppStateProvider provides app, LocalResponsiveUI provides responsive) {
+        CompositionLocalProvider(
+            AppStateProvider provides app,
+            LocalResponsiveUI provides responsive,
+            LocalTimeState provides app.time,
+        ) {
             var ready by remember { mutableStateOf(false) }
             BoxWithConstraints(
                 Modifier.clickableWithoutRipple { app.selectedTask.value = null }
             ) {
-
                 LaunchedEffect(Unit) {
                     app.loadTasksForWeek()
                     ready = true
