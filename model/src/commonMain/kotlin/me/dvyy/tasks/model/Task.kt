@@ -16,9 +16,9 @@ data class Task(
     val uuid: @Contextual Uuid,
     val name: String = "",
     val completed: Boolean = true,
+    val highlight: Highlight = Highlight.Unmarked,
     val syncStatus: SyncStatus = SyncStatus.SYNCED,
 )
-
 
 fun LongArray.toUuid() = Uuid(this[0], this[1])
 

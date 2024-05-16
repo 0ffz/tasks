@@ -1,4 +1,4 @@
-package me.dvyy.tasks.ui.elements.week
+package me.dvyy.tasks.ui.elements.task
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
@@ -114,12 +114,12 @@ fun QueueSaveWhenModified(dateState: DateState, task: TaskState) {
     val name by task.name.collectAsState()
     val date by task.date.collectAsState()
     val completed by task.completed.collectAsState()
+    val highlight by task.highlight.collectAsState()
     val app = LocalAppState
     LaunchedEffect(dateState, task) {
         // Drop 1 to ignore initial state, for existing tasks this means they're already saved, for new ones, it's the empty state
-        snapshotFlow { arrayOf(name, date, completed) }.drop(1).collect {
+        snapshotFlow { arrayOf(name, date, completed, highlight) }.drop(1).collect {
             task.syncStatus.value = SyncStatus.LOCAL_MODIFIED
-            println("Collected ${task.name.value} in ${dateState.date}")
             app.queueSaveDay(dateState)
         }
     }

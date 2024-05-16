@@ -1,4 +1,4 @@
-package me.dvyy.tasks.ui.elements.week
+package me.dvyy.tasks.ui.elements.task
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -20,6 +20,7 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import me.dvyy.tasks.logic.Tasks.changeDate
 import me.dvyy.tasks.logic.Tasks.delete
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.state.AppConstants
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState

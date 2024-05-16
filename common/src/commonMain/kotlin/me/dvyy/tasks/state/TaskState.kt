@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.SyncStatus
 import me.dvyy.tasks.model.Task
-import me.dvyy.tasks.ui.elements.week.Highlight
 
 @Stable
 class TaskState(
@@ -39,6 +39,7 @@ class TaskState(
         name = name.value,
         completed = completed.value,
         syncStatus = syncStatus.value,
+        highlight = highlight.value,
     )
 
     fun updateToMatch(task: Task) {

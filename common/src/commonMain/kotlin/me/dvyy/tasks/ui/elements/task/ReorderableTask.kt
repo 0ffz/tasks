@@ -1,4 +1,4 @@
-package me.dvyy.tasks.ui.elements.week
+package me.dvyy.tasks.ui.elements.task
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +20,7 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.createEmptyTask
 import me.dvyy.tasks.logic.Tasks.delete
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.platforms.PlatformSpecifics
 import me.dvyy.tasks.state.AppConstants
 import me.dvyy.tasks.state.DateState

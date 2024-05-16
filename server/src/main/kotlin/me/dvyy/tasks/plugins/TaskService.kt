@@ -2,9 +2,11 @@ package me.dvyy.tasks.plugins
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDate
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.Task
 import me.dvyy.tasks.plugins.TaskService.Tasks.completed
 import me.dvyy.tasks.plugins.TaskService.Tasks.date
+import me.dvyy.tasks.plugins.TaskService.Tasks.highlight
 import me.dvyy.tasks.plugins.TaskService.Tasks.title
 import me.dvyy.tasks.plugins.TaskService.Tasks.uuid
 import org.jetbrains.exposed.sql.*
@@ -19,6 +21,7 @@ class TaskService(private val database: Database) {
         val uuid = uuid("uuid")
         val title = mediumText("title")
         val completed = bool("completed")
+        val highlight = enumeration<Highlight>("highlight")
         val date = date("date").index()
         override val primaryKey = PrimaryKey(uuid)
     }
@@ -34,7 +37,7 @@ class TaskService(private val database: Database) {
 
     suspend fun tasksForDate(date: LocalDate): List<Task> = dbQuery {
         Tasks.select { Tasks.date eq date }
-            .map { Task(it[uuid], it[title], it[completed]) }
+            .map { Task(it[uuid], it[title], it[completed], it[highlight]) }
     }
 
     suspend fun update(forDate: LocalDate, tasks: List<Task>) {
@@ -47,6 +50,7 @@ class TaskService(private val database: Database) {
                 this[uuid] = task.uuid
                 this[title] = task.name
                 this[completed] = task.completed
+                this[highlight] = task.highlight
                 this[date] = forDate
             }
         }

@@ -10,12 +10,17 @@ import androidx.compose.ui.unit.dp
 import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.logic.Dates.getOrLoadDate
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.SyncStatus
 import me.dvyy.tasks.state.AppConstants
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.AppStateProvider
 import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.ui.elements.week.*
+import me.dvyy.tasks.ui.elements.task.TaskHighlight
+import me.dvyy.tasks.ui.elements.task.TaskInteractions
+import me.dvyy.tasks.ui.elements.task.TaskOptions
+import me.dvyy.tasks.ui.elements.task.TaskTextField
+import me.dvyy.tasks.ui.elements.week.DayTitle
 import me.dvyy.tasks.ui.theme.AppTheme
 
 @Composable
