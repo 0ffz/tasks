@@ -3,8 +3,6 @@ package me.dvyy.tasks.ui.screens.home
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -20,6 +18,7 @@ import kotlinx.datetime.plus
 import me.dvyy.tasks.logic.Tasks
 import me.dvyy.tasks.logic.Tasks.changeDate
 import me.dvyy.tasks.state.LocalAppState
+import me.dvyy.tasks.state.LocalResponsiveUI
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.ui.elements.week.DayList
 import me.dvyy.tasks.ui.elements.week.LocalTaskReorder
@@ -41,8 +40,9 @@ fun WeekView() {
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         val reorderState = rememberReorderState<TaskState>()
         ReorderContainer(state = reorderState) {
-            val isSmallScreen by app.isSmallScreen.collectAsState()
-            val columns = remember(isSmallScreen) { if (isSmallScreen) 1 else 7 }
+            val responsive = LocalResponsiveUI.current
+            val columns = responsive.dateColumns
+            val isSmallScreen = responsive.atMostSmall
             val scrollModifier = remember(isSmallScreen) {
                 if (isSmallScreen) Modifier.verticalScroll(scrollState) else Modifier
             }
@@ -79,6 +79,18 @@ fun WeekView() {
                 LaunchedEffect(weekStart) {
                     app.loadTasksForWeek()
                 }
+//                val padding = WindowInsets.ime
+//                val density = LocalDensity.current
+//                LaunchedEffect(density) {
+//                    println(padding)
+//                    var prev = 0f
+//                    snapshotFlow { padding.getBottom(density) }
+//                        .collectLatest {
+//                            scrollState.scrollBy((it - prev))
+//                            println("Padding ${it - prev}")
+//                            prev = it.toFloat()
+//                        }
+//                }
                 Column {
                     NonlazyGrid(
                         columns = columns,
@@ -102,35 +114,9 @@ fun WeekView() {
                                 .padding(
                                     start = 6.dp,
                                     end = 6.dp,
-                                    bottom = if (dayIndex == 6) 200.dp else 0.dp
+                                    bottom = if (dayIndex == 6) 500.dp else 0.dp
                                 )
                         )
-                    }
-                    LazyRow {
-                        items(10) { dayIndex ->
-                            val day = weekStart.plus(DatePeriod(days = dayIndex))
-                            DayList(
-                                day,
-                                isToday = day == app.today,
-                                reorderState = reorderState,
-                                onDragEnterColumn = { date, state ->
-                                    println("Entered column ${date.date}")
-                                    val task = state.data
-                                    Tasks.singleThread.launch {
-                                        task.changeDate(app, date.date)
-                                    }
-                                },
-                                fullHeight = !isSmallScreen,
-                                modifier = Modifier
-                                    .width(400.dp)
-                                    .padding(
-                                        start = 6.dp,
-                                        end = 6.dp,
-                                        bottom = if (dayIndex == 6) 200.dp else 0.dp
-                                    )
-                            )
-
-                        }
                     }
                 }
             }

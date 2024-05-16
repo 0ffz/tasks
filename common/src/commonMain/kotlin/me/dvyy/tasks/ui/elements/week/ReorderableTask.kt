@@ -21,10 +21,10 @@ import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.createEmptyTask
 import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.platforms.PlatformSpecifics
+import me.dvyy.tasks.state.AppConstants
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.ui.AppConstants
 
 
 data class TaskReorder(

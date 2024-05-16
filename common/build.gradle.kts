@@ -57,9 +57,10 @@ kotlin {
                 implementation(libs.ktor.serialization.json.eap)
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.client.auth)
-                implementation("com.russhwolf:multiplatform-settings:1.1.1")
-                implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
+                implementation(libs.multiplatform.settings)
+                implementation(libs.multiplatform.settings.no.arg)
                 implementation(compose.components.resources)
+                implementation("dev.chrisbanes.material3:material3-window-size-class-multiplatform:0.5.0")
             }
         }
         val javaMain by creating {
@@ -81,17 +82,6 @@ kotlin {
                 api(libs.androidx.core.ktx)
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.activity.compose)
-//                api("androidx.appcompat:appcompat:1.5.1")
-//                api("androidx.core:core-ktx:1.9.0")
-//                implementation(libs.coil.kt.compose)
-//                implementation(libs.androidx.navigation.compose)
-//                implementation(libs.androidx.compose.ui.util)
-//                implementation(libs.androidx.lifecycle.viewModelCompose)
-//                implementation(libs.androidx.constraintlayout.compose)
-//                implementation(libs.androidx.core.ktx)
-//                implementation(libs.androidx.activity.compose)
-//                implementation(libs.androidx.lifecycle.viewModelCompose)
-//                implementation(libs.androidx.lifecycle.runtime.compose)
             }
         }
     }

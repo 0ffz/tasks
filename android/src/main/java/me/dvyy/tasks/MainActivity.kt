@@ -9,8 +9,6 @@ import me.dvyy.tasks.ui.App
 
 
 class MainActivity : ComponentActivity() {
-
-    //    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         application.attachAppDirs()

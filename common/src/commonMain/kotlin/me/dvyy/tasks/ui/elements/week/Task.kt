@@ -34,10 +34,7 @@ import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.logic.Tasks.delete
 import me.dvyy.tasks.model.SyncStatus
 import me.dvyy.tasks.platforms.onHoverIfAvailable
-import me.dvyy.tasks.state.DateState
-import me.dvyy.tasks.state.LocalAppState
-import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.ui.AppConstants
+import me.dvyy.tasks.state.*
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 
 @Immutable
@@ -86,13 +83,13 @@ fun Task(
                 ) {
                     TaskHighlight(task)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        val isSmall by app.isSmallScreen.collectAsState()
+                        val responsive = LocalResponsiveUI.current
 
                         TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true)
                             .onFocusEvent {
                                 if (it.isFocused) app.selectedTask.value = task
                             })
-                        if (isSmall || isHovered || active)
+                        if (responsive.atMostSmall || isHovered || active)
                             TaskCheckBox(completed, task)
                     }
                 }
@@ -204,10 +201,10 @@ fun TaskTextField(
     }
     BasicTextField(
         value = taskName,
-        readOnly = completed || (!active),
+        readOnly = completed,// || (!active),
         singleLine = true,
         onValueChange = interactions.onNameChange,
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
         textStyle = textStyle,
         keyboardActions = interactions.keyboardActions,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),

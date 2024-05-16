@@ -23,7 +23,6 @@ import me.dvyy.tasks.state.LocalAppState
 
 @Composable
 fun AppDrawer(content: @Composable () -> Unit) {
-    val scope = rememberCoroutineScope()
     val app = LocalAppState
     ModalNavigationDrawer(
         drawerState = app.drawerState,

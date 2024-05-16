@@ -20,9 +20,9 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import me.dvyy.tasks.logic.Tasks.changeDate
 import me.dvyy.tasks.logic.Tasks.delete
+import me.dvyy.tasks.state.AppConstants
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.ui.AppConstants
 
 @Composable
 fun TaskOptions(

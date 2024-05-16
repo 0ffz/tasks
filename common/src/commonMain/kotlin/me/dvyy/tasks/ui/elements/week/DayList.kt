@@ -15,10 +15,10 @@ import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.logic.Dates.getDateIfLoaded
 import me.dvyy.tasks.logic.Dates.getOrLoadDate
 import me.dvyy.tasks.logic.Tasks.createEmptyTask
+import me.dvyy.tasks.state.AppConstants
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 
 @Composable
