@@ -59,12 +59,13 @@ kotlin {
                 implementation(libs.ktor.client.auth)
                 implementation("com.russhwolf:multiplatform-settings:1.1.1")
                 implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
+                implementation(compose.components.resources)
             }
         }
         val javaMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation("ca.gosyer:kotlin-multiplatform-appdirs:1.2.0")
+                implementation(libs.kotlin.multiplatform.appdirs)
             }
         }
         val desktopMain by getting {

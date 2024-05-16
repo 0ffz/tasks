@@ -15,16 +15,13 @@ import me.dvyy.tasks.state.LocalAppState
 @Composable
 fun AuthDialog() {
     val app = LocalAppState
-    var visible by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
     var error by remember { mutableStateOf(false) }
-
-    if (!visible) return
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     fun dismiss() {
-        visible = false
+        app.activeDialog.value = null
         username = ""
         password = ""
     }

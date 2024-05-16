@@ -15,12 +15,12 @@ actual class PersistentStore actual constructor() {
     val dirs = AppDirs("tasks", "dvyy")
     val dataPath = Path(dirs.getUserDataDir())
 
-    fun tasksPath(date: LocalDate) = dataPath / "dates" / date.toString() / "tasks.json"
+    fun tasksPath(date: LocalDate) = dataPath / "dates" / "$date.json"
 
     actual fun saveDay(date: LocalDate, tasks: List<Task>) {
         val path = tasksPath(date)
-        if (tasks.isEmpty() && path.exists()) {
-            path.deleteExisting()
+        if (tasks.isEmpty()) {
+            path.deleteIfExists()
             return
         }
         path.createParentDirectories()

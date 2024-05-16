@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":common"))
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.kotlin.multiplatform.appdirs)
 }
 
 val androidKeystoreFile: String? by project

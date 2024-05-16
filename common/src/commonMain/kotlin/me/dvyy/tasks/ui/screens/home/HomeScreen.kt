@@ -1,15 +1,14 @@
-package me.dvyy.tasks.ui.screens
+package me.dvyy.tasks.ui.screens.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Cloud
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
@@ -23,7 +22,6 @@ import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.ui.AppConstants
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
-import me.dvyy.tasks.ui.elements.sync.SyncButton
 import me.dvyy.tasks.ui.elements.week.DayList
 import me.dvyy.tasks.ui.elements.week.LocalTaskReorder
 import me.dvyy.tasks.ui.elements.week.NonlazyGrid
@@ -31,7 +29,7 @@ import me.dvyy.tasks.ui.elements.week.TaskReorder
 
 @Composable
 fun HomeScreen() {
-    Column(Modifier.padding(horizontal = 16.dp)) {
+    Column(Modifier.padding(8.dp)) {
         WeekView()
     }
 }
@@ -42,26 +40,7 @@ fun WeekView() {
     val scrollState = rememberScrollState()
     Scaffold(
         floatingActionButton = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                var toggled by remember { mutableStateOf(false) }
-                SyncButton()
-                AnimatedVisibility(toggled) {
-                    SmallFloatingActionButton(onClick = {}) {
-                        Icon(Icons.Rounded.Cloud, contentDescription = "Server setup")
-                    }
-                }
-                Row {
-                    val username by app.auth.username.collectAsState()
-                    Text(username, style = MaterialTheme.typography.labelLarge)
-                    FloatingActionButton(onClick = { toggled = !toggled }) {
-                        Icon(Icons.Rounded.Settings, contentDescription = "Settings")
-                    }
-
-                }
-            }
+//            HomeFAB()
         },
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         BoxWithConstraints(
@@ -106,16 +85,19 @@ fun WeekView() {
                         })
                 }
                 CompositionLocalProvider(LocalTaskReorder provides reorder) {
+                    val weekStart by app.weekStart.collectAsState()
+                    LaunchedEffect(weekStart) {
+                        app.loadTasksForWeek()
+                    }
                     NonlazyGrid(
                         columns = columns,
                         itemCount = 7,
                         modifier = scrollModifier.fillMaxSize()
                     ) { dayIndex ->
-                        fun isToday(index: Int) = index == app.today.dayOfWeek.ordinal
-                        val day = app.weekStart.plus(DatePeriod(days = dayIndex))
+                        val day = weekStart.plus(DatePeriod(days = dayIndex))
                         DayList(
                             day,
-                            isToday = isToday(dayIndex),
+                            isToday = day == app.today,
                             reorderState = reorderState,
                             onDragEnterColumn = { date, state ->
                                 println("Entered column ${date.date}")
@@ -125,7 +107,12 @@ fun WeekView() {
                                 }
                             },
                             fullHeight = !isSmallScreen,
-                            modifier = Modifier.padding(bottom = if (dayIndex == 6) 200.dp else 0.dp)
+                            modifier = Modifier
+                                .padding(
+                                    start = 6.dp,
+                                    end = 6.dp,
+                                    bottom = if (dayIndex == 6) 200.dp else 0.dp
+                                )
                         )
                     }
                 }

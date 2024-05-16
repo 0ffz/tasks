@@ -11,7 +11,7 @@ private const val KEY_PASSWORD = "app-password"
 
 class Auth {
     val settings = Settings()
-    val username = MutableStateFlow(settings.get<String>(KEY_USERNAME) ?: "")
+    val username = MutableStateFlow(settings.get<String>(KEY_USERNAME))
 
 
     fun setAuth(username: String, password: String) {
@@ -24,5 +24,11 @@ class Auth {
         val username = settings.get<String>(KEY_USERNAME) ?: return null
         val password = settings.get<String>(KEY_PASSWORD) ?: return null
         return DigestAuthCredentials(username, password)
+    }
+
+    fun logout() {
+        settings.remove(KEY_USERNAME)
+        settings.remove(KEY_PASSWORD)
+        this.username.value = null
     }
 }

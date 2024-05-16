@@ -1,5 +1,7 @@
 package me.dvyy.tasks.state
 
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -10,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import me.dvyy.tasks.logic.Tasks
-import me.dvyy.tasks.logic.Tasks.createTask
 import me.dvyy.tasks.platforms.PersistentStore
 import me.dvyy.tasks.sync.SyncClient
 import me.dvyy.tasks.ui.AppConstants
@@ -24,7 +25,7 @@ val LocalAppState: AppState
 class AppState {
     val timezone = TimeZone.currentSystemDefault()
     val today = Clock.System.now().toLocalDateTime(timezone).date
-    val weekStart = today.minus(today.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY)
+    val weekStart = MutableStateFlow(today.minus(today.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY))
     val store = PersistentStore()
 
     val tasks = mutableMapOf<Uuid, TaskState>()
@@ -35,19 +36,12 @@ class AppState {
 
     val sync = SyncClient("http://localhost:4000", this)
     val snackbarHostState = SnackbarHostState()
+    val activeDialog = MutableStateFlow<AppDialog?>(null)
+    val drawerState = DrawerState(initialValue = DrawerValue.Closed)
 
-    init {
-        Tasks.singleThread.launch {
-            (0..6).map { weekStart.plus(DatePeriod(days = it)) }
-                .forEach { day ->
-                    val state = DateState(day)
-                    store.loadTasksForDay(day)
-                        .onSuccess { it.forEach { state.createTask(this@AppState, it) } }
-                        .onFailure { it.printStackTrace() }
-                    loadedDates[day] = state
-                }
-//                sync.sync()
-        }
+    fun loadTasksForWeek() {
+        loadedDates.clear()
+        tasks.clear()
     }
 
     fun saveTasks() {
@@ -73,5 +67,13 @@ class AppState {
             daysToSave.clear()
             saveQueued = false
         }
+    }
+
+    fun nextWeek() {
+        weekStart.value = weekStart.value.plus(1, DateTimeUnit.WEEK)
+    }
+
+    fun previousWeek() {
+        weekStart.value = weekStart.value.minus(1, DateTimeUnit.WEEK)
     }
 }

@@ -1,8 +1,11 @@
 package me.dvyy.tasks.ui.elements.week
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun DayTitle(date: LocalDate, isToday: Boolean) {
+fun DayTitle(date: LocalDate, isToday: Boolean, loading: Boolean) {
     val color =
         if (isToday) MaterialTheme.colorScheme.tertiary
         else MaterialTheme.colorScheme.onPrimaryContainer
@@ -38,8 +41,13 @@ fun DayTitle(date: LocalDate, isToday: Boolean) {
             color = color.copy(alpha = 0.6f)
         )
     }
-    HorizontalDivider(
-        thickness = 2.dp,
-        color = color
-    )
+    Box {
+        if (!loading) HorizontalDivider(
+            thickness = 2.dp,
+            color = color
+        )
+        AnimatedVisibility(loading, enter = fadeIn(), exit = fadeOut()) {
+            LinearProgressIndicator(Modifier.height(2.dp).fillMaxWidth())
+        }
+    }
 }

@@ -15,6 +15,7 @@ compose-plugin = "1.6.10-rc01"
 composeDnd = "0.2.0"
 junit = "4.13.2"
 kotlin = "2.0.0-RC2"
+kotlinMultiplatformAppdirs = "1.2.0"
 kotlinxDatetime = "0.6.0-RC.2"
 kotlinxSerialization = "1.6.3"
 ktor = "2.3.10"
@@ -25,6 +26,7 @@ uuid = "0.8.4"
 
 [libraries]
 compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }
+kotlin-multiplatform-appdirs = { module = "ca.gosyer:kotlin-multiplatform-appdirs", version.ref = "kotlinMultiplatformAppdirs" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

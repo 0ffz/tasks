@@ -12,7 +12,7 @@ import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.datetime.LocalDate
-import me.dvyy.tasks.logic.Dates.loadDate
+import me.dvyy.tasks.logic.Dates.getOrLoadDate
 import me.dvyy.tasks.logic.Tasks.createEmptyTask
 import me.dvyy.tasks.state.DateState
 import me.dvyy.tasks.state.LocalAppState
@@ -30,10 +30,16 @@ fun DayList(
     modifier: Modifier = Modifier,
 ) {
     val app = LocalAppState
-    val state = remember(date) { app.loadDate(date) }
+    val producedState by produceState<DateState?>(initialValue = null, date) {
+        value = null
+        value = app.getOrLoadDate(date)
+    }
+    val state = producedState
+
 
     Column(modifier.animateContentSize().fillMaxWidth()) {
-        DayTitle(state.date, isToday)
+        DayTitle(date, isToday, state == null)
+        if (state == null) return
         Column(
             modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
                 .dropTarget(

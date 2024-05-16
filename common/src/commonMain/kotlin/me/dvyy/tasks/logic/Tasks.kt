@@ -16,6 +16,7 @@ import me.dvyy.tasks.ui.elements.week.Highlight
 object Tasks {
     @OptIn(ExperimentalCoroutinesApi::class)
     val singleThread = CoroutineScope(Dispatchers.Default.limitedParallelism(1))
+    val ioThread = CoroutineScope(Dispatchers.Default)
 
     fun TaskState.changeDate(app: AppState, newDate: LocalDate) {
         val task = this

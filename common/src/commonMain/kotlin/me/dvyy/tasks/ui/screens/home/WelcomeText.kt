@@ -12,9 +12,5 @@ fun WelcomeText() {
     val app = LocalAppState
     val username by app.auth.username.collectAsState()
 
-    if (username.isEmpty()) {
-        return
-    }
-
     Text("Welcome, $username!", style = MaterialTheme.typography.headlineMedium)
 }
