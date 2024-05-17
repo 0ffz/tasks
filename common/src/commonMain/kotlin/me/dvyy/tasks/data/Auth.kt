@@ -1,4 +1,4 @@
-package me.dvyy.tasks.state
+package me.dvyy.tasks.data
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 private const val KEY_USERNAME = "app-username"
 private const val KEY_PASSWORD = "app-password"
+
 
 class Auth {
     val settings = Settings()

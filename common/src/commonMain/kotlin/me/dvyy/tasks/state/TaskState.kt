@@ -1,50 +1,54 @@
 package me.dvyy.tasks.state
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
 import com.benasher44.uuid.Uuid
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.SyncStatus
-import me.dvyy.tasks.model.Task
+import me.dvyy.tasks.model.TaskModel
+import me.dvyy.tasks.ui.elements.week.TaskListKey
 
 @Stable
-class TaskState(
-    val uuid: Uuid,
-    name: String,
-    date: LocalDate,
-    syncStatus: SyncStatus,
-    completed: Boolean,
-    highlight: Highlight,
+data class TaskState(
+    val name: String,
+    val completed: Boolean,
+    val key: TaskListKey,
+    val highlight: Highlight,
 ) {
-    val syncStatus = MutableStateFlow(syncStatus)
-    val name = MutableStateFlow(name)
-    val date = MutableStateFlow(date)
-    val completed = MutableStateFlow(completed)
-    val highlight = MutableStateFlow(highlight)
-    val focusRequested = MutableStateFlow(false)
+//    val focusRequested = MutableStateFlow(false)
 
-    @Composable
-    fun isActive(app: AppState) = app.selectedTask
-        .map { it == this }
-        .distinctUntilChanged()
-        .collectAsState(false)
+//    @Composable
+//    fun isActive(app: AppState) = app.selectedTask
+//        .map { it == this }
+//        .distinctUntilChanged()
+//        .collectAsState(false)
 
-    fun toTask(): Task = Task(
+    //    fun toModel(): TaskModel = TaskModel(
+//        uuid = uuid,
+//        name = name.value,
+//        completed = completed.value,
+//        syncStatus = syncStatus.value,
+//        highlight = highlight.value,
+//    )
+//
+//    fun updateToMatch(task: TaskModel) {
+//        name.value = task.name
+//        completed.value = task.completed
+//        syncStatus.value = task.syncStatus
+//    }
+    fun toModel(uuid: Uuid): TaskModel = TaskModel(
         uuid = uuid,
-        name = name.value,
-        completed = completed.value,
-        syncStatus = syncStatus.value,
-        highlight = highlight.value,
+        name = name,
+        completed = completed,
+        highlight = highlight,
+        syncStatus = SyncStatus.LOCAL_MODIFIED,
     )
 
-    fun updateToMatch(task: Task) {
-        name.value = task.name
-        completed.value = task.completed
-        syncStatus.value = task.syncStatus
+    companion object {
+        fun fromModel(model: TaskModel, key: TaskListKey) = TaskState(
+            name = model.name,
+            completed = model.completed,
+            key = key,
+            highlight = model.highlight,
+        )
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
@@ -23,34 +22,27 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.update
-import me.dvyy.tasks.logic.Tasks.delete
-import me.dvyy.tasks.model.SyncStatus
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.platforms.onHoverIfAvailable
-import me.dvyy.tasks.state.*
+import me.dvyy.tasks.state.LocalUIState
+import me.dvyy.tasks.state.TaskState
+import me.dvyy.tasks.stateholder.TaskInteractions
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
-
-@Immutable
-data class TaskInteractions(
-    val onKeyEvent: (KeyEvent) -> Boolean = { false },
-    val keyboardActions: KeyboardActions = KeyboardActions(),
-    val onNameChange: (String) -> Unit = {},
-)
 
 @Composable
 fun Task(
     task: TaskState,
-    interactions: TaskInteractions = TaskInteractions(),
+    selected: Boolean,
+    interactions: TaskInteractions,
 ) {
-    val app = LocalAppState
     var isHovered by remember { mutableStateOf(false) }
+    val ui = LocalUIState.current
 
     BoxWithConstraints(
         modifier = Modifier
@@ -58,43 +50,34 @@ fun Task(
                 onEnter = { isHovered = true },
                 onExit = { isHovered = false }
             )
-            .heightIn(min = AppConstants.taskHeight)
+            .heightIn(min = ui.taskHeight)
             .focusProperties { canFocus = false }
-            .clickableWithoutRipple { app.selectedTask.value = task }
+            .clickableWithoutRipple { interactions.onSelect() }
             .onKeyEvent(interactions.onKeyEvent)
     ) {
-        val active by task.isActive(app)
         LaunchedEffect(task) {
-            snapshotFlow { active }
+            snapshotFlow { selected }
                 .drop(1)
-                .collect {
-                    println("Deleting $active")
-                    if (!active && task.name.value.isEmpty()) task.delete(app)
-                }
+                .collect { if (!selected && task.name.isEmpty()) interactions.onDelete() }
         }
-        println("Recomposing task")
-        TaskSelectedSurface(active) {
-            val completed by task.completed.collectAsState()
-            val alpha by animateFloatAsState(if (completed) 0.3f else 1f)
+        TaskSelectedSurface(selected) {
+            val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
             Column(Modifier.alpha(alpha)) {
                 Box(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    TaskHighlight(task)
+                    TaskHighlight(task.name, task.highlight)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        val responsive = LocalResponsiveUI.current
+                        val responsive = LocalUIState.current
 
-                        TaskTextField(active, completed, task, interactions, Modifier.weight(1f, true)
-                            .onFocusEvent {
-                                if (it.isFocused) app.selectedTask.value = task
-                            })
-                        if (responsive.atMostSmall || isHovered || active)
-                            TaskCheckBox(completed, task)
+                        TaskTextField(task.name, task.completed, interactions, Modifier.weight(1f, true))
+                        if (responsive.atMostSmall || isHovered || selected)
+                            TaskCheckBox(task.completed, interactions)
                     }
                 }
                 AnimatedVisibility(
-                    active,
+                    selected,
                     enter = fadeIn(tween(delayMillis = 100)) + expandVertically(),
                     exit = fadeOut(tween(durationMillis = 100)) + shrinkVertically(),
                     modifier = Modifier
@@ -102,41 +85,40 @@ fun Task(
                             detectDragGestures { _, _ -> }
                         }
                 ) {
-                    TaskOptions(task)
+                    TaskOptions(task, interactions)
                 }
             }
         }
     }
 }
 
-@Composable
-fun QueueSaveWhenModified(dateState: DateState, task: TaskState) {
-    val name by task.name.collectAsState()
-    val date by task.date.collectAsState()
-    val completed by task.completed.collectAsState()
-    val highlight by task.highlight.collectAsState()
-    val app = LocalAppState
-    LaunchedEffect(dateState, task) {
-        // Drop 1 to ignore initial state, for existing tasks this means they're already saved, for new ones, it's the empty state
-        snapshotFlow { arrayOf(name, date, completed, highlight) }.drop(1).collect {
-            task.syncStatus.value = SyncStatus.LOCAL_MODIFIED
-            app.queueSaveDay(dateState)
-        }
-    }
-}
+//@Composable
+//fun QueueSaveWhenModified(dateState: DateState, task: TaskState) {
+//    val name by task.name.collectAsState()
+//    val date by task.date.collectAsState()
+//    val completed by task.completed.collectAsState()
+//    val highlight by task.highlight.collectAsState()
+//    val app = LocalAppState
+//    LaunchedEffect(dateState, task) {
+//        // Drop 1 to ignore initial state, for existing tasks this means they're already saved, for new ones, it's the empty state
+//        snapshotFlow { arrayOf(name, date, completed, highlight) }.drop(1).collect {
+//            task.syncStatus.value = SyncStatus.LOCAL_MODIFIED
+//            app.queueSaveDay(dateState)
+//        }
+//    }
+//}
 
 @Composable
-fun TaskHighlight(task: TaskState) {
-    val highlight by task.highlight.collectAsState()
-    val name by task.name.collectAsState()
+fun TaskHighlight(title: String, highlight: Highlight) {
+    val ui = LocalUIState.current
     val adjustedHighlight by animateColorAsState(highlight.color)
     Surface(
         color = adjustedHighlight,
         shape = MaterialTheme.shapes.extraLarge,
-        modifier = Modifier.height(AppConstants.taskHighlightHeight)
+        modifier = Modifier.height(ui.taskHighlightHeight)
     ) {
         TaskTextPadding {
-            Text(name, Modifier.alpha(0f))
+            Text(title, Modifier.alpha(0f))
         }
     }
 }
@@ -153,7 +135,7 @@ fun TaskSelectedSurface(
         modifier = Modifier.padding(vertical = padding),
         shape = RoundedCornerShape(cornerShape),
         color = CardDefaults.elevatedCardColors().containerColor,
-        tonalElevation = elevation.dp, //CardDefaults.elevatedCardElevation()
+        tonalElevation = elevation.dp,
     ) {
         content()
     }
@@ -161,13 +143,11 @@ fun TaskSelectedSurface(
 
 @Composable
 fun TaskTextField(
-    active: Boolean,
+    title: String,
     completed: Boolean,
-    task: TaskState,
     interactions: TaskInteractions,
     modifier: Modifier = Modifier,
 ) {
-    val taskName by task.name.collectAsState()
     val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
         MaterialTheme.colorScheme.onSurface
@@ -177,7 +157,7 @@ fun TaskTextField(
         textDecoration = textDecoration,
     )
     val focusRequester = remember { FocusRequester() }
-    val focusRequested by task.focusRequested.collectAsState()
+//    val focusRequested by task.focusRequested.collectAsState()
 
 //    if (!active) {
 //        TaskTextPadding(modifier) {
@@ -193,17 +173,17 @@ fun TaskTextField(
 //    }
 
     // Otherwise render full text field
-    LaunchedEffect(focusRequested) {
-        if (focusRequested) {
-            task.focusRequested.value = false
-            focusRequester.requestFocus()
-        }
-    }
+//    LaunchedEffect(focusRequested) {
+//        if (focusRequested) {
+//            task.focusRequested.value = false
+//            focusRequester.requestFocus()
+//        }
+//    }
     BasicTextField(
-        value = taskName,
+        value = title,
         readOnly = completed,// || (!active),
         singleLine = true,
-        onValueChange = interactions.onNameChange,
+        onValueChange = interactions.onTitleChanged,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
         textStyle = textStyle,
         keyboardActions = interactions.keyboardActions,
@@ -216,13 +196,15 @@ fun TaskTextField(
         modifier = modifier
             .fillMaxHeight()
             .focusRequester(focusRequester)
+            .onFocusEvent { interactions.onSelect() }
     )
 }
 
 @Composable
 fun TaskTextPadding(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val ui = LocalUIState.current
     Box(
-        modifier.height(AppConstants.taskHeight).padding(AppConstants.taskTextPadding),
+        modifier.height(ui.taskHeight).padding(ui.taskTextPadding),
         contentAlignment = Alignment.CenterStart
     ) {
         content()
@@ -230,11 +212,12 @@ fun TaskTextPadding(modifier: Modifier = Modifier, content: @Composable () -> Un
 }
 
 @Composable
-fun TaskCheckBox(completed: Boolean, task: TaskState) {
+fun TaskCheckBox(completed: Boolean, interactions: TaskInteractions) {
+    val ui = LocalUIState.current
     IconButton(
-        onClick = { task.completed.update { !completed } },
+        onClick = { interactions.onCheckChanged(!completed) },
         colors = IconButtonDefaults.iconButtonColors(),
-        modifier = Modifier.size(AppConstants.taskHeight)
+        modifier = Modifier.size(ui.taskCheckboxSize)
     ) {
         when {
             completed -> Icon(Icons.Outlined.TaskAlt, contentDescription = "Completed")

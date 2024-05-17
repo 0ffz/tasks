@@ -3,7 +3,7 @@ package me.dvyy.tasks.plugins
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.model.Task
+import me.dvyy.tasks.model.TaskModel
 import me.dvyy.tasks.plugins.TaskService.Tasks.completed
 import me.dvyy.tasks.plugins.TaskService.Tasks.date
 import me.dvyy.tasks.plugins.TaskService.Tasks.highlight
@@ -35,12 +35,12 @@ class TaskService(private val database: Database) {
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    suspend fun tasksForDate(date: LocalDate): List<Task> = dbQuery {
+    suspend fun tasksForDate(date: LocalDate): List<TaskModel> = dbQuery {
         Tasks.select { Tasks.date eq date }
-            .map { Task(it[uuid], it[title], it[completed], it[highlight]) }
+            .map { TaskModel(it[uuid], it[title], it[completed], it[highlight]) }
     }
 
-    suspend fun update(forDate: LocalDate, tasks: List<Task>) {
+    suspend fun update(forDate: LocalDate, tasks: List<TaskModel>) {
         dbQuery {
             // Delete any tasks that are no longer present for this date
             Tasks.deleteWhere { date eq forDate and uuid.notInList(tasks.map { it.uuid }) }

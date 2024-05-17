@@ -1,24 +1,11 @@
-package me.dvyy.tasks.model
+package me.dvyy.tasks.model.serializers
 
 import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuidFrom
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.LongArraySerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-
-@Serializable
-data class Task(
-    val uuid: @Contextual Uuid,
-    val name: String = "",
-    val completed: Boolean = true,
-    val highlight: Highlight = Highlight.Unmarked,
-    val syncStatus: SyncStatus = SyncStatus.SYNCED,
-)
 
 fun LongArray.toUuid() = Uuid(this[0], this[1])
 
@@ -34,17 +21,5 @@ object UuidSerializer : KSerializer<Uuid> {
 
     override fun serialize(encoder: Encoder, value: Uuid) {
         encoder.encodeSerializableValue(surrogate, longArrayOf(value.mostSignificantBits, value.leastSignificantBits))
-    }
-}
-
-object UuidAsStringSerializer : KSerializer<Uuid> {
-    override val descriptor: SerialDescriptor = String.serializer().descriptor
-
-    override fun deserialize(decoder: Decoder): Uuid {
-        return uuidFrom(decoder.decodeString())
-    }
-
-    override fun serialize(encoder: Encoder, value: Uuid) {
-        encoder.encodeString(value.toString())
     }
 }

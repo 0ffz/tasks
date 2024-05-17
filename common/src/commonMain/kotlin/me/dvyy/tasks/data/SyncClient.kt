@@ -1,4 +1,4 @@
-package me.dvyy.tasks.sync
+package me.dvyy.tasks.data
 
 import com.benasher44.uuid.Uuid
 import io.ktor.client.*
@@ -14,12 +14,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import me.dvyy.tasks.logic.Tasks
-import me.dvyy.tasks.logic.Tasks.changeDate
-import me.dvyy.tasks.logic.Tasks.createTask
-import me.dvyy.tasks.model.AppFormats
 import me.dvyy.tasks.model.SyncStatus
-import me.dvyy.tasks.model.Task
+import me.dvyy.tasks.model.TaskModel
+import me.dvyy.tasks.model.serializers.AppFormats
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.TaskState
 
@@ -56,23 +53,24 @@ class SyncClient(val url: String, val app: AppState) {
     }
 
     suspend fun checkAuth(auth: DigestAuthCredentials): Boolean {
-        return client.withAuth { auth }.get("$url/auth/check").status == HttpStatusCode.OK
+        return runCatching { client.withAuth { auth }.get("$url/auth/check").status == HttpStatusCode.OK }
+            .getOrDefault(false)
     }
 
-    suspend fun sendTasks(tasksPerDate: Map<LocalDate, List<Task>>) {
+    suspend fun sendTasks(tasksPerDate: Map<LocalDate, List<TaskModel>>) {
         client.post("${url}/dates") {
             contentType(ContentType.Application.Json)
             setBody(tasksPerDate)
         }
     }
 
-    suspend fun getLatestTasks(dates: List<LocalDate>): List<List<Task>> {
+    suspend fun getLatestTasks(dates: List<LocalDate>): List<List<TaskModel>> {
         return client.get("${url}/dates") {
             parameter("dates", dates.joinToString(separator = ",") { it.toString() })
-        }.body<List<List<Task>>>()
+        }.body<List<List<TaskModel>>>()
     }
 
-    suspend fun getLatestTasks(date: LocalDate): List<Task> =
+    suspend fun getLatestTasks(date: LocalDate): List<TaskModel> =
         client.get("${url}/date/${date.toEpochDays()}").body()
 
     /** Ensures any currently loaded dates are synced with the server. */
@@ -83,7 +81,7 @@ class SyncClient(val url: String, val app: AppState) {
         try {
             val dateStates = app.loadedDates.values.toList()
             val dates = dateStates.map { it.date }
-            val serverTasksByDate: List<List<Task>> = getLatestTasks(dates)
+            val serverTasksByDate: List<List<TaskModel>> = getLatestTasks(dates)
 
             // Filter out local deletions/modifications from received server tasks
 
@@ -133,7 +131,8 @@ class SyncClient(val url: String, val app: AppState) {
                 val currTasks = date.tasks.value
 
                 // mapNotNull to filter any clashing uuids (keep local)
-                fun Collection<Task>.createTasks() = mapNotNull { date.createTask(app, it, updateDateTaskList = false) }
+                fun Collection<TaskModel>.createTasks() =
+                    mapNotNull { date.createTask(app, it, updateDateTaskList = false) }
 
                 val updatedTasks: List<TaskState> = currTasks
                     // Remove deleted
@@ -143,7 +142,7 @@ class SyncClient(val url: String, val app: AppState) {
                 // TODO sorting
                 updatedTasks.forEach { it.syncStatus.value = SyncStatus.SYNCED }
                 date.tasks.value = updatedTasks
-                updatedTasks.map { it.toTask() }
+                updatedTasks.map { it.toModel() }
             }
             diffRemoved.clear()
             app.saveTasks()

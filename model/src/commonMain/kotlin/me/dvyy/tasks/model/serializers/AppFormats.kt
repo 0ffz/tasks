@@ -1,4 +1,4 @@
-package me.dvyy.tasks.model
+package me.dvyy.tasks.model.serializers
 
 import com.benasher44.uuid.Uuid
 import kotlinx.serialization.ExperimentalSerializationApi

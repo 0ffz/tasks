@@ -9,7 +9,7 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.datetime.LocalDate
-import me.dvyy.tasks.model.Task
+import me.dvyy.tasks.model.TaskModel
 import org.jetbrains.exposed.sql.Database
 
 fun ApplicationCall.getDate(): LocalDate {
@@ -35,7 +35,7 @@ fun Application.configureDatabases() {
 
             post("/date/{epochDays}") {
                 val date = call.getDate()
-                val tasks = call.receive<List<Task>>()
+                val tasks = call.receive<List<TaskModel>>()
                 taskService.update(date, tasks)
                 call.respond(HttpStatusCode.Created)
             }
@@ -52,7 +52,7 @@ fun Application.configureDatabases() {
             }
 
             post("/dates") {
-                val tasksPerDate = call.receive<Map<LocalDate, List<Task>>>()
+                val tasksPerDate = call.receive<Map<LocalDate, List<TaskModel>>>()
                 tasksPerDate.forEach { (date, tasks) ->
                     taskService.update(date, tasks)
                 }

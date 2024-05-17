@@ -16,35 +16,55 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 
+sealed class TaskListKey {
+    data class Date(val date: LocalDate) : TaskListKey()
+    data class Named(val name: String) : TaskListKey()
+}
 @Composable
 fun DayTitle(
-    date: LocalDate,
-    isToday: Boolean,
-    loading: Boolean,
+    title: TaskListKey,
+    colored: Boolean,
+    loading: Boolean = false,
     showDivider: Boolean = true,
 ) {
     val color =
-        if (isToday) MaterialTheme.colorScheme.tertiary
+        if (colored) MaterialTheme.colorScheme.tertiary
         else MaterialTheme.colorScheme.onPrimaryContainer
     Row(
         Modifier.padding(4.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
-        Text(
-            "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
-            Modifier.weight(1f, true),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = color,
-            maxLines = 1,
-        )
-        Text(
-            date.dayOfWeek.name.lowercase().capitalize().take(3),
-            style = MaterialTheme.typography.headlineSmall,
-            maxLines = 1,
-            overflow = TextOverflow.Clip,
-            color = color.copy(alpha = 0.6f)
-        )
+        when (title) {
+            is TaskListKey.Date -> {
+                val date = title.date
+                Text(
+                    "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
+                    Modifier.weight(1f, true),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = color,
+                    maxLines = 1,
+                )
+                Text(
+                    date.dayOfWeek.name.lowercase().capitalize().take(3),
+                    style = MaterialTheme.typography.headlineSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                    color = color.copy(alpha = 0.6f)
+                )
+            }
+
+            is TaskListKey.Named -> {
+                Text(
+                    title.name,
+                    Modifier.weight(1f, true),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = color,
+                    maxLines = 1,
+                )
+            }
+        }
     }
     if (showDivider) Box {
         if (!loading) HorizontalDivider(

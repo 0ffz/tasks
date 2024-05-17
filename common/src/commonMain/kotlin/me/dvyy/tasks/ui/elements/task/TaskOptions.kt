@@ -11,62 +11,60 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toLocalDateTime
-import me.dvyy.tasks.logic.Tasks.changeDate
-import me.dvyy.tasks.logic.Tasks.delete
+import kotlinx.datetime.*
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.state.AppConstants
-import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.LocalTimeState
+import me.dvyy.tasks.state.LocalUIState
 import me.dvyy.tasks.state.TaskState
+import me.dvyy.tasks.stateholder.TaskInteractions
+import me.dvyy.tasks.ui.elements.week.TaskListKey
 
 @Composable
 fun TaskOptions(
-    task: TaskState?,
+    task: TaskState,
+    interactions: TaskInteractions,
     submitAction: (() -> Unit)? = null
-) = Box(Modifier.padding(horizontal = AppConstants.taskTextPadding, vertical = 4.dp)) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        val rememberedTask by snapshotFlow { task }.filterNotNull().collectAsState(task)
-        if (rememberedTask == null) return
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            HighlightButton(rememberedTask!!, Highlight.Unmarked)
-            HighlightButton(rememberedTask!!, Highlight.Important)
-            HighlightButton(rememberedTask!!, Highlight.InProgress)
-            TaskDatePicker(rememberedTask!!)
-            Spacer(Modifier.weight(1f))
-            if (submitAction != null) {
-                FilledIconButton(onClick = submitAction) {
-                    Icon(Icons.Outlined.Done, contentDescription = "Submit")
+) {
+    val ui = LocalUIState.current
+    Box(Modifier.padding(horizontal = ui.taskTextPadding, vertical = 4.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            val rememberedTask by snapshotFlow { task }.filterNotNull().collectAsState(task)
+            if (rememberedTask == null) return
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                HighlightButton(Highlight.Unmarked, interactions)
+                HighlightButton(Highlight.Important, interactions)
+                HighlightButton(Highlight.InProgress, interactions)
+                if (task.key is TaskListKey.Date) { //TODO decide on separate or combined date/list pickers
+                    TaskDatePicker(task.key.date, interactions)
                 }
-            } else {
-                val app = LocalAppState
-                IconButton(onClick = { rememberedTask!!.delete(app) }) {
-                    Icon(Icons.Outlined.Delete, contentDescription = "Delete")
+                Spacer(Modifier.weight(1f))
+                if (submitAction != null) {
+                    FilledIconButton(onClick = submitAction) {
+                        Icon(Icons.Outlined.Done, contentDescription = "Submit")
+                    }
+                } else {
+                    IconButton(onClick = { interactions.onDelete() }) {
+                        Icon(Icons.Outlined.Delete, contentDescription = "Delete")
+                    }
                 }
             }
-
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskDatePicker(task: TaskState) {
+fun TaskDatePicker(date: LocalDate, interactions: TaskInteractions) {
     var showDatePicker by remember { mutableStateOf(false) }
-    val taskDate by task.date.collectAsState()
-    val app = LocalAppState
+//    val app = LocalAppState
     val time = LocalTimeState.current
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = taskDate.atStartOfDayIn(time.timezone).toEpochMilliseconds()
+        initialSelectedDateMillis = date.atStartOfDayIn(time.timezone).toEpochMilliseconds()
     )
 
     AssistChip(
@@ -78,9 +76,9 @@ fun TaskDatePicker(task: TaskState) {
         onDismissRequest = { showDatePicker = false },
         confirmButton = {
             TextButton(onClick = {
-                val selected = datePickerState.selectedDateMillis ?: return@TextButton
-                println(Instant.fromEpochMilliseconds(selected))
-                task.changeDate(app, Instant.fromEpochMilliseconds(selected).toLocalDateTime(TimeZone.UTC).date)
+                val dateMillis = datePickerState.selectedDateMillis ?: return@TextButton
+                val newDate = Instant.fromEpochMilliseconds(dateMillis).toLocalDateTime(TimeZone.UTC).date
+                interactions.onDateChanged(newDate)
                 showDatePicker = false
             }) { Text("OK") }
         },
@@ -91,21 +89,16 @@ fun TaskDatePicker(task: TaskState) {
 }
 
 @Composable
-fun HighlightButton(task: TaskState, highlight: Highlight) {
+fun HighlightButton(highlight: Highlight, interactions: TaskInteractions) {
+    val ui = LocalUIState.current
     val border = if (highlight == Highlight.Unmarked) BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface) else null
     Button(
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.onSurface,
             containerColor = highlight.color,
         ),
-        onClick = { task.highlight.value = highlight },
-        modifier = Modifier.size(AppConstants.taskHighlightHeight).focusProperties { canFocus = false },
+        onClick = { interactions.onHighlightChanged(highlight) },
+        modifier = Modifier.size(ui.taskHighlightHeight).focusProperties { canFocus = false },
         border = border,
     ) { }
-}
-
-@Composable
-fun keyboardAsState(): State<Boolean> {
-    val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-    return rememberUpdatedState(isImeVisible)
 }

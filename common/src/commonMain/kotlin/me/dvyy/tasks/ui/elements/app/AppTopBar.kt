@@ -7,12 +7,12 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.dvyy.tasks.state.LocalResponsiveUI
+import me.dvyy.tasks.state.LocalUIState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(scrollBehavior: TopAppBarScrollBehavior) {
-    val responsive = LocalResponsiveUI.current
+    val responsive = LocalUIState.current
     val modifier = if (responsive.atMostMedium) Modifier else Modifier.heightIn(max = 45.dp)
     CenterAlignedTopAppBar(
         title = { AppTopBarTitle() },

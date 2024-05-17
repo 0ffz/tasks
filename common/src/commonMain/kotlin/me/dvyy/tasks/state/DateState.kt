@@ -1,10 +1,9 @@
 package me.dvyy.tasks.state
 
-import androidx.compose.runtime.Stable
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.datetime.LocalDate
+import androidx.compose.runtime.Immutable
 
-@Stable
-data class DateState(val date: LocalDate) {
-    val tasks = MutableStateFlow(listOf<TaskState>())
-}
+@Immutable
+data class TaskListState(
+    val name: String,
+    val tasks: List<TaskState>,
+)

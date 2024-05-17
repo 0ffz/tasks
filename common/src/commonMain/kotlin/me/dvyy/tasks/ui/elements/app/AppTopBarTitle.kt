@@ -8,14 +8,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.sp
-import me.dvyy.tasks.state.LocalResponsiveUI
 import me.dvyy.tasks.state.LocalTimeState
+import me.dvyy.tasks.state.LocalUIState
 
 @Composable
 fun AppTopBarTitle() {
     // current week
     val time = LocalTimeState.current
-    val responsive = LocalResponsiveUI.current
+    val responsive = LocalUIState.current
     val weekStart by time.weekStart.collectAsState()
     val fontSize = if (responsive.atMostMedium) 20.sp else 18.sp
     Text(
