@@ -8,46 +8,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import me.dvyy.tasks.platforms.PlatformSpecifics
-import me.dvyy.tasks.state.LocalTaskReorder
 import me.dvyy.tasks.state.LocalUIState
-import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.stateholder.TaskInteractions
+import me.dvyy.tasks.stateholder.TaskReorderInteractions
+import me.dvyy.tasks.ui.elements.week.TaskWithIDState
 
 
 @Composable
 fun ReorderableTask(
-    task: TaskState,
-    interactions: TaskInteractions,
+    task: TaskWithIDState,
+    reorderInteractions: TaskReorderInteractions,
     selected: Boolean,
 ) {
-//    QueueSaveWhenModified(date, task)
-
-
-//    fun nextTaskOrNew() {
-//        val tasks = date.tasks.value
-//        if (tasks.lastOrNull() != task) {
-//            tasks[tasks.indexOf(task) + 1].focusRequested.value = true
-//        } else if (task.name.value.isNotEmpty()) {
-//            date.createEmptyTask(app, focus = true)
-//        }
-//    }
-
-    val reorder = LocalTaskReorder.current
-    val onDragEnter = remember(task) {
-        { it: DraggedItemState<TaskState> ->
-            reorder.onDragEnterItem(task, it)
-        }
-    }
     ReorderableItem(
-        state = reorder.state,
+        state = reorderInteractions.draggedState,
         key = task,
-        data = task,
+        data = task.uuid,
         dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
         zIndex = 1f,
         dropAnimationSpec = tween(0),
@@ -59,13 +38,13 @@ fun ReorderableTask(
             ) {
                 val ui = LocalUIState.current
                 TaskTextPadding {
-                    Text(task.name, Modifier.height(ui.taskHeight))
+                    Text(task.state.name, Modifier.height(ui.taskHeight))
                 }
             }
         },
-        onDragEnter = onDragEnter,
+        onDragEnter = { reorderInteractions.onDragEnterItem(task.uuid, it) },
     ) {
-        Task(task, selected, interactions)
+        Task(task.state, selected, task.interactions)
     }
     HorizontalDivider()
 }

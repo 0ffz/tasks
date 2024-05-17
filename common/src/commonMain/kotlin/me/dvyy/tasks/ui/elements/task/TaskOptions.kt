@@ -12,26 +12,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.datetime.*
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.state.LocalTimeState
 import me.dvyy.tasks.state.LocalUIState
-import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.stateholder.TaskInteractions
 import me.dvyy.tasks.ui.elements.week.TaskListKey
 
 @Composable
 fun TaskOptions(
-    task: TaskState,
+    listKey: TaskListKey,
     interactions: TaskInteractions,
     submitAction: (() -> Unit)? = null
 ) {
     val ui = LocalUIState.current
     Box(Modifier.padding(horizontal = ui.taskTextPadding, vertical = 4.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            val rememberedTask by snapshotFlow { task }.filterNotNull().collectAsState(task)
-            if (rememberedTask == null) return
+//            val rememberedTask by snapshotFlow { task }.filterNotNull().collectAsState(task)
+//            if (rememberedTask == null) return
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -39,8 +37,8 @@ fun TaskOptions(
                 HighlightButton(Highlight.Unmarked, interactions)
                 HighlightButton(Highlight.Important, interactions)
                 HighlightButton(Highlight.InProgress, interactions)
-                if (task.key is TaskListKey.Date) { //TODO decide on separate or combined date/list pickers
-                    TaskDatePicker(task.key.date, interactions)
+                if (listKey is TaskListKey.Date) { //TODO decide on separate or combined date/list pickers
+                    TaskDatePicker(listKey.date, interactions)
                 }
                 Spacer(Modifier.weight(1f))
                 if (submitAction != null) {
@@ -78,7 +76,7 @@ fun TaskDatePicker(date: LocalDate, interactions: TaskInteractions) {
             TextButton(onClick = {
                 val dateMillis = datePickerState.selectedDateMillis ?: return@TextButton
                 val newDate = Instant.fromEpochMilliseconds(dateMillis).toLocalDateTime(TimeZone.UTC).date
-                interactions.onDateChanged(newDate)
+                interactions.onListChanged(newDate)
                 showDatePicker = false
             }) { Text("OK") }
         },

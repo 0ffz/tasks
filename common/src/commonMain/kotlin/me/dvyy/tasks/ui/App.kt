@@ -8,13 +8,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.lifecycle.viewmodel.compose.viewModel
 import me.dvyy.tasks.state.*
+import me.dvyy.tasks.stateholder.TasksStateHolder
 import me.dvyy.tasks.ui.elements.app.AppDialogs
 import me.dvyy.tasks.ui.elements.app.AppDrawer
 import me.dvyy.tasks.ui.elements.app.AppTopBar
+import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.ui.screens.home.HomeScreen
 import me.dvyy.tasks.ui.theme.AppTheme
 
@@ -30,25 +34,11 @@ fun App(state: AppState? = null) {
             LocalUIState provides responsive,
             LocalTimeState provides app.time,
         ) {
-            var ready by remember { mutableStateOf(false) }
+            val tasksStateHolder = viewModel { TasksStateHolder() }
             BoxWithConstraints(
-//                Modifier.clickableWithoutRipple { tasksStateHolder.selectTask(null) }
+                Modifier.clickableWithoutRipple { tasksStateHolder.selectTask(null) }
             ) {
-//                LaunchedEffect(Unit) {
-//                    app.loadTasksForWeek()
-//                    ready = true
-//                }
-//                if (!ready) {
-//                    Surface(Modifier.fillMaxSize()) {
-//                        Box(contentAlignment = Alignment.Center) {
-//                            CircularProgressIndicator()
-//                        }
-//                    }
-//                    return@BoxWithConstraints
-//                }
-
-
-                val scrollBehavior = if (responsive.atMostMedium)
+                val scrollBehavior = if (responsive.singleColumnLists)
                     TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
                 else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                 AppDrawer {

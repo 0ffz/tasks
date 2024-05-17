@@ -21,7 +21,7 @@ sealed class TaskListKey {
     data class Named(val name: String) : TaskListKey()
 }
 @Composable
-fun DayTitle(
+fun TaskListTitle(
     title: TaskListKey,
     colored: Boolean,
     loading: Boolean = false,

@@ -8,7 +8,6 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.outlined.TaskAlt
@@ -24,7 +23,6 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.drop
@@ -71,7 +69,7 @@ fun Task(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val responsive = LocalUIState.current
 
-                        TaskTextField(task.name, task.completed, interactions, Modifier.weight(1f, true))
+                        TaskTextField(task.name, task.completed, selected, interactions, Modifier.weight(1f, true))
                         if (responsive.atMostSmall || isHovered || selected)
                             TaskCheckBox(task.completed, interactions)
                     }
@@ -85,7 +83,7 @@ fun Task(
                             detectDragGestures { _, _ -> }
                         }
                 ) {
-                    TaskOptions(task, interactions)
+                    TaskOptions(task.key, interactions)
                 }
             }
         }
@@ -145,6 +143,7 @@ fun TaskSelectedSurface(
 fun TaskTextField(
     title: String,
     completed: Boolean,
+    selected: Boolean,
     interactions: TaskInteractions,
     modifier: Modifier = Modifier,
 ) {
@@ -157,28 +156,11 @@ fun TaskTextField(
         textDecoration = textDecoration,
     )
     val focusRequester = remember { FocusRequester() }
-//    val focusRequested by task.focusRequested.collectAsState()
 
-//    if (!active) {
-//        TaskTextPadding(modifier) {
-//            Text(
-//                taskName,
-//                style = textStyle,
-//                maxLines = 1,
-//                overflow = TextOverflow.Ellipsis,
-//                modifier = Modifier.focusRequester(focusRequester)
-//            )
-//        }
-//        return
-//    }
+    LaunchedEffect(selected) {
+        if (selected) focusRequester.requestFocus()
+    }
 
-    // Otherwise render full text field
-//    LaunchedEffect(focusRequested) {
-//        if (focusRequested) {
-//            task.focusRequested.value = false
-//            focusRequester.requestFocus()
-//        }
-//    }
     BasicTextField(
         value = title,
         readOnly = completed,// || (!active),
@@ -187,7 +169,7 @@ fun TaskTextField(
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
         textStyle = textStyle,
         keyboardActions = interactions.keyboardActions,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        keyboardOptions = interactions.keyboardOptions,
         decorationBox = { innerTextField ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TaskTextPadding { innerTextField() }

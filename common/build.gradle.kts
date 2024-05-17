@@ -60,23 +60,26 @@ kotlin {
                 implementation(libs.multiplatform.settings)
                 implementation(libs.multiplatform.settings.no.arg)
                 implementation(compose.components.resources)
-                implementation("dev.chrisbanes.material3:material3-window-size-class-multiplatform:0.5.0")
+                implementation(libs.material3.window.sizeclass.multiplatform)
+                implementation(libs.navigation.compose)
+//                implementation(libs.lifecycle.viewmodel)
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0-beta02")
             }
         }
-        val javaMain by creating {
+        val jvmMain by creating {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.kotlin.multiplatform.appdirs)
             }
         }
         val desktopMain by getting {
-            dependsOn(javaMain)
+            dependsOn(jvmMain)
             dependencies {
                 implementation(libs.ktor.client.okhttp)
             }
         }
         val androidMain by getting {
-            dependsOn(javaMain)
+            dependsOn(jvmMain)
             dependencies {
                 api(libs.androidx.appcompat)
                 api(libs.androidx.core.ktx)

@@ -20,6 +20,8 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val taskCheckboxSize = 42.dp
     val taskHighlightHeight = 26.dp
     val taskTextPadding = 8.dp
+
+    val singleColumnLists get() = atMostMedium
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)

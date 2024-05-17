@@ -6,6 +6,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.ListSerializer
 import me.dvyy.tasks.model.TaskModel
 import me.dvyy.tasks.model.serializers.AppFormats
+import org.w3c.dom.set
 
 @OptIn(ExperimentalSerializationApi::class, ExperimentalStdlibApi::class)
 actual class PersistentStore {

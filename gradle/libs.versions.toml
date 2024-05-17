@@ -19,12 +19,15 @@ kotlin = "2.0.0-RC2"
 kotlinMultiplatformAppdirs = "1.2.0"
 kotlinxDatetime = "0.6.0-RC.2"
 kotlinxSerialization = "1.6.3"
-ktor = "2.3.10"
+ktor = "2.3.11"
 ktor-eap = "3.0.0-beta-2-eap-932"
 logback = "1.5.6"
 foundationAndroid = "1.6.7"
+material3WindowSizeClassMultiplatform = "0.5.0"
 multiplatformSettings = "1.1.1"
 uuid = "0.8.4"
+lifecycleViewModel = "2.8.0-rc01"
+navigationCompose = "2.7.0-alpha03"
 
 [libraries]
 compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }
@@ -57,9 +60,13 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-serialization-json-eap = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor-eap" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
+material3-window-sizeclass-multiplatform = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "material3WindowSizeClassMultiplatform" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
+
+lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleViewModel" }
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -12,9 +12,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.benasher44.uuid.Uuid
+import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
+import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import me.dvyy.tasks.state.LocalUIState
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.stateholder.TaskInteractions
+import me.dvyy.tasks.stateholder.TaskReorderInteractions
 import me.dvyy.tasks.stateholder.TasksStateHolder
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.ui.elements.task.ReorderableTask
@@ -32,19 +35,16 @@ data class TaskWithIDState(
     val interactions: TaskInteractions,
 )
 
+@OptIn(ExperimentalDndApi::class)
 @Composable
 fun TaskList(
-    title: TaskListKey,
-    tasks: List<TaskWithIDState>,
-//    date: LocalDate,
+    key: TaskListKey,
+    tasks: List<TaskWithIDState>?, //TODO represent loading state explicitly?
     colored: Boolean,
-//    reorderState: ReorderState<TaskState>,
-//    onDragEnterColumn: (dateState: DateState, state: DraggedItemState<TaskState>) -> Unit,
-    fullHeight: Boolean,
+    reorderInteractions: TaskReorderInteractions,
     interactions: TaskListInteractions,
     tasksStateHolder: TasksStateHolder,
-//    interactions: DNDInteractions,
-//    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
 ) {
 //    val app = LocalAppState
 //    val producedState by produceState<DateState?>(initialValue = app.getDateIfLoaded(date), date) {
@@ -53,42 +53,41 @@ fun TaskList(
 //    }
     val ui = LocalUIState.current
 
-    Column(Modifier.animateContentSize().fillMaxWidth()) {
-        DayTitle(title, colored)
+    Column(
+        modifier.animateContentSize()
+            .fillMaxWidth()
+            .dropTarget(
+                key = key,
+                state = reorderInteractions.draggedState.dndState,
+                dropAnimationEnabled = false,
+                onDragEnter = { reorderInteractions.onDragEnterColumn(key, it) },
+            )
+    ) {
+        TaskListTitle(key, colored, loading = tasks == null)
+        if (tasks == null) return
         Column(
             modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
-//                .dropTarget(
-//                    key = taskListID,
-//                    state = reorderState.dndState,
-//                    dropAnimationEnabled = false,
-//                    onDragEnter = { interactions.onDragEnterColumn(taskListID, it) },
-//                )
         ) {
-            Column {
-                // Queue save when task deleted
-//                LaunchedEffect(tasks) {
-//                    app.queueSaveDay(state)
-//                }
-                val selectedTask by tasksStateHolder.selectedTask.collectAsState()
-                LazyColumn {
-                    items(tasks, key = { it.uuid }) { task ->
-                        ReorderableTask(
-                            task = task.state,
-                            interactions = task.interactions,
-                            selected = selectedTask == task.uuid,
-                        )
-                    }
+            val selectedTask by tasksStateHolder.selectedTask.collectAsState()
+            LazyColumn {
+                items(tasks, key = { it.uuid }) { task ->
+                    ReorderableTask(
+                        task = task,
+                        reorderInteractions = reorderInteractions,
+                        selected = selectedTask == task.uuid,
+                    )
                 }
-                val emptySpace = remember(fullHeight) {
-                    /*if (fullHeight) Modifier.fillMaxHeight() else */Modifier.height(ui.taskHeight)
-                }
-                Column(emptySpace.clickableWithoutRipple {
-                    if (tasks.lastOrNull()?.state?.name?.isEmpty() != true)
-                        interactions.createNewTask()
-                }) {
-                    Spacer(modifier = Modifier.height(ui.taskHeight))
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                }
+            }
+            val fullHeight = !ui.singleColumnLists
+            val emptySpace = remember(fullHeight) {
+                if (fullHeight) Modifier.height(500.dp) else Modifier.height(ui.taskHeight)
+            }
+            Column(emptySpace.clickableWithoutRipple {
+                if (tasks.lastOrNull()?.state?.name?.isEmpty() != true)
+                    interactions.createNewTask()
+            }) {
+                Spacer(modifier = Modifier.height(ui.taskHeight))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
             }
         }
     }
