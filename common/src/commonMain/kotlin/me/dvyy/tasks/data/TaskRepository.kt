@@ -5,6 +5,7 @@ import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -62,7 +63,7 @@ class TaskRepository(
     }
 
     // TODO mutex
-    suspend fun createTask(key: TaskListKey) = withContext(ioDispatcher) {
+    suspend fun createTask(key: TaskListKey): Uuid = withContext(ioDispatcher) {
         val state = TaskState(
             name = "",
             completed = false,
@@ -72,11 +73,12 @@ class TaskRepository(
         val model = state.toModel(uuid4())
         tasksToList[model.uuid] = key
         getOrLoadList(key)[model.uuid] = model
+        model.uuid
     }
 
 
     fun tasksFor(key: TaskListKey): Flow<List<TaskModel>> = flow {
-        getOrLoadList(key).tasksFlow().collect { emit(it) }
+        emitAll(getOrLoadList(key).tasksFlow())
     }
 
     private suspend fun getOrLoadList(key: TaskListKey): MutableTaskList = withContext(ioDispatcher) {
@@ -84,6 +86,7 @@ class TaskRepository(
             val tasks = localStore
                 .loadTasksForList(key)
                 .getOrElse { error("Failed to load tasks for $key") }
+            tasks.forEach { tasksToList[it.uuid] = key }
 
             MutableTaskList(key, localStore, tasks)
         }

@@ -13,7 +13,7 @@ import me.dvyy.tasks.state.LocalUIState
 @Composable
 fun AppTopBar(scrollBehavior: TopAppBarScrollBehavior) {
     val responsive = LocalUIState.current
-    val modifier = if (responsive.atMostMedium) Modifier else Modifier.heightIn(max = 45.dp)
+    val modifier = if (responsive.smallTopBar) Modifier.heightIn(max = 45.dp) else Modifier
     CenterAlignedTopAppBar(
         title = { AppTopBarTitle() },
         navigationIcon = {

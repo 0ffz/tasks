@@ -13,15 +13,22 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val height get() = windowSizeClass.heightSizeClass
     val dateColumns get() = if (windowSizeClass.widthSizeClass > WindowWidthSizeClass.Medium) 7 else 1
 
-    val atMostSmall get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Compact
-    val atMostMedium get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Medium
+    private val atMostSmall get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Compact
+    private val atMostMedium get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Medium
 
+    // Tasks
     val taskHeight = 42.dp
     val taskCheckboxSize = 42.dp
     val taskHighlightHeight = 26.dp
     val taskTextPadding = 8.dp
+    val alwaysShowCheckbox get() = isSingleColumn
 
-    val singleColumnLists get() = atMostMedium
+    // Task lists
+
+    // App
+    val isSingleColumn get() = atMostMedium
+    val appScrollable get() = isSingleColumn
+    val smallTopBar get() = !isSingleColumn
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)

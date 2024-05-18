@@ -25,7 +25,9 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.platforms.onHoverIfAvailable
 import me.dvyy.tasks.state.LocalUIState
@@ -41,6 +43,15 @@ fun Task(
 ) {
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
+    val selectedState by remember { mutableStateOf(false) }.apply { value = selected }
+
+    LaunchedEffect(task) {
+        snapshotFlow { selectedState }
+            .distinctUntilChanged()
+            .drop(1)
+            .filter { !it } // Listen to deselect
+            .collect { if (task.name.isEmpty()) interactions.onDelete() }
+    }
 
     BoxWithConstraints(
         modifier = Modifier
@@ -53,11 +64,6 @@ fun Task(
             .clickableWithoutRipple { interactions.onSelect() }
             .onKeyEvent(interactions.onKeyEvent)
     ) {
-        LaunchedEffect(task) {
-            snapshotFlow { selected }
-                .drop(1)
-                .collect { if (!selected && task.name.isEmpty()) interactions.onDelete() }
-        }
         TaskSelectedSurface(selected) {
             val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
             Column(Modifier.alpha(alpha)) {
@@ -70,7 +76,7 @@ fun Task(
                         val responsive = LocalUIState.current
 
                         TaskTextField(task.name, task.completed, selected, interactions, Modifier.weight(1f, true))
-                        if (responsive.atMostSmall || isHovered || selected)
+                        if (responsive.alwaysShowCheckbox || isHovered || selected)
                             TaskCheckBox(task.completed, interactions)
                     }
                 }
@@ -178,7 +184,9 @@ fun TaskTextField(
         modifier = modifier
             .fillMaxHeight()
             .focusRequester(focusRequester)
-            .onFocusEvent { interactions.onSelect() }
+            .onFocusEvent {
+                if (it.isFocused) interactions.onSelect()
+            }
     )
 }
 

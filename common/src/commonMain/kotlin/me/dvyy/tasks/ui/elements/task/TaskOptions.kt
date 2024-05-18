@@ -28,8 +28,6 @@ fun TaskOptions(
     val ui = LocalUIState.current
     Box(Modifier.padding(horizontal = ui.taskTextPadding, vertical = 4.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-//            val rememberedTask by snapshotFlow { task }.filterNotNull().collectAsState(task)
-//            if (rememberedTask == null) return
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -59,7 +57,6 @@ fun TaskOptions(
 @Composable
 fun TaskDatePicker(date: LocalDate, interactions: TaskInteractions) {
     var showDatePicker by remember { mutableStateOf(false) }
-//    val app = LocalAppState
     val time = LocalTimeState.current
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = date.atStartOfDayIn(time.timezone).toEpochMilliseconds()

@@ -17,7 +17,7 @@ fun AppTopBarTitle() {
     val time = LocalTimeState.current
     val responsive = LocalUIState.current
     val weekStart by time.weekStart.collectAsState()
-    val fontSize = if (responsive.atMostMedium) 20.sp else 18.sp
+    val fontSize = if (responsive.smallTopBar) 18.sp else 20.sp
     Text(
         "Week ${(weekStart.dayOfMonth / 7) + 1}, ${
             weekStart.month.name.lowercase().capitalize(Locale.current)

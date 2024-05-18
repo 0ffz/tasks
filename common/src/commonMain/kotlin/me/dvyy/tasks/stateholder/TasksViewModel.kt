@@ -1,6 +1,8 @@
 package me.dvyy.tasks.stateholder
 
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -26,9 +28,11 @@ class TasksViewModel(
 //    private val tasks = mutableMapOf<Uuid, TaskModel>()
     val scope = CoroutineScope(Dispatchers.Default)
     val selectedTask = MutableStateFlow<Uuid?>(null)
+    val requestedSelectTask = MutableStateFlow<Uuid?>(null)
 
     fun selectTask(uuid: Uuid?) {
-        selectedTask.update { uuid }
+        if (selectedTask.value == uuid) return
+        requestedSelectTask.update { uuid }
     }
 
     sealed interface TaskList {
@@ -36,18 +40,21 @@ class TasksViewModel(
         data class Data(val tasks: List<TaskWithIDState>) : TaskList
     }
 
-    fun tasksFor(key: TaskListKey): StateFlow<TaskList> = tasks
-        .tasksFor(key)
-        .map { list ->
-            TaskList.Data(list.map { model ->
-                TaskWithIDState( //TODO maybe cache to avoid so many object recreations?
-                    TaskState.fromModel(model, key),
-                    model.uuid,
-                    interactionsFor(model.uuid)
-                )
-            })
-        }
-        .stateIn(scope, SharingStarted.Eagerly, TaskList.Loading)
+    @Composable
+    fun tasksFor(key: TaskListKey): StateFlow<TaskList> = remember(key) {
+        tasks
+            .tasksFor(key)
+            .map { list ->
+                TaskList.Data(list.map { model ->
+                    TaskWithIDState( //TODO maybe cache to avoid so many object recreations?
+                        TaskState.fromModel(model, key),
+                        model.uuid,
+                        interactionsFor(model.uuid)
+                    )
+                })
+            }
+            .stateIn(scope, SharingStarted.Eagerly, TaskList.Loading)
+    }
 
 
     private val reorderState = ReorderState<Uuid>()
@@ -64,7 +71,7 @@ class TasksViewModel(
     )
 
     fun listInteractionsFor(key: TaskListKey) = TaskListInteractions(
-        createNewTask = { scope.launch { tasks.createTask(key) } }
+        createNewTask = { scope.launch { selectTask(tasks.createTask(key)) } }
     )
 
     fun interactionsFor(uuid: Uuid): TaskInteractions {

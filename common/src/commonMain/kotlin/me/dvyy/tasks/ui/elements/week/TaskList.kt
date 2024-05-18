@@ -53,6 +53,7 @@ fun TaskList(
 //    }
     val ui = LocalUIState.current
 
+    println("Recomposing outside tasks")
     Column(
         modifier.animateContentSize()
             .fillMaxWidth()
@@ -65,6 +66,7 @@ fun TaskList(
     ) {
         val isLoading = tasks is TasksViewModel.TaskList.Loading
         TaskListTitle(key, colored, loading = isLoading)
+        println("Recomposing $tasks")
         when (tasks) {
             is TasksViewModel.TaskList.Loading -> return
             is TasksViewModel.TaskList.Data -> {
@@ -82,7 +84,7 @@ fun TaskList(
                             )
                         }
                     }
-                    val fullHeight = !ui.singleColumnLists
+                    val fullHeight = !ui.isSingleColumn
                     val emptySpace = remember(fullHeight) {
                         if (fullHeight) Modifier.height(500.dp) else Modifier.height(ui.taskHeight)
                     }

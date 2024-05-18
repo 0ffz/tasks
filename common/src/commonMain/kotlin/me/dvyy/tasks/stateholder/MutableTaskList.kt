@@ -17,7 +17,7 @@ class MutableTaskList(
     fun models() = models.toList()
 
     //    private val states = mutableListOf<TaskWithIDState>()
-    private val tasksFlow = MutableStateFlow<List<TaskModel>>(emptyList())
+    private val tasksFlow = MutableStateFlow(models())
 
     fun tasksFlow(): Flow<List<TaskModel>> = tasksFlow
 

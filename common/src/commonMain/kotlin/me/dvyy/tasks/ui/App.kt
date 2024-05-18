@@ -49,7 +49,7 @@ fun App(state: AppState? = null) {
             BoxWithConstraints(
                 Modifier.clickableWithoutRipple { tasksStateHolder.selectTask(null) }
             ) {
-                val scrollBehavior = if (responsive.singleColumnLists)
+                val scrollBehavior = if (responsive.isSingleColumn)
                     TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
                 else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                 AppDrawer {

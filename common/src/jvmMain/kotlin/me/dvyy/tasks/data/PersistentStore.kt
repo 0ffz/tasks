@@ -27,14 +27,16 @@ actual class PersistentStore actual constructor() {
             return
         }
         path.createParentDirectories()
-        AppFormats.json.encodeToStream(ListSerializer(TaskModel.serializer()), tasks, path.outputStream())
+        val filteredTasks = tasks.filter { it.name.isNotEmpty() }
+        AppFormats.json.encodeToStream(ListSerializer(TaskModel.serializer()), filteredTasks, path.outputStream())
     }
 
     actual fun loadTasksForList(key: TaskListKey): Result<List<TaskModel>> {
         val path = tasksPath(key)
         if (!path.exists()) return Result.success(listOf())
-        return kotlin.runCatching {
+        return runCatching {
             AppFormats.json.decodeFromStream(ListSerializer(TaskModel.serializer()), path.inputStream())
+                .filter { it.name.isNotEmpty() }
         }
     }
 }
