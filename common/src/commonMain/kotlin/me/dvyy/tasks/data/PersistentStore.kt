@@ -1,10 +1,10 @@
 package me.dvyy.tasks.data
 
-import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.TaskModel
+import me.dvyy.tasks.ui.elements.week.TaskListKey
 
 expect class PersistentStore constructor() {
-    fun saveDay(date: LocalDate, tasks: List<TaskModel>)
+    fun saveList(key: TaskListKey, tasks: List<TaskModel>)
 
-    fun loadTasksForDay(date: LocalDate): Result<List<TaskModel>>
+    fun loadTasksForList(key: TaskListKey): Result<List<TaskModel>>
 }

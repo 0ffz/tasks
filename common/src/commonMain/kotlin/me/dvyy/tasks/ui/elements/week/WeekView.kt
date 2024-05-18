@@ -19,10 +19,10 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
 import me.dvyy.tasks.state.LocalAppState
 import me.dvyy.tasks.state.LocalUIState
-import me.dvyy.tasks.stateholder.TasksStateHolder
+import me.dvyy.tasks.stateholder.TasksViewModel
 
 @Composable
-fun WeekView(tasksStateHolder: TasksStateHolder = viewModel()) {
+fun WeekView(tasksStateHolder: TasksViewModel = viewModel()) {
     val app = LocalAppState
     val scrollState = rememberScrollState()
     Scaffold(

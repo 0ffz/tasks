@@ -16,12 +16,11 @@ import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import me.dvyy.tasks.model.TaskModel
 import me.dvyy.tasks.model.serializers.AppFormats
-import me.dvyy.tasks.state.AppState
 
 class SyncClient(
     val url: String,
-    val app: AppState,
     private val ioDispatcher: CoroutineDispatcher,
+    private val auth: Auth,
 ) {
     val inProgress = MutableStateFlow(false)
     val isError = MutableStateFlow(false)
@@ -51,7 +50,7 @@ class SyncClient(
     }
 
     fun updateAuth() {
-        client = baseClient.withAuth { app.auth.getAuth() }
+        client = baseClient.withAuth { auth.getAuth() }
     }
 
     suspend fun checkAuth(auth: DigestAuthCredentials): Boolean = withContext(ioDispatcher) {

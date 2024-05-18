@@ -1,50 +1,71 @@
 package me.dvyy.tasks.stateholder
 
 import com.benasher44.uuid.Uuid
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.ui.elements.week.TaskWithIDState
+import me.dvyy.tasks.data.PersistentStore
+import me.dvyy.tasks.model.TaskModel
+import me.dvyy.tasks.ui.elements.week.TaskListKey
 
-class MutableTaskList {
-    private val taskIndices = mutableMapOf<Uuid, Int>()
-    private val tasksInOrder = mutableListOf<TaskWithIDState>()
+class MutableTaskList(
+    val key: TaskListKey,
+    private val localStore: PersistentStore,
+    initialTasks: List<TaskModel>
+) {
+    private val models = initialTasks.toMutableList()
+    fun models() = models.toList()
 
-    private val tasksFlow = MutableStateFlow<List<TaskWithIDState>?>(null)
-    fun tasksFlow(): StateFlow<List<TaskWithIDState>?> = tasksFlow
+    //    private val states = mutableListOf<TaskWithIDState>()
+    private val tasksFlow = MutableStateFlow<List<TaskModel>>(emptyList())
 
-    private fun emitUpdate() = tasksFlow.update { tasksInOrder.toList() }
+    fun tasksFlow(): Flow<List<TaskModel>> = tasksFlow
 
-    operator fun set(uuid: Uuid, task: TaskWithIDState) {
-        val index = taskIndices[uuid]
-        if (index == null) {
-            taskIndices[uuid] = tasksInOrder.size
-            tasksInOrder.add(task)
+    private fun emitUpdate() {
+        tasksFlow.update { models.toList() }
+        localStore.saveList(key, models.toList())
+    }
+
+    operator fun get(uuid: Uuid): TaskModel? {
+        return models.firstOrNull { it.uuid == uuid }
+    }
+
+    operator fun set(uuid: Uuid, model: TaskModel) {
+        val index = indexOf(uuid)
+        if (index == -1) {
+            models.add(model)
         } else {
-            tasksInOrder[index] = task
+            models[index] = model
         }
         emitUpdate()
     }
 
-    fun update(uuid: Uuid, state: TaskState) {
-        val index = taskIndices[uuid] ?: error("Task not found")
-        val task = tasksInOrder[index]
-        set(uuid, task.copy(state = state))
+//    fun updateIfPresent(uuid: Uuid, state: TaskState) {
+//        val index = indexOf(uuid)
+//        if (index == -1) return
+//        val task = states[index]
+//        set(uuid, task.copy(state = state))
+//    }
+
+    fun remove(uuid: Uuid): TaskModel? {
+        val index = indexOf(uuid)
+        if (index == -1) return null
+        return models.removeAt(index).also {
+            emitUpdate()
+        }
     }
 
-    fun remove(uuid: Uuid) {
-        val index = taskIndices[uuid] ?: return
-        taskIndices.remove(uuid)
-        tasksInOrder.removeAt(index)
-        taskIndices.forEach { (key, value) ->
-            if (value > index) taskIndices[key] = value - 1
-        }
-        emitUpdate()
-    }
+    fun indexOf(uuid: Uuid) = models.indexOfFirst { it.uuid == uuid }
 
     fun taskAfter(uuid: Uuid): Uuid? {
-        val index = taskIndices[uuid] ?: return null
-        return if (index + 1 < tasksInOrder.size) tasksInOrder[index + 1].uuid else null
+        val index = indexOf(uuid)
+        if (index == -1) return null
+        return models.getOrNull(indexOf(uuid) + 1)?.uuid
+    }
+
+    fun taskBefore(uuid: Uuid): Uuid? {
+        val index = indexOf(uuid)
+        if (index == -1) return null
+        return models.getOrNull(indexOf(uuid) - 1)?.uuid
     }
 }

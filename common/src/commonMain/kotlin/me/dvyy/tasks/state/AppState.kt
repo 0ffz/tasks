@@ -13,11 +13,9 @@ import me.dvyy.tasks.data.SyncClient
 
 @Stable
 class AppState {
-    val time = TimeState()
-
     val auth = Auth()
-
-    val sync = SyncClient("http://localhost:4000", this, Dispatchers.Default)
+    val sync = SyncClient("http://localhost:4000", Dispatchers.Default, auth)
+    val time = TimeState()
     val snackbarHostState = SnackbarHostState()
     val activeDialog = MutableStateFlow<AppDialog?>(null)
     val drawerState = DrawerState(initialValue = DrawerValue.Closed)

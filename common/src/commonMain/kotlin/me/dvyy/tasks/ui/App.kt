@@ -13,8 +13,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.Dispatchers
+import me.dvyy.tasks.data.PersistentStore
+import me.dvyy.tasks.data.TaskRepository
 import me.dvyy.tasks.state.*
-import me.dvyy.tasks.stateholder.TasksStateHolder
+import me.dvyy.tasks.stateholder.TasksViewModel
 import me.dvyy.tasks.ui.elements.app.AppDialogs
 import me.dvyy.tasks.ui.elements.app.AppDrawer
 import me.dvyy.tasks.ui.elements.app.AppTopBar
@@ -34,7 +37,15 @@ fun App(state: AppState? = null) {
             LocalUIState provides responsive,
             LocalTimeState provides app.time,
         ) {
-            val tasksStateHolder = viewModel { TasksStateHolder() }
+            val tasksStateHolder = viewModel {
+                TasksViewModel(
+                    tasks = TaskRepository(
+                        localStore = PersistentStore(),
+                        syncClient = app.sync,
+                        ioDispatcher = Dispatchers.Default
+                    )
+                )
+            }
             BoxWithConstraints(
                 Modifier.clickableWithoutRipple { tasksStateHolder.selectTask(null) }
             ) {

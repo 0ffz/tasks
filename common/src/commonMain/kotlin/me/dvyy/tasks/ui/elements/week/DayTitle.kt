@@ -9,6 +9,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -17,9 +18,17 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 
 sealed class TaskListKey {
-    data class Date(val date: LocalDate) : TaskListKey()
-    data class Named(val name: String) : TaskListKey()
+    @Immutable
+    data class Date(val date: LocalDate) : TaskListKey() {
+        override fun toString() = date.toString()
+    }
+
+    @Immutable
+    data class Named(val name: String) : TaskListKey() {
+        override fun toString() = name
+    }
 }
+
 @Composable
 fun TaskListTitle(
     title: TaskListKey,

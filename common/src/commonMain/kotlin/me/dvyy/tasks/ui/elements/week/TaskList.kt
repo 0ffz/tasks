@@ -18,7 +18,7 @@ import me.dvyy.tasks.state.LocalUIState
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.stateholder.TaskInteractions
 import me.dvyy.tasks.stateholder.TaskReorderInteractions
-import me.dvyy.tasks.stateholder.TasksStateHolder
+import me.dvyy.tasks.stateholder.TasksViewModel
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.ui.elements.task.ReorderableTask
 
@@ -39,11 +39,11 @@ data class TaskWithIDState(
 @Composable
 fun TaskList(
     key: TaskListKey,
-    tasks: List<TaskWithIDState>?, //TODO represent loading state explicitly?
+    tasks: TasksViewModel.TaskList, //TODO represent loading state explicitly?
     colored: Boolean,
     reorderInteractions: TaskReorderInteractions,
     interactions: TaskListInteractions,
-    tasksStateHolder: TasksStateHolder,
+    tasksStateHolder: TasksViewModel,
     modifier: Modifier = Modifier,
 ) {
 //    val app = LocalAppState
@@ -63,31 +63,37 @@ fun TaskList(
                 onDragEnter = { reorderInteractions.onDragEnterColumn(key, it) },
             )
     ) {
-        TaskListTitle(key, colored, loading = tasks == null)
-        if (tasks == null) return
-        Column(
-            modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
-        ) {
-            val selectedTask by tasksStateHolder.selectedTask.collectAsState()
-            LazyColumn {
-                items(tasks, key = { it.uuid }) { task ->
-                    ReorderableTask(
-                        task = task,
-                        reorderInteractions = reorderInteractions,
-                        selected = selectedTask == task.uuid,
-                    )
+        val isLoading = tasks is TasksViewModel.TaskList.Loading
+        TaskListTitle(key, colored, loading = isLoading)
+        when (tasks) {
+            is TasksViewModel.TaskList.Loading -> return
+            is TasksViewModel.TaskList.Data -> {
+
+                Column(
+                    modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
+                ) {
+                    val selectedTask by tasksStateHolder.selectedTask.collectAsState()
+                    LazyColumn {
+                        items(tasks.tasks, key = { it.uuid }) { task ->
+                            ReorderableTask(
+                                task = task,
+                                reorderInteractions = reorderInteractions,
+                                selected = selectedTask == task.uuid,
+                            )
+                        }
+                    }
+                    val fullHeight = !ui.singleColumnLists
+                    val emptySpace = remember(fullHeight) {
+                        if (fullHeight) Modifier.height(500.dp) else Modifier.height(ui.taskHeight)
+                    }
+                    Column(emptySpace.clickableWithoutRipple {
+                        if (tasks.tasks.lastOrNull()?.state?.name?.isEmpty() != true)
+                            interactions.createNewTask()
+                    }) {
+                        Spacer(modifier = Modifier.height(ui.taskHeight))
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    }
                 }
-            }
-            val fullHeight = !ui.singleColumnLists
-            val emptySpace = remember(fullHeight) {
-                if (fullHeight) Modifier.height(500.dp) else Modifier.height(ui.taskHeight)
-            }
-            Column(emptySpace.clickableWithoutRipple {
-                if (tasks.lastOrNull()?.state?.name?.isEmpty() != true)
-                    interactions.createNewTask()
-            }) {
-                Spacer(modifier = Modifier.height(ui.taskHeight))
-                HorizontalDivider(modifier = Modifier.fillMaxWidth())
             }
         }
     }
