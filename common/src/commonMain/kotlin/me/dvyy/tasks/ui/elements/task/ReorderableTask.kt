@@ -25,7 +25,6 @@ fun ReorderableTask(
     interactions: TaskInteractions,
     selected: Boolean,
 ) {
-    println("Recomposing ${task.state}")
     ReorderableItem(
         state = reorderInteractions.draggedState,
         key = task,

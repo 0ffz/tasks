@@ -43,14 +43,17 @@ fun Task(
 ) {
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
-    val selectedState by remember { mutableStateOf(false) }.apply { value = selected }
+    val selectedState by rememberUpdatedState(selected)
 
     LaunchedEffect(task) {
         snapshotFlow { selectedState }
             .distinctUntilChanged()
             .drop(1)
             .filter { !it } // Listen to deselect
-            .collect { if (task.name.isEmpty()) interactions.onDelete() }
+            .collect {
+                println("Selecte changed $it for ${task.name}")
+                if (task.name.isEmpty()) interactions.onDelete()
+            }
     }
 
     BoxWithConstraints(

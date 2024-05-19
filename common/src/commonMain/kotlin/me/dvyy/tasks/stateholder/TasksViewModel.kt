@@ -33,6 +33,7 @@ class TasksViewModel(
 
     fun selectTask(uuid: Uuid?) {
         if (selectedTask.value == uuid) return
+        println("updating selected to $uuid")
         requestedSelectTask.update { uuid }
     }
 
@@ -64,7 +65,10 @@ class TasksViewModel(
     fun reorderInteractions() = TaskReorderInteractions(
         draggedState = reorderState,
         onDragEnterItem = { targetTask, dragged ->
-            //TODO change order in list
+            println(tasks.getModel(targetTask)?.name)
+            scope.launch {
+                tasks.reorderTask(dragged.data, to = targetTask)
+            }
         },
         onDragEnterColumn = { targetList, dragged ->
             val id = dragged.data
@@ -130,7 +134,7 @@ class TasksViewModel(
             selectTask(nextTask)
         } else if (list[uuid]?.name?.isEmpty() != true) {
             scope.launch {
-                tasks.createTask(list.key)
+                selectTask(tasks.createTask(list.key))
             }
         }
     }

@@ -37,6 +37,15 @@ class TaskRepository(
         list[uuid] = task
     }
 
+    suspend fun reorderTask(uuid: Uuid, to: Uuid) = withContext(ioDispatcher) {
+        val targetList = tasksToList[to] ?: return@withContext
+        if (tasksToList[uuid] != targetList) {
+            moveTask(uuid, targetList)
+        }
+        val list = lists[tasksToList[uuid]] ?: return@withContext
+        list.reorder(uuid, to)
+    }
+
     fun updateTask(uuid: Uuid, updater: (TaskModel) -> TaskModel) {
         val existingListKey = tasksToList[uuid]
         val existingList = lists[existingListKey] ?: error("Task not in any list!")
@@ -85,7 +94,11 @@ class TaskRepository(
         lists.getOrPut(key) {
             val tasks = localStore
                 .loadTasksForList(key)
-                .getOrElse { error("Failed to load tasks for $key") }
+                .getOrElse {
+                    println("Failed to load tasks for $key")
+                    it.printStackTrace()
+                    emptyList()
+                }
             tasks.forEach { tasksToList[it.uuid] = key }
 
             MutableTaskList(key, localStore, tasks)

@@ -68,4 +68,13 @@ class MutableTaskList(
         if (index == -1) return null
         return models.getOrNull(indexOf(uuid) - 1)?.uuid
     }
+
+    fun reorder(from: Uuid, to: Uuid) {
+        val fromIndex = indexOf(from)
+        val toIndex = indexOf(to)
+        if (fromIndex == -1 || toIndex == -1) return
+        val task = models.removeAt(fromIndex)
+        models.add(toIndex, task)
+        emitUpdate()
+    }
 }

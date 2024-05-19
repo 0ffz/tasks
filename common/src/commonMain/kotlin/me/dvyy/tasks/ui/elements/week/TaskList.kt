@@ -3,7 +3,8 @@ package me.dvyy.tasks.ui.elements.week
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -43,7 +44,6 @@ fun TaskList(
     viewModel: TasksViewModel,
     modifier: Modifier = Modifier,
 ) {
-    println("Recomposing list $key")
     val ui = LocalUIState.current
     Column(
         modifier.animateContentSize()
@@ -62,8 +62,10 @@ fun TaskList(
             is TaskList.Data -> {
                 Column(modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)) {
                     val selectedTask by viewModel.selectedTask.collectAsState()
-                    LazyColumn {
-                        items(tasks.tasks, key = { it.uuid }) { task ->
+                    val lazyListState = rememberLazyListState()
+                    LazyColumn(state = lazyListState) {
+                        itemsIndexed(tasks.tasks, key = { _, it -> it.uuid }) { index, task ->
+                            val selected = selectedTask == task.uuid
                             val taskInter = remember(task.uuid) {
                                 viewModel.interactionsFor(task.uuid)
                             }
@@ -71,7 +73,7 @@ fun TaskList(
                                 task = task,
                                 reorderInteractions = reorderInteractions,
                                 interactions = taskInter,
-                                selected = selectedTask == task.uuid,
+                                selected = selected,
                             )
                         }
                     }
