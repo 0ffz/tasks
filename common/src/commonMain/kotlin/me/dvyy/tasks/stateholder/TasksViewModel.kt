@@ -2,6 +2,7 @@ package me.dvyy.tasks.stateholder
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -37,6 +38,8 @@ class TasksViewModel(
 
     sealed interface TaskList {
         data object Loading : TaskList
+
+        @Immutable
         data class Data(val tasks: List<TaskWithIDState>) : TaskList
     }
 
@@ -49,7 +52,6 @@ class TasksViewModel(
                     TaskWithIDState( //TODO maybe cache to avoid so many object recreations?
                         TaskState.fromModel(model, key),
                         model.uuid,
-                        interactionsFor(model.uuid)
                     )
                 })
             }

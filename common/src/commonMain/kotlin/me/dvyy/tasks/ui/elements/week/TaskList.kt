@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.benasher44.uuid.Uuid
@@ -16,9 +13,9 @@ import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import me.dvyy.tasks.state.LocalUIState
 import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.stateholder.TaskInteractions
 import me.dvyy.tasks.stateholder.TaskReorderInteractions
 import me.dvyy.tasks.stateholder.TasksViewModel
+import me.dvyy.tasks.stateholder.TasksViewModel.TaskList
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.ui.elements.task.ReorderableTask
 
@@ -29,31 +26,25 @@ data class TaskListInteractions(
     val createNewTask: () -> Unit,
 )
 
+@Immutable
 data class TaskWithIDState(
     val state: TaskState,
     val uuid: Uuid,
-    val interactions: TaskInteractions,
 )
 
 @OptIn(ExperimentalDndApi::class)
 @Composable
 fun TaskList(
     key: TaskListKey,
-    tasks: TasksViewModel.TaskList, //TODO represent loading state explicitly?
+    tasks: TaskList, //TODO represent loading state explicitly?
     colored: Boolean,
     reorderInteractions: TaskReorderInteractions,
     interactions: TaskListInteractions,
-    tasksStateHolder: TasksViewModel,
+    viewModel: TasksViewModel,
     modifier: Modifier = Modifier,
 ) {
-//    val app = LocalAppState
-//    val producedState by produceState<DateState?>(initialValue = app.getDateIfLoaded(date), date) {
-//        value = null
-//        value = app.getOrLoadDate(date)
-//    }
+    println("Recomposing list $key")
     val ui = LocalUIState.current
-
-    println("Recomposing outside tasks")
     Column(
         modifier.animateContentSize()
             .fillMaxWidth()
@@ -64,22 +55,22 @@ fun TaskList(
                 onDragEnter = { reorderInteractions.onDragEnterColumn(key, it) },
             )
     ) {
-        val isLoading = tasks is TasksViewModel.TaskList.Loading
+        val isLoading = tasks is TaskList.Loading
         TaskListTitle(key, colored, loading = isLoading)
-        println("Recomposing $tasks")
         when (tasks) {
-            is TasksViewModel.TaskList.Loading -> return
-            is TasksViewModel.TaskList.Data -> {
-
-                Column(
-                    modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
-                ) {
-                    val selectedTask by tasksStateHolder.selectedTask.collectAsState()
+            is TaskList.Loading -> return
+            is TaskList.Data -> {
+                Column(modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)) {
+                    val selectedTask by viewModel.selectedTask.collectAsState()
                     LazyColumn {
                         items(tasks.tasks, key = { it.uuid }) { task ->
+                            val taskInter = remember(task.uuid) {
+                                viewModel.interactionsFor(task.uuid)
+                            }
                             ReorderableTask(
                                 task = task,
                                 reorderInteractions = reorderInteractions,
+                                interactions = taskInter,
                                 selected = selectedTask == task.uuid,
                             )
                         }

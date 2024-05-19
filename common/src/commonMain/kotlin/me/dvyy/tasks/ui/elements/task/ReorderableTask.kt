@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import me.dvyy.tasks.platforms.PlatformSpecifics
 import me.dvyy.tasks.state.LocalUIState
+import me.dvyy.tasks.stateholder.TaskInteractions
 import me.dvyy.tasks.stateholder.TaskReorderInteractions
 import me.dvyy.tasks.ui.elements.week.TaskWithIDState
 
@@ -21,8 +22,10 @@ import me.dvyy.tasks.ui.elements.week.TaskWithIDState
 fun ReorderableTask(
     task: TaskWithIDState,
     reorderInteractions: TaskReorderInteractions,
+    interactions: TaskInteractions,
     selected: Boolean,
 ) {
+    println("Recomposing ${task.state}")
     ReorderableItem(
         state = reorderInteractions.draggedState,
         key = task,
@@ -44,7 +47,7 @@ fun ReorderableTask(
         },
         onDragEnter = { reorderInteractions.onDragEnterItem(task.uuid, it) },
     ) {
-        Task(task.state, selected, task.interactions)
+        Task(task.state, selected, interactions)
     }
     HorizontalDivider()
 }
