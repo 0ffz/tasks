@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction.Companion.Done
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.state.LocalTimeState
+import me.dvyy.tasks.state.LocalUIState
 import me.dvyy.tasks.state.rememberAppState
 import me.dvyy.tasks.state.rememberAppUIState
 import me.dvyy.tasks.stateholder.TaskInteractions
@@ -24,45 +26,54 @@ import me.dvyy.tasks.ui.theme.AppTheme
 @Composable
 fun QuickAdd(exit: () -> Unit) = AppTheme {
     val state = rememberAppState()
-//    CompositionLocalProvider(
-//        AppStateProvider provides state,
-//        LocalTimeState provides state.time,
-//    ) {
-    val ui = rememberAppUIState()
-    var title by remember { mutableStateOf("") }
-    var highlight by remember { mutableStateOf(Highlight.Unmarked) }
-    var listKey by remember { mutableStateOf(TaskListKey.Date(state.time.today)) }
-    val interactions = remember {
-        TaskInteractions(
-            onTitleChanged = { title = it },
-            onHighlightChanged = { highlight = it },
-            onListChanged = { listKey = TaskListKey.Date(it) },
-            keyboardActions = KeyboardActions(onDone = { /* TODO save task*/ exit() }),
-            keyboardOptions = KeyboardOptions(imeAction = Done),
-        )
-    }
-    Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(8.dp)) {
-            Box {
-                TaskListTitle(listKey, colored = false, loading = false, showDivider = false)
-            }
-            Box(
-                modifier = Modifier.height(ui.taskHeight),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                TaskHighlight(title, highlight)
-                TaskTextField(
-                    title = title,
-                    completed = false,
-                    selected = true,
+    val responsive = rememberAppUIState()
+
+    CompositionLocalProvider(
+        LocalUIState provides responsive,
+        LocalTimeState provides state.time,
+    ) {
+        val ui = rememberAppUIState()
+        var title by remember { mutableStateOf("") }
+        var highlight by remember { mutableStateOf(Highlight.Unmarked) }
+        var listKey by remember { mutableStateOf(TaskListKey.Date(state.time.today)) }
+        //TODO inject viewModel
+//        val viewModel = viewModel { TasksViewModel(TaskRepository()) }
+        val interactions = remember {
+            TaskInteractions(
+                onTitleChanged = { title = it },
+                onHighlightChanged = { highlight = it },
+                onListChanged = { listKey = TaskListKey.Date(it) },
+                keyboardActions = KeyboardActions(onDone = { /* TODO save task*/ exit() }),
+                keyboardOptions = KeyboardOptions(imeAction = Done),
+            )
+        }
+        Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(8.dp)) {
+                Box {
+                    TaskListTitle(listKey, colored = false, loading = false, showDivider = false)
+                }
+                Box(
+                    modifier = Modifier.height(ui.taskHeight),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    TaskHighlight(title, highlight)
+                    TaskTextField(
+                        title = title,
+                        completed = false,
+                        selected = true,
+                        interactions = interactions,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                TaskOptions(
+                    listKey = listKey,
                     interactions = interactions,
-                    modifier = Modifier.fillMaxWidth()
+                    submitAction = {
+                        // TODO save task
+                        exit()
+                    }
                 )
             }
-            TaskOptions(
-                listKey = listKey,
-                interactions = interactions,
-            )
         }
     }
 }

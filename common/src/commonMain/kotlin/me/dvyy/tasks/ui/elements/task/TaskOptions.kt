@@ -44,7 +44,7 @@ fun TaskOptions(
                         Icon(Icons.Outlined.Done, contentDescription = "Submit")
                     }
                 } else {
-                    IconButton(onClick = { interactions.onDelete() }) {
+                    IconButton(onClick = { interactions.onDelete() }, modifier = Modifier.size(ui.taskCheckboxSize)) {
                         Icon(Icons.Outlined.Delete, contentDescription = "Delete")
                     }
                 }

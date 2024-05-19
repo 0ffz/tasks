@@ -50,7 +50,8 @@ class TasksViewModel(
             .tasksFor(key)
             .map { list ->
                 TaskList.Data(list.map { model ->
-                    TaskWithIDState( //TODO maybe cache to avoid so many object recreations?
+                    TaskWithIDState(
+                        //TODO maybe cache to avoid so many object recreations?
                         TaskState.fromModel(model, key),
                         model.uuid,
                     )
@@ -66,6 +67,7 @@ class TasksViewModel(
         draggedState = reorderState,
         onDragEnterItem = { targetTask, dragged ->
             println(tasks.getModel(targetTask)?.name)
+            selectTask(null)
             scope.launch {
                 tasks.reorderTask(dragged.data, to = targetTask)
             }
@@ -90,7 +92,12 @@ class TasksViewModel(
             onCheckChanged = { completed -> update { it.copy(completed = completed) } },
             onHighlightChanged = { highlight -> update { it.copy(highlight = highlight) } },
             onSelect = { selectTask(uuid) },
-            onDelete = { tasks.deleteTask(uuid) },
+            onDelete = {
+                val list = tasks.getListFor(uuid) ?: return@TaskInteractions
+                val previous = list.taskBefore(uuid)
+                selectTask(previous)
+                tasks.deleteTask(uuid)
+            },
             onKeyEvent = { event ->
                 if (event.key == Key.Backspace) {
                     val list = tasks.getListFor(uuid) ?: return@TaskInteractions false

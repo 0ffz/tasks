@@ -1,6 +1,5 @@
 package me.dvyy.tasks.ui.elements.week
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -45,22 +44,21 @@ fun TaskList(
     modifier: Modifier = Modifier,
 ) {
     val ui = LocalUIState.current
-    Column(
-        modifier.animateContentSize()
-            .fillMaxWidth()
-            .dropTarget(
-                key = key,
-                state = reorderInteractions.draggedState.dndState,
-                dropAnimationEnabled = false,
-                onDragEnter = { reorderInteractions.onDragEnterColumn(key, it) },
-            )
-    ) {
+    Column(modifier/*.animateContentSize()*/.fillMaxWidth()) {
         val isLoading = tasks is TaskList.Loading
         TaskListTitle(key, colored, loading = isLoading)
         when (tasks) {
             is TaskList.Loading -> return
             is TaskList.Data -> {
-                Column(modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)) {
+                Column(
+                    modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
+                        .dropTarget(
+                            key = key,
+                            state = reorderInteractions.draggedState.dndState,
+                            dropAnimationEnabled = false,
+                            onDragEnter = { reorderInteractions.onDragEnterColumn(key, it) },
+                        )
+                ) {
                     val selectedTask by viewModel.selectedTask.collectAsState()
                     val lazyListState = rememberLazyListState()
                     LazyColumn(state = lazyListState) {

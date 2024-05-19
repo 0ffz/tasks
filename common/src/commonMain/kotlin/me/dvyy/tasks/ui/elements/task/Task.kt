@@ -23,6 +23,7 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -71,7 +72,7 @@ fun Task(
             val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
             Column(Modifier.alpha(alpha)) {
                 Box(
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(horizontal = ui.taskTextPadding),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     TaskHighlight(task.name, task.highlight)
@@ -165,9 +166,11 @@ fun TaskTextField(
         textDecoration = textDecoration,
     )
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(selected) {
         if (selected) focusRequester.requestFocus()
+        else focusManager.clearFocus()
     }
 
     BasicTextField(
