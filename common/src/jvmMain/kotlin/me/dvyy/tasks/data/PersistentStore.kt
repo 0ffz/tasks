@@ -17,12 +17,12 @@ actual class PersistentStore actual constructor() {
 
     fun tasksPath(key: TaskListKey) = when (key) {
         is TaskListKey.Date -> dataPath / "dates" / "${key.date}.json"
-        is TaskListKey.Named -> dataPath / "projects" / "${key.name}.json"
+        is TaskListKey.Project -> dataPath / "projects" / "${key.name}.json"
     }
 
     actual fun saveList(key: TaskListKey, tasks: List<TaskModel>) {
         val path = tasksPath(key)
-        if (tasks.isEmpty()) {
+        if (tasks.isEmpty() && key is TaskListKey.Date) {
             path.deleteIfExists()
             return
         }
@@ -37,6 +37,15 @@ actual class PersistentStore actual constructor() {
         return runCatching {
             AppFormats.json.decodeFromStream(ListSerializer(TaskModel.serializer()), path.inputStream())
                 .filter { it.name.isNotEmpty() }
+        }
+    }
+
+    actual fun getProjects(): Result<List<TaskListKey.Project>> {
+        val path = dataPath / "projects"
+        if (!path.exists()) return Result.success(listOf())
+        return runCatching {
+            path.listDirectoryEntries()
+                .map { TaskListKey.Project(it.nameWithoutExtension) }
         }
     }
 }

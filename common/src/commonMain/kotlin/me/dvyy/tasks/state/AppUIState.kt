@@ -24,6 +24,7 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val alwaysShowCheckbox get() = isSingleColumn
 
     // Task lists
+    val taskListWidth = 300.dp
 
     // App
     val isSingleColumn get() = atMostMedium

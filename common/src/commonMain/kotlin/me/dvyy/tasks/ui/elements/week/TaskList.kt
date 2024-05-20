@@ -37,7 +37,7 @@ data class TaskWithIDState(
 fun TaskList(
     key: TaskListKey,
     tasks: TaskList, //TODO represent loading state explicitly?
-    colored: Boolean,
+    colored: Boolean = false,
     reorderInteractions: TaskReorderInteractions,
     interactions: TaskListInteractions,
     viewModel: TasksViewModel,
@@ -51,7 +51,7 @@ fun TaskList(
             is TaskList.Loading -> return
             is TaskList.Data -> {
                 Column(
-                    modifier = Modifier.padding(vertical = 8.dp).heightIn(max = 1000.dp)
+                    modifier = Modifier.padding(vertical = 8.dp)
                         .dropTarget(
                             key = key,
                             state = reorderInteractions.draggedState.dndState,

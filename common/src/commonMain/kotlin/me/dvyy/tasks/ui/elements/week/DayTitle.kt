@@ -16,15 +16,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.Serializable
 
 sealed class TaskListKey {
     @Immutable
+    @Serializable
     data class Date(val date: LocalDate) : TaskListKey() {
         override fun toString() = date.toString()
     }
 
     @Immutable
-    data class Named(val name: String) : TaskListKey() {
+    @Serializable
+    data class Project(val name: String) : TaskListKey() {
         override fun toString() = name
     }
 }
@@ -63,7 +66,7 @@ fun TaskListTitle(
                 )
             }
 
-            is TaskListKey.Named -> {
+            is TaskListKey.Project -> {
                 Text(
                     title.name,
                     Modifier.weight(1f, true),

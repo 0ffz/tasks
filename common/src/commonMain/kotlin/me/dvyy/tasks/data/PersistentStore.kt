@@ -7,4 +7,6 @@ expect class PersistentStore constructor() {
     fun saveList(key: TaskListKey, tasks: List<TaskModel>)
 
     fun loadTasksForList(key: TaskListKey): Result<List<TaskModel>>
+
+    fun getProjects(): Result<List<TaskListKey.Project>>
 }

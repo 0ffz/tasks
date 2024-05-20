@@ -30,6 +30,7 @@ class TasksViewModel(
     val scope = CoroutineScope(Dispatchers.Default)
     val selectedTask = MutableStateFlow<Uuid?>(null)
     val requestedSelectTask = MutableStateFlow<Uuid?>(null)
+    val projects = tasks.projects()
 
     fun selectTask(uuid: Uuid?) {
         if (selectedTask.value == uuid) return
@@ -43,6 +44,7 @@ class TasksViewModel(
         @Immutable
         data class Data(val tasks: List<TaskWithIDState>) : TaskList
     }
+
 
     @Composable
     fun tasksFor(key: TaskListKey): StateFlow<TaskList> = remember(key) {
@@ -77,6 +79,8 @@ class TasksViewModel(
             scope.launch { tasks.moveTask(id, targetList) }
         }
     )
+
+    fun createProject(name: String) = scope.launch { tasks.createProject(TaskListKey.Project(name)) }
 
     fun listInteractionsFor(key: TaskListKey) = TaskListInteractions(
         createNewTask = { scope.launch { selectTask(tasks.createTask(key)) } }

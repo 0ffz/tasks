@@ -1,5 +1,7 @@
 package me.dvyy.tasks.data
 
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.snapshotFlow
 import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.CoroutineDispatcher
@@ -25,7 +27,7 @@ class TaskRepository(
 ) {
     val queueSaveMutex = Mutex()
     private val tasksToList = mutableMapOf<Uuid, TaskListKey>()
-    private val lists = mutableMapOf<TaskListKey, MutableTaskList>()
+    private val lists = mutableStateMapOf<TaskListKey, MutableTaskList>()
 
     suspend fun moveTask(uuid: Uuid, newList: TaskListKey) = withContext(ioDispatcher) {
         val existingListKey = tasksToList[uuid]
@@ -89,6 +91,15 @@ class TaskRepository(
     fun tasksFor(key: TaskListKey): Flow<List<TaskModel>> = flow {
         emitAll(getOrLoadList(key).tasksFlow())
     }
+    fun projects(): Flow<List<TaskListKey.Project>> = flow {
+
+        localStore.getProjects().getOrNull()?.forEach { key ->
+            getOrLoadList(key)
+        }
+        emitAll(snapshotFlow { lists.keys.filterIsInstance<TaskListKey.Project>() })
+    }
+
+
 
     private suspend fun getOrLoadList(key: TaskListKey): MutableTaskList = withContext(ioDispatcher) {
         lists.getOrPut(key) {
@@ -130,5 +141,11 @@ class TaskRepository(
         val list = lists[tasksToList[uuid]] ?: return
         list.remove(uuid)
         tasksToList.remove(uuid)
+    }
+
+    suspend fun createProject(key: TaskListKey) {
+        val list = MutableTaskList(key, localStore, emptyList())
+        lists[key] = list
+        queueSaveList(key)
     }
 }
