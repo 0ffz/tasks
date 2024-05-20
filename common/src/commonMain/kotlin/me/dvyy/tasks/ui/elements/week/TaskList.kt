@@ -1,9 +1,8 @@
 package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,9 +18,6 @@ import me.dvyy.tasks.stateholder.TasksViewModel.TaskList
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.ui.elements.task.ReorderableTask
 
-//data class DNDInteractions(
-//    val onDragEnterColumn: (dateState: Task, state: DraggedItemState<TaskState>) -> Unit,
-//)
 data class TaskListInteractions(
     val createNewTask: () -> Unit,
 )
@@ -42,14 +38,27 @@ fun TaskList(
     interactions: TaskListInteractions,
     viewModel: TasksViewModel,
     modifier: Modifier = Modifier,
+    scrollable: Boolean = false,
 ) {
     val ui = LocalUIState.current
-    Column(modifier/*.animateContentSize()*/.fillMaxWidth()) {
+
+    Column(
+        modifier/*.animateContentSize()*/
+            .padding(
+                start = 6.dp,
+                end = 6.dp,
+            ).fillMaxWidth()
+    ) {
         val isLoading = tasks is TaskList.Loading
         TaskListTitle(key, colored, loading = isLoading)
         when (tasks) {
             is TaskList.Loading -> return
             is TaskList.Data -> {
+                val scrollState = rememberScrollState()
+                val scrollModifier =
+                    if (scrollable) Modifier.verticalScroll(scrollState)
+                    else Modifier
+
                 Column(
                     modifier = Modifier.padding(vertical = 8.dp)
                         .dropTarget(
@@ -58,11 +67,11 @@ fun TaskList(
                             dropAnimationEnabled = false,
                             onDragEnter = { reorderInteractions.onDragEnterColumn(key, it) },
                         )
+                        .then(scrollModifier)
                 ) {
                     val selectedTask by viewModel.selectedTask.collectAsState()
-                    val lazyListState = rememberLazyListState()
-                    LazyColumn(state = lazyListState) {
-                        itemsIndexed(tasks.tasks, key = { _, it -> it.uuid }) { index, task ->
+                    Column {
+                        tasks.tasks.forEachIndexed { index, task ->
                             val selected = selectedTask == task.uuid
                             val taskInter = remember(task.uuid) {
                                 viewModel.interactionsFor(task.uuid)

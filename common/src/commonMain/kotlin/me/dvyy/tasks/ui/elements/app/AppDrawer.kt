@@ -21,6 +21,7 @@ import me.dvyy.tasks.NoRippleInteractionSource
 import me.dvyy.tasks.state.AppDialog
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.DialogState
+import me.dvyy.tasks.state.LocalUIState
 import org.koin.compose.koinInject
 
 @Composable
@@ -29,7 +30,9 @@ fun AppDrawer(
     dialogs: DialogState = koinInject(),
     content: @Composable () -> Unit
 ) {
+    val ui = LocalUIState.current
     ModalNavigationDrawer(
+        gesturesEnabled = ui.isSingleColumn,
         drawerState = app.drawerState,
         drawerContent = {
             ModalDrawerSheet {

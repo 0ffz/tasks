@@ -9,10 +9,9 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.benasher44.uuid.Uuid
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.data.TaskRepository
@@ -27,15 +26,15 @@ class TasksViewModel(
 ) : ViewModel() {
     // Careful to update both task map and tasks per list, I'd like a SSOT but we really want both!
 //    private val tasks = mutableMapOf<Uuid, TaskModel>()
-    val scope = CoroutineScope(Dispatchers.Default)
     val selectedTask = MutableStateFlow<Uuid?>(null)
-    val requestedSelectTask = MutableStateFlow<Uuid?>(null)
+
+    //    val requestedSelectTask = MutableStateFlow<Uuid?>(null)
     val projects = tasks.projects()
 
     fun selectTask(uuid: Uuid?) {
-        if (selectedTask.value == uuid) return
-        println("updating selected to $uuid")
-        requestedSelectTask.update { uuid }
+        selectedTask.value = uuid
+//        if (selectedTask.value == uuid) return
+//        println("updating selected to $uuid")
     }
 
     sealed interface TaskList {
@@ -59,7 +58,7 @@ class TasksViewModel(
                     )
                 })
             }
-            .stateIn(scope, SharingStarted.Eagerly, TaskList.Loading)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, TaskList.Loading)
     }
 
 
@@ -70,20 +69,20 @@ class TasksViewModel(
         onDragEnterItem = { targetTask, dragged ->
             println(tasks.getModel(targetTask)?.name)
             selectTask(null)
-            scope.launch {
+            viewModelScope.launch {
                 tasks.reorderTask(dragged.data, to = targetTask)
             }
         },
         onDragEnterColumn = { targetList, dragged ->
             val id = dragged.data
-            scope.launch { tasks.moveTask(id, targetList) }
+            viewModelScope.launch { tasks.moveTask(id, targetList) }
         }
     )
 
-    fun createProject(name: String) = scope.launch { tasks.createProject(TaskListKey.Project(name)) }
+    fun createProject(name: String) = viewModelScope.launch { tasks.createProject(TaskListKey.Project(name)) }
 
     fun listInteractionsFor(key: TaskListKey) = TaskListInteractions(
-        createNewTask = { scope.launch { selectTask(tasks.createTask(key)) } }
+        createNewTask = { viewModelScope.launch { selectTask(tasks.createTask(key)) } }
     )
 
     fun interactionsFor(uuid: Uuid): TaskInteractions {
@@ -91,7 +90,7 @@ class TasksViewModel(
         return TaskInteractions(
             onTitleChanged = { name -> update { it.copy(name = name) } },
             onListChanged = { date ->
-                scope.launch { tasks.moveTask(uuid, TaskListKey.Date(date)) }
+                viewModelScope.launch { tasks.moveTask(uuid, TaskListKey.Date(date)) }
             },
             onCheckChanged = { completed -> update { it.copy(completed = completed) } },
             onHighlightChanged = { highlight -> update { it.copy(highlight = highlight) } },
@@ -144,7 +143,7 @@ class TasksViewModel(
         if (nextTask != null) {
             selectTask(nextTask)
         } else if (list[uuid]?.name?.isEmpty() != true) {
-            scope.launch {
+            viewModelScope.launch {
                 selectTask(tasks.createTask(list.key))
             }
         }

@@ -52,7 +52,7 @@ fun Task(
             .drop(1)
             .filter { !it } // Listen to deselect
             .collect {
-                println("Selecte changed $it for ${task.name}")
+                println("Select changed $it for ${task.name}")
                 if (task.name.isEmpty()) interactions.onDelete()
             }
     }
@@ -170,7 +170,7 @@ fun TaskTextField(
 
     LaunchedEffect(selected) {
         if (selected) focusRequester.requestFocus()
-        else focusManager.clearFocus()
+//        else focusManager.clearFocus()
     }
 
     BasicTextField(
@@ -188,7 +188,7 @@ fun TaskTextField(
             }
         },
         modifier = modifier
-            .fillMaxHeight()
+//            .fillMaxHeight()
             .focusRequester(focusRequester)
             .onFocusEvent {
                 if (it.isFocused) interactions.onSelect()

@@ -32,8 +32,8 @@ class TaskRepository(
     suspend fun moveTask(uuid: Uuid, newList: TaskListKey) = withContext(ioDispatcher) {
         val existingListKey = tasksToList[uuid]
         if (existingListKey == newList) return@withContext
-        val existingList = lists[existingListKey] ?: error("Task not in any list!")
-        val task = existingList.remove(uuid) ?: error("Task not found in list!")
+        val existingList = lists[existingListKey] ?: return@withContext
+        val task = existingList.remove(uuid) ?: return@withContext
         val list = getOrLoadList(newList)
         tasksToList[uuid] = newList
         list[uuid] = task

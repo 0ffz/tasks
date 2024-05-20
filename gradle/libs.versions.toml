@@ -12,25 +12,28 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.1.5"
 androidx-glance = "1.1.0-rc01"
 compose = "1.6.7"
-compose-plugin = "1.6.10-rc01"
+compose-plugin = "1.6.10-rc03"
 composeDnd = "0.2.0"
 junit = "4.13.2"
+koinCompose = "3.6.0-wasm-alpha2"
 kotlin = "2.0.0-RC2"
 kotlinMultiplatformAppdirs = "1.2.0"
+coroutines = "1.8.0"
 kotlinxDatetime = "0.6.0-RC.2"
 kotlinxSerialization = "1.6.3"
 ktor = "2.3.11"
 ktor-eap = "3.0.0-beta-2-eap-932"
+lifecycleViewmodelCompose = "2.8.0-beta02"
 logback = "1.5.6"
 foundationAndroid = "1.6.7"
 material3WindowSizeClassMultiplatform = "0.5.0"
 multiplatformSettings = "1.1.1"
 uuid = "0.8.4"
-lifecycleViewModel = "2.8.0-rc01"
 navigationCompose = "2.7.0-alpha03"
 
 [libraries]
 compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinCompose" }
 kotlin-multiplatform-appdirs = { module = "ca.gosyer:kotlin-multiplatform-appdirs", version.ref = "kotlinMultiplatformAppdirs" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -46,9 +49,11 @@ androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", versi
 androidx-glance-material3 = { module = "androidx.glance:glance-material3", version = "androidx-glance" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "coroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinxSerialization" }
+lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
@@ -65,7 +70,6 @@ multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", vers
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 
-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleViewModel" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]

@@ -5,10 +5,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,6 +19,7 @@ import kotlinx.datetime.plus
 import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.LocalUIState
 import me.dvyy.tasks.state.TimeState
+import me.dvyy.tasks.stateholder.TaskReorderInteractions
 import me.dvyy.tasks.stateholder.TasksViewModel
 import org.koin.compose.koinInject
 
@@ -33,7 +31,7 @@ fun WeekView(
 ) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
-    SelectTaskWhenRequested()
+//    SelectTaskWhenRequested()
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         val reorderInteractions = tasksStateHolder.reorderInteractions()
@@ -46,12 +44,15 @@ fun WeekView(
             val weekStart by time.weekStart.collectAsState()
 
             BoxWithConstraints {
+                val halfHeight = this.constraints.maxHeight.dp / 2
+                val restrictHeight =
+                    if (ui.isSingleColumn) Modifier else Modifier.height(halfHeight)
+
                 Column {
-                    val halfHeight = this@BoxWithConstraints.constraints.maxHeight.dp / 2
                     NonlazyGrid(
                         columns = columns,
                         itemCount = 7,
-                        modifier = scrollModifier.fillMaxWidth().height(halfHeight)
+                        modifier = scrollModifier.fillMaxWidth().then(restrictHeight)
                     ) { dayIndex ->
                         val day = weekStart.plus(DatePeriod(days = dayIndex))
                         val isToday = day == time.today
@@ -64,35 +65,61 @@ fun WeekView(
                             viewModel = tasksStateHolder,
                             reorderInteractions = reorderInteractions,
                             interactions = tasksStateHolder.listInteractionsFor(key),
-                            modifier = Modifier
-                                .padding(
-                                    start = 6.dp,
-                                    end = 6.dp,
-                                    bottom = if (dayIndex == 6) 500.dp else 0.dp
-                                )
+                            scrollable = !ui.isSingleColumn
                         )
                     }
-                    val projects by tasksStateHolder.projects.collectAsState(emptyList()) //TODO loading
-                    LazyRow(Modifier.height(halfHeight)) {
-                        items(projects) { key ->
-                            val tasks by tasksStateHolder.tasksFor(key).collectAsState()
-                            TaskList(
-                                key = key,
-                                tasks = tasks,
-                                viewModel = tasksStateHolder,
-                                reorderInteractions = reorderInteractions,
-                                interactions = tasksStateHolder.listInteractionsFor(key),
-                                modifier = Modifier
-                                    .width(ui.taskListWidth)
-                            )
-                        }
-                        item {
-                            Button(onClick = { tasksStateHolder.createProject(uuid4().toString()) }) {
-                                Text("New project")
-                            }
-                        }
-                    }
+                    if (!ui.isSingleColumn) ProjectListContent(
+                        reorderInteractions = reorderInteractions,
+                        modifier = restrictHeight
+                    )
                 }
+                if (ui.isSingleColumn) ProjectsList {
+                    ProjectListContent(
+                        reorderInteractions = reorderInteractions,
+                        modifier = Modifier.height(halfHeight)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProjectsList(content: @Composable () -> Unit) {
+    val ui = LocalUIState.current
+    if (ui.isSingleColumn) BottomSheetScaffold(sheetContent = {
+        content()
+    }) {
+    }
+    else content()
+}
+
+@Composable
+fun ProjectListContent(
+    reorderInteractions: TaskReorderInteractions,
+    modifier: Modifier = Modifier,
+    tasksStateHolder: TasksViewModel = viewModel(),
+) {
+    val ui = LocalUIState.current
+    val projects by tasksStateHolder.projects.collectAsState(emptyList()) //TODO loading
+    LazyRow(modifier) {
+        items(projects) { key ->
+            val tasks by tasksStateHolder.tasksFor(key).collectAsState()
+            TaskList(
+                key = key,
+                tasks = tasks,
+                viewModel = tasksStateHolder,
+                reorderInteractions = reorderInteractions,
+                interactions = tasksStateHolder.listInteractionsFor(key),
+                modifier = Modifier
+                    .width(ui.taskListWidth),
+                scrollable = true
+            )
+        }
+        item {
+            Button(onClick = { tasksStateHolder.createProject(uuid4().toString()) }) {
+                Text("New project")
             }
         }
     }
