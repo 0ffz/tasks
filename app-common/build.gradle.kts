@@ -42,7 +42,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":model"))
+                implementation(project(":app-model"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)

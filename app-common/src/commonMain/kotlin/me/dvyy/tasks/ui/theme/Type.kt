@@ -4,8 +4,8 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import me.dvyy.common.generated.resources.Res
-import me.dvyy.common.generated.resources.RobotoFlex
+import me.dvyy.app_common.generated.resources.Res
+import me.dvyy.app_common.generated.resources.RobotoFlex
 import org.jetbrains.compose.resources.Font
 
 // Default Material 3 typography values

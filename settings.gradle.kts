@@ -13,4 +13,4 @@ pluginManagement {
 rootProject.name = "tasks"
 
 
-include("android", "common", "desktop", "web", "server", "model")
+include("app-android", "app-common", "app-desktop", "app-web", "app-server", "app-model")

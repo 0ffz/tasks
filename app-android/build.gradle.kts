@@ -7,7 +7,7 @@ plugins {
 
 
 dependencies {
-    implementation(project(":common"))
+    implementation(project(":app-common"))
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.androidx.activity.compose)
 //    implementation(libs.androidx.glance.appwidget)

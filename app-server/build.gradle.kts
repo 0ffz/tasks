@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":model"))
+    implementation(project(":app-model"))
     implementation(libs.uuid)
     implementation(libs.kotlinx.serialization.json)
 
