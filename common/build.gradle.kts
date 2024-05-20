@@ -64,6 +64,8 @@ kotlin {
                 implementation(libs.navigation.compose)
 //                implementation(libs.lifecycle.viewmodel)
                 implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0-beta02")
+                implementation("io.insert-koin:koin-compose:3.6.0-wasm-alpha2")
+
             }
         }
         val jvmMain by creating {

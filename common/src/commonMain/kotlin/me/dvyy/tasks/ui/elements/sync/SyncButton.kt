@@ -13,12 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.state.LocalAppState
+import me.dvyy.tasks.state.AppState
+import org.koin.compose.koinInject
 
 @Composable
-fun SyncButton() {
+fun SyncButton(app: AppState = koinInject()) {
     val scope = rememberCoroutineScope()
-    val app = LocalAppState
     IconButton(
         onClick = {
             scope.launch {

@@ -14,10 +14,11 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.state.LocalTimeState
 import me.dvyy.tasks.state.LocalUIState
+import me.dvyy.tasks.state.TimeState
 import me.dvyy.tasks.stateholder.TaskInteractions
 import me.dvyy.tasks.ui.elements.week.TaskListKey
+import org.koin.compose.koinInject
 
 @Composable
 fun TaskOptions(
@@ -55,9 +56,8 @@ fun TaskOptions(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskDatePicker(date: LocalDate, interactions: TaskInteractions) {
+fun TaskDatePicker(date: LocalDate, interactions: TaskInteractions, time: TimeState = koinInject()) {
     var showDatePicker by remember { mutableStateOf(false) }
-    val time = LocalTimeState.current
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = date.atStartOfDayIn(time.timezone).toEpochMilliseconds()
     )

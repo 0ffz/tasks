@@ -14,27 +14,6 @@ data class TaskState(
     val key: TaskListKey,
     val highlight: Highlight,
 ) {
-//    val focusRequested = MutableStateFlow(false)
-
-//    @Composable
-//    fun isActive(app: AppState) = app.selectedTask
-//        .map { it == this }
-//        .distinctUntilChanged()
-//        .collectAsState(false)
-
-    //    fun toModel(): TaskModel = TaskModel(
-//        uuid = uuid,
-//        name = name.value,
-//        completed = completed.value,
-//        syncStatus = syncStatus.value,
-//        highlight = highlight.value,
-//    )
-//
-//    fun updateToMatch(task: TaskModel) {
-//        name.value = task.name
-//        completed.value = task.completed
-//        syncStatus.value = task.syncStatus
-//    }
     fun toModel(uuid: Uuid): TaskModel = TaskModel(
         uuid = uuid,
         name = name,

@@ -8,13 +8,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.sp
-import me.dvyy.tasks.state.LocalTimeState
 import me.dvyy.tasks.state.LocalUIState
+import me.dvyy.tasks.state.TimeState
+import org.koin.compose.koinInject
 
 @Composable
-fun AppTopBarTitle() {
+fun AppTopBarTitle(time: TimeState = koinInject()) {
     // current week
-    val time = LocalTimeState.current
     val responsive = LocalUIState.current
     val weekStart by time.weekStart.collectAsState()
     val fontSize = if (responsive.smallTopBar) 18.sp else 20.sp

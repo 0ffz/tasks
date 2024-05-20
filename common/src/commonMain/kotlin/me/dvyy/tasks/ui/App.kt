@@ -16,7 +16,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import me.dvyy.tasks.data.PersistentStore
 import me.dvyy.tasks.data.TaskRepository
-import me.dvyy.tasks.state.*
+import me.dvyy.tasks.di.appModule
+import me.dvyy.tasks.state.AppState
+import me.dvyy.tasks.state.LocalUIState
+import me.dvyy.tasks.state.rememberAppUIState
 import me.dvyy.tasks.stateholder.TasksViewModel
 import me.dvyy.tasks.ui.elements.app.AppDialogs
 import me.dvyy.tasks.ui.elements.app.AppDrawer
@@ -24,44 +27,48 @@ import me.dvyy.tasks.ui.elements.app.AppTopBar
 import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.ui.screens.home.HomeScreen
 import me.dvyy.tasks.ui.theme.AppTheme
+import org.koin.compose.KoinApplication
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App(state: AppState? = null) {
+fun App() {
     AppTheme {
-        val app = state ?: rememberAppState()
-        val responsive = rememberAppUIState()
+        KoinApplication(application = {
+            modules(appModule())
+        }) {
+            val app: AppState = koinInject()
+            val responsive = rememberAppUIState()
 //        val tasksStateHolder = remember { TasksStateHolder() }
-        CompositionLocalProvider(
-            AppStateProvider provides app,
-            LocalUIState provides responsive,
-            LocalTimeState provides app.time,
-        ) {
-            val tasksStateHolder = viewModel {
-                TasksViewModel(
-                    tasks = TaskRepository(
-                        localStore = PersistentStore(),
-                        syncClient = app.sync,
-                        ioDispatcher = Dispatchers.Default
-                    )
-                )
-            }
-            BoxWithConstraints(
-                Modifier.clickableWithoutRipple { tasksStateHolder.selectTask(null) }
+            CompositionLocalProvider(
+                LocalUIState provides responsive,
             ) {
-                val scrollBehavior = if (responsive.isSingleColumn)
-                    TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-                else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                AppDrawer {
-                    Scaffold(
-                        Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
-                        topBar = { AppTopBar(scrollBehavior) },
-                    ) { paddingValues ->
-                        Box(Modifier.padding(paddingValues)) {
-                            HomeScreen()
+                val tasksStateHolder = viewModel {
+                    TasksViewModel(
+                        tasks = TaskRepository(
+                            localStore = PersistentStore(),
+                            syncClient = app.sync,
+                            ioDispatcher = Dispatchers.Default
+                        )
+                    )
+                }
+                BoxWithConstraints(
+                    Modifier.clickableWithoutRipple { tasksStateHolder.selectTask(null) }
+                ) {
+                    val scrollBehavior = if (responsive.isSingleColumn)
+                        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+                    else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                    AppDrawer {
+                        Scaffold(
+                            Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+                            topBar = { AppTopBar(scrollBehavior) },
+                        ) { paddingValues ->
+                            Box(Modifier.padding(paddingValues)) {
+                                HomeScreen()
+                            }
                         }
+                        AppDialogs()
                     }
-                    AppDialogs()
                 }
             }
         }

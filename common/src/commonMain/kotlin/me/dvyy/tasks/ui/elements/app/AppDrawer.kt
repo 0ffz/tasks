@@ -19,11 +19,16 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.NoRippleInteractionSource
 import me.dvyy.tasks.state.AppDialog
-import me.dvyy.tasks.state.LocalAppState
+import me.dvyy.tasks.state.AppState
+import me.dvyy.tasks.state.DialogState
+import org.koin.compose.koinInject
 
 @Composable
-fun AppDrawer(content: @Composable () -> Unit) {
-    val app = LocalAppState
+fun AppDrawer(
+    app: AppState = koinInject(),
+    dialogs: DialogState = koinInject(),
+    content: @Composable () -> Unit
+) {
     ModalNavigationDrawer(
         drawerState = app.drawerState,
         drawerContent = {
@@ -43,7 +48,7 @@ fun AppDrawer(content: @Composable () -> Unit) {
                             icon = { Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Switch account") },
                             label = { Text(text = "Login") },
                             selected = false,
-                            onClick = { app.activeDialog.value = AppDialog.Auth }
+                            onClick = { dialogs.show(AppDialog.Auth) }
                         )
                     } else {
                         NavigationDrawerItem(
@@ -70,8 +75,7 @@ fun AppDrawer(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun AppDrawerIconButton() {
-    val app = LocalAppState
+fun AppDrawerIconButton(app: AppState = koinInject()) {
     val scope = rememberCoroutineScope()
     IconButton(
         onClick = {

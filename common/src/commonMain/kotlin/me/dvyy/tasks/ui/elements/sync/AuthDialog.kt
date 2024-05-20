@@ -10,18 +10,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import io.ktor.client.plugins.auth.providers.*
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.state.LocalAppState
+import me.dvyy.tasks.state.AppState
+import me.dvyy.tasks.state.DialogState
+import org.koin.compose.koinInject
 
 @Composable
-fun AuthDialog() {
-    val app = LocalAppState
+fun AuthDialog(app: AppState = koinInject(), dialogs: DialogState = koinInject()) {
     val scope = rememberCoroutineScope()
     var error by remember { mutableStateOf(false) }
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     fun dismiss() {
-        app.activeDialog.value = null
+        dialogs.dismiss()
         username = ""
         password = ""
     }

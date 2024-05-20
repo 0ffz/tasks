@@ -5,8 +5,11 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
+
+val LocalUIState = compositionLocalOf<AppUIState> { error("No local responsive UI") }
 
 class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val width get() = windowSizeClass.widthSizeClass

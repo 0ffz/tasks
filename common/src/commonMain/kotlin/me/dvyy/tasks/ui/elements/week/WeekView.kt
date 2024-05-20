@@ -19,13 +19,18 @@ import com.benasher44.uuid.uuid4
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
-import me.dvyy.tasks.state.LocalAppState
+import me.dvyy.tasks.state.AppState
 import me.dvyy.tasks.state.LocalUIState
+import me.dvyy.tasks.state.TimeState
 import me.dvyy.tasks.stateholder.TasksViewModel
+import org.koin.compose.koinInject
 
 @Composable
-fun WeekView(tasksStateHolder: TasksViewModel = viewModel()) {
-    val app = LocalAppState
+fun WeekView(
+    tasksStateHolder: TasksViewModel = viewModel(),
+    app: AppState = koinInject(),
+    time: TimeState = koinInject(),
+) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
     SelectTaskWhenRequested()
@@ -38,7 +43,7 @@ fun WeekView(tasksStateHolder: TasksViewModel = viewModel()) {
             val scrollModifier =
                 if (responsive.appScrollable) Modifier.verticalScroll(scrollState)
                 else Modifier
-            val weekStart by app.time.weekStart.collectAsState()
+            val weekStart by time.weekStart.collectAsState()
 
             BoxWithConstraints {
                 Column {
@@ -49,7 +54,7 @@ fun WeekView(tasksStateHolder: TasksViewModel = viewModel()) {
                         modifier = scrollModifier.fillMaxWidth().height(halfHeight)
                     ) { dayIndex ->
                         val day = weekStart.plus(DatePeriod(days = dayIndex))
-                        val isToday = day == app.time.today
+                        val isToday = day == time.today
                         val key = TaskListKey.Date(day)
                         val tasks by tasksStateHolder.tasksFor(key).collectAsState()
                         TaskList(
