@@ -86,7 +86,7 @@ class TasksViewModel(
     )
 
     fun interactionsFor(uuid: Uuid): TaskInteractions {
-        fun update(updater: (TaskModel) -> TaskModel) = tasks.updateTask(uuid, updater)
+        fun update(updater: (TaskModel) -> TaskModel) = viewModelScope.launch { tasks.updateTask(uuid, updater) }
         return TaskInteractions(
             onTitleChanged = { name -> update { it.copy(name = name) } },
             onListChanged = { date ->
@@ -99,7 +99,7 @@ class TasksViewModel(
                 val list = tasks.getListFor(uuid) ?: return@TaskInteractions
                 val previous = list.taskBefore(uuid)
                 selectTask(previous)
-                tasks.deleteTask(uuid)
+                viewModelScope.launch { tasks.deleteTask(uuid) }
             },
             onKeyEvent = { event ->
                 if (event.key == Key.Backspace) {
@@ -107,7 +107,7 @@ class TasksViewModel(
                     //TODO double check is it != false?
                     if (list[uuid]?.name?.isEmpty() == true) {
                         selectTask(list.taskBefore(uuid))
-                        tasks.deleteTask(uuid)
+                        viewModelScope.launch { tasks.deleteTask(uuid) }
                     }
                     return@TaskInteractions false
                 }

@@ -4,15 +4,12 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshotFlow
 import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import me.dvyy.tasks.app.data.AppConstants
 import me.dvyy.tasks.app.ui.TaskState
 import me.dvyy.tasks.model.Highlight
@@ -23,11 +20,13 @@ class TaskRepository(
     private val localStore: TasksLocalDataSource,
     private val ioDispatcher: CoroutineDispatcher,
 ) {
-    val queueSaveMutex = Mutex()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val taskEditDispatcher = ioDispatcher.limitedParallelism(1)
+    private val queueSaveMutex = Mutex()
     private val tasksToList = mutableMapOf<Uuid, TaskListKey>()
     private val lists = mutableStateMapOf<TaskListKey, MutableTaskList>()
 
-    suspend fun moveTask(uuid: Uuid, newList: TaskListKey) = withContext(ioDispatcher) {
+    suspend fun moveTask(uuid: Uuid, newList: TaskListKey) = withContext(taskEditDispatcher) {
         val existingListKey = tasksToList[uuid]
         if (existingListKey == newList) return@withContext
         val existingList = lists[existingListKey] ?: return@withContext
@@ -37,7 +36,7 @@ class TaskRepository(
         list[uuid] = task
     }
 
-    suspend fun reorderTask(uuid: Uuid, to: Uuid) = withContext(ioDispatcher) {
+    suspend fun reorderTask(uuid: Uuid, to: Uuid) = withContext(taskEditDispatcher) {
         val targetList = tasksToList[to] ?: return@withContext
         if (tasksToList[uuid] != targetList) {
             moveTask(uuid, targetList)
@@ -46,7 +45,7 @@ class TaskRepository(
         list.reorder(uuid, to)
     }
 
-    fun updateTask(uuid: Uuid, updater: (TaskModel) -> TaskModel) {
+    suspend fun updateTask(uuid: Uuid, updater: (TaskModel) -> TaskModel) = withContext(taskEditDispatcher) {
         val existingListKey = tasksToList[uuid]
         val existingList = lists[existingListKey] ?: error("Task not in any list!")
         val existingTask = existingList[uuid] ?: error("Task not found in list!")
@@ -54,12 +53,10 @@ class TaskRepository(
         existingList[uuid] = newTask
     }
 
-    fun updateTask(uuid: Uuid, task: TaskModel) {
+    suspend fun updateTask(uuid: Uuid, task: TaskModel) = withContext(taskEditDispatcher) {
         val existingListKey = tasksToList[uuid]
         val existingList = lists[existingListKey] ?: error("Task not in any list!")
         existingList[uuid] = task
-        // TODO queue save
-        // TODO synchronized editing
     }
 
     fun getModel(uuid: Uuid): TaskModel? {
@@ -72,7 +69,7 @@ class TaskRepository(
     }
 
     // TODO mutex
-    suspend fun createTask(key: TaskListKey): Uuid = withContext(ioDispatcher) {
+    suspend fun createTask(key: TaskListKey): Uuid = withContext(taskEditDispatcher) {
         val state = TaskState(
             name = "",
             completed = false,
@@ -89,6 +86,7 @@ class TaskRepository(
     fun tasksFor(key: TaskListKey): Flow<List<TaskModel>> = flow {
         emitAll(getOrLoadList(key).tasksFlow())
     }
+
     fun projects(): Flow<List<TaskListKey.Project>> = flow {
 
         localStore.getProjects().getOrNull()?.forEach { key ->
@@ -98,8 +96,7 @@ class TaskRepository(
     }
 
 
-
-    private suspend fun getOrLoadList(key: TaskListKey): MutableTaskList = withContext(ioDispatcher) {
+    private suspend fun getOrLoadList(key: TaskListKey): MutableTaskList = withContext(taskEditDispatcher) {
         lists.getOrPut(key) {
             val tasks = localStore
                 .loadTasksForList(key)
@@ -135,13 +132,13 @@ class TaskRepository(
         }
     }
 
-    fun deleteTask(uuid: Uuid) {
-        val list = lists[tasksToList[uuid]] ?: return
+    suspend fun deleteTask(uuid: Uuid) = withContext(taskEditDispatcher) {
+        val list = lists[tasksToList[uuid]] ?: return@withContext
         list.remove(uuid)
         tasksToList.remove(uuid)
     }
 
-    suspend fun createProject(key: TaskListKey) {
+    suspend fun createProject(key: TaskListKey) = withContext(taskEditDispatcher) {
         val list = MutableTaskList(key, localStore, emptyList())
         lists[key] = list
         queueSaveList(key)

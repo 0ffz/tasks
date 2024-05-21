@@ -72,16 +72,18 @@ fun TaskList(
                     val selectedTask by viewModel.selectedTask.collectAsState()
                     Column {
                         tasks.tasks.forEachIndexed { index, task ->
-                            val selected = selectedTask == task.uuid
-                            val taskInter = remember(task.uuid) {
-                                viewModel.interactionsFor(task.uuid)
+                            key(task.uuid) {
+                                val selected = selectedTask == task.uuid
+                                val taskInter = remember(task.uuid) {
+                                    viewModel.interactionsFor(task.uuid)
+                                }
+                                ReorderableTask(
+                                    task = task,
+                                    reorderInteractions = reorderInteractions,
+                                    interactions = taskInter,
+                                    selected = selected,
+                                )
                             }
-                            ReorderableTask(
-                                task = task,
-                                reorderInteractions = reorderInteractions,
-                                interactions = taskInter,
-                                selected = selected,
-                            )
                         }
                     }
                     val fullHeight = !ui.isSingleColumn
