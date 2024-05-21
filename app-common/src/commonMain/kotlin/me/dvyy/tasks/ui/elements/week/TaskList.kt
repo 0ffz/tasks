@@ -10,13 +10,13 @@ import androidx.compose.ui.unit.dp
 import com.benasher44.uuid.Uuid
 import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
-import me.dvyy.tasks.state.LocalUIState
+import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.state.TaskState
 import me.dvyy.tasks.stateholder.TaskReorderInteractions
-import me.dvyy.tasks.stateholder.TasksViewModel
-import me.dvyy.tasks.stateholder.TasksViewModel.TaskList
-import me.dvyy.tasks.ui.elements.modifiers.clickableWithoutRipple
-import me.dvyy.tasks.ui.elements.task.ReorderableTask
+import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.tasks.ui.TasksViewModel.TaskList
+import me.dvyy.tasks.tasks.ui.elements.ReorderableTask
 
 data class TaskListInteractions(
     val createNewTask: () -> Unit,

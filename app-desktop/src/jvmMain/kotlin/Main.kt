@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import me.dvyy.tasks.ui.App
+import me.dvyy.tasks.app.ui.App
 
 fun main() = application {
     Window(

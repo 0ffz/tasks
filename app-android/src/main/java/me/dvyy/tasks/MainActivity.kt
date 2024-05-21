@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import ca.gosyer.appdirs.impl.attachAppDirs
-import me.dvyy.tasks.ui.App
+import me.dvyy.tasks.app.ui.App
 
 
 class MainActivity : ComponentActivity() {

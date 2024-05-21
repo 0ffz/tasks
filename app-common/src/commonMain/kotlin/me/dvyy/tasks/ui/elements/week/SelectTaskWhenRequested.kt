@@ -2,7 +2,7 @@ package me.dvyy.tasks.ui.elements.week
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
-import me.dvyy.tasks.stateholder.TasksViewModel
+import me.dvyy.tasks.tasks.ui.TasksViewModel
 
 @Composable
 fun SelectTaskWhenRequested(tasksStateHolder: TasksViewModel = viewModel()) {

@@ -1,12 +1,44 @@
 package me.dvyy.tasks.di
 
-import me.dvyy.tasks.state.AppState
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.Dispatchers
+import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.auth.data.UserRepository
+import me.dvyy.tasks.data.PersistentStore
 import me.dvyy.tasks.state.DialogState
-import me.dvyy.tasks.state.TimeState
+import me.dvyy.tasks.sync.data.SyncClient
+import me.dvyy.tasks.tasks.data.TaskRepository
+import me.dvyy.tasks.tasks.ui.TasksViewModel
+import org.koin.compose.currentKoinScope
 import org.koin.dsl.module
 
 fun appModule() = module {
     single { AppState() }
-    single { TimeState() }
     single { DialogState() }
+}
+
+fun syncModule() = module {
+    single { UserRepository() }
+    single { SyncClient("http://localhost:4000", Dispatchers.Default, get<UserRepository>()) }
+}
+
+fun viewModelsModule() = module {
+    single { TimeViewModel() }
+    single {
+        TasksViewModel(
+            tasks = TaskRepository(
+                localStore = PersistentStore(),
+                ioDispatcher = Dispatchers.Default
+            )
+        )
+    }
+}
+
+@Composable
+inline fun <reified T : ViewModel> koinViewModel(): T {
+    val scope = currentKoinScope()
+    return viewModel { scope.get<T>() }
 }

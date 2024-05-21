@@ -16,18 +16,18 @@ import com.benasher44.uuid.uuid4
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
-import me.dvyy.tasks.state.AppState
-import me.dvyy.tasks.state.LocalUIState
-import me.dvyy.tasks.state.TimeState
+import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.stateholder.TaskReorderInteractions
-import me.dvyy.tasks.stateholder.TasksViewModel
+import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.koinInject
 
 @Composable
 fun WeekView(
     tasksStateHolder: TasksViewModel = viewModel(),
     app: AppState = koinInject(),
-    time: TimeState = koinInject(),
+    time: TimeViewModel = koinInject(),
 ) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
