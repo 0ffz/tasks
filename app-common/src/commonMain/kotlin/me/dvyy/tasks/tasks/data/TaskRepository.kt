@@ -60,15 +60,16 @@ class TaskRepository(
     }
 
     fun getModel(uuid: Uuid): TaskModel? {
-        return lists[tasksToList[uuid]]?.get(uuid)
+        return listFor(uuid)?.get(uuid)
     }
 
-    //TODO leaking mutable state
-    fun getListFor(uuid: Uuid): MutableTaskList? {
+    fun taskBefore(uuid: Uuid) = listFor(uuid)?.taskBefore(uuid)
+    fun taskAfter(uuid: Uuid) = listFor(uuid)?.taskAfter(uuid)
+
+    private fun listFor(uuid: Uuid): MutableTaskList? {
         return lists[tasksToList[uuid]]
     }
 
-    // TODO mutex
     suspend fun createTask(key: TaskListKey): Uuid = withContext(taskEditDispatcher) {
         val state = TaskState(
             name = "",
@@ -77,8 +78,8 @@ class TaskRepository(
             highlight = Highlight.Unmarked,
         )
         val model = state.toModel(uuid4())
-        tasksToList[model.uuid] = key
         getOrLoadList(key)[model.uuid] = model
+        tasksToList[model.uuid] = key
         model.uuid
     }
 
@@ -143,4 +144,6 @@ class TaskRepository(
         lists[key] = list
         queueSaveList(key)
     }
+
+    fun listKeyFor(uuid: Uuid): TaskListKey? = tasksToList[uuid]
 }

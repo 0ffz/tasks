@@ -67,10 +67,9 @@ fun TaskList(
                             dropAnimationEnabled = false,
                             onDragEnter = { reorderInteractions.onDragEnterColumn(key, it) },
                         )
-                        .then(scrollModifier)
                 ) {
                     val selectedTask by viewModel.selectedTask.collectAsState()
-                    Column {
+                    Column(scrollModifier) {
                         tasks.tasks.forEachIndexed { index, task ->
                             key(task.uuid) {
                                 val selected = selectedTask == task.uuid
@@ -85,18 +84,19 @@ fun TaskList(
                                 )
                             }
                         }
+                        Column(Modifier.clickableWithoutRipple {
+                            if (tasks.tasks.lastOrNull()?.state?.name?.isEmpty() != true)
+                                interactions.createNewTask()
+                        }) {
+                            Spacer(modifier = Modifier.height(ui.taskHeight))
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        }
                     }
                     val fullHeight = !ui.isSingleColumn
-                    val emptySpace = remember(fullHeight) {
-                        if (fullHeight) Modifier.height(500.dp) else Modifier.height(ui.taskHeight)
-                    }
-                    Column(emptySpace.clickableWithoutRipple {
+                    if (fullHeight) Box(Modifier.fillMaxSize().clickableWithoutRipple {
                         if (tasks.tasks.lastOrNull()?.state?.name?.isEmpty() != true)
                             interactions.createNewTask()
-                    }) {
-                        Spacer(modifier = Modifier.height(ui.taskHeight))
-                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                    }
+                    })
                 }
             }
         }

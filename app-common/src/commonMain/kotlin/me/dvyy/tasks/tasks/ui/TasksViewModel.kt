@@ -25,7 +25,6 @@ class TasksViewModel(
     private val tasks: TaskRepository,
 ) : ViewModel() {
     // Careful to update both task map and tasks per list, I'd like a SSOT but we really want both!
-//    private val tasks = mutableMapOf<Uuid, TaskModel>()
     val selectedTask = MutableStateFlow<Uuid?>(null)
 
     //    val requestedSelectTask = MutableStateFlow<Uuid?>(null)
@@ -33,8 +32,6 @@ class TasksViewModel(
 
     fun selectTask(uuid: Uuid?) {
         selectedTask.value = uuid
-//        if (selectedTask.value == uuid) return
-//        println("updating selected to $uuid")
     }
 
     sealed interface TaskList {
@@ -96,17 +93,15 @@ class TasksViewModel(
             onHighlightChanged = { highlight -> update { it.copy(highlight = highlight) } },
             onSelect = { selectTask(uuid) },
             onDelete = {
-                val list = tasks.getListFor(uuid) ?: return@TaskInteractions
-                val previous = list.taskBefore(uuid)
+                val previous = tasks.taskBefore(uuid)
                 selectTask(previous)
                 viewModelScope.launch { tasks.deleteTask(uuid) }
             },
             onKeyEvent = { event ->
                 if (event.key == Key.Backspace) {
-                    val list = tasks.getListFor(uuid) ?: return@TaskInteractions false
-                    //TODO double check is it != false?
-                    if (list[uuid]?.name?.isEmpty() == true) {
-                        selectTask(list.taskBefore(uuid))
+                    val model = tasks.getModel(uuid) ?: return@TaskInteractions false
+                    if (model.name.isEmpty()) {
+                        selectTask(tasks.taskBefore(uuid))
                         viewModelScope.launch { tasks.deleteTask(uuid) }
                     }
                     return@TaskInteractions false
@@ -138,13 +133,13 @@ class TasksViewModel(
     }
 
     fun selectNextTaskOrNew(uuid: Uuid) {
-        val list = tasks.getListFor(uuid) ?: return
-        val nextTask = list.taskAfter(uuid)
+        val nextTask = tasks.taskAfter(uuid)
         if (nextTask != null) {
             selectTask(nextTask)
-        } else if (list[uuid]?.name?.isEmpty() != true) {
+        } else if (tasks.getModel(uuid)?.name?.isEmpty() != true) {
             viewModelScope.launch {
-                selectTask(tasks.createTask(list.key))
+                val list = tasks.listKeyFor(uuid) ?: return@launch
+                selectTask(tasks.createTask(list))
             }
         }
     }

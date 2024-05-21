@@ -1,7 +1,6 @@
 package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import me.dvyy.tasks.app.ui.LocalUIState
@@ -32,7 +30,7 @@ fun ReorderableTask(
 ) {
     ReorderableItem(
         state = reorderInteractions.draggedState,
-        key = task,
+        key = task.uuid,
         data = task.uuid,
         dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
         zIndex = 1f,
@@ -56,10 +54,6 @@ fun ReorderableTask(
             }
         },
         onDragEnter = { reorderInteractions.onDragEnterItem(task.uuid, it) },
-        modifier = Modifier
-            .pointerInput(Unit) {
-                if (task.state.name.isEmpty()) detectDragGestures { _, _ -> }
-            }
     ) {
         Task(task.state, selected, interactions)
     }
