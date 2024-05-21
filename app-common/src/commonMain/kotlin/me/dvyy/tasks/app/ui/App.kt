@@ -21,8 +21,8 @@ import me.dvyy.tasks.di.appModule
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.di.syncModule
 import me.dvyy.tasks.di.viewModelsModule
+import me.dvyy.tasks.tasks.ui.HomeScreen
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import me.dvyy.tasks.ui.screens.home.HomeScreen
 import org.koin.compose.KoinApplication
 
 @OptIn(ExperimentalMaterial3Api::class)

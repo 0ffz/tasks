@@ -9,7 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.state.DialogState
+import me.dvyy.tasks.app.ui.DialogState
 import org.koin.compose.koinInject
 
 //TODO sync

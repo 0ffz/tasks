@@ -14,14 +14,12 @@ import com.benasher44.uuid.Uuid
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import me.dvyy.tasks.app.ui.TaskState
 import me.dvyy.tasks.model.TaskModel
-import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.stateholder.TaskInteractions
-import me.dvyy.tasks.stateholder.TaskReorderInteractions
 import me.dvyy.tasks.tasks.data.TaskRepository
-import me.dvyy.tasks.ui.elements.week.TaskListInteractions
-import me.dvyy.tasks.ui.elements.week.TaskListKey
-import me.dvyy.tasks.ui.elements.week.TaskWithIDState
+import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
+import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
+import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
 
 class TasksViewModel(
     private val tasks: TaskRepository,

@@ -17,12 +17,12 @@ import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.di.appModule
 import me.dvyy.tasks.di.viewModelsModule
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.stateholder.TaskInteractions
-import me.dvyy.tasks.tasks.ui.elements.TaskHighlight
-import me.dvyy.tasks.tasks.ui.elements.TaskOptions
-import me.dvyy.tasks.tasks.ui.elements.TaskTextField
-import me.dvyy.tasks.ui.elements.week.TaskListKey
-import me.dvyy.tasks.ui.elements.week.TaskListTitle
+import me.dvyy.tasks.tasks.ui.TaskInteractions
+import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
+import me.dvyy.tasks.tasks.ui.elements.list.TaskListTitle
+import me.dvyy.tasks.tasks.ui.elements.task.TaskHighlight
+import me.dvyy.tasks.tasks.ui.elements.task.TaskOptions
+import me.dvyy.tasks.tasks.ui.elements.task.TaskTextField
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 

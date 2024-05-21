@@ -13,16 +13,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import me.dvyy.tasks.data.PersistentStore
+import me.dvyy.tasks.app.data.AppConstants
+import me.dvyy.tasks.app.ui.TaskState
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.TaskModel
-import me.dvyy.tasks.state.AppConstants
-import me.dvyy.tasks.state.TaskState
-import me.dvyy.tasks.stateholder.MutableTaskList
-import me.dvyy.tasks.ui.elements.week.TaskListKey
+import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
 
 class TaskRepository(
-    private val localStore: PersistentStore,
+    private val localStore: TasksLocalDataSource,
     private val ioDispatcher: CoroutineDispatcher,
 ) {
     val queueSaveMutex = Mutex()

@@ -17,12 +17,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.NoRippleInteractionSource
+import me.dvyy.tasks.app.ui.AppDialog
 import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.app.ui.DialogState
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.auth.data.UserRepository
-import me.dvyy.tasks.state.AppDialog
-import me.dvyy.tasks.state.DialogState
+import me.dvyy.tasks.core.ui.modifiers.NoRippleInteractionSource
 import org.koin.compose.koinInject
 
 @Composable
