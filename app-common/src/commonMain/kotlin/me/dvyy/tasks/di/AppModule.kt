@@ -5,9 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.app.ui.DialogState
+import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.data.UserRepository
+import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.sync.data.SyncClient
 import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
@@ -17,12 +19,13 @@ import org.koin.dsl.module
 
 fun appModule() = module {
     single { AppState() }
-    single { DialogState() }
+    single { DialogViewModel() }
 }
 
 fun syncModule() = module {
-    single { UserRepository() }
-    single { SyncClient("http://localhost:4000", Dispatchers.Default, get<UserRepository>()) }
+    single { CredentialsDataSource() }
+    single { SyncClient() }
+    single { UserRepository(get<SyncClient>(), get<CredentialsDataSource>()) }
 }
 
 fun viewModelsModule() = module {
@@ -35,6 +38,7 @@ fun viewModelsModule() = module {
             )
         )
     }
+    single { AuthViewModel(get<UserRepository>()) }
 }
 
 @Composable

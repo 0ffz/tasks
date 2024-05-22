@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import me.dvyy.tasks.app.ui.AppDialog
-import me.dvyy.tasks.app.ui.DialogState
+import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.auth.ui.AuthDialog
-import org.koin.compose.koinInject
+import me.dvyy.tasks.di.koinViewModel
 
 @Composable
-fun AppDialogs(app: DialogState = koinInject()) {
+fun AppDialogs(app: DialogViewModel = koinViewModel()) {
     val dialog by app.active.collectAsState()
 
     when (dialog) {

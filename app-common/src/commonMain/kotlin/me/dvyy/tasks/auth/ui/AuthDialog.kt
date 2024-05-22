@@ -9,44 +9,66 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.app.ui.DialogState
-import org.koin.compose.koinInject
+import me.dvyy.tasks.app.ui.DialogViewModel
+import me.dvyy.tasks.auth.ui.LoginState.Error
+import me.dvyy.tasks.di.koinViewModel
+import me.dvyy.tasks.sync.data.SyncClient
 
-//TODO sync
 @Composable
 fun AuthDialog(
-    dialogs: DialogState = koinInject()
+    dialogs: DialogViewModel = koinViewModel(),
+    auth: AuthViewModel = koinViewModel()
 ) {
     val scope = rememberCoroutineScope()
     var error by remember { mutableStateOf(false) }
 
+    var serverUrl by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val loginState by auth.loginState.collectAsState()
+
     fun dismiss() {
         dialogs.dismiss()
-        username = ""
-        password = ""
     }
     AlertDialog(
         onDismissRequest = { dismiss() },
         icon = { Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Login icon") },
         title = { Text("Login") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("Please login to the sync server.")
                 TextField(
+                    serverUrl,
+                    isError = loginState is Error.Connection,
+                    singleLine = true,
+                    onValueChange = {
+                        error = false
+                        serverUrl = it
+                    },
+                    supportingText = {
+                        if (loginState is Error.Connection)
+                            Text("Connection error")
+                    },
+                    placeholder = { Text("https://") },
+                    label = { Text("Server URL") }
+                )
+                TextField(
                     username,
-                    isError = error,
+                    isError = loginState is Error.InvalidCredentials,
                     singleLine = true,
                     onValueChange = {
                         error = false
                         username = it
                     },
+                    supportingText = {
+                        if (loginState is Error.InvalidCredentials)
+                            Text("Incorrect username or password")
+                    },
                     label = { Text("Username") }
                 )
                 TextField(
                     password,
-                    isError = error,
+                    isError = loginState is Error.InvalidCredentials,
                     singleLine = true,
                     onValueChange = {
                         error = false
@@ -61,15 +83,12 @@ fun AuthDialog(
         confirmButton = {
             TextButton(onClick = {
                 scope.launch {
-//                    if (sync.checkAuth(DigestAuthCredentials(username, password))) {
-//                        auth.setAuth(username, password)
-//                        sync.updateAuth()
-//                        dismiss()
-//                        return@launch
-//                    }
-//                    error = true
+                    if (auth.login(serverUrl, username, password) == SyncClient.AuthResult.SUCCESS)
+                        dismiss()
                 }
-            }) { Text("Login") }
+            }) {
+                Text("Login")
+            }
         },
         dismissButton = {
             TextButton(onClick = { dismiss() }) { Text("Dismiss") }

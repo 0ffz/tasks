@@ -19,17 +19,19 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppDialog
 import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.app.ui.DialogState
+import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.auth.data.UserRepository
+import me.dvyy.tasks.auth.ui.AuthViewModel
+import me.dvyy.tasks.auth.ui.LoginState
 import me.dvyy.tasks.core.ui.modifiers.NoRippleInteractionSource
+import me.dvyy.tasks.di.koinViewModel
 import org.koin.compose.koinInject
 
 @Composable
 fun AppDrawer(
     app: AppState = koinInject(),
-    auth: UserRepository = koinInject(),
-    dialogs: DialogState = koinInject(),
+    auth: AuthViewModel = koinViewModel(),
+    dialogs: DialogViewModel = koinViewModel(),
     content: @Composable () -> Unit
 ) {
     val ui = LocalUIState.current
@@ -40,7 +42,8 @@ fun AppDrawer(
             ModalDrawerSheet {
                 Column(Modifier.padding(16.dp)) {
                     Text("Tasks", modifier = Modifier.padding(16.dp))
-                    val username by auth.username.collectAsState()
+                    val loginState by auth.loginState.collectAsState()
+                    val login = loginState // Smart casts
                     NavigationDrawerItem(
                         icon = { Icon(Icons.Outlined.Settings, contentDescription = "Settings") },
                         label = { Text(text = "Settings") },
@@ -48,7 +51,7 @@ fun AppDrawer(
                         onClick = { /*TODO*/ }
                     )
                     Spacer(Modifier.weight(1f))
-                    if (username == null) {
+                    if (login !is LoginState.Success) {
                         NavigationDrawerItem(
                             icon = { Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Switch account") },
                             label = { Text(text = "Login") },
@@ -58,7 +61,7 @@ fun AppDrawer(
                     } else {
                         NavigationDrawerItem(
                             icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = "Account") },
-                            label = { Text(text = "$username") },
+                            label = { Text(text = login.username) },
                             selected = false,
                             onClick = { },
                             interactionSource = NoRippleInteractionSource()

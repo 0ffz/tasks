@@ -1,8 +1,8 @@
 package me.dvyy.tasks.sync.data
 
-import com.benasher44.uuid.Uuid
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -10,22 +10,25 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import me.dvyy.tasks.auth.data.UserRepository
 import me.dvyy.tasks.model.TaskModel
 import me.dvyy.tasks.model.serializers.AppFormats
+import me.dvyy.tasks.sync.data.SyncClient.AuthResult.*
+
+class SyncConfig(
+    val url: String,
+    val auth: DigestAuthCredentials,
+)
 
 class SyncClient(
-    val url: String,
-    private val ioDispatcher: CoroutineDispatcher,
-    private val auth: UserRepository,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) {
-    val inProgress = MutableStateFlow(false)
-    val isError = MutableStateFlow(false)
-    val diffRemoved = mutableSetOf<Uuid>()
+//    val inProgress = MutableStateFlow(false)
+//    val isError = MutableStateFlow(false)
+//    val diffRemoved = mutableSetOf<Uuid>()
 
     private val baseClient = HttpClient {
         install(ContentNegotiation) {
@@ -40,40 +43,48 @@ class SyncClient(
 
     private var client = baseClient
 
-    fun HttpClient.withAuth(auth: () -> DigestAuthCredentials?): HttpClient {
+    fun HttpClient.configure(config: SyncConfig): HttpClient {
         return config {
+            defaultRequest {
+                url(config.url)
+            }
             install(Auth) {
                 digest {
-                    credentials { auth() }
+                    credentials { config.auth }
                 }
             }
         }
     }
 
-    fun updateAuth() {
-        client = baseClient.withAuth { auth.getAuth() }
+    fun configure(config: SyncConfig) {
+        client = baseClient.configure(config)
     }
 
-    suspend fun checkAuth(auth: DigestAuthCredentials): Boolean = withContext(ioDispatcher) {
-        runCatching { client.withAuth { auth }.get("$url/auth/check").status == HttpStatusCode.OK }
-            .getOrDefault(false)
+    enum class AuthResult {
+        SUCCESS, INVALID_CREDENTIALS, CONNECTION_ERROR
+    }
+
+    suspend fun checkAuth(config: SyncConfig): AuthResult = withContext(ioDispatcher) {
+        val result = runCatching { client.configure(config).get("auth/check").status == HttpStatusCode.OK }
+            .getOrElse { return@withContext CONNECTION_ERROR }
+        if (result) SUCCESS else INVALID_CREDENTIALS
     }
 
     suspend fun sendTasks(tasksPerDate: Map<LocalDate, List<TaskModel>>) = withContext(ioDispatcher) {
-        client.post("${url}/dates") {
+        client.post("dates") {
             contentType(ContentType.Application.Json)
             setBody(tasksPerDate)
         }
     }
 
     suspend fun getLatestTasks(dates: List<LocalDate>): List<List<TaskModel>> = withContext(ioDispatcher) {
-        client.get("${url}/dates") {
+        client.get("dates") {
             parameter("dates", dates.joinToString(separator = ",") { it.toString() })
         }.body<List<List<TaskModel>>>()
     }
 
     suspend fun getLatestTasks(date: LocalDate): List<TaskModel> = withContext(ioDispatcher) {
-        client.get("${url}/date/${date.toEpochDays()}").body()
+        client.get("date/${date.toEpochDays()}").body()
     }
 
     /** Ensures any currently loaded dates are synced with the server. */

@@ -9,7 +9,10 @@ import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import kotlinx.coroutines.launch
@@ -36,8 +39,8 @@ fun SyncButton(
             targetValue = 360f,
             animationSpec = infiniteRepeatable(tween(1000))
         )
-        val inProgress by sync.inProgress.collectAsState()
-        val isError by sync.isError.collectAsState()
+        val inProgress = TODO() //by sync.inProgress.collectAsState()
+        val isError = TODO() //by sync.isError.collectAsState()
         val icon = remember(isError) {
             if (isError) Icons.Outlined.SyncProblem
             else Icons.Outlined.Sync
