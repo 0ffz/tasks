@@ -4,7 +4,7 @@ import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import com.russhwolf.settings.set
 import io.ktor.client.plugins.auth.providers.*
-import me.dvyy.tasks.sync.data.SyncConfig
+import me.dvyy.tasks.tasks.data.SyncConfig
 
 private const val KEY_USERNAME = "app-username"
 private const val KEY_PASSWORD = "app-password"

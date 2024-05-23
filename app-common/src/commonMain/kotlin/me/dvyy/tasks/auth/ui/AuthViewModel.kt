@@ -6,13 +6,12 @@ import androidx.lifecycle.viewModelScope
 import io.ktor.client.plugins.auth.providers.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.auth.data.UserRepository
-import me.dvyy.tasks.sync.data.SyncClient.AuthResult
-import me.dvyy.tasks.sync.data.SyncClient.AuthResult.*
-import me.dvyy.tasks.sync.data.SyncConfig
+import me.dvyy.tasks.auth.data.AppHTTP.AuthResult
+import me.dvyy.tasks.auth.data.AuthRepository
+import me.dvyy.tasks.tasks.data.SyncConfig
 
 class AuthViewModel(
-    private val userRepo: UserRepository,
+    private val userRepo: AuthRepository,
 ) : ViewModel() {
     val loginState get() = _loginState
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Loading)
@@ -29,9 +28,9 @@ class AuthViewModel(
     suspend fun login(url: String, username: String, password: String): AuthResult {
         val result = userRepo.login(SyncConfig(url, DigestAuthCredentials(username, password)))
         when (result) {
-            SUCCESS -> _loginState.value = LoginState.Success(username, url)
-            CONNECTION_ERROR -> _loginState.value = LoginState.Error.Connection
-            INVALID_CREDENTIALS -> _loginState.value = LoginState.Error.InvalidCredentials
+            AuthResult.SUCCESS -> _loginState.value = LoginState.Success(username, url)
+            AuthResult.CONNECTION_ERROR -> _loginState.value = LoginState.Error.Connection
+            AuthResult.INVALID_CREDENTIALS -> _loginState.value = LoginState.Error.InvalidCredentials
         }
         return result
     }

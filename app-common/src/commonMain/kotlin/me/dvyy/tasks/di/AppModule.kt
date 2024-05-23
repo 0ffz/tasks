@@ -3,16 +3,18 @@ package me.dvyy.tasks.di
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.auth.data.AppHTTP
+import me.dvyy.tasks.auth.data.AuthRepository
 import me.dvyy.tasks.auth.data.CredentialsDataSource
-import me.dvyy.tasks.auth.data.UserRepository
 import me.dvyy.tasks.auth.ui.AuthViewModel
-import me.dvyy.tasks.sync.data.SyncClient
 import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
+import me.dvyy.tasks.tasks.data.TasksNetworkDataSource
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.currentKoinScope
 import org.koin.dsl.module
@@ -24,8 +26,10 @@ fun appModule() = module {
 
 fun syncModule() = module {
     single { CredentialsDataSource() }
-    single { SyncClient() }
-    single { UserRepository(get<SyncClient>(), get<CredentialsDataSource>()) }
+    single { AppHTTP() }
+    single { TasksNetworkDataSource(get()) }
+    single { AuthRepository(get<AppHTTP>(), get<CredentialsDataSource>()) }
+    single { Settings() }
 }
 
 fun viewModelsModule() = module {
@@ -34,11 +38,13 @@ fun viewModelsModule() = module {
         TasksViewModel(
             tasks = TaskRepository(
                 localStore = TasksLocalDataSource(),
-                ioDispatcher = Dispatchers.Default
+                network = get<TasksNetworkDataSource>(),
+                ioDispatcher = Dispatchers.Default,
+                settings = get<Settings>(),
             )
         )
     }
-    single { AuthViewModel(get<UserRepository>()) }
+    single { AuthViewModel(get<AuthRepository>()) }
 }
 
 @Composable

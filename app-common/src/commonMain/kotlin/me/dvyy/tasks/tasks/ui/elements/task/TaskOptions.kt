@@ -16,13 +16,13 @@ import kotlinx.datetime.*
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.tasks.ui.TaskInteractions
-import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
 import org.koin.compose.koinInject
 
 @Composable
 fun TaskOptions(
-    listKey: TaskListKey,
+    listKey: ListKey,
     interactions: TaskInteractions,
     submitAction: (() -> Unit)? = null
 ) {
@@ -36,7 +36,7 @@ fun TaskOptions(
                 HighlightButton(Highlight.Unmarked, interactions)
                 HighlightButton(Highlight.Important, interactions)
                 HighlightButton(Highlight.InProgress, interactions)
-                if (listKey is TaskListKey.Date) { //TODO decide on separate or combined date/list pickers
+                if (listKey is ListKey.Date) { //TODO decide on separate or combined date/list pickers
                     TaskDatePicker(listKey.date, interactions)
                 }
                 Spacer(Modifier.weight(1f))

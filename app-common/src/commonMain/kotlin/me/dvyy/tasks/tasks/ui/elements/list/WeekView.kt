@@ -12,13 +12,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.benasher44.uuid.uuid4
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.model.ListKey
+import me.dvyy.tasks.sync.ui.SyncButton
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.koinInject
@@ -33,6 +34,7 @@ fun WeekView(
     val scrollState = rememberScrollState()
 //    SelectTaskWhenRequested()
     Scaffold(
+        floatingActionButton = { SyncButton() },
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         val reorderInteractions = tasksStateHolder.reorderInteractions()
         ReorderContainer(state = reorderInteractions.draggedState) {
@@ -56,10 +58,11 @@ fun WeekView(
                     ) { dayIndex ->
                         val day = weekStart.plus(DatePeriod(days = dayIndex))
                         val isToday = day == time.today
-                        val key = TaskListKey.Date(day)
+                        val key = ListKey.Date(day)
                         val tasks by tasksStateHolder.tasksFor(key).collectAsState()
                         TaskList(
-                            key = TaskListKey.Date(day),
+                            key = key,
+                            title = ListTitle.Date(day),
                             tasks = tasks,
                             colored = isToday,
                             viewModel = tasksStateHolder,
@@ -108,6 +111,7 @@ fun ProjectListContent(
             val tasks by tasksStateHolder.tasksFor(key).collectAsState()
             TaskList(
                 key = key,
+                title = ListTitle.Project("Name"), //TODO project name
                 tasks = tasks,
                 viewModel = tasksStateHolder,
                 reorderInteractions = reorderInteractions,
@@ -118,7 +122,7 @@ fun ProjectListContent(
             )
         }
         item {
-            Button(onClick = { tasksStateHolder.createProject(uuid4().toString()) }) {
+            Button(onClick = { tasksStateHolder.createProject("Project") }) {
                 Text("New project")
             }
         }

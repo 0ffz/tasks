@@ -11,19 +11,31 @@ import androidx.compose.ui.input.key.type
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.benasher44.uuid.Uuid
+import com.benasher44.uuid.uuid4
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.app.ui.TaskState
+import me.dvyy.tasks.app.ui.Task
+import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.model.TaskModel
 import me.dvyy.tasks.tasks.data.TaskRepository
+import me.dvyy.tasks.tasks.ui.elements.list.ListTitle
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
-import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
 import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
+
+sealed interface SyncState {
+    data object InProgress : SyncState
+    data object UnSynced : SyncState
+    data object Success : SyncState
+    data object Error : SyncState
+}
 
 class TasksViewModel(
     private val tasks: TaskRepository,
 ) : ViewModel() {
+    val syncState: StateFlow<SyncState> get() = _syncState
+    private val _syncState = MutableStateFlow<SyncState>(SyncState.UnSynced)
+
     // Careful to update both task map and tasks per list, I'd like a SSOT but we really want both!
     val selectedTask = MutableStateFlow<Uuid?>(null)
 
@@ -43,14 +55,14 @@ class TasksViewModel(
 
 
     @Composable
-    fun tasksFor(key: TaskListKey): StateFlow<TaskList> = remember(key) {
+    fun tasksFor(key: ListKey): StateFlow<TaskList> = remember(key) {
         tasks
             .tasksFor(key)
             .map { list ->
                 TaskList.Data(list.map { model ->
                     TaskWithIDState(
                         //TODO maybe cache to avoid so many object recreations?
-                        TaskState.fromModel(model, key),
+                        Task.fromModel(model, key),
                         model.uuid,
                     )
                 })
@@ -76,9 +88,11 @@ class TasksViewModel(
         }
     )
 
-    fun createProject(name: String) = viewModelScope.launch { tasks.createProject(TaskListKey.Project(name)) }
+    fun createProject(name: String) = viewModelScope.launch {
+        tasks.createProject(ListKey.Project(uuid4()), ListTitle.Project(name))
+    }
 
-    fun listInteractionsFor(key: TaskListKey) = TaskListInteractions(
+    fun listInteractionsFor(key: ListKey) = TaskListInteractions(
         createNewTask = { viewModelScope.launch { selectTask(tasks.createTask(key)) } }
     )
 
@@ -87,7 +101,7 @@ class TasksViewModel(
         return TaskInteractions(
             onTitleChanged = { name -> update { it.copy(name = name) } },
             onListChanged = { date ->
-                viewModelScope.launch { tasks.moveTask(uuid, TaskListKey.Date(date)) }
+                viewModelScope.launch { tasks.moveTask(uuid, ListKey.Date(date)) }
             },
             onCheckChanged = { completed -> update { it.copy(completed = completed) } },
             onHighlightChanged = { highlight -> update { it.copy(highlight = highlight) } },
@@ -141,6 +155,24 @@ class TasksViewModel(
                 val list = tasks.listKeyFor(uuid) ?: return@launch
                 selectTask(tasks.createTask(list))
             }
+        }
+    }
+
+    init {
+        queueSync()
+    }
+
+    fun queueSync() = viewModelScope.launch {
+        if (syncState.value == SyncState.InProgress) return@launch
+        //TODO buffer
+        _syncState.value = SyncState.InProgress
+        runCatching {
+            tasks.sync()
+        }.onFailure {
+            _syncState.value = SyncState.Error
+            it.printStackTrace()
+        }.onSuccess {
+            _syncState.value = SyncState.Success
         }
     }
 }

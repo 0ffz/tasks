@@ -2,16 +2,16 @@ package me.dvyy.tasks.app.ui
 
 import androidx.compose.runtime.Stable
 import com.benasher44.uuid.Uuid
+import kotlinx.datetime.Clock
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.model.SyncStatus
+import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.model.TaskModel
-import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
 
 @Stable
-data class TaskState(
+data class Task(
     val name: String,
     val completed: Boolean,
-    val key: TaskListKey,
+    val key: ListKey,
     val highlight: Highlight,
 ) {
     fun toModel(uuid: Uuid): TaskModel = TaskModel(
@@ -19,11 +19,12 @@ data class TaskState(
         name = name,
         completed = completed,
         highlight = highlight,
-        syncStatus = SyncStatus.LOCAL_MODIFIED,
+        lastModified = Clock.System.now(),
+//        syncStatus = SyncStatus.LOCAL_MODIFIED,
     )
 
     companion object {
-        fun fromModel(model: TaskModel, key: TaskListKey) = TaskState(
+        fun fromModel(model: TaskModel, key: ListKey) = Task(
             name = model.name,
             completed = model.completed,
             key = key,

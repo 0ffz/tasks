@@ -1,6 +1,7 @@
 package me.dvyy.tasks.model
 
 import com.benasher44.uuid.Uuid
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
@@ -10,6 +11,7 @@ data class TaskModel(
     val name: String = "",
     val completed: Boolean = true,
     val highlight: Highlight = Highlight.Unmarked,
-    val syncStatus: SyncStatus = SyncStatus.SYNCED,
+    val lastModified: Instant,
+//    val syncStatus: SyncStatus = SyncStatus.SYNCED,
 )
 

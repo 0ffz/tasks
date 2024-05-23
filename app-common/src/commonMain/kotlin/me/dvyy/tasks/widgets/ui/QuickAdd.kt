@@ -17,8 +17,9 @@ import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.di.appModule
 import me.dvyy.tasks.di.viewModelsModule
 import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.tasks.ui.TaskInteractions
-import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
+import me.dvyy.tasks.tasks.ui.elements.list.ListTitle
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListTitle
 import me.dvyy.tasks.tasks.ui.elements.task.TaskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.TaskOptions
@@ -38,14 +39,15 @@ fun QuickAdd(
         CompositionLocalProvider(LocalUIState provides ui) {
             var title by remember { mutableStateOf("") }
             var highlight by remember { mutableStateOf(Highlight.Unmarked) }
-            var listKey by remember { mutableStateOf(TaskListKey.Date(time.today)) }
+            var listKey by remember { mutableStateOf(ListKey.Date(time.today)) }
+            val listTitle = ListTitle.Date(listKey.date)
             //TODO inject viewModel
 //        val viewModel = viewModel { TasksViewModel(TaskRepository()) }
             val interactions = remember {
                 TaskInteractions(
                     onTitleChanged = { title = it },
                     onHighlightChanged = { highlight = it },
-                    onListChanged = { listKey = TaskListKey.Date(it) },
+                    onListChanged = { listKey = ListKey.Date(it) },
                     keyboardActions = KeyboardActions(onDone = { /* TODO save task*/ exit() }),
                     keyboardOptions = KeyboardOptions(imeAction = Done),
                 )
@@ -53,7 +55,7 @@ fun QuickAdd(
             Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(8.dp)) {
                     Box {
-                        TaskListTitle(listKey, colored = false, loading = false, showDivider = false)
+                        TaskListTitle(listTitle, colored = false, loading = false, showDivider = false)
                     }
                     Box(
                         modifier = Modifier.height(ui.taskHeight),

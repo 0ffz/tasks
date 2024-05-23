@@ -59,12 +59,14 @@ kotlin {
                 implementation(libs.ktor.client.auth)
                 implementation(libs.multiplatform.settings)
                 implementation(libs.multiplatform.settings.no.arg)
+                implementation(libs.multiplatform.settings.serialization)
                 implementation(compose.components.resources)
                 implementation(libs.material3.window.sizeclass.multiplatform)
                 implementation(libs.navigation.compose)
 //                implementation(libs.lifecycle.viewmodel)
                 implementation(libs.lifecycle.viewmodel.compose)
                 implementation(libs.koin.compose)
+                implementation("com.michael-bull.kotlin-result:kotlin-result:2.0.0")
 
             }
         }

@@ -1,12 +1,13 @@
 package me.dvyy.tasks.tasks.data
 
-import me.dvyy.tasks.model.TaskModel
-import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
+import me.dvyy.tasks.model.ListKey
 
 expect class TasksLocalDataSource constructor() {
-    fun saveList(key: TaskListKey, tasks: List<TaskModel>)
+    fun saveList(key: ListKey, list: TaskListModel)
 
-    fun loadTasksForList(key: TaskListKey): Result<List<TaskModel>>
+    fun loadTasksForList(key: ListKey): Result<TaskListModel?>
 
-    fun getProjects(): Result<List<TaskListKey.Project>>
+    fun getProjects(): List<ListKey.Project>
+
+    fun deleteList(key: ListKey)
 }

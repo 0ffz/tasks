@@ -9,32 +9,15 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.LocalDate
-import kotlinx.serialization.Serializable
-
-sealed class TaskListKey {
-    @Immutable
-    @Serializable
-    data class Date(val date: LocalDate) : TaskListKey() {
-        override fun toString() = date.toString()
-    }
-
-    @Immutable
-    @Serializable
-    data class Project(val name: String) : TaskListKey() {
-        override fun toString() = name
-    }
-}
 
 @Composable
 fun TaskListTitle(
-    title: TaskListKey,
+    title: ListTitle,
     colored: Boolean,
     loading: Boolean = false,
     showDivider: Boolean = true,
@@ -47,7 +30,7 @@ fun TaskListTitle(
         verticalAlignment = Alignment.Bottom,
     ) {
         when (title) {
-            is TaskListKey.Date -> {
+            is ListTitle.Date -> {
                 val date = title.date
                 Text(
                     "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
@@ -66,7 +49,7 @@ fun TaskListTitle(
                 )
             }
 
-            is TaskListKey.Project -> {
+            is ListTitle.Project -> {
                 Text(
                     title.name,
                     Modifier.weight(1f, true),

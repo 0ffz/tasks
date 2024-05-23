@@ -11,8 +11,9 @@ import com.benasher44.uuid.Uuid
 import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.TaskState
+import me.dvyy.tasks.app.ui.Task
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
+import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel.TaskList
@@ -24,14 +25,15 @@ data class TaskListInteractions(
 
 @Immutable
 data class TaskWithIDState(
-    val state: TaskState,
+    val state: Task,
     val uuid: Uuid,
 )
 
 @OptIn(ExperimentalDndApi::class)
 @Composable
 fun TaskList(
-    key: TaskListKey,
+    key: ListKey,
+    title: ListTitle,
     tasks: TaskList, //TODO represent loading state explicitly?
     colored: Boolean = false,
     reorderInteractions: TaskReorderInteractions,
@@ -50,7 +52,7 @@ fun TaskList(
             ).fillMaxWidth()
     ) {
         val isLoading = tasks is TaskList.Loading
-        TaskListTitle(key, colored, loading = isLoading)
+        TaskListTitle(title, colored, loading = isLoading)
         when (tasks) {
             is TaskList.Loading -> return
             is TaskList.Data -> {

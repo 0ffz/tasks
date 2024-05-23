@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.TaskState
+import me.dvyy.tasks.app.ui.Task
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.model.Highlight
@@ -38,7 +38,7 @@ import me.dvyy.tasks.tasks.ui.TaskInteractions
 
 @Composable
 fun Task(
-    task: TaskState,
+    task: Task,
     selected: Boolean,
     interactions: TaskInteractions,
 ) {

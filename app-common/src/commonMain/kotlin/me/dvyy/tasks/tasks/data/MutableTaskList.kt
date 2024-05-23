@@ -4,25 +4,25 @@ import com.benasher44.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.model.TaskModel
-import me.dvyy.tasks.tasks.ui.elements.list.TaskListKey
+import me.dvyy.tasks.tasks.ui.elements.list.ListTitle
 
 class MutableTaskList(
-    val key: TaskListKey,
-    private val localStore: TasksLocalDataSource,
+    val key: ListKey,
+    val title: ListTitle.Project?,
     initialTasks: List<TaskModel>
 ) {
     private val models = initialTasks.toMutableList()
+    fun toListModel() = TaskListModel(title, models.toList())
     fun models() = models.toList()
 
-    //    private val states = mutableListOf<TaskWithIDState>()
     private val tasksFlow = MutableStateFlow(models())
 
     fun tasksFlow(): Flow<List<TaskModel>> = tasksFlow
 
     private fun emitUpdate() {
         tasksFlow.update { models.toList() }
-        localStore.saveList(key, models.toList())
     }
 
     operator fun get(uuid: Uuid): TaskModel? {
@@ -38,13 +38,6 @@ class MutableTaskList(
         }
         emitUpdate()
     }
-
-//    fun updateIfPresent(uuid: Uuid, state: TaskState) {
-//        val index = indexOf(uuid)
-//        if (index == -1) return
-//        val task = states[index]
-//        set(uuid, task.copy(state = state))
-//    }
 
     fun remove(uuid: Uuid): TaskModel? {
         val index = indexOf(uuid)
