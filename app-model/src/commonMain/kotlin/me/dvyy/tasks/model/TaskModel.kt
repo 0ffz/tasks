@@ -11,7 +11,6 @@ data class TaskModel(
     val name: String = "",
     val completed: Boolean = true,
     val highlight: Highlight = Highlight.Unmarked,
-    val lastModified: Instant,
-//    val syncStatus: SyncStatus = SyncStatus.SYNCED,
+    val modified: Instant,
 )
 

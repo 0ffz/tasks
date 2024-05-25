@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.ListKey
@@ -28,14 +29,25 @@ fun Application.configureDatabases() {
                 call.respond(HttpStatusCode.OK, "Hello, ${call.principal<UserSession>()}!")
             }
 
-            get("/changes") {
-                val lastSyncDate = call.parameters["lastSyncDate"]?.let { it1 -> Instant.parse(it1) }
-                val upToDate = Instant.parse(call.parameters["upToDate"]!!)
-                val lists = call.parameters["lists"]
-                    ?.split(",")
-                    ?.map { ListKey.fromIdentifier(it) } ?: error("Lists must be specified")
-                val changelist = taskService.getChangelistFor(lists, lastSyncDate, upToDate)
-                call.respond(HttpStatusCode.OK, changelist)
+            route("/changes") {
+                fun ApplicationCall.getListKey(): ListKey {
+                    return ListKey.fromIdentifier(parameters.getOrFail("id"))
+                }
+                /*{
+                    val epochDays = parameters["epochDays"]?.toInt() ?: throw IllegalArgumentException("Invalid date")
+                    return LocalDate.fromEpochDays(epochDays)
+                }*/
+                get("/list/{id?}") {
+                    val key = call.getListKey()
+                    val lastSyncDate = call.parameters.getOrFail<Instant>("lastSyncDate")
+                    val upToDate = call.parameters.getOrFail<Instant>("upToDate")
+//                    val lists = call.parameters["lists"]
+//                        ?.split(",")
+//                        ?.map { ListKey.fromIdentifier(it) } ?: error("Lists must be specified")
+                    val changelist = taskService.getMessages(lists, lastSyncDate, upToDate)
+                    call.respond(HttpStatusCode.OK, changelist)
+                }
+
             }
 
             post("/changes") {

@@ -19,7 +19,7 @@ data class Task(
         name = name,
         completed = completed,
         highlight = highlight,
-        lastModified = Clock.System.now(),
+        modified = Clock.System.now(),
 //        syncStatus = SyncStatus.LOCAL_MODIFIED,
     )
 

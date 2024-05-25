@@ -3,27 +3,32 @@ package me.dvyy.tasks.tasks.data
 import com.benasher44.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.datetime.Instant
+import me.dvyy.tasks.model.Changelist
 import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.model.TaskModel
+import me.dvyy.tasks.model.sync.TaskNetworkModel
 import me.dvyy.tasks.tasks.ui.elements.list.ListTitle
 
 class MutableTaskList(
     val key: ListKey,
-    val title: ListTitle.Project?,
-    initialTasks: List<TaskModel>
+    fromModel: TaskListModel?,
+    val queueSave: () -> Unit,
 ) {
-    private val models = initialTasks.toMutableList()
-    fun toListModel() = TaskListModel(title, models.toList())
-    fun models() = models.toList()
+    val customTitle: StateFlow<ListTitle.Project?> get() = _customTitle
+    private val _customTitle = MutableStateFlow(fromModel?.title)
+    val lastSynced: StateFlow<Instant?> get() = _lastSynced
+    private val _lastSynced = MutableStateFlow(fromModel?.lastSynced)
 
     private val tasksFlow = MutableStateFlow(models())
+    private val models = fromModel?.tasks?.toMutableList() ?: mutableListOf()
+
+    fun toListModel() = TaskListModel(customTitle.value, models.toList(), _lastSynced.value)
+    fun models() = models.toList()
 
     fun tasksFlow(): Flow<List<TaskModel>> = tasksFlow
-
-    private fun emitUpdate() {
-        tasksFlow.update { models.toList() }
-    }
 
     operator fun get(uuid: Uuid): TaskModel? {
         return models.firstOrNull { it.uuid == uuid }
@@ -68,5 +73,20 @@ class MutableTaskList(
         val task = models.removeAt(fromIndex)
         models.add(toIndex, task)
         emitUpdate()
+    }
+
+    fun setCustomTitle(title: ListTitle.Project?) {
+        _customTitle.value = title
+        queueSave()
+    }
+
+    fun changesSinceLastSync(): Changelist<TaskNetworkModel> {
+        val sync = _lastSynced.value ?: return models.toList()
+        return models.filter { it.modified > sync }
+    }
+
+    private fun emitUpdate() {
+        tasksFlow.update { models.toList() }
+        queueSave()
     }
 }
