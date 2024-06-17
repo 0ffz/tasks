@@ -22,8 +22,8 @@ class MutableTaskList(
     val lastSynced: StateFlow<Instant?> get() = _lastSynced
     private val _lastSynced = MutableStateFlow(fromModel?.lastSynced)
 
-    private val tasksFlow = MutableStateFlow(models())
     private val models = fromModel?.tasks?.toMutableList() ?: mutableListOf()
+    private val tasksFlow = MutableStateFlow(models())
 
     fun toListModel() = TaskListModel(customTitle.value, models.toList(), _lastSynced.value)
     fun models() = models.toList()
@@ -81,8 +81,9 @@ class MutableTaskList(
     }
 
     fun changesSinceLastSync(): Changelist<TaskNetworkModel> {
-        val sync = _lastSynced.value ?: return models.toList()
-        return models.filter { it.modified > sync }
+        TODO()
+//        val sync = _lastSynced.value ?: return models.toList()
+//        return models.filter { it.modified > sync }
     }
 
     private fun emitUpdate() {

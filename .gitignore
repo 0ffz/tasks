@@ -19,3 +19,5 @@ eclipse
 *.DirIcon
 releases
 wix*
+
+truckconfig.json

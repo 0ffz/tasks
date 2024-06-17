@@ -1,6 +1,7 @@
 package me.dvyy.tasks.model.sync
 
 import com.benasher44.uuid.Uuid
+import kotlinx.datetime.Clock
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.model.TaskModel
@@ -16,7 +17,8 @@ class TaskNetworkModel(
             uuid = uuid,
             name = name,
             completed = completed,
-            highlight = highlight
+            highlight = highlight,
+            modified = Clock.System.now()
         )
     }
 }

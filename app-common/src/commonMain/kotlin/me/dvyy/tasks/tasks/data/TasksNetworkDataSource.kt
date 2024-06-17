@@ -23,10 +23,11 @@ class SyncAPI(
 ) {
 
     suspend fun pullTaskChanges(list: ListKey, lastSync: Instant?): Changelist<TaskNetworkModel> {
+        TODO()
         return http.client.get("changes") {
             if (lastSync != null) parameter("lastSyncDate", lastSync.toString())
-            parameter("upToDate", upTo.toString())
-            parameter("lists", lists)
+//            parameter("upToDate", upTo.toString())
+//            parameter("lists", lists)
         }.body<Changelist<TaskNetworkModel>>()
     }
 

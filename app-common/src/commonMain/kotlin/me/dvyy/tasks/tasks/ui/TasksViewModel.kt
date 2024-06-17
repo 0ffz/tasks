@@ -159,7 +159,8 @@ class TasksViewModel(
     }
 
     init {
-        queueSync()
+        //TODO sync on startup
+//        queueSync()
     }
 
     fun queueSync() = viewModelScope.launch {

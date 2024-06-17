@@ -135,7 +135,7 @@ class TaskRepository(
                     null
                 } ?: TaskListModel(null, emptyList())
             list.tasks.forEach { tasksToList[it.uuid] = key }
-            MutableTaskList(key, list.title, list.tasks, queueSave = { queueSaveList(key) })
+            MutableTaskList(key, list, queueSave = { queueSaveList(key) })
         }
     }
 
@@ -199,9 +199,9 @@ class TaskRepository(
     suspend fun sync() = withContext(ioDispatcher) {
         val now = Clock.System.now()
         Synchronizer.sync<ProjectNetworkModel>(
-            getLocalChanges = { },
+            getLocalChanges = { TODO() },
             fetchServerChanges = { network.sync.pullProjectChanges(lastAppSync.value) },
-            pushChangelist = { network.sync.pushTaskChanges(it) },
+            pushChangelist = { network.sync.pushProjectChanges(it) },
             applyChanges = {
                 it.forEach { message ->
                     val key = ListKey.Project(message.uuid)
