@@ -2,7 +2,6 @@ package me.dvyy.tasks.app.ui
 
 import androidx.compose.runtime.Stable
 import com.benasher44.uuid.Uuid
-import kotlinx.datetime.Clock
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.model.TaskModel
@@ -19,7 +18,6 @@ data class Task(
         name = name,
         completed = completed,
         highlight = highlight,
-        modified = Clock.System.now(),
 //        syncStatus = SyncStatus.LOCAL_MODIFIED,
     )
 

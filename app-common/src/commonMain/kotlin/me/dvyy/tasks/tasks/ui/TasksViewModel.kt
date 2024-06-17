@@ -15,9 +15,12 @@ import com.benasher44.uuid.uuid4
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import me.dvyy.tasks.app.ui.Task
 import me.dvyy.tasks.model.ListKey
+import me.dvyy.tasks.model.Message
 import me.dvyy.tasks.model.TaskModel
+import me.dvyy.tasks.model.sync.ProjectNetworkModel
 import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.ui.elements.list.ListTitle
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
@@ -88,12 +91,23 @@ class TasksViewModel(
         }
     )
 
+    @Composable
+    fun getProject(key: ListKey.Project) = remember(key) {
+        tasks.project(key)
+    }
+
     fun createProject(name: String) = viewModelScope.launch {
         tasks.createProject(ListKey.Project(uuid4()), ListTitle.Project(name))
     }
 
     fun listInteractionsFor(key: ListKey) = TaskListInteractions(
-        createNewTask = { viewModelScope.launch { selectTask(tasks.createTask(key)) } }
+        createNewTask = { viewModelScope.launch { selectTask(tasks.createTask(key)) } },
+        onTitleChange = { title ->
+            viewModelScope.launch {
+                val uuid = (key as ListKey.Project).uuid //TODO use uuid for dates
+                tasks.upsertProject(Message.Update(ProjectNetworkModel(key, title), uuid, Clock.System.now()))
+            }
+        },
     )
 
     fun interactionsFor(uuid: Uuid): TaskInteractions {

@@ -10,6 +10,7 @@ sealed interface Message<T> {
     val uuid: Uuid
     val timestamp: Instant
 
+    @Serializable
     data class Update<T>(
         val data: T,
         override val uuid: @Contextual Uuid,
@@ -23,5 +24,11 @@ sealed interface Message<T> {
 
     fun merge(other: Message<T>): Message<T> {
         return if (other.timestamp > this.timestamp) other else this
+    }
+
+
+    enum class Type {
+        Update,
+        Delete
     }
 }

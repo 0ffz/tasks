@@ -7,11 +7,7 @@ plugins {
 }
 
 kotlin {
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "17"
-        }
-    }
+    jvm()
     sourceSets {
         val jvmMain by getting {
             dependencies {
@@ -24,9 +20,6 @@ kotlin {
     }
 }
 
-compose {
-
-}
 compose.desktop {
     application {
         mainClass = "MainKt"

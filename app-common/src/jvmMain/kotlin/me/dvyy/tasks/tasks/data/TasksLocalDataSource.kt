@@ -1,11 +1,14 @@
 package me.dvyy.tasks.tasks.data
 
 import ca.gosyer.appdirs.AppDirs
+import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuidFrom
+import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import me.dvyy.tasks.model.ListKey
+import me.dvyy.tasks.model.Message
 import me.dvyy.tasks.model.serializers.AppFormats
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -50,5 +53,11 @@ actual class TasksLocalDataSource actual constructor() {
 
     actual fun deleteList(key: ListKey) {
         tasksPath(key).deleteIfExists()
+    }
+
+    actual fun saveMessage(type: Message.Type, uuid: Uuid, timestamp: Instant) {
+        val path = dataPath / "messages" / "${uuid}.json"
+        path.createParentDirectories()
+        path.writeText("${type.name} ${timestamp.epochSeconds}") //TODO ktx.serialization
     }
 }

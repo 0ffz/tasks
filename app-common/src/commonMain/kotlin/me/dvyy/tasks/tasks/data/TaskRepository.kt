@@ -5,27 +5,22 @@ import androidx.compose.runtime.snapshotFlow
 import com.benasher44.uuid.Uuid
 import com.benasher44.uuid.uuid4
 import com.russhwolf.settings.Settings
-import com.russhwolf.settings.serialization.decodeValue
 import com.russhwolf.settings.serialization.decodeValueOrNull
 import com.russhwolf.settings.serialization.encodeValue
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.builtins.SetSerializer
 import me.dvyy.tasks.app.data.AppConstants
 import me.dvyy.tasks.app.ui.Task
 import me.dvyy.tasks.model.*
-import me.dvyy.tasks.model.serializers.UuidSerializer
+import me.dvyy.tasks.model.sync.ProjectNetworkModel
 import me.dvyy.tasks.model.sync.TaskNetworkModel
 import me.dvyy.tasks.tasks.ui.elements.list.ListTitle
 import kotlin.collections.set
 
 private const val KEY_LAST_EDIT = "app-last-edit"
-private const val KEY_DELETED_TASKS = "app-deleted-tasks"
+//private const val KEY_DELETED_TASKS = "app-deleted-tasks"
 
 class TaskRepository(
     private val localStore: TasksLocalDataSource,
@@ -38,6 +33,49 @@ class TaskRepository(
     private val tasksToList = mutableMapOf<Uuid, ListKey>()
     private val lists = mutableStateMapOf<ListKey, MutableTaskList>()
     private var lastAppSync = MutableStateFlow(settings.decodeValueOrNull(Instant.serializer(), KEY_LAST_EDIT))
+
+    suspend fun createTask(key: ListKey): Uuid = withContext(taskEditDispatcher) {
+        val state = Task(
+            name = "",
+            completed = false,
+            key = key,
+            highlight = Highlight.Unmarked,
+        )
+        val model = state.toModel(uuid4())
+        getOrLoadList(key)[model.uuid] = model
+        tasksToList[model.uuid] = key
+        localStore.saveMessage(Message.Type.Update, model.uuid)
+        model.uuid
+    }
+
+    suspend fun updateTask(
+        uuid: Uuid,
+        updater: (TaskModel) -> TaskModel,
+    ) = withContext(taskEditDispatcher) {
+        val existingListKey = tasksToList[uuid]
+        val existingList = lists[existingListKey] ?: error("Task not in any list!")
+        val existingTask = existingList[uuid] ?: error("Task not found in list!")
+        val newTask = updater(existingTask)
+        existingList[uuid] = newTask
+        localStore.saveMessage(Message.Type.Update, uuid)
+    }
+
+    suspend fun upsertTask(message: Message.Update<TaskNetworkModel>) {
+        val (model, uuid) = message
+        val listKey = model.list
+        val currentListKey = tasksToList[uuid]
+        if (currentListKey == null) {
+            val list = getOrLoadList(listKey)
+            list[uuid] = model.toTaskModel(uuid) //TODO preserve order
+            tasksToList[uuid] = listKey
+            return
+        }
+        val list = getOrLoadList(listKey)
+        if (listKey != currentListKey) {
+            moveTask(uuid, listKey)
+        }
+        list[uuid] = model.toTaskModel(uuid)
+    }
 
     suspend fun moveTask(uuid: Uuid, newList: ListKey) = withContext(taskEditDispatcher) {
         val existingListKey = tasksToList[uuid]
@@ -58,36 +96,6 @@ class TaskRepository(
         list.reorder(uuid, to)
     }
 
-    suspend fun updateTask(
-        uuid: Uuid,
-        updater: (TaskModel) -> TaskModel
-    ) = withContext(taskEditDispatcher) {
-        val existingListKey = tasksToList[uuid]
-        val existingList = lists[existingListKey] ?: error("Task not in any list!")
-        val existingTask = existingList[uuid] ?: error("Task not found in list!")
-        val newTask = updater(existingTask).copy(modified = Clock.System.now())
-        existingList[uuid] = newTask
-    }
-
-    suspend fun createOrUpdateTask(
-        uuid: Uuid,
-        model: TaskNetworkModel,
-    ) {
-        val listKey = model.list
-        val existingListKey = tasksToList[uuid]
-        if (existingListKey == null) {
-            val list = getOrLoadList(listKey)
-            list[uuid] = model.toTaskModel(uuid) //TODO preserve order
-            tasksToList[uuid] = listKey
-            return
-        }
-        val list = getOrLoadList(listKey)
-        if (listKey != existingListKey) {
-            moveTask(uuid, listKey)
-        }
-        list[uuid] = model.toTaskModel(uuid)
-    }
-
     fun getModel(uuid: Uuid): TaskModel? {
         return listFor(uuid)?.get(uuid)
     }
@@ -97,19 +105,6 @@ class TaskRepository(
 
     private fun listFor(uuid: Uuid): MutableTaskList? {
         return lists[tasksToList[uuid]]
-    }
-
-    suspend fun createTask(key: ListKey): Uuid = withContext(taskEditDispatcher) {
-        val state = Task(
-            name = "",
-            completed = false,
-            key = key,
-            highlight = Highlight.Unmarked,
-        )
-        val model = state.toModel(uuid4())
-        getOrLoadList(key)[model.uuid] = model
-        tasksToList[model.uuid] = key
-        model.uuid
     }
 
 
@@ -124,6 +119,12 @@ class TaskRepository(
         emitAll(snapshotFlow { lists.keys.filterIsInstance<ListKey.Project>() })
     }
 
+    fun project(key: ListKey.Project): Flow<ProjectNetworkModel> = flow {
+        val list = getOrLoadList(key)
+        emitAll(list.customTitle.map {
+            ProjectNetworkModel(key, it?.name)
+        })
+    }
 
     private suspend fun getOrLoadList(key: ListKey): MutableTaskList = withContext(taskEditDispatcher) {
         lists.getOrPut(key) {
@@ -156,15 +157,12 @@ class TaskRepository(
         }
     }
 
-    private fun getLocalDeletions() = settings.decodeValue(SetSerializer(UuidSerializer), KEY_DELETED_TASKS, emptySet())
-
     suspend fun deleteTask(uuid: Uuid) = withContext(taskEditDispatcher) {
         val list = lists[tasksToList[uuid]] ?: return@withContext
         list.remove(uuid)
         tasksToList.remove(uuid)
-        // TODO queue load and save
-        val deletions = getLocalDeletions()
-        settings.encodeValue(SetSerializer(UuidSerializer), KEY_DELETED_TASKS, deletions + uuid)
+        // TODO queue save?
+        localStore.saveMessage(Message.Type.Delete, uuid, Clock.System.now())
     }
 
     suspend fun createProject(key: ListKey, title: ListTitle.Project) = withContext(taskEditDispatcher) {
@@ -177,29 +175,28 @@ class TaskRepository(
         val list = lists.remove(key)
         list?.models()?.forEach { tasksToList.remove(it.uuid) }
         localStore.deleteList(key)
+        localStore.saveMessage(Message.Type.Delete, key.uuid)
     }
 
-    private suspend fun upsertProject(message: Message.Update<ProjectNetworkModel>) {
+    suspend fun upsertProject(message: Message.Update<ProjectNetworkModel>) {
         val key = ListKey.Project(message.uuid)
-        val existing = lists[key] ?: run {
-            createProject(key, ListTitle.Project(message.data.name))
+        lists[key]?.setCustomTitle(ListTitle.Project(message.data.title)) ?: run {
+            createProject(key, ListTitle.Project(message.data.title))
             return
         }
-        existing.customTitle
     }
 
     fun listKeyFor(uuid: Uuid): ListKey? = tasksToList[uuid]
 
-
-    fun localChangelist(since: Instant) {
-
+    fun projectChangesSinceLastSync(): Changelist<ProjectNetworkModel> {
+        TODO()
     }
 
     /** Ensures any currently loaded dates are synced with the server. */
     suspend fun sync() = withContext(ioDispatcher) {
         val now = Clock.System.now()
         Synchronizer.sync<ProjectNetworkModel>(
-            getLocalChanges = { TODO() },
+            getLocalChanges = { projectChangesSinceLastSync() },
             fetchServerChanges = { network.sync.pullProjectChanges(lastAppSync.value) },
             pushChangelist = { network.sync.pushProjectChanges(it) },
             applyChanges = {
@@ -221,12 +218,15 @@ class TaskRepository(
                     it.forEach { message ->
                         when (message) {
                             is Message.Delete -> deleteTask(message.uuid)
-                            is Message.Update -> createOrUpdateTask(message.uuid, message.data)
+                            is Message.Update -> upsertTask(message)
                         }
                     }
                 }
             )
         }
+        // TODO we need to clear local changelists after sync
+        // TODO do we want separate functions for handling message and updating models locally?
+        //  The latter requires saving a message but other doesn't since we're applying a sync.
     }
 
     private fun updateSyncTime() {

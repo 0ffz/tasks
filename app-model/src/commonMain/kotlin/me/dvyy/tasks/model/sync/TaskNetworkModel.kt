@@ -1,11 +1,12 @@
 package me.dvyy.tasks.model.sync
 
 import com.benasher44.uuid.Uuid
-import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.model.TaskModel
 
+@Serializable
 class TaskNetworkModel(
     val name: String = "",
     val completed: Boolean = true,
@@ -18,7 +19,6 @@ class TaskNetworkModel(
             name = name,
             completed = completed,
             highlight = highlight,
-            modified = Clock.System.now()
         )
     }
 }

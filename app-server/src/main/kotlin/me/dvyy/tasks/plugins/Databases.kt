@@ -10,7 +10,6 @@ import io.ktor.server.util.*
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.ListKey
-import me.dvyy.tasks.model.TaskChangeList
 import org.jetbrains.exposed.sql.Database
 
 fun ApplicationCall.getDate(): LocalDate {

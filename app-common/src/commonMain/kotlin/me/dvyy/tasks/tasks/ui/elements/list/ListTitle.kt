@@ -10,5 +10,5 @@ sealed interface ListTitle {
 
     @Immutable
     @Serializable
-    data class Project(val name: String) : ListTitle
+    data class Project(val name: String?) : ListTitle
 }

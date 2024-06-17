@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.dp
 fun TaskListTitle(
     title: ListTitle,
     colored: Boolean,
+    interactions: TaskListInteractions? = null,
     loading: Boolean = false,
     showDivider: Boolean = true,
 ) {
@@ -50,12 +53,15 @@ fun TaskListTitle(
             }
 
             is ListTitle.Project -> {
-                Text(
-                    title.name,
-                    Modifier.weight(1f, true),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = color,
+                BasicTextField(
+                    title.name ?: "Untitled",
+                    onValueChange = { interactions?.onTitleChange?.invoke(it) },
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                    modifier = Modifier.weight(1f, true),
+                    textStyle = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = color,
+                    ),
                     maxLines = 1,
                 )
             }

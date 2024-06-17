@@ -3,7 +3,11 @@ package me.dvyy.tasks.plugins
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import me.dvyy.tasks.model.*
+import me.dvyy.tasks.model.Changelist
+import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.model.ListKey
+import me.dvyy.tasks.model.Message
+import me.dvyy.tasks.model.sync.ProjectNetworkModel
 import me.dvyy.tasks.model.sync.TaskNetworkModel
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
@@ -180,7 +184,7 @@ class TaskService(private val database: Database) {
         upsert = {
             Projects.batchUpsert(it) { (model, uuid) ->
                 this[Projects.uuid] = uuid
-                this[Projects.name] = model.name
+                this[Projects.name] = model.title
             }
         },
         delete = { projects ->

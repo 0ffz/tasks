@@ -102,27 +102,28 @@ fun ProjectsList(content: @Composable () -> Unit) {
 fun ProjectListContent(
     reorderInteractions: TaskReorderInteractions,
     modifier: Modifier = Modifier,
-    tasksStateHolder: TasksViewModel = viewModel(),
+    tasksViewModel: TasksViewModel = viewModel(),
 ) {
     val ui = LocalUIState.current
-    val projects by tasksStateHolder.projects.collectAsState(emptyList()) //TODO loading
+    val projects by tasksViewModel.projects.collectAsState(emptyList()) //TODO loading
     LazyRow(modifier) {
         items(projects) { key ->
-            val tasks by tasksStateHolder.tasksFor(key).collectAsState()
+            val tasks by tasksViewModel.tasksFor(key).collectAsState()
+            val project by tasksViewModel.getProject(key).collectAsState(null)
             TaskList(
                 key = key,
-                title = ListTitle.Project("Name"), //TODO project name
+                title = ListTitle.Project(project?.title),
                 tasks = tasks,
-                viewModel = tasksStateHolder,
+                viewModel = tasksViewModel,
                 reorderInteractions = reorderInteractions,
-                interactions = tasksStateHolder.listInteractionsFor(key),
+                interactions = tasksViewModel.listInteractionsFor(key),
                 modifier = Modifier
                     .width(ui.taskListWidth),
                 scrollable = true
             )
         }
         item {
-            Button(onClick = { tasksStateHolder.createProject("Project") }) {
+            Button(onClick = { tasksViewModel.createProject("Project") }) {
                 Text("New project")
             }
         }

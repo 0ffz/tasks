@@ -20,7 +20,8 @@ import me.dvyy.tasks.tasks.ui.TasksViewModel.TaskList
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 
 data class TaskListInteractions(
-    val createNewTask: () -> Unit,
+    val createNewTask: () -> Unit = {},
+    val onTitleChange: (String) -> Unit = {},
 )
 
 @Immutable
@@ -52,7 +53,7 @@ fun TaskList(
             ).fillMaxWidth()
     ) {
         val isLoading = tasks is TaskList.Loading
-        TaskListTitle(title, colored, loading = isLoading)
+        TaskListTitle(title, colored, interactions, loading = isLoading)
         when (tasks) {
             is TaskList.Loading -> return
             is TaskList.Data -> {

@@ -9,7 +9,7 @@ import kotlinx.datetime.Instant
 import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.model.Changelist
 import me.dvyy.tasks.model.ListKey
-import me.dvyy.tasks.model.ProjectNetworkModel
+import me.dvyy.tasks.model.sync.ProjectNetworkModel
 import me.dvyy.tasks.model.sync.TaskNetworkModel
 
 class SyncConfig(
@@ -31,6 +31,7 @@ class SyncAPI(
         }.body<Changelist<TaskNetworkModel>>()
     }
 
+    //TODO want a push-pull in one function so we don't have to merge locally
     suspend fun pushTaskChanges(changelist: Changelist<TaskNetworkModel>) {
         http.client.post("changes") {
             setBody(changelist)
