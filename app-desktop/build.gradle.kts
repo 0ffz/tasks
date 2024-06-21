@@ -13,6 +13,7 @@ kotlin {
             dependencies {
                 implementation(libs.slf4j)
                 implementation(project(":app-common"))
+                implementation(project(":app-model"))
                 implementation(compose.desktop.currentOs)
             }
         }

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.sqldelight)
 }
 
 composeCompiler {
@@ -66,7 +67,7 @@ kotlin {
 //                implementation(libs.lifecycle.viewmodel)
                 implementation(libs.lifecycle.viewmodel.compose)
                 implementation(libs.koin.compose)
-                implementation("com.michael-bull.kotlin-result:kotlin-result:2.0.0")
+                implementation(libs.kotlin.result)
 
             }
         }
@@ -81,6 +82,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.okhttp)
+                implementation(libs.sqldelight.sqlite.driver)
             }
         }
         val androidMain by getting {
@@ -90,6 +92,14 @@ kotlin {
                 api(libs.androidx.core.ktx)
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.activity.compose)
+                implementation(libs.sqldelight.android.driver)
+            }
+        }
+
+        val wasmJsMain by getting {
+            dependencies {
+                //TODO waiting for wasmJs driver
+//                implementation(libs.sqldelight.web.worker.driver)
             }
         }
     }
@@ -115,4 +125,14 @@ android {
 }
 dependencies {
     implementation(libs.androidx.foundation.android)
+}
+
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("me.dvyy")
+//            sourceFolders = listOf("sqldelight")
+//            dialect("app.cash.sqldelight:mysql-dialect:2.0.2")
+        }
+    }
 }

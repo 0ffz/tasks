@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import me.dvyy.Database
 import me.dvyy.tasks.app.ui.elements.AppDialogs
 import me.dvyy.tasks.app.ui.elements.AppDrawer
 import me.dvyy.tasks.app.ui.elements.AppTopBar
@@ -24,13 +25,19 @@ import me.dvyy.tasks.di.viewModelsModule
 import me.dvyy.tasks.tasks.ui.HomeScreen
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.KoinApplication
+import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App() {
+fun App(database: Database) {
     AppTheme {
         KoinApplication(application = {
-            modules(appModule(), syncModule(), viewModelsModule())
+            modules(
+                appModule(),
+                syncModule(),
+                viewModelsModule(),
+                module { single { database } }
+            )
         }) {
             val responsive = rememberAppUIState()
             val tasksViewModel = koinViewModel<TasksViewModel>()

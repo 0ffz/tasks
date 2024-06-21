@@ -1,0 +1,21 @@
+import com.benasher44.uuid.Uuid;
+import kotlinx.datetime.Instant;
+
+CREATE TABLE message (
+  uuid BLOB AS Uuid PRIMARY KEY NOT NULL,
+  modified INTEGER AS Instant NOT NULL
+
+);
+
+-- CREATE INDEX hockeyPlayer_full_name ON hockeyPlayer(full_name);
+
+selectAll:
+SELECT *
+FROM message;
+
+insert:
+INSERT INTO message(uuid, modified)
+VALUES (?, ?);
+
+clear:
+DELETE FROM message;
