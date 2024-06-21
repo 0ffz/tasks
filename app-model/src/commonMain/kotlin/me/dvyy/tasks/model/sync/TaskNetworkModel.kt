@@ -1,9 +1,9 @@
 package me.dvyy.tasks.model.sync
 
-import com.benasher44.uuid.Uuid
 import kotlinx.serialization.Serializable
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.model.ListKey
+import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskModel
 
 @Serializable
@@ -11,11 +11,11 @@ class TaskNetworkModel(
     val name: String = "",
     val completed: Boolean = true,
     val highlight: Highlight = Highlight.Unmarked,
-    val list: ListKey,
+    val list: ListId,
 ) {
-    fun toTaskModel(uuid: Uuid): TaskModel {
+    fun toTaskModel(id: TaskId): TaskModel {
         return TaskModel(
-            uuid = uuid,
+            id = id,
             name = name,
             completed = completed,
             highlight = highlight,

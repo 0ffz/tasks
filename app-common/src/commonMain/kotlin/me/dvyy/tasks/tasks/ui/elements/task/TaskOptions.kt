@@ -15,16 +15,17 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import org.koin.compose.koinInject
 
 @Composable
 fun TaskOptions(
-    listKey: ListKey,
+    initialDate: LocalDate? = null,
     interactions: TaskInteractions,
-    submitAction: (() -> Unit)? = null
+    submitAction: (() -> Unit)? = null,
+    time: TimeViewModel = koinViewModel(),
 ) {
     val ui = LocalUIState.current
     Box(Modifier.padding(horizontal = ui.taskTextPadding, vertical = 4.dp)) {
@@ -36,9 +37,8 @@ fun TaskOptions(
                 HighlightButton(Highlight.Unmarked, interactions)
                 HighlightButton(Highlight.Important, interactions)
                 HighlightButton(Highlight.InProgress, interactions)
-                if (listKey is ListKey.Date) { //TODO decide on separate or combined date/list pickers
-                    TaskDatePicker(listKey.date, interactions)
-                }
+                TaskDatePicker(initialDate ?: time.today, interactions)
+
                 Spacer(Modifier.weight(1f))
                 if (submitAction != null) {
                     FilledIconButton(onClick = submitAction) {
@@ -56,10 +56,10 @@ fun TaskOptions(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskDatePicker(date: LocalDate, interactions: TaskInteractions, time: TimeViewModel = koinInject()) {
+fun TaskDatePicker(initialDate: LocalDate, interactions: TaskInteractions, time: TimeViewModel = koinInject()) {
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = date.atStartOfDayIn(time.timezone).toEpochMilliseconds()
+        initialSelectedDateMillis = initialDate.atStartOfDayIn(time.timezone).toEpochMilliseconds()
     )
 
     AssistChip(

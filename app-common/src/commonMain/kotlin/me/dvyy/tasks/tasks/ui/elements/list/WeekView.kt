@@ -18,7 +18,6 @@ import kotlinx.datetime.plus
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
-import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.sync.ui.SyncButton
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
@@ -26,7 +25,7 @@ import org.koin.compose.koinInject
 
 @Composable
 fun WeekView(
-    tasksStateHolder: TasksViewModel = viewModel(),
+    tasksViewModel: TasksViewModel = viewModel(),
     app: AppState = koinInject(),
     time: TimeViewModel = koinInject(),
 ) {
@@ -36,7 +35,7 @@ fun WeekView(
     Scaffold(
         floatingActionButton = { SyncButton() },
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
-        val reorderInteractions = tasksStateHolder.reorderInteractions()
+        val reorderInteractions = tasksViewModel.reorderInteractions()
         ReorderContainer(state = reorderInteractions.draggedState) {
             val responsive = LocalUIState.current
             val columns = responsive.dateColumns
@@ -58,16 +57,17 @@ fun WeekView(
                     ) { dayIndex ->
                         val day = weekStart.plus(DatePeriod(days = dayIndex))
                         val isToday = day == time.today
-                        val key = ListKey.Date(day)
-                        val tasks by tasksStateHolder.tasksFor(key).collectAsState()
+                        val listId = tasksViewModel.listIdFor(day)
+                        val properties by tasksViewModel.getListProperties(listId).collectAsState()
+                        val tasks by tasksViewModel.tasksFor(listId).collectAsState()
                         TaskList(
-                            key = key,
-                            title = ListTitle.Date(day),
+                            listId = listId,
                             tasks = tasks,
+                            properties = properties,
                             colored = isToday,
-                            viewModel = tasksStateHolder,
+                            viewModel = tasksViewModel,
                             reorderInteractions = reorderInteractions,
-                            interactions = tasksStateHolder.listInteractionsFor(key),
+                            interactions = tasksViewModel.listInteractionsFor(listId),
                             scrollable = !ui.isSingleColumn
                         )
                     }
@@ -109,11 +109,11 @@ fun ProjectListContent(
     LazyRow(modifier) {
         items(projects) { key ->
             val tasks by tasksViewModel.tasksFor(key).collectAsState()
-            val project by tasksViewModel.getProject(key).collectAsState(null)
+            val properties by tasksViewModel.getListProperties(key).collectAsState(null)
             TaskList(
-                key = key,
-                title = ListTitle.Project(project?.title),
+                listId = key,
                 tasks = tasks,
+                properties = properties!!,
                 viewModel = tasksViewModel,
                 reorderInteractions = reorderInteractions,
                 interactions = tasksViewModel.listInteractionsFor(key),

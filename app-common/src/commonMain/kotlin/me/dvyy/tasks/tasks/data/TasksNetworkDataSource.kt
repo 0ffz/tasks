@@ -8,8 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.model.Changelist
-import me.dvyy.tasks.model.ListKey
-import me.dvyy.tasks.model.sync.ProjectNetworkModel
+import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.model.sync.TaskListNetworkModel
 import me.dvyy.tasks.model.sync.TaskNetworkModel
 
 class SyncConfig(
@@ -19,10 +19,10 @@ class SyncConfig(
 
 class SyncAPI(
     private val http: AppHTTP,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
 
-    suspend fun pullTaskChanges(list: ListKey, lastSync: Instant?): Changelist<TaskNetworkModel> {
+    suspend fun pullTaskChanges(list: ListId, lastSync: Instant?): Changelist<TaskNetworkModel> {
         TODO()
         return http.client.get("changes") {
             if (lastSync != null) parameter("lastSyncDate", lastSync.toString())
@@ -38,11 +38,11 @@ class SyncAPI(
         }
     }
 
-    suspend fun pullProjectChanges(lastSync: Instant?): Changelist<ProjectNetworkModel> {
+    suspend fun pullProjectChanges(lastSync: Instant?): Changelist<TaskListNetworkModel> {
         TODO()
     }
 
-    suspend fun pushProjectChanges(changelist: Changelist<ProjectNetworkModel>) {
+    suspend fun pushProjectChanges(changelist: Changelist<TaskListNetworkModel>) {
         TODO()
     }
 }

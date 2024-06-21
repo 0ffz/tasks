@@ -1,12 +1,10 @@
 package me.dvyy.tasks.model
 
-import com.benasher44.uuid.Uuid
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class TaskModel(
-    val uuid: @Contextual Uuid,
+    val id: TaskId,
     val name: String = "",
     val completed: Boolean = true,
     val highlight: Highlight = Highlight.Unmarked,

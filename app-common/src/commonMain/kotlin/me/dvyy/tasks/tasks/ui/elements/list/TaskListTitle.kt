@@ -16,10 +16,13 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import me.dvyy.tasks.app.ui.state.Loadable
+import me.dvyy.tasks.app.ui.state.loadedOrNull
+import me.dvyy.tasks.model.TaskListProperties
 
 @Composable
 fun TaskListTitle(
-    title: ListTitle,
+    props: Loadable<TaskListProperties>,
     colored: Boolean,
     interactions: TaskListInteractions? = null,
     loading: Boolean = false,
@@ -32,47 +35,46 @@ fun TaskListTitle(
         Modifier.padding(4.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
-        when (title) {
-            is ListTitle.Date -> {
-                val date = title.date
-                Text(
-                    "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
-                    Modifier.weight(1f, true),
-                    style = MaterialTheme.typography.headlineMedium,
+        val propsLoaded = props.loadedOrNull() ?: return
+        if (propsLoaded.date != null) {
+            val date = propsLoaded.date!!
+            Text(
+                "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
+                Modifier.weight(1f, true),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = color,
+                maxLines = 1,
+            )
+            Text(
+                date.dayOfWeek.name.lowercase().capitalize().take(3),
+                style = MaterialTheme.typography.headlineSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Clip,
+                color = color.copy(alpha = 0.6f)
+            )
+        } else {
+            BasicTextField(
+                propsLoaded.displayName ?: "Untitled",
+                onValueChange = { interactions?.onTitleChange?.invoke(it) },
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                modifier = Modifier.weight(1f, true),
+                textStyle = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = color,
-                    maxLines = 1,
-                )
-                Text(
-                    date.dayOfWeek.name.lowercase().capitalize().take(3),
-                    style = MaterialTheme.typography.headlineSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Clip,
-                    color = color.copy(alpha = 0.6f)
-                )
-            }
-
-            is ListTitle.Project -> {
-                BasicTextField(
-                    title.name ?: "Untitled",
-                    onValueChange = { interactions?.onTitleChange?.invoke(it) },
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                    modifier = Modifier.weight(1f, true),
-                    textStyle = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = color,
-                    ),
-                    maxLines = 1,
-                )
-            }
+                ),
+                maxLines = 1,
+            )
         }
     }
     if (showDivider) Box {
-        if (!loading) HorizontalDivider(
+        val isLoading = loading || props is Loadable.Loading
+
+        if (!isLoading) HorizontalDivider(
             thickness = 2.dp,
             color = color
         )
-        AnimatedVisibility(loading, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(isLoading, enter = fadeIn(), exit = fadeOut()) {
             LinearProgressIndicator(Modifier.height(2.dp).fillMaxWidth())
         }
     }

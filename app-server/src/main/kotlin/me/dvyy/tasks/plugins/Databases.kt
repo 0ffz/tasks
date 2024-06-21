@@ -1,5 +1,6 @@
 package me.dvyy.tasks.plugins
 
+import Uuid
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -9,7 +10,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import me.dvyy.tasks.model.ListKey
 import org.jetbrains.exposed.sql.Database
 
 fun ApplicationCall.getDate(): LocalDate {
@@ -29,8 +29,8 @@ fun Application.configureDatabases() {
             }
 
             route("/changes") {
-                fun ApplicationCall.getListKey(): ListKey {
-                    return ListKey.fromIdentifier(parameters.getOrFail("id"))
+                fun ApplicationCall.getListKey(): Uuid {
+                    return Uuid.fromIdentifier(parameters.getOrFail("id"))
                 }
                 /*{
                     val epochDays = parameters["epochDays"]?.toInt() ?: throw IllegalArgumentException("Invalid date")

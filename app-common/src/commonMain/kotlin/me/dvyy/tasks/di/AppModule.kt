@@ -36,7 +36,7 @@ fun viewModelsModule() = module {
     single { TimeViewModel() }
     single {
         TasksViewModel(
-            tasks = TaskRepository(
+            taskRepo = TaskRepository(
                 localStore = TasksLocalDataSource(),
                 network = get<TasksNetworkDataSource>(),
                 ioDispatcher = Dispatchers.Default,

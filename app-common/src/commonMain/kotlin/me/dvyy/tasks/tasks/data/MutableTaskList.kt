@@ -1,40 +1,34 @@
 package me.dvyy.tasks.tasks.data
 
-import com.benasher44.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.datetime.Instant
-import me.dvyy.tasks.model.Changelist
-import me.dvyy.tasks.model.ListKey
-import me.dvyy.tasks.model.TaskModel
+import me.dvyy.tasks.model.*
 import me.dvyy.tasks.model.sync.TaskNetworkModel
-import me.dvyy.tasks.tasks.ui.elements.list.ListTitle
 
 class MutableTaskList(
-    val key: ListKey,
-    fromModel: TaskListModel?,
+    val key: ListId,
+    fromModel: TaskListModel,
     val queueSave: () -> Unit,
 ) {
-    val customTitle: StateFlow<ListTitle.Project?> get() = _customTitle
-    private val _customTitle = MutableStateFlow(fromModel?.title)
-    val lastSynced: StateFlow<Instant?> get() = _lastSynced
-    private val _lastSynced = MutableStateFlow(fromModel?.lastSynced)
+    val _properties = MutableStateFlow(fromModel.properties)
 
-    private val models = fromModel?.tasks?.toMutableList() ?: mutableListOf()
+    val properties = _properties.asStateFlow()
+
+    private val models = fromModel.tasks.toMutableList()
     private val tasksFlow = MutableStateFlow(models())
 
-    fun toListModel() = TaskListModel(customTitle.value, models.toList(), _lastSynced.value)
+    fun toListModel() = TaskListModel(_properties.value, models.toList())
     fun models() = models.toList()
 
     fun tasksFlow(): Flow<List<TaskModel>> = tasksFlow
 
-    operator fun get(uuid: Uuid): TaskModel? {
-        return models.firstOrNull { it.uuid == uuid }
+    operator fun get(taskId: TaskId): TaskModel? {
+        return models.firstOrNull { it.id == taskId }
     }
 
-    operator fun set(uuid: Uuid, model: TaskModel) {
+    operator fun set(uuid: TaskId, model: TaskModel) {
         val index = indexOf(uuid)
         if (index == -1) {
             models.add(model)
@@ -44,7 +38,7 @@ class MutableTaskList(
         emitUpdate()
     }
 
-    fun remove(uuid: Uuid): TaskModel? {
+    fun remove(uuid: TaskId): TaskModel? {
         val index = indexOf(uuid)
         if (index == -1) return null
         return models.removeAt(index).also {
@@ -52,21 +46,21 @@ class MutableTaskList(
         }
     }
 
-    fun indexOf(uuid: Uuid) = models.indexOfFirst { it.uuid == uuid }
+    fun indexOf(taskId: TaskId) = models.indexOfFirst { it.id == taskId }
 
-    fun taskAfter(uuid: Uuid): Uuid? {
+    fun taskAfter(uuid: TaskId): TaskId? {
         val index = indexOf(uuid)
         if (index == -1) return null
-        return models.getOrNull(indexOf(uuid) + 1)?.uuid
+        return models.getOrNull(indexOf(uuid) + 1)?.id
     }
 
-    fun taskBefore(uuid: Uuid): Uuid? {
+    fun taskBefore(uuid: TaskId): TaskId? {
         val index = indexOf(uuid)
         if (index == -1) return null
-        return models.getOrNull(indexOf(uuid) - 1)?.uuid
+        return models.getOrNull(indexOf(uuid) - 1)?.id
     }
 
-    fun reorder(from: Uuid, to: Uuid) {
+    fun reorder(from: TaskId, to: TaskId) {
         val fromIndex = indexOf(from)
         val toIndex = indexOf(to)
         if (fromIndex == -1 || toIndex == -1) return
@@ -75,8 +69,8 @@ class MutableTaskList(
         emitUpdate()
     }
 
-    fun setCustomTitle(title: ListTitle.Project?) {
-        _customTitle.value = title
+    fun setProperties(props: TaskListProperties) {
+        _properties.update { props }
         queueSave()
     }
 

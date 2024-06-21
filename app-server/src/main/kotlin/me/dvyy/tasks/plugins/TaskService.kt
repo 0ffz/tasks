@@ -1,13 +1,13 @@
 package me.dvyy.tasks.plugins
 
+import Uuid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.Changelist
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.model.ListKey
 import me.dvyy.tasks.model.Message
-import me.dvyy.tasks.model.sync.ProjectNetworkModel
+import me.dvyy.tasks.model.sync.TaskListNetworkModel
 import me.dvyy.tasks.model.sync.TaskNetworkModel
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
@@ -43,17 +43,17 @@ class TaskService(private val database: Database) {
         val project = uuid("project").nullable()
         override val primaryKey = PrimaryKey(uuid)
 
-        fun getListKey(row: ResultRow): ListKey {
+        fun getListKey(row: ResultRow): Uuid {
             val date = row[date]
-            if (date != null) return ListKey.Date(date)
+            if (date != null) return Uuid.Date(date)
             val project = row[project]
-            if (project != null) return ListKey.Project(project)
+            if (project != null) return Uuid.Project(project)
             error("Task not in any list")
         }
 
-        fun setListKey(row: BaseBatchInsertStatement, key: ListKey) = when (key) {
-            is ListKey.Date -> row[date] = key.date
-            is ListKey.Project -> row[project] = key.uuid
+        fun setListKey(row: BaseBatchInsertStatement, key: Uuid) = when (key) {
+            is Uuid.Date -> row[date] = key.date
+            is Uuid.Project -> row[project] = key.uuid
         }
     }
 
@@ -167,19 +167,19 @@ class TaskService(private val database: Database) {
 
     // Project messages
 
-    suspend fun getProjectMesages(since: Instant?): Changelist<ProjectNetworkModel> = getMessages(
+    suspend fun getProjectMesages(since: Instant?): Changelist<TaskListNetworkModel> = getMessages(
         since,
         TODO(), //now
         joinBy = Projects.uuid,
         map = {
-            ProjectNetworkModel(
-                ListKey.Project(it[Projects.uuid]),
+            TaskListNetworkModel(
+                Uuid.Project(it[Projects.uuid]),
                 it[Projects.name]
             )
         },
     )
 
-    suspend fun applyProjectMessages(changelist: Changelist<ProjectNetworkModel>) = applyMessages(
+    suspend fun applyProjectMessages(changelist: Changelist<TaskListNetworkModel>) = applyMessages(
         changelist,
         upsert = {
             Projects.batchUpsert(it) { (model, uuid) ->

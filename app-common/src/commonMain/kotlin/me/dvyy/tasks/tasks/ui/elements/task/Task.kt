@@ -29,18 +29,20 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
+import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.Task
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.TaskInteractions
+import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 @Composable
 fun Task(
-    task: Task,
+    task: TaskUiState,
     selected: Boolean,
     interactions: TaskInteractions,
+    date: LocalDate? = null,
 ) {
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
@@ -93,7 +95,8 @@ fun Task(
                             detectDragGestures { _, _ -> }
                         }
                 ) {
-                    TaskOptions(task.key, interactions)
+                    //TODO get date from list
+                    TaskOptions(date, interactions)
                 }
             }
         }
