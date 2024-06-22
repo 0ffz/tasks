@@ -26,15 +26,17 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun Task(
@@ -46,56 +48,58 @@ fun Task(
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
     val selectedState by rememberUpdatedState(selected)
-
-    LaunchedEffect(task) {
-        snapshotFlow { selectedState }
-            .distinctUntilChanged()
-            .drop(1)
-            .filter { !it } // Listen to deselect
-            .collect {
-                println("Select changed $it for ${task.text}")
-                if (task.text.isEmpty()) interactions.onDelete()
-            }
-    }
-
-    BoxWithConstraints(
-        modifier = Modifier
-            .onHoverIfAvailable(
-                onEnter = { isHovered = true },
-                onExit = { isHovered = false }
-            )
-            .heightIn(min = ui.taskHeight)
-            .focusProperties { canFocus = false }
-            .clickableWithoutRipple { interactions.onSelect() }
-            .onKeyEvent(interactions.onKeyEvent)
-    ) {
-        TaskSelectedSurface(selected) {
-            val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
-            Column(Modifier.alpha(alpha)) {
-                Box(
-                    modifier = Modifier.padding(horizontal = ui.taskTextPadding),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    TaskHighlight(task.text, task.highlight)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val responsive = LocalUIState.current
-
-                        TaskTextField(task.text, task.completed, selected, interactions, Modifier.weight(1f, true))
-                        if (responsive.alwaysShowCheckbox || isHovered || selected)
-                            TaskCheckBox(task.completed, interactions)
-                    }
+    // cached task is the SSOT in this context, some things like text updates take too long to update in db
+    CachedUpdate(task, interactions.onTaskChanged) { (task, setTask) ->
+        LaunchedEffect(task) {
+            snapshotFlow { selectedState }
+                .distinctUntilChanged()
+                .drop(1)
+                .filter { !it } // Listen to deselect
+                .collect {
+                    println("Select changed $it for ${task.text}")
+                    if (task.text.isEmpty()) interactions.onDelete()
                 }
-                AnimatedVisibility(
-                    selected,
-                    enter = fadeIn(tween(delayMillis = 100)) + expandVertically(),
-                    exit = fadeOut(tween(durationMillis = 100)) + shrinkVertically(),
-                    modifier = Modifier
-                        .pointerInput(Unit) {
-                            detectDragGestures { _, _ -> }
+        }
+
+        BoxWithConstraints(
+            modifier = Modifier
+                .onHoverIfAvailable(
+                    onEnter = { isHovered = true },
+                    onExit = { isHovered = false }
+                )
+                .heightIn(min = ui.taskHeight)
+                .focusProperties { canFocus = false }
+                .clickableWithoutRipple { interactions.onSelect() }
+                .onKeyEvent { interactions.onKeyEvent(it, task) }
+        ) {
+            TaskSelectedSurface(selected) {
+                val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
+                Column(Modifier.alpha(alpha)) {
+                    Box(
+                        modifier = Modifier.padding(horizontal = ui.taskTextPadding),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        TaskHighlight(task.text, task.highlight)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            val responsive = LocalUIState.current
+
+                            TaskTextField(task, selected, setTask, interactions, Modifier.weight(1f, true))
+                            if (responsive.alwaysShowCheckbox || isHovered || selected)
+                                TaskCheckBox(task, setTask)
                         }
-                ) {
-                    //TODO get date from list
-                    TaskOptions(date, interactions)
+                    }
+                    AnimatedVisibility(
+                        selected,
+                        enter = fadeIn(tween(delayMillis = 100)) + expandVertically(),
+                        exit = fadeOut(tween(durationMillis = 100)) + shrinkVertically(),
+                        modifier = Modifier
+                            .pointerInput(Unit) {
+                                detectDragGestures { _, _ -> }
+                            }
+                    ) {
+                        //TODO get date from list
+                        TaskOptions(task, setTask, date, interactions)
+                    }
                 }
             }
         }
@@ -119,7 +123,7 @@ fun Task(
 //}
 
 @Composable
-fun TaskHighlight(title: String, highlight: Highlight) {
+fun TaskHighlight(text: String, highlight: Highlight) {
     val ui = LocalUIState.current
     val adjustedHighlight by animateColorAsState(highlight.color)
     Surface(
@@ -128,7 +132,7 @@ fun TaskHighlight(title: String, highlight: Highlight) {
         modifier = Modifier.height(ui.taskHighlightHeight)
     ) {
         TaskTextPadding {
-            Text(title, Modifier.alpha(0f))
+            Text(text, Modifier.alpha(0f))
         }
     }
 }
@@ -153,13 +157,13 @@ fun TaskSelectedSurface(
 
 @Composable
 fun TaskTextField(
-    title: String,
-    completed: Boolean,
+    task: TaskUiState,
     selected: Boolean,
+    setTask: (TaskUiState) -> Unit,
     interactions: TaskInteractions,
     modifier: Modifier = Modifier,
 ) {
-    val textDecoration = if (completed) TextDecoration.LineThrough else TextDecoration.None
+    val textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
         MaterialTheme.colorScheme.onSurface
     )
@@ -175,38 +179,28 @@ fun TaskTextField(
 //        else focusManager.clearFocus()
     }
 
-    CachedUpdate(title, interactions.onTitleChanged) {
-        val (cachedTitle, setTitle) = it
-        LaunchedEffect(interactions) {
-            snapshotFlow { title }
-                .distinctUntilChanged()
-                .debounce(500.milliseconds)
-                .collect { interactions.onTitleChanged(it) }
-        }
-
-        BasicTextField(
-            value = cachedTitle,
-            readOnly = completed,// || (!active),
-            singleLine = true,
-            onValueChange = setTitle,
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-            textStyle = textStyle,
-            keyboardActions = interactions.keyboardActions,
-            keyboardOptions = interactions.keyboardOptions,
-            decorationBox = { innerTextField ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TaskTextPadding { innerTextField() }
-                }
-            },
-            modifier = modifier
+    BasicTextField(
+        value = task.text,
+        readOnly = task.completed,// || (!active),
+        singleLine = true,
+        onValueChange = { setTask(task.copy(text = it)) },
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+        textStyle = textStyle,
+        keyboardActions = interactions.keyboardActions,
+        keyboardOptions = interactions.keyboardOptions,
+        decorationBox = { innerTextField ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TaskTextPadding { innerTextField() }
+            }
+        },
+        modifier = modifier
 //            .fillMaxHeight()
-                .focusRequester(focusRequester)
-                .onFocusEvent {
-                    if (it.isFocused) interactions.onSelect()
-                }
-        )
+            .focusRequester(focusRequester)
+            .onFocusEvent {
+                if (it.isFocused) interactions.onSelect()
+            }
+    )
 
-    }
 }
 
 @Composable
@@ -221,32 +215,17 @@ fun TaskTextPadding(modifier: Modifier = Modifier, content: @Composable () -> Un
 }
 
 @Composable
-fun TaskCheckBox(completed: Boolean, interactions: TaskInteractions) {
+fun TaskCheckBox(task: TaskUiState, setTask: (TaskUiState) -> Unit) {
     val ui = LocalUIState.current
     IconButton(
-        onClick = { interactions.onCheckChanged(!completed) },
+        onClick = { setTask(task.copy(completed = !task.completed)) },
         colors = IconButtonDefaults.iconButtonColors(),
         modifier = Modifier.size(ui.taskCheckboxSize)
     ) {
         when {
-            completed -> Icon(Icons.Outlined.TaskAlt, contentDescription = "Completed")
+            task.completed -> Icon(Icons.Outlined.TaskAlt, contentDescription = "Completed")
             else -> Icon(Icons.Outlined.RadioButtonUnchecked, contentDescription = "Mark as completed")
         }
     }
 }
 
-@Composable
-fun <T> CachedUpdate(
-    value: T,
-    onValueChanged: (T) -> Unit,
-    debounceMillis: Long = 500,
-    content: @Composable (MutableState<T>) -> Unit,
-) {
-    // this will run whenever a new value comes in from the outside (e.g. from DB)
-    val cached = remember { mutableStateOf(value) }
-    cached.value = value
-    LaunchedEffect(onValueChanged, debounceMillis) {
-        snapshotFlow { cached.value }.debounce(debounceMillis).onEach(onValueChanged).collect()
-    }
-    content(cached)
-}

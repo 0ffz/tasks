@@ -21,7 +21,7 @@ VALUES ?;
 forList:
 SELECT * FROM task
 WHERE list = ?
-ORDER BY rank;
+ORDER BY rank, uuid;
 
 get:
 SELECT * FROM task
@@ -30,3 +30,7 @@ WHERE uuid = ?;
 delete:
 DELETE FROM task
 WHERE uuid = ?;
+
+listSize:
+SELECT COUNT(*) FROM task
+WHERE list = ?;

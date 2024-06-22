@@ -20,11 +20,11 @@ import me.dvyy.tasks.di.viewModelsModule
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.TaskInteractions
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListTitle
 import me.dvyy.tasks.tasks.ui.elements.task.TaskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.TaskOptions
 import me.dvyy.tasks.tasks.ui.elements.task.TaskTextField
+import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 
@@ -36,17 +36,22 @@ fun QuickAdd(
     KoinApplication(application = {
         modules(appModule(), viewModelsModule())
     }) {
-        val tasks = koinInject<TasksViewModel>()
         val ui = rememberAppUIState()
         CompositionLocalProvider(LocalUIState provides ui) {
-            var title by remember { mutableStateOf("") }
-            var highlight by remember { mutableStateOf(Highlight.Unmarked) }
+            var task by remember {
+                mutableStateOf(
+                    TaskUiState(
+                        text = "",
+                        completed = false,
+                        highlight = Highlight.Unmarked
+                    )
+                )
+            }
             var selectedDate by remember { mutableStateOf(time.today) }
 
             val interactions = remember {
                 TaskInteractions(
-                    onTitleChanged = { title = it },
-                    onHighlightChanged = { highlight = it },
+                    onTaskChanged = { task = it },
                     onListChanged = { selectedDate = it },
                     keyboardActions = KeyboardActions(onDone = { /* TODO save task*/ exit() }),
                     keyboardOptions = KeyboardOptions(imeAction = Done),
@@ -66,16 +71,18 @@ fun QuickAdd(
                         modifier = Modifier.height(ui.taskHeight),
                         contentAlignment = Alignment.CenterStart,
                     ) {
-                        TaskHighlight(title, highlight)
+                        TaskHighlight(task.text, task.highlight)
                         TaskTextField(
-                            title = title,
-                            completed = false,
+                            task = task,
                             selected = true,
+                            setTask = { task = it },
                             interactions = interactions,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
                     TaskOptions(
+                        task = task,
+                        setTask = { task = it },
                         initialDate = selectedDate,
                         interactions = interactions,
                         submitAction = {

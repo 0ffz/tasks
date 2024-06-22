@@ -35,12 +35,11 @@ class TasksViewModel(
     val syncState: StateFlow<SyncState> get() = _syncState
     private val _syncState = MutableStateFlow<SyncState>(SyncState.UnSynced)
 
-    // Careful to update both task map and tasks per list, I'd like a SSOT but we really want both!
     val selectedTask = MutableStateFlow<TaskId?>(null)
 
     val projects = taskRepo.getProjects()
 
-//    val loadedLists = mapOf<ListId, ?>()
+    val loadedLists = mapOf<ListId, Flow<List<TaskWithIDState>>>()
 
     fun selectTask(uuid: TaskId?) {
         selectedTask.value = uuid
@@ -86,7 +85,7 @@ class TasksViewModel(
     }
 
     fun createProject(name: String) = viewModelScope.launch {
-        taskRepo.saveList(ListId.newProject(), TaskListProperties(displayName = name))
+        taskRepo.createList(ListId.newProject(), TaskListProperties(displayName = name))
     }
 
     fun listInteractionsFor(list: ListId) = TaskListInteractions(
@@ -103,12 +102,18 @@ class TasksViewModel(
             taskRepo.updateTask(taskId, updater)
         }
         return TaskInteractions(
-            onTitleChanged = { name -> update { it.copy(text = name) } },
+            onTaskChanged = { uiState ->
+                update {
+                    it.copy(
+                        text = uiState.text,
+                        completed = uiState.completed,
+                        highlight = uiState.highlight
+                    )
+                }
+            },
             onListChanged = { date ->
                 viewModelScope.launch { taskRepo.moveTask(taskId, ListId.forDate(date)) }
             },
-            onCheckChanged = { completed -> update { it.copy(completed = completed) } },
-            onHighlightChanged = { highlight -> update { it.copy(highlight = highlight) } },
             onSelect = { selectTask(taskId) },
             onDelete = {
 
@@ -116,16 +121,15 @@ class TasksViewModel(
 //                selectTask(previous)
                 viewModelScope.launch { taskRepo.deleteTask(taskId) }
             },
-            onKeyEvent = { event ->
+            onKeyEvent = { event, uiState ->
                 //TODO backspace
-//                if (event.key == Key.Backspace) {
-//                    val model = taskRepo.getModel(taskId) ?: return@TaskInteractions false
-//                    if (model.text.isEmpty()) {
+                if (event.key == Key.Backspace) {
+                    if (uiState.text.isEmpty()) {
 //                        selectTask(taskRepo.taskBefore(taskId))
-//                        viewModelScope.launch { taskRepo.deleteTask(taskId) }
-//                    }
-//                    return@TaskInteractions false
-//                }
+                        viewModelScope.launch { taskRepo.deleteTask(taskId) }
+                    }
+                    return@TaskInteractions false
+                }
                 if (event.type != KeyEventType.KeyDown) return@TaskInteractions false
                 when {
 //                    event.isCtrlPressed && event.key == Key.E -> {

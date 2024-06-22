@@ -33,16 +33,7 @@ class TaskRepository(
     fun getProjects() = localStore.observeProjects()
 
     suspend fun createTask(list: ListId): Task = withContext(taskEditDispatcher) {
-        val task = Task(
-            uuid = TaskId.new(),
-            list = list,
-            completed = false,
-            text = "",
-            highlight = Highlight.Unmarked,
-            rank = 0, //TODO rank
-        )
-        localStore.upsertTask(task)
-        task
+        localStore.createTask(list)
     }
 
     suspend fun updateTask(
@@ -55,7 +46,7 @@ class TaskRepository(
     }
 
     suspend fun moveTask(taskKey: TaskId, listKey: ListId) = withContext(taskEditDispatcher) {
-        updateTask(taskKey) { it.copy(list = listKey) }
+        localStore.moveTask(taskKey, listKey)
     }
 
     suspend fun reorderTask(from: TaskId, to: TaskId) = withContext(taskEditDispatcher) {
@@ -70,67 +61,19 @@ class TaskRepository(
 //    fun taskAfter(uuid: TaskId) = listFor(uuid)?.taskAfter(uuid)
 
     fun tasksFor(key: ListId): Flow<List<Task>> = localStore.observeListTasks(key)
-//
-//    fun listInfo(key: ListId): Flow<TaskListModel> = flow {
-//        val list = getOrLoadList(key)
-//        emit(list.toListModel())
-//    }
 
     fun getListProperties(key: ListId): Flow<TaskListProperties> = localStore.observeListProperties(key)
-
-
-//    suspend fun setListProperties(key: ListId, properties: TaskListProperties) {
-//        localStore.saveList(key, getOrLoadList(key).toListModel())
-//    }
-
-//    private suspend fun getOrLoadList(key: ListId): MutableTaskList = withContext(taskEditDispatcher) {
-//        lists.getOrPut(key) { //TODO remove
-//            val list = /*localStore
-//                .loadTasksForList(key)
-//                .getOrElse {
-//                    println("Failed to load tasks for $key")
-//                    it.printStackTrace()
-//                    null
-//                } ?: */TaskListModel(TaskListProperties(date = key.date))
-//            list.tasks.forEach { tasksToList[it.id] = key }
-//            MutableTaskList(key, list, queueSave = { /*queueSaveList(key)*/ })
-//        }
-//    }
-
-    private val listsToSave = mutableSetOf<ListId>()
-    private var saveQueued = false
-
-//    private fun queueSaveList(key: ListId) = CoroutineScope(taskEditDispatcher).launch {
-//        listsToSave.add(key)
-//        if (!saveQueued) {
-//            saveQueued = true
-//            delay(AppConstants.bufferTaskSaves)
-//            listsToSave.forEach {
-//                val list = lists[it]?.toListModel() ?: return@forEach
-//                localStore.saveList(it, list)
-//            }
-//            listsToSave.clear()
-//            saveQueued = false
-//        }
-//    }
 
     suspend fun deleteTask(taskId: TaskId) = withContext(taskEditDispatcher) {
         localStore.deleteTask(taskId)
         localStore.saveMessage(Message.Type.Delete, taskId, Clock.System.now())
     }
 
-    suspend fun saveList(key: ListId, properties: TaskListProperties) = withContext(taskEditDispatcher) {
-        localStore.saveList(key, TaskListModel(properties))
+    suspend fun createList(key: ListId, properties: TaskListProperties) = withContext(taskEditDispatcher) {
+        localStore.createList(key, TaskListModel(properties))
     }
 
-//    suspend fun deleteProject(listId: ListId) = withContext(taskEditDispatcher) {
-//        val list = lists.remove(listId)
-//        list?.models()?.forEach { tasksToList.remove(it.id) }
-//        localStore.deleteList(listId)
-//        localStore.saveMessage(Message.Type.Delete, listId)
-//    }
-
-    suspend fun upsertProject(list: ListId, properties: TaskListProperties) {
+    suspend fun upsertProject(list: ListId, properties: TaskListProperties) = withContext(taskEditDispatcher) {
         localStore.setListProperties(list, properties)
 //        val key = ListId(message.uuid)
 //        TODO()
@@ -139,8 +82,6 @@ class TaskRepository(
 //            return
 //        }
     }
-
-//    fun listIdFor(uuid: TaskId): ListId? = tasksToList[uuid]
 
     fun projectChangesSinceLastSync(): Changelist<TaskListNetworkModel> {
         TODO()

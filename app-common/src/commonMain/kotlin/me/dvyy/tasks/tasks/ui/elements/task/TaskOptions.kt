@@ -18,10 +18,13 @@ import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.TaskInteractions
+import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.koin.compose.koinInject
 
 @Composable
 fun TaskOptions(
+    task: TaskUiState,
+    setTask: (TaskUiState) -> Unit,
     initialDate: LocalDate? = null,
     interactions: TaskInteractions,
     submitAction: (() -> Unit)? = null,
@@ -34,9 +37,9 @@ fun TaskOptions(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                HighlightButton(Highlight.Unmarked, interactions)
-                HighlightButton(Highlight.Important, interactions)
-                HighlightButton(Highlight.InProgress, interactions)
+                HighlightButton(Highlight.Unmarked, task, setTask)
+                HighlightButton(Highlight.Important, task, setTask)
+                HighlightButton(Highlight.InProgress, task, setTask)
                 TaskDatePicker(initialDate ?: time.today, interactions)
 
                 Spacer(Modifier.weight(1f))
@@ -84,7 +87,7 @@ fun TaskDatePicker(initialDate: LocalDate, interactions: TaskInteractions, time:
 }
 
 @Composable
-fun HighlightButton(highlight: Highlight, interactions: TaskInteractions) {
+fun HighlightButton(highlight: Highlight, task: TaskUiState, setTask: (TaskUiState) -> Unit) {
     val ui = LocalUIState.current
     val border = if (highlight == Highlight.Unmarked) BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface) else null
     Button(
@@ -92,7 +95,7 @@ fun HighlightButton(highlight: Highlight, interactions: TaskInteractions) {
             contentColor = MaterialTheme.colorScheme.onSurface,
             containerColor = highlight.color,
         ),
-        onClick = { interactions.onHighlightChanged(highlight) },
+        onClick = { setTask(task.copy(highlight = highlight)) },
         modifier = Modifier.size(ui.taskHighlightHeight).focusProperties { canFocus = false },
         border = border,
     ) { }
