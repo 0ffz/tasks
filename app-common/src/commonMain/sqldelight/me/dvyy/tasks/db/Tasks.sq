@@ -1,0 +1,22 @@
+import com.benasher44.uuid.Uuid;
+import kotlin.Boolean;
+import me.dvyy.tasks.model.Highlight;
+
+CREATE TABLE IF NOT EXISTS task (
+  uuid BLOB AS Uuid PRIMARY KEY NOT NULL,
+  text TEXT,
+  highlight TEXT AS Highlight NOT NULL,
+  completed INTEGER AS Boolean NOT NULL,
+  list BLOB AS Uuid NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS task_list ON task(list);
+
+insert:
+INSERT OR REPLACE INTO task(uuid, text, highlight, completed, list)
+VALUES (?, ?, ?, ?, ?);
+
+
+forList:
+SELECT * FROM task
+WHERE list = ?;

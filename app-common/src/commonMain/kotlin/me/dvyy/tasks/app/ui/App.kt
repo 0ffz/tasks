@@ -12,12 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import me.dvyy.Database
 import me.dvyy.tasks.app.ui.elements.AppDialogs
 import me.dvyy.tasks.app.ui.elements.AppDrawer
 import me.dvyy.tasks.app.ui.elements.AppTopBar
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
+import me.dvyy.tasks.db.Database
 import me.dvyy.tasks.di.appModule
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.di.syncModule
@@ -33,10 +33,10 @@ fun App(database: Database) {
     AppTheme {
         KoinApplication(application = {
             modules(
+                module { single { database } },
                 appModule(),
                 syncModule(),
                 viewModelsModule(),
-                module { single { database } }
             )
         }) {
             val responsive = rememberAppUIState()

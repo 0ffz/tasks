@@ -15,13 +15,13 @@ import me.dvyy.tasks.model.serializers.AppFormats
 actual class TasksLocalDataSource {
     private val settings = Settings()
 
-    actual fun saveList(key: ListId, list: TaskListModel) {
+    actual fun saveList(listId: ListId, list: TaskListModel) {
         val byteArray = AppFormats.cbor.encodeToByteArray(TaskListModel.serializer(), list)
-        settings[key.uniqueIdentifier] = byteArray.toHexString()
+        settings[listId.uniqueIdentifier] = byteArray.toHexString()
     }
 
-    actual fun loadTasksForList(key: ListId): Result<TaskListModel?> {
-        val hexString: String = settings[key.uniqueIdentifier] ?: return Result.success(null)
+    actual fun loadTasksForList(listId: ListId): Result<TaskListModel?> {
+        val hexString: String = settings[listId.uniqueIdentifier] ?: return Result.success(null)
         return runCatching {
             AppFormats.cbor.decodeFromByteArray(
                 TaskListModel.serializer(),
@@ -38,8 +38,8 @@ actual class TasksLocalDataSource {
             }
     }
 
-    actual fun deleteList(key: ListId) {
-        settings.remove(key.uniqueIdentifier)
+    actual fun deleteList(listId: ListId) {
+        settings.remove(listId.uniqueIdentifier)
     }
 
     actual fun saveMessage(

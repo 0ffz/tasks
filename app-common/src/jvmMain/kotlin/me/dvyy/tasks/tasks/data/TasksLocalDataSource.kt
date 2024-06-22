@@ -1,63 +1,62 @@
 package me.dvyy.tasks.tasks.data
 
-import ca.gosyer.appdirs.AppDirs
-import com.benasher44.uuid.uuidFrom
 import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.encodeToStream
-import me.dvyy.tasks.model.EntityId
-import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.model.Message
-import me.dvyy.tasks.model.serializers.AppFormats
-import java.nio.file.Path
-import kotlin.io.path.*
+import me.dvyy.tasks.db.Database
+import me.dvyy.tasks.model.*
 
 @OptIn(ExperimentalSerializationApi::class)
-actual class TasksLocalDataSource actual constructor() {
-    val dirs = AppDirs("tasks", "dvyy")
-    val dataPath = Path(dirs.getUserDataDir())
+actual class TasksLocalDataSource actual constructor(
+    val database: Database,
+) {
 
-    fun tasksPath(key: ListId): Path {
-        return when {
-            key.isDate -> dataPath / "dates" / "${key.date}.json"
-            else -> dataPath / "projects" / "${key.uuid}.json"
+    actual fun saveList(listId: ListId, list: TaskListModel) {
+        database.listsQueries.insert(
+            uuid = listId.uuid,
+            title = list.properties.displayName,
+        )
+        database.tasksQueries.transaction {
+            list.tasks.forEach {
+                database.tasksQueries.insert(
+                    uuid = it.id.uuid,
+                    list = listId.uuid,
+                    text = it.text,
+                    completed = it.completed,
+                    highlight = it.highlight,
+                )
+            }
         }
+        //TODO remove deleted paths
     }
 
-    actual fun saveList(key: ListId, list: TaskListModel) {
-        val path = tasksPath(key)
-        if (list.tasks.isEmpty() && key.isDate) {
-            path.deleteIfExists()
-            return
-        }
-        path.createParentDirectories()
-//        val filteredTasks = list.tasks.filter { it.name.isNotEmpty() }
-        AppFormats.json.encodeToStream(TaskListModel.serializer(), list, path.outputStream())
-    }
-
-    actual fun loadTasksForList(key: ListId): Result<TaskListModel?> {
-        val path = tasksPath(key)
-        if (!path.exists()) return Result.success(null)
-        return runCatching {
-            AppFormats.json.decodeFromStream(TaskListModel.serializer(), path.inputStream())
-        }
+    actual fun loadTasksForList(listId: ListId): Result<TaskListModel?> {
+        val list = database.listsQueries.get(listId.uuid).executeAsOneOrNull()
+        val tasks = database.tasksQueries.forList(listId.uuid).executeAsList()
+        return TaskListModel(
+            properties = TaskListProperties(
+                displayName = list?.title,
+                date = listId.date,
+            ), //TODO read properties separately
+            tasks = tasks.map {
+                TaskModel(
+                    TaskId(it.uuid),
+                    it.text ?: "",
+                    it.completed,
+                    it.highlight
+                )
+            },
+        ).let { Result.success(it) }
     }
 
     actual fun getProjects(): List<ListId> {
-        val path = dataPath / "projects"
-        if (!path.exists()) return listOf()
-        return path.listDirectoryEntries()
-            .map { ListId(uuidFrom(it.nameWithoutExtension)) }
+        return database.listsQueries.getProjects().executeAsList().map { ListId(it) }
     }
 
-    actual fun deleteList(key: ListId) {
-        tasksPath(key).deleteIfExists()
+    actual fun deleteList(listId: ListId) {
+        database.listsQueries.delete(listId.uuid)
     }
 
     actual fun saveMessage(type: Message.Type, uuid: EntityId, timestamp: Instant) {
-        val path = dataPath / "messages" / "${uuid}.json"
-        path.createParentDirectories()
-        path.writeText("${type.name} ${timestamp.epochSeconds}") //TODO ktx.serialization
+        database.messagesQueries.insert(uuid.uuid, timestamp, type)
     }
 }

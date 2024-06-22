@@ -37,7 +37,7 @@ fun viewModelsModule() = module {
     single {
         TasksViewModel(
             taskRepo = TaskRepository(
-                localStore = TasksLocalDataSource(),
+                localStore = TasksLocalDataSource(get()),
                 network = get<TasksNetworkDataSource>(),
                 ioDispatcher = Dispatchers.Default,
                 settings = get<Settings>(),

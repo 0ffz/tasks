@@ -1,6 +1,6 @@
 package me.dvyy.tasks.plugins
 
-import Uuid
+import com.benasher44.uuid.Uuid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate

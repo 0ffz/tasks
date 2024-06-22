@@ -68,6 +68,7 @@ kotlin {
                 implementation(libs.lifecycle.viewmodel.compose)
                 implementation(libs.koin.compose)
                 implementation(libs.kotlin.result)
+                implementation("app.cash.sqldelight:primitive-adapters:2.0.2")
 
             }
         }
@@ -130,7 +131,7 @@ dependencies {
 sqldelight {
     databases {
         create("Database") {
-            packageName.set("me.dvyy")
+            packageName.set("me.dvyy.tasks.db")
 //            sourceFolders = listOf("sqldelight")
 //            dialect("app.cash.sqldelight:mysql-dialect:2.0.2")
         }

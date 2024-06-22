@@ -18,6 +18,7 @@ import kotlinx.datetime.plus
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.sync.ui.SyncButton
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
@@ -57,7 +58,7 @@ fun WeekView(
                     ) { dayIndex ->
                         val day = weekStart.plus(DatePeriod(days = dayIndex))
                         val isToday = day == time.today
-                        val listId = tasksViewModel.listIdFor(day)
+                        val listId = ListId.forDate(day)
                         val properties by tasksViewModel.getListProperties(listId).collectAsState()
                         val tasks by tasksViewModel.tasksFor(listId).collectAsState()
                         TaskList(
@@ -109,11 +110,11 @@ fun ProjectListContent(
     LazyRow(modifier) {
         items(projects) { key ->
             val tasks by tasksViewModel.tasksFor(key).collectAsState()
-            val properties by tasksViewModel.getListProperties(key).collectAsState(null)
+            val properties by tasksViewModel.getListProperties(key).collectAsState()
             TaskList(
                 listId = key,
                 tasks = tasks,
-                properties = properties!!,
+                properties = properties,
                 viewModel = tasksViewModel,
                 reorderInteractions = reorderInteractions,
                 interactions = tasksViewModel.listInteractionsFor(key),

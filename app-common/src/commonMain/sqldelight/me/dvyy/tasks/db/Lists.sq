@@ -1,0 +1,25 @@
+import com.benasher44.uuid.Uuid;
+import kotlin.Boolean;
+import me.dvyy.tasks.model.Highlight;
+
+CREATE TABLE IF NOT EXISTS taskList (
+  uuid BLOB AS Uuid PRIMARY KEY NOT NULL,
+  title TEXT
+);
+
+
+insert:
+INSERT OR REPLACE INTO taskList(uuid, title)
+VALUES (?, ?);
+
+
+delete:
+DELETE FROM taskList
+WHERE uuid = ?;
+
+getProjects:
+SELECT uuid FROM taskList;
+
+get:
+SELECT * FROM taskList
+WHERE uuid = ?;

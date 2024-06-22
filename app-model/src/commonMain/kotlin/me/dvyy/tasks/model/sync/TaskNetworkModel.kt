@@ -16,7 +16,7 @@ class TaskNetworkModel(
     fun toTaskModel(id: TaskId): TaskModel {
         return TaskModel(
             id = id,
-            name = name,
+            text = name,
             completed = completed,
             highlight = highlight,
         )

@@ -13,7 +13,6 @@ import com.benasher44.uuid.uuid4
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.state.Loadable
 import me.dvyy.tasks.model.*
 import me.dvyy.tasks.tasks.data.TaskRepository
@@ -44,8 +43,6 @@ class TasksViewModel(
         selectedTask.value = uuid
     }
 
-    fun listIdFor(date: LocalDate): ListId = TODO()
-
     @Composable
     fun tasksFor(listId: ListId): StateFlow<Loadable<List<TaskWithIDState>>> = remember(listId) {
         taskRepo
@@ -68,7 +65,7 @@ class TasksViewModel(
     fun reorderInteractions() = TaskReorderInteractions(
         draggedState = reorderState,
         onDragEnterItem = { targetTask, dragged ->
-            println(taskRepo.getModel(targetTask)?.name)
+            println(taskRepo.getModel(targetTask)?.text)
             selectTask(null)
             viewModelScope.launch {
                 taskRepo.reorderTask(dragged.data, to = targetTask)
@@ -106,7 +103,7 @@ class TasksViewModel(
     fun interactionsFor(taskId: TaskId): TaskInteractions {
         fun update(updater: (TaskModel) -> TaskModel) = viewModelScope.launch { taskRepo.updateTask(taskId, updater) }
         return TaskInteractions(
-            onTitleChanged = { name -> update { it.copy(name = name) } },
+            onTitleChanged = { name -> update { it.copy(text = name) } },
             onListChanged = { date ->
                 viewModelScope.launch { taskRepo.moveTask(taskId, taskRepo.listIdFor(date)) }
             },
@@ -121,7 +118,7 @@ class TasksViewModel(
             onKeyEvent = { event ->
                 if (event.key == Key.Backspace) {
                     val model = taskRepo.getModel(taskId) ?: return@TaskInteractions false
-                    if (model.name.isEmpty()) {
+                    if (model.text.isEmpty()) {
                         selectTask(taskRepo.taskBefore(taskId))
                         viewModelScope.launch { taskRepo.deleteTask(taskId) }
                     }
@@ -157,7 +154,7 @@ class TasksViewModel(
         val nextTask = taskRepo.taskAfter(uuid)
         if (nextTask != null) {
             selectTask(nextTask)
-        } else if (taskRepo.getModel(uuid)?.name?.isEmpty() != true) {
+        } else if (taskRepo.getModel(uuid)?.text?.isEmpty() != true) {
             viewModelScope.launch {
                 val list = taskRepo.listIdFor(uuid) ?: return@launch
                 selectTask(taskRepo.createTask(list))

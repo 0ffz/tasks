@@ -13,14 +13,14 @@ data class TaskUiState(
 ) {
     fun toModel(id: TaskId): TaskModel = TaskModel(
         id = id,
-        name = name,
+        text = name,
         completed = completed,
         highlight = highlight,
     )
 
     companion object {
         fun fromModel(model: TaskModel) = TaskUiState(
-            name = model.name,
+            name = model.text,
             completed = model.completed,
             highlight = model.highlight,
         )

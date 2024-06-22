@@ -1,10 +1,11 @@
 import com.benasher44.uuid.Uuid;
 import kotlinx.datetime.Instant;
+import me.dvyy.tasks.model.Message;
 
-CREATE TABLE message (
+CREATE TABLE IF NOT EXISTS  message (
   uuid BLOB AS Uuid PRIMARY KEY NOT NULL,
-  modified INTEGER AS Instant NOT NULL
-
+  modified INTEGER AS Instant NOT NULL,
+  type TEXT AS Message.Type NOT NULL
 );
 
 -- CREATE INDEX hockeyPlayer_full_name ON hockeyPlayer(full_name);
@@ -14,8 +15,8 @@ SELECT *
 FROM message;
 
 insert:
-INSERT INTO message(uuid, modified)
-VALUES (?, ?);
+INSERT OR REPLACE INTO message(uuid, modified, type)
+VALUES (?, ?, ?);
 
 clear:
 DELETE FROM message;
