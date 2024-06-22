@@ -80,7 +80,7 @@ fun TaskList(
                     }
                 }
                 Column(Modifier.clickableWithoutRipple {
-                    if (tasks.lastOrNull()?.state?.name?.isEmpty() != true)
+                    if (tasks.lastOrNull()?.state?.text?.isEmpty() != true)
                         interactions.createNewTask()
                 }) {
                     Spacer(modifier = Modifier.height(ui.taskHeight))
@@ -89,7 +89,7 @@ fun TaskList(
             }
             val fullHeight = !ui.isSingleColumn
             if (fullHeight) Box(Modifier.fillMaxSize().clickableWithoutRipple {
-                if (tasks.lastOrNull()?.state?.name?.isEmpty() != true)
+                if (tasks.lastOrNull()?.state?.text?.isEmpty() != true)
                     interactions.createNewTask()
             })
         }

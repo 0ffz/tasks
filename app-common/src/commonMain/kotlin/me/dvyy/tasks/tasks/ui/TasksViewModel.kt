@@ -36,8 +36,7 @@ class TasksViewModel(
     // Careful to update both task map and tasks per list, I'd like a SSOT but we really want both!
     val selectedTask = MutableStateFlow<TaskId?>(null)
 
-    //    val requestedSelectTask = MutableStateFlow<Uuid?>(null)
-    val projects = taskRepo.projects()
+    val projects = taskRepo.projects
 
     fun selectTask(uuid: TaskId?) {
         selectedTask.value = uuid
@@ -93,10 +92,9 @@ class TasksViewModel(
     fun listInteractionsFor(list: ListId) = TaskListInteractions(
         createNewTask = { viewModelScope.launch { selectTask(taskRepo.createTask(list)) } },
         onTitleChange = { title ->
-            TODO()
-//            viewModelScope.launch {
-//                taskRepo.upsertProject(Message.Update(TaskListNetworkModel(list, title), list.uuid, Clock.System.now()))
-//            }
+            viewModelScope.launch {
+                taskRepo.upsertProject(list, TaskListProperties(displayName = title, date = list.date))
+            }
         },
     )
 

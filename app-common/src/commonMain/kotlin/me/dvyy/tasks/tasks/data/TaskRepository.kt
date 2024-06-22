@@ -1,7 +1,6 @@
 package me.dvyy.tasks.tasks.data
 
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshotFlow
 import com.benasher44.uuid.uuid4
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.serialization.decodeValueOrNull
@@ -9,7 +8,6 @@ import com.russhwolf.settings.serialization.encodeValue
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -36,16 +34,18 @@ class TaskRepository(
     private val lists = mutableStateMapOf<ListId, MutableTaskList>()
     private var lastAppSync = MutableStateFlow(settings.decodeValueOrNull(Instant.serializer(), KEY_LAST_EDIT))
 
+    val projects = localStore.getProjects()
+
     suspend fun createTask(list: ListId): TaskId = withContext(taskEditDispatcher) {
         val state = TaskUiState(
-            name = "",
+            text = "",
             completed = false,
             highlight = Highlight.Unmarked,
         )
         val model = state.toModel(TaskId(uuid4()))
         getOrLoadList(list)[model.id] = model
         tasksToList[model.id] = list
-        localStore.saveMessage(Message.Type.Update, model.id)
+//        localStore.saveMessage(Message.Type.Update, model.id)
         model.id
     }
 
@@ -110,33 +110,29 @@ class TaskRepository(
     }
 
 
-    fun tasksFor(key: ListId): Flow<List<TaskModel>> = flow {
-        emitAll(getOrLoadList(key).tasksFlow())
-    }
-
-    fun projects(): Flow<List<ListId>> = flow {
-        localStore.getProjects().forEach { key ->
-            getOrLoadList(key)
-        }
-        emitAll(snapshotFlow { lists.filterValues { it.properties.value.date == null }.keys.toList() })
-    }
+    fun tasksFor(key: ListId): Flow<List<TaskModel>> = localStore.getTasksForList(key)
 
     fun listInfo(key: ListId): Flow<TaskListModel> = flow {
         val list = getOrLoadList(key)
         emit(list.toListModel())
     }
 
-    suspend fun listProperties(key: ListId) = getOrLoadList(key).properties
+    fun listProperties(key: ListId): Flow<TaskListProperties> = localStore.getListProperties(key)
+
+
+    suspend fun setListProperties(key: ListId, properties: TaskListProperties) {
+        localStore.saveList(key, getOrLoadList(key).toListModel())
+    }
 
     private suspend fun getOrLoadList(key: ListId): MutableTaskList = withContext(taskEditDispatcher) {
-        lists.getOrPut(key) {
-            val list = localStore
+        lists.getOrPut(key) { //TODO remove
+            val list = /*localStore
                 .loadTasksForList(key)
                 .getOrElse {
                     println("Failed to load tasks for $key")
                     it.printStackTrace()
                     null
-                } ?: TaskListModel(TaskListProperties(date = key.date))
+                } ?: */TaskListModel(TaskListProperties(date = key.date))
             list.tasks.forEach { tasksToList[it.id] = key }
             MutableTaskList(key, list, queueSave = { queueSaveList(key) })
         }
@@ -167,11 +163,9 @@ class TaskRepository(
         localStore.saveMessage(Message.Type.Delete, uuid, Clock.System.now())
     }
 
-    suspend fun createProject(key: ListId, properties: TaskListProperties): Nothing = withContext(taskEditDispatcher) {
-        TODO()
-//        val list = MutableTaskList(key, TODO("Date"), TaskListModel(title = title), queueSave = { queueSaveList(key) })
-//        lists[key] = list
-//        queueSaveList(key)
+    suspend fun createProject(key: ListId, properties: TaskListProperties) = withContext(taskEditDispatcher) {
+        localStore.saveList(key, TaskListModel(properties))
+        getOrLoadList(key)
     }
 
     suspend fun deleteProject(listId: ListId) = withContext(taskEditDispatcher) {
@@ -181,9 +175,10 @@ class TaskRepository(
         localStore.saveMessage(Message.Type.Delete, listId)
     }
 
-    suspend fun upsertProject(message: Message.Update<TaskListNetworkModel>) {
-        val key = ListId(message.uuid)
-        TODO()
+    suspend fun upsertProject(list: ListId, properties: TaskListProperties) {
+        localStore.setListProperties(list, properties)
+//        val key = ListId(message.uuid)
+//        TODO()
 //        lists[key]?.setProperties(ListTitle.Project(message.data.title)) ?: run {
 //            createProject(key, ListTitle.Project(message.data.title))
 //            return
@@ -207,10 +202,11 @@ class TaskRepository(
             applyChanges = {
                 it.forEach { message ->
                     val key = message.uuid.asList()
-                    when (message) {
-                        is Message.Delete -> deleteProject(key)
-                        is Message.Update -> upsertProject(message)
-                    }
+                    TODO()
+//                    when (message) {
+//                        is Message.Delete -> deleteProject(key)
+//                        is Message.Update -> upsertProject(message)
+//                    }
                 }
             }
         )

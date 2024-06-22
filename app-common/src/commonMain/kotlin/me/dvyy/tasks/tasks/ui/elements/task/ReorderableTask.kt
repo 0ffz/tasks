@@ -46,9 +46,9 @@ fun ReorderableTask(
                     contentAlignment = Alignment.CenterStart,
                     modifier = Modifier.padding(horizontal = ui.taskTextPadding)
                 ) {
-                    TaskHighlight(task.state.name, task.state.highlight)
+                    TaskHighlight(task.state.text, task.state.highlight)
                     TaskTextPadding {
-                        Text(task.state.name, Modifier.height(ui.taskHeight))
+                        Text(task.state.text, Modifier.height(ui.taskHeight))
                     }
                 }
             }

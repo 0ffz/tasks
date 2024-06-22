@@ -21,3 +21,5 @@ releases
 wix*
 
 truckconfig.json
+
+*.db

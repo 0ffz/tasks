@@ -26,9 +26,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
@@ -36,6 +34,7 @@ import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun Task(
@@ -54,8 +53,8 @@ fun Task(
             .drop(1)
             .filter { !it } // Listen to deselect
             .collect {
-                println("Select changed $it for ${task.name}")
-                if (task.name.isEmpty()) interactions.onDelete()
+                println("Select changed $it for ${task.text}")
+                if (task.text.isEmpty()) interactions.onDelete()
             }
     }
 
@@ -77,11 +76,11 @@ fun Task(
                     modifier = Modifier.padding(horizontal = ui.taskTextPadding),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    TaskHighlight(task.name, task.highlight)
+                    TaskHighlight(task.text, task.highlight)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val responsive = LocalUIState.current
 
-                        TaskTextField(task.name, task.completed, selected, interactions, Modifier.weight(1f, true))
+                        TaskTextField(task.text, task.completed, selected, interactions, Modifier.weight(1f, true))
                         if (responsive.alwaysShowCheckbox || isHovered || selected)
                             TaskCheckBox(task.completed, interactions)
                     }
@@ -137,7 +136,7 @@ fun TaskHighlight(title: String, highlight: Highlight) {
 @Composable
 fun TaskSelectedSurface(
     visible: Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val elevation by animateFloatAsState(if (visible) 1f else 0f)
     val cornerShape by animateDpAsState(if (visible) 20.dp else 0.dp)
@@ -176,27 +175,38 @@ fun TaskTextField(
 //        else focusManager.clearFocus()
     }
 
-    BasicTextField(
-        value = title,
-        readOnly = completed,// || (!active),
-        singleLine = true,
-        onValueChange = interactions.onTitleChanged,
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-        textStyle = textStyle,
-        keyboardActions = interactions.keyboardActions,
-        keyboardOptions = interactions.keyboardOptions,
-        decorationBox = { innerTextField ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TaskTextPadding { innerTextField() }
-            }
-        },
-        modifier = modifier
+    CachedUpdate(title, interactions.onTitleChanged) {
+        val (cachedTitle, setTitle) = it
+        LaunchedEffect(interactions) {
+            snapshotFlow { title }
+                .distinctUntilChanged()
+                .debounce(500.milliseconds)
+                .collect { interactions.onTitleChanged(it) }
+        }
+
+        BasicTextField(
+            value = cachedTitle,
+            readOnly = completed,// || (!active),
+            singleLine = true,
+            onValueChange = setTitle,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+            textStyle = textStyle,
+            keyboardActions = interactions.keyboardActions,
+            keyboardOptions = interactions.keyboardOptions,
+            decorationBox = { innerTextField ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TaskTextPadding { innerTextField() }
+                }
+            },
+            modifier = modifier
 //            .fillMaxHeight()
-            .focusRequester(focusRequester)
-            .onFocusEvent {
-                if (it.isFocused) interactions.onSelect()
-            }
-    )
+                .focusRequester(focusRequester)
+                .onFocusEvent {
+                    if (it.isFocused) interactions.onSelect()
+                }
+        )
+
+    }
 }
 
 @Composable
@@ -223,4 +233,20 @@ fun TaskCheckBox(completed: Boolean, interactions: TaskInteractions) {
             else -> Icon(Icons.Outlined.RadioButtonUnchecked, contentDescription = "Mark as completed")
         }
     }
+}
+
+@Composable
+fun <T> CachedUpdate(
+    value: T,
+    onValueChanged: (T) -> Unit,
+    debounceMillis: Long = 500,
+    content: @Composable (MutableState<T>) -> Unit,
+) {
+    // this will run whenever a new value comes in from the outside (e.g. from DB)
+    val cached = remember { mutableStateOf(value) }
+    cached.value = value
+    LaunchedEffect(onValueChanged, debounceMillis) {
+        snapshotFlow { cached.value }.debounce(debounceMillis).onEach(onValueChanged).collect()
+    }
+    content(cached)
 }

@@ -4,21 +4,23 @@ import me.dvyy.tasks.model.Highlight;
 
 CREATE TABLE IF NOT EXISTS taskList (
   uuid BLOB AS Uuid PRIMARY KEY NOT NULL,
+  isProject INTEGER AS Boolean NOT NULL,
   title TEXT
 );
 
 
 insert:
-INSERT OR REPLACE INTO taskList(uuid, title)
-VALUES (?, ?);
-
+INSERT OR REPLACE INTO taskList(uuid, isProject, title)
+VALUES (?, ?, ?);
 
 delete:
 DELETE FROM taskList
 WHERE uuid = ?;
 
 getProjects:
-SELECT uuid FROM taskList;
+SELECT uuid FROM taskList
+WHERE isProject = 1
+ORDER BY uuid;
 
 get:
 SELECT * FROM taskList

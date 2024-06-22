@@ -69,6 +69,7 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.kotlin.result)
                 implementation("app.cash.sqldelight:primitive-adapters:2.0.2")
+                implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
 
             }
         }

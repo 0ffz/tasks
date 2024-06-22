@@ -7,20 +7,20 @@ import me.dvyy.tasks.model.TaskModel
 
 @Stable
 data class TaskUiState(
-    val name: String,
+    val text: String,
     val completed: Boolean,
     val highlight: Highlight,
 ) {
     fun toModel(id: TaskId): TaskModel = TaskModel(
         id = id,
-        text = name,
+        text = text,
         completed = completed,
         highlight = highlight,
     )
 
     companion object {
         fun fromModel(model: TaskModel) = TaskUiState(
-            name = model.text,
+            text = model.text,
             completed = model.completed,
             highlight = model.highlight,
         )

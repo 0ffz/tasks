@@ -7,16 +7,18 @@ CREATE TABLE IF NOT EXISTS task (
   text TEXT,
   highlight TEXT AS Highlight NOT NULL,
   completed INTEGER AS Boolean NOT NULL,
-  list BLOB AS Uuid NOT NULL
+  list BLOB AS Uuid NOT NULL,
+  rank INTEGER NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS task_list ON task(list);
 
 insert:
-INSERT OR REPLACE INTO task(uuid, text, highlight, completed, list)
-VALUES (?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO task(uuid, text, highlight, completed, list, rank)
+VALUES (?, ?, ?, ?, ?, ?);
 
 
 forList:
 SELECT * FROM task
-WHERE list = ?;
+WHERE list = ?
+ORDER BY rank;
