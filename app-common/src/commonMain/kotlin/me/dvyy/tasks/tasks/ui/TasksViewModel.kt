@@ -9,12 +9,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.benasher44.uuid.uuid4
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.state.Loadable
-import me.dvyy.tasks.model.*
+import me.dvyy.tasks.db.Task
+import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
 import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
@@ -36,7 +38,9 @@ class TasksViewModel(
     // Careful to update both task map and tasks per list, I'd like a SSOT but we really want both!
     val selectedTask = MutableStateFlow<TaskId?>(null)
 
-    val projects = taskRepo.projects
+    val projects = taskRepo.getProjects()
+
+//    val loadedLists = mapOf<ListId, ?>()
 
     fun selectTask(uuid: TaskId?) {
         selectedTask.value = uuid
@@ -49,9 +53,8 @@ class TasksViewModel(
             .map { list ->
                 Loadable.Loaded(list.map { model ->
                     TaskWithIDState(
-                        //TODO maybe cache to avoid so many object recreations?
                         TaskUiState.fromModel(model),
-                        model.id,
+                        model.uuid,
                     )
                 })
             }
@@ -64,10 +67,9 @@ class TasksViewModel(
     fun reorderInteractions() = TaskReorderInteractions(
         draggedState = reorderState,
         onDragEnterItem = { targetTask, dragged ->
-            println(taskRepo.getModel(targetTask)?.text)
             selectTask(null)
             viewModelScope.launch {
-                taskRepo.reorderTask(dragged.data, to = targetTask)
+                taskRepo.reorderTask(from = dragged.data, to = targetTask)
             }
         },
         onDragEnterColumn = { targetList, dragged ->
@@ -79,18 +81,16 @@ class TasksViewModel(
     @Composable
     fun getListProperties(key: ListId) = remember(key) {
         flow {
-            emitAll(taskRepo.listProperties(key).map { Loadable.Loaded(it) })
+            emitAll(taskRepo.getListProperties(key).map { Loadable.Loaded(it) })
         }.stateIn(viewModelScope, SharingStarted.Eagerly, Loadable.Loading())
     }
 
-    fun getList(key: TaskId) = taskRepo.listIdFor(key)
-
     fun createProject(name: String) = viewModelScope.launch {
-        taskRepo.createProject(uuid4().asList(), TaskListProperties(displayName = name))
+        taskRepo.saveList(ListId.newProject(), TaskListProperties(displayName = name))
     }
 
     fun listInteractionsFor(list: ListId) = TaskListInteractions(
-        createNewTask = { viewModelScope.launch { selectTask(taskRepo.createTask(list)) } },
+        createNewTask = { viewModelScope.launch { selectTask(taskRepo.createTask(list).uuid) } },
         onTitleChange = { title ->
             viewModelScope.launch {
                 taskRepo.upsertProject(list, TaskListProperties(displayName = title, date = list.date))
@@ -99,29 +99,33 @@ class TasksViewModel(
     )
 
     fun interactionsFor(taskId: TaskId): TaskInteractions {
-        fun update(updater: (TaskModel) -> TaskModel) = viewModelScope.launch { taskRepo.updateTask(taskId, updater) }
+        fun update(updater: (Task) -> Task) = viewModelScope.launch {
+            taskRepo.updateTask(taskId, updater)
+        }
         return TaskInteractions(
             onTitleChanged = { name -> update { it.copy(text = name) } },
             onListChanged = { date ->
-                viewModelScope.launch { taskRepo.moveTask(taskId, taskRepo.listIdFor(date)) }
+                viewModelScope.launch { taskRepo.moveTask(taskId, ListId.forDate(date)) }
             },
             onCheckChanged = { completed -> update { it.copy(completed = completed) } },
             onHighlightChanged = { highlight -> update { it.copy(highlight = highlight) } },
             onSelect = { selectTask(taskId) },
             onDelete = {
-                val previous = taskRepo.taskBefore(taskId)
-                selectTask(previous)
+
+//                val previous = taskRepo.taskBefore(taskId)
+//                selectTask(previous)
                 viewModelScope.launch { taskRepo.deleteTask(taskId) }
             },
             onKeyEvent = { event ->
-                if (event.key == Key.Backspace) {
-                    val model = taskRepo.getModel(taskId) ?: return@TaskInteractions false
-                    if (model.text.isEmpty()) {
-                        selectTask(taskRepo.taskBefore(taskId))
-                        viewModelScope.launch { taskRepo.deleteTask(taskId) }
-                    }
-                    return@TaskInteractions false
-                }
+                //TODO backspace
+//                if (event.key == Key.Backspace) {
+//                    val model = taskRepo.getModel(taskId) ?: return@TaskInteractions false
+//                    if (model.text.isEmpty()) {
+//                        selectTask(taskRepo.taskBefore(taskId))
+//                        viewModelScope.launch { taskRepo.deleteTask(taskId) }
+//                    }
+//                    return@TaskInteractions false
+//                }
                 if (event.type != KeyEventType.KeyDown) return@TaskInteractions false
                 when {
 //                    event.isCtrlPressed && event.key == Key.E -> {
@@ -149,20 +153,16 @@ class TasksViewModel(
     }
 
     fun selectNextTaskOrNew(uuid: TaskId) {
-        val nextTask = taskRepo.taskAfter(uuid)
-        if (nextTask != null) {
-            selectTask(nextTask)
-        } else if (taskRepo.getModel(uuid)?.text?.isEmpty() != true) {
-            viewModelScope.launch {
-                val list = taskRepo.listIdFor(uuid) ?: return@launch
-                selectTask(taskRepo.createTask(list))
-            }
-        }
-    }
-
-    init {
-        //TODO sync on startup
-//        queueSync()
+        // TODO
+//        val nextTask = taskRepo.taskAfter(uuid)
+//        if (nextTask != null) {
+//            selectTask(nextTask)
+//        } else if (taskRepo.getModel(uuid)?.text?.isEmpty() != true) {
+//            viewModelScope.launch {
+//                val list = taskRepo.listIdFor(uuid) ?: return@launch
+//                selectTask(taskRepo.createTask(list))
+//            }
+//        }
     }
 
     fun queueSync() = viewModelScope.launch {

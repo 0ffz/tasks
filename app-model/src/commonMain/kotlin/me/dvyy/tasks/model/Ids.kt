@@ -16,7 +16,7 @@ sealed interface EntityId {
 @JvmInline
 value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
     companion object {
-        fun random(): TaskId = TaskId(uuid4())
+        fun new(): TaskId = TaskId(uuid4())
     }
 }
 
@@ -30,7 +30,7 @@ value class ListId(override val uuid: @Contextual Uuid) : EntityId {
         else null
 
     companion object {
-        fun project(): ListId {
+        fun newProject(): ListId {
             val uuid = uuid4()
             // Avoid clashes with TOP_BITS, that one combination is reserved for date lists
             val top = if (uuid.mostSignificantBits == TOP_BITS) TOP_BITS + 1 else uuid.mostSignificantBits

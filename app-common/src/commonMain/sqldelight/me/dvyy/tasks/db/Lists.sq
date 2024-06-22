@@ -1,9 +1,10 @@
 import com.benasher44.uuid.Uuid;
 import kotlin.Boolean;
 import me.dvyy.tasks.model.Highlight;
+import me.dvyy.tasks.model.ListId;
 
 CREATE TABLE IF NOT EXISTS taskList (
-  uuid BLOB AS Uuid PRIMARY KEY NOT NULL,
+  uuid BLOB AS ListId PRIMARY KEY NOT NULL,
   isProject INTEGER AS Boolean NOT NULL,
   title TEXT
 );

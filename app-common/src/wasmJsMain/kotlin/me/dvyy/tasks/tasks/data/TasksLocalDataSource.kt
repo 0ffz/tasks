@@ -30,7 +30,7 @@ actual class TasksLocalDataSource {
         }
     }
 
-    actual fun getProjects(): List<ListId> {
+    actual fun observeProjects(): List<ListId> {
         return settings.keys
             .filter { it.startsWith("project/") }
             .mapNotNull {

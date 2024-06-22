@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
 import me.dvyy.tasks.db.Database
+import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.db.TaskList
 import me.dvyy.tasks.model.*
 
@@ -19,19 +20,21 @@ actual class TasksLocalDataSource actual constructor(
 
     actual fun saveList(listId: ListId, list: TaskListModel) {
         database.listsQueries.insert(
-            uuid = listId.uuid,
+            uuid = listId,
             isProject = !listId.isDate,
             title = list.properties.displayName,
         )
         database.tasksQueries.transaction {
             list.tasks.forEachIndexed { index, it ->
-                database.tasksQueries.insert(
-                    uuid = it.id.uuid,
-                    list = listId.uuid,
-                    text = it.text,
-                    completed = it.completed,
-                    highlight = it.highlight,
-                    rank = index.toLong(),
+                database.tasksQueries.upsert(
+                    Task(
+                        uuid = it.id,
+                        list = listId,
+                        text = it.text,
+                        completed = it.completed,
+                        highlight = it.highlight,
+                        rank = index.toLong(),
+                    )
                 )
             }
         }
@@ -39,27 +42,17 @@ actual class TasksLocalDataSource actual constructor(
     }
 
 
-    actual fun getTasksForList(listId: ListId): Flow<List<TaskModel>> {
-        return database.tasksQueries.forList(listId.uuid).asFlow()
+    actual fun observeListTasks(listId: ListId): Flow<List<Task>> {
+        return database.tasksQueries.forList(listId).asFlow()
             .mapToList(Dispatchers.IO)
-            .map { tasks ->
-                tasks.map {
-                    TaskModel(
-                        TaskId(it.uuid),
-                        it.text ?: "",
-                        it.completed,
-                        it.highlight
-                    )
-                }
-            }
     }
 
 
-    actual fun getListProperties(listId: ListId): Flow<TaskListProperties> {
-        return database.listsQueries.get(listId.uuid).asFlow()
+    actual fun observeListProperties(listId: ListId): Flow<TaskListProperties> {
+        return database.listsQueries.get(listId).asFlow()
             .mapToOneOrDefault(
                 TaskList(
-                    listId.uuid,
+                    listId,
                     isProject = !listId.isDate,
                     title = null,
                 ), Dispatchers.IO
@@ -85,15 +78,29 @@ actual class TasksLocalDataSource actual constructor(
 //        ).let { Result.success(it) }
 //    }
 
-    actual fun getProjects(): Flow<List<ListId>> {
-        return database.listsQueries.getProjects().asFlow().mapToList(Dispatchers.IO).map { uuids ->
-            uuids.map { it.asList() }
-        }
-//        return database.listsQueries.getProjects().executeAsList().map { ListId(it) }
+    actual fun observeProjects(): Flow<List<ListId>> {
+        return database.listsQueries.getProjects().asFlow().mapToList(Dispatchers.IO)
     }
 
     actual fun deleteList(listId: ListId) {
-        database.listsQueries.delete(listId.uuid)
+        database.listsQueries.delete(listId)
+    }
+
+    actual fun getTask(taskId: TaskId): Task? {
+        return database.tasksQueries.get(taskId).executeAsOneOrNull()
+    }
+
+    actual fun deleteTask(taskId: TaskId) {
+        database.tasksQueries.delete(taskId)
+    }
+
+    actual fun swapRank(from: TaskId, to: TaskId) {
+        database.tasksQueries.transaction {
+            val fromTask = database.tasksQueries.get(from).executeAsOne()
+            val toTask = database.tasksQueries.get(to).executeAsOne()
+            database.tasksQueries.upsert(fromTask.copy(rank = toTask.rank))
+            database.tasksQueries.upsert(toTask.copy(rank = fromTask.rank))
+        }
     }
 
     actual fun saveMessage(type: Message.Type, uuid: EntityId, timestamp: Instant) {
@@ -102,9 +109,13 @@ actual class TasksLocalDataSource actual constructor(
 
     actual fun setListProperties(listId: ListId, props: TaskListProperties) {
         database.listsQueries.insert(
-            uuid = listId.uuid,
+            uuid = listId,
             isProject = !listId.isDate,
             title = props.displayName,
         )
+    }
+
+    actual fun upsertTask(task: Task) {
+        database.tasksQueries.upsert(task)
     }
 }
