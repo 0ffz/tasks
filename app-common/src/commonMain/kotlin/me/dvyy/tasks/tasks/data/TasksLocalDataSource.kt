@@ -83,11 +83,26 @@ class TasksLocalDataSource(
     }
 
     fun swapRank(from: TaskId, to: TaskId) {
+        if (from == to) return
         database.tasksQueries.transaction {
             val fromTask = database.tasksQueries.get(from).executeAsOne()
             val toTask = database.tasksQueries.get(to).executeAsOne()
-            database.tasksQueries.upsert(fromTask.copy(rank = toTask.rank))
-            database.tasksQueries.upsert(toTask.copy(rank = fromTask.rank))
+
+            val prevSlotFree =
+                database.tasksQueries.isRankAvailable(toTask.list, toTask.rank - 1).executeAsOneOrNull() == null
+
+            if (prevSlotFree) {
+                database.tasksQueries.upsert(fromTask.copy(rank = toTask.rank - 1, list = toTask.list))
+                return@transaction
+            }
+
+            if (fromTask.list != toTask.list) {
+                database.tasksQueries.shiftRanksDown(toTask.list, toTask.rank)
+                database.tasksQueries.upsert(fromTask.copy(rank = toTask.rank, list = toTask.list))
+            } else {
+                database.tasksQueries.upsert(fromTask.copy(rank = toTask.rank))
+                database.tasksQueries.upsert(toTask.copy(rank = fromTask.rank))
+            }
         }
     }
 
@@ -107,8 +122,25 @@ class TasksLocalDataSource(
         database.tasksQueries.upsert(task)
     }
 
+//    // Rank is a string a-z, this function finds the string that will be sorted before the given rank
+//    private fun rankAfter(rank: String): String {
+//        return when {
+//            rank.isEmpty() -> "a"
+//            rank.last() == 'z' -> rank + "a"
+//            else -> rank.dropLast(1) + (rank.last().code + 1).toChar()
+//        }
+//    }
+//
+//    private fun rankBefore(rank: String): String {
+//        return when {
+//            rank.isEmpty() -> "z"
+//            rank.last() == 'a' -> rank.dropLast(1) + "z"
+//            else -> rank.dropLast(1) + (rank.last().code - 1).toChar()
+//        }
+//    }
+
     fun createTask(listId: ListId): Task {
-        val rank = database.tasksQueries.listSize(listId).executeAsOne()
+        val rank = getNextRank(listId)
         val task = Task(
             uuid = TaskId.new(),
             list = listId,
@@ -124,10 +156,10 @@ class TasksLocalDataSource(
     fun moveTask(taskId: TaskId, listId: ListId) {
         database.tasksQueries.transaction {
             val task = getTask(taskId) ?: return@transaction
-            val rank = getListSize(listId)
+            val rank = getNextRank(listId)
             upsertTask(task.copy(list = listId, rank = rank))
         }
     }
 
-    fun getListSize(listId: ListId) = database.tasksQueries.listSize(listId).executeAsOne()
+    fun getNextRank(listId: ListId) = (database.tasksQueries.lastRank(listId).executeAsOneOrNull() ?: 0) + 1
 }

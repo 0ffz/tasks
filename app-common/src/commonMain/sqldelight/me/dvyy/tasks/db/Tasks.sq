@@ -31,6 +31,16 @@ delete:
 DELETE FROM task
 WHERE uuid = ?;
 
-listSize:
-SELECT COUNT(*) FROM task
-WHERE list = ?;
+lastRank:
+SELECT rank FROM task
+WHERE list = ?
+ORDER BY rank DESC
+LIMIT 1;
+
+shiftRanksDown:
+UPDATE task SET rank = rank + 1
+WHERE list = ? AND rank >= ?;
+
+isRankAvailable:
+SELECT 1 FROM task
+WHERE list = ? AND rank = ?;
