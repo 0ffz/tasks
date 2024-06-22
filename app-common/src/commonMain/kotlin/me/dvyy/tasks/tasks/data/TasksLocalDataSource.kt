@@ -23,17 +23,8 @@ class TasksLocalDataSource(
             title = list.properties.displayName,
         )
         database.tasksQueries.transaction {
-            list.tasks.forEachIndexed { index, it ->
-                database.tasksQueries.upsert(
-                    Task(
-                        uuid = it.id,
-                        list = listId,
-                        text = it.text,
-                        completed = it.completed,
-                        highlight = it.highlight,
-                        rank = index.toLong(),
-                    )
-                )
+            list.tasks.forEach {
+                database.tasksQueries.upsert(it)
             }
         }
     }
