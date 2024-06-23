@@ -12,6 +12,8 @@ import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.auth.data.AuthRepository
 import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.ui.AuthViewModel
+import me.dvyy.tasks.db.Database
+import me.dvyy.tasks.tasks.data.TaskListRepository
 import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import me.dvyy.tasks.tasks.data.TasksNetworkDataSource
@@ -32,18 +34,22 @@ fun syncModule() = module {
     single { Settings() }
 }
 
-fun viewModelsModule() = module {
-    single { TimeViewModel() }
+fun repositoriesModule() = module {
+    single { TasksLocalDataSource(get<Database>()) }
     single {
-        TasksViewModel(
-            taskRepo = TaskRepository(
-                localStore = TasksLocalDataSource(get()),
-                network = get<TasksNetworkDataSource>(),
-                ioDispatcher = Dispatchers.Default,
-                settings = get<Settings>(),
-            )
+        TaskRepository(
+            localStore = get(),
+            network = get<TasksNetworkDataSource>(),
+            ioDispatcher = Dispatchers.Default,
+            settings = get<Settings>(),
         )
     }
+    single { TaskListRepository(get()) }
+}
+
+fun viewModelsModule() = module {
+    single { TimeViewModel() }
+    single { TasksViewModel(get(), get()) }
     single { AuthViewModel(get<AuthRepository>()) }
 }
 

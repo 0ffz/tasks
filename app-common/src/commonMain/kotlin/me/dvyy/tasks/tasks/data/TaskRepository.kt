@@ -1,18 +1,14 @@
 package me.dvyy.tasks.tasks.data
 
 import com.russhwolf.settings.Settings
-import com.russhwolf.settings.serialization.decodeValueOrNull
-import com.russhwolf.settings.serialization.encodeValue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import me.dvyy.tasks.db.Task
-import me.dvyy.tasks.model.*
-import me.dvyy.tasks.model.sync.TaskListNetworkModel
+import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.model.Message
+import me.dvyy.tasks.model.TaskId
 
 private const val KEY_LAST_EDIT = "app-last-edit"
 //private const val KEY_DELETED_TASKS = "app-deleted-tasks"
@@ -28,15 +24,13 @@ class TaskRepository(
 
     //    private val tasksToList = mutableMapOf<TaskId, ListId>()
 //    private val lists = mutableStateMapOf<ListId, MutableTaskList>()
-    private var lastAppSync = MutableStateFlow(settings.decodeValueOrNull(Instant.serializer(), KEY_LAST_EDIT))
+//    private var lastAppSync = MutableStateFlow(settings.decodeValueOrNull(Instant.serializer(), KEY_LAST_EDIT))
 
-    fun getProjects() = localStore.observeProjects()
-
-    suspend fun createTask(list: ListId): Task = withContext(taskEditDispatcher) {
+    suspend fun create(list: ListId): Task = withContext(taskEditDispatcher) {
         localStore.createTask(list)
     }
 
-    suspend fun updateTask(
+    suspend fun update(
         taskId: TaskId,
         updater: (Task) -> Task,
     ) = withContext(taskEditDispatcher) {
@@ -45,66 +39,41 @@ class TaskRepository(
         localStore.saveMessage(Message.Type.Update, taskId)
     }
 
-    suspend fun moveTask(taskKey: TaskId, listKey: ListId) = withContext(taskEditDispatcher) {
-        localStore.moveTask(taskKey, listKey)
-    }
-
-    suspend fun reorderTask(from: TaskId, to: TaskId) = withContext(taskEditDispatcher) {
-        localStore.swapRank(from, to)
-    }
-
-//    fun getModel(uuid: TaskId): TaskModel? {
-//        return listFor(uuid)?.get(uuid)
-//    }
-
-//    fun taskBefore(uuid: TaskId) = listFor(uuid)?.taskBefore(uuid)
-//    fun taskAfter(uuid: TaskId) = listFor(uuid)?.taskAfter(uuid)
-
-    fun tasksFor(key: ListId): Flow<List<Task>> = localStore.observeListTasks(key)
-
-    fun getListProperties(key: ListId): Flow<TaskListProperties> = localStore.observeListProperties(key)
-
-    suspend fun deleteTask(taskId: TaskId) = withContext(taskEditDispatcher) {
+    suspend fun delete(taskId: TaskId) = withContext(taskEditDispatcher) {
         localStore.deleteTask(taskId)
         localStore.saveMessage(Message.Type.Delete, taskId, Clock.System.now())
     }
 
-    suspend fun createList(key: ListId, properties: TaskListProperties) = withContext(taskEditDispatcher) {
-        localStore.createList(key, TaskListModel(properties))
+    suspend fun move(taskKey: TaskId, listKey: ListId) = withContext(taskEditDispatcher) {
+        localStore.moveTask(taskKey, listKey)
     }
 
-    suspend fun upsertProject(list: ListId, properties: TaskListProperties) = withContext(taskEditDispatcher) {
-        localStore.setListProperties(list, properties)
-//        val key = ListId(message.uuid)
-//        TODO()
-//        lists[key]?.setProperties(ListTitle.Project(message.data.title)) ?: run {
-//            createProject(key, ListTitle.Project(message.data.title))
-//            return
-//        }
+    suspend fun reorder(from: TaskId, to: TaskId) = withContext(taskEditDispatcher) {
+        localStore.swapRank(from, to)
     }
 
-    fun projectChangesSinceLastSync(): Changelist<TaskListNetworkModel> {
-        TODO()
-    }
+//    fun taskBefore(uuid: TaskId) = listFor(uuid)?.taskBefore(uuid)
+//    fun taskAfter(uuid: TaskId) = listFor(uuid)?.taskAfter(uuid)
+
 
     /** Ensures any currently loaded dates are synced with the server. */
     suspend fun sync() = withContext(ioDispatcher) {
         val now = Clock.System.now()
-        Synchronizer.sync(
-            getLocalChanges = { projectChangesSinceLastSync() },
-            fetchServerChanges = { network.sync.pullProjectChanges(lastAppSync.value) },
-            pushChangelist = { network.sync.pushProjectChanges(it) },
-            applyChanges = {
-                it.forEach { message ->
-                    val key = message.uuid.asList()
-                    TODO()
-//                    when (message) {
-//                        is Message.Delete -> deleteProject(key)
-//                        is Message.Update -> upsertProject(message)
-//                    }
-                }
-            }
-        )
+//        Synchronizer.sync(
+//            getLocalChanges = { projectChangesSinceLastSync() },
+//            fetchServerChanges = { network.sync.pullProjectChanges(lastAppSync.value) },
+//            pushChangelist = { network.sync.pushProjectChanges(it) },
+//            applyChanges = {
+//                it.forEach { message ->
+//                    val key = message.uuid.asList()
+//                    TODO()
+////                    when (message) {
+////                        is Message.Delete -> deleteProject(key)
+////                        is Message.Update -> upsertProject(message)
+////                    }
+//                }
+//            }
+//        )
 //        lists.forEach { (key, list) ->
 //            Synchronizer.sync<TaskNetworkModel>(
 //                getLocalChanges = list::changesSinceLastSync,
@@ -125,9 +94,9 @@ class TaskRepository(
         //  The latter requires saving a message but other doesn't since we're applying a sync.
     }
 
-    private fun updateSyncTime() {
-        val time = Clock.System.now()
-        lastAppSync.value = time
-        settings.encodeValue(Instant.serializer(), KEY_LAST_EDIT, time)
-    }
+//    private fun updateSyncTime() {
+//        val time = Clock.System.now()
+//        lastAppSync.value = time
+//        settings.encodeValue(Instant.serializer(), KEY_LAST_EDIT, time)
+//    }
 }

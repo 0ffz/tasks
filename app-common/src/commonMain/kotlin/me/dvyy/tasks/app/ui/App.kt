@@ -18,10 +18,7 @@ import me.dvyy.tasks.app.ui.elements.AppTopBar
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.db.Database
-import me.dvyy.tasks.di.appModule
-import me.dvyy.tasks.di.koinViewModel
-import me.dvyy.tasks.di.syncModule
-import me.dvyy.tasks.di.viewModelsModule
+import me.dvyy.tasks.di.*
 import me.dvyy.tasks.tasks.ui.HomeScreen
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.KoinApplication
@@ -35,6 +32,7 @@ fun App(database: Database) {
             modules(
                 module { single { database } },
                 appModule(),
+                repositoriesModule(),
                 syncModule(),
                 viewModelsModule(),
             )

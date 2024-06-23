@@ -1,6 +1,8 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
+import me.dvyy.tasks.model.TaskListProperties
+
 data class TaskListInteractions(
     val createNewTask: () -> Unit = {},
-    val onTitleChange: (String) -> Unit = {},
+    val onPropertiesChanged: (TaskListProperties) -> Unit = {},
 )

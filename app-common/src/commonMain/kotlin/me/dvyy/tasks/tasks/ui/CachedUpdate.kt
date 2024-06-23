@@ -16,7 +16,10 @@ fun <T> CachedUpdate(
     // this will run whenever a new value comes in from the outside (e.g. from DB)
     val cached = remember { mutableStateOf(value) }
     cached.value = value
-    LaunchedEffect(onValueChanged, debounceMillis) {
+    //TODO onValueChanged isn't considered immutable for some lambdas so this will fire repeatedly,
+    // think about whether or not to include it here.
+    // Specifically had issues with onPropertiesChanged
+    LaunchedEffect(debounceMillis) {
         snapshotFlow { cached.value }.debounce(debounceMillis).onEach(onValueChanged).collect()
     }
     content(cached)

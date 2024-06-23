@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.state.Loadable
 import me.dvyy.tasks.app.ui.state.loadedOrNull
 import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.tasks.ui.CachedUpdate
 
 @Composable
 fun TaskListTitle(
@@ -35,36 +36,39 @@ fun TaskListTitle(
         Modifier.padding(4.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
-        val propsLoaded = props.loadedOrNull() ?: return
-        if (propsLoaded.date != null) {
-            val date = propsLoaded.date!!
-            Text(
-                "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
-                Modifier.weight(1f, true),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = color,
-                maxLines = 1,
-            )
-            Text(
-                date.dayOfWeek.name.lowercase().capitalize().take(3),
-                style = MaterialTheme.typography.headlineSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Clip,
-                color = color.copy(alpha = 0.6f)
-            )
-        } else {
-            BasicTextField(
-                propsLoaded.displayName ?: "Untitled",
-                onValueChange = { interactions?.onTitleChange?.invoke(it) },
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                modifier = Modifier.weight(1f, true),
-                textStyle = MaterialTheme.typography.headlineMedium.copy(
+        val loadedProps = props.loadedOrNull() ?: return
+        val onChange = interactions?.onPropertiesChanged ?: return
+        CachedUpdate(loadedProps, onChange) { (props, setProps) ->
+            if (props.date != null) {
+                val date = props.date!!
+                Text(
+                    "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
+                    Modifier.weight(1f, true),
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = color,
-                ),
-                maxLines = 1,
-            )
+                    maxLines = 1,
+                )
+                Text(
+                    date.dayOfWeek.name.lowercase().capitalize().take(3),
+                    style = MaterialTheme.typography.headlineSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                    color = color.copy(alpha = 0.6f)
+                )
+            } else {
+                BasicTextField(
+                    props.displayName ?: "Untitled",
+                    onValueChange = { setProps(props.copy(displayName = it)) },
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                    modifier = Modifier.weight(1f, true),
+                    textStyle = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = color,
+                    ),
+                    maxLines = 1,
+                )
+            }
         }
     }
     if (showDivider) Box {

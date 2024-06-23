@@ -1,6 +1,9 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +21,7 @@ import kotlinx.datetime.plus
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.core.ui.debug.LogCompositions
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.sync.ui.SyncButton
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -44,45 +48,43 @@ fun WeekView(
                 if (responsive.appScrollable) Modifier.verticalScroll(scrollState)
                 else Modifier
             val weekStart by time.weekStart.collectAsState()
+            val halfHeight = 300.dp
+            val restrictHeight =
+                if (ui.isSingleColumn) Modifier else Modifier.height(halfHeight)
 
-            BoxWithConstraints {
-                val halfHeight = this.constraints.maxHeight.dp / 2
-                val restrictHeight =
-                    if (ui.isSingleColumn) Modifier else Modifier.height(halfHeight)
-
-                Column {
-                    NonlazyGrid(
-                        columns = columns,
-                        itemCount = 7,
-                        modifier = scrollModifier.fillMaxWidth().then(restrictHeight)
-                    ) { dayIndex ->
-                        val day = weekStart.plus(DatePeriod(days = dayIndex))
-                        val isToday = day == time.today
-                        val listId = ListId.forDate(day)
-                        val properties by tasksViewModel.getListProperties(listId).collectAsState()
-                        val tasks by tasksViewModel.tasksFor(listId).collectAsState()
-                        TaskList(
-                            listId = listId,
-                            tasks = tasks,
-                            properties = properties,
-                            colored = isToday,
-                            viewModel = tasksViewModel,
-                            reorderInteractions = reorderInteractions,
-                            interactions = tasksViewModel.listInteractionsFor(listId),
-                            scrollable = !ui.isSingleColumn
-                        )
-                    }
-                    if (!ui.isSingleColumn) ProjectListContent(
+            Column {
+                NonlazyGrid(
+                    columns = columns,
+                    itemCount = 7,
+                    modifier = scrollModifier.fillMaxWidth().then(restrictHeight)
+                ) { dayIndex ->
+                    val day = weekStart.plus(DatePeriod(days = dayIndex))
+                    val isToday = day == time.today
+                    val listId = ListId.forDate(day)
+                    val properties by tasksViewModel.getListProperties(listId).collectAsState()
+                    val tasks by tasksViewModel.tasksFor(listId).collectAsState()
+                    LogCompositions("Tasks")
+                    TaskList(
+                        listId = listId,
+                        tasks = tasks,
+                        properties = properties,
+                        colored = isToday,
+                        viewModel = tasksViewModel,
                         reorderInteractions = reorderInteractions,
-                        modifier = restrictHeight
+                        interactions = tasksViewModel.listInteractionsFor(listId),
+                        scrollable = !ui.isSingleColumn
                     )
                 }
-                if (ui.isSingleColumn) ProjectsList {
-                    ProjectListContent(
-                        reorderInteractions = reorderInteractions,
-                        modifier = Modifier.height(halfHeight)
-                    )
-                }
+                if (!ui.isSingleColumn) ProjectListContent(
+                    reorderInteractions = reorderInteractions,
+                    modifier = restrictHeight
+                )
+            }
+            if (ui.isSingleColumn) ProjectsList {
+                ProjectListContent(
+                    reorderInteractions = reorderInteractions,
+                    modifier = Modifier.height(halfHeight)
+                )
             }
         }
     }
@@ -106,7 +108,7 @@ fun ProjectListContent(
     tasksViewModel: TasksViewModel = viewModel(),
 ) {
     val ui = LocalUIState.current
-    val projects by tasksViewModel.projects.collectAsState(emptyList()) //TODO loading
+    val projects by tasksViewModel.projects.collectAsState()
     LazyRow(modifier) {
         items(projects) { key ->
             val tasks by tasksViewModel.tasksFor(key).collectAsState()
@@ -124,7 +126,7 @@ fun ProjectListContent(
             )
         }
         item {
-            Button(onClick = { tasksViewModel.createProject("Project") }) {
+            Button(onClick = { tasksViewModel.createProject() }) {
                 Text("New project")
             }
         }

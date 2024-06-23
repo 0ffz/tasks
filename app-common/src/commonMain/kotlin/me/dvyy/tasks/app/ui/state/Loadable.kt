@@ -1,7 +1,13 @@
 package me.dvyy.tasks.app.ui.state
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 sealed interface Loadable<T> {
+    @Immutable
     class Loading<T> : Loadable<T>
+
+    @Immutable
     class Loaded<T>(
         val data: T,
     ) : Loadable<T>

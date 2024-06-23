@@ -53,19 +53,6 @@ class TasksLocalDataSource(
             }
     }
 
-//
-//    fun loadTasksForList(listId: ListId): Result<TaskListModel?> {
-//        val list = database.listsQueries.get(listId.uuid).executeAsOneOrNull()
-//        return TaskListModel(
-//            properties = TaskListProperties(
-//                displayName = list?.title,
-//                date = listId.date,
-//            ), //TODO read properties separately
-//            tasks = tasks.map {
-//            },
-//        ).let { Result.success(it) }
-//    }
-
     fun observeProjects(): Flow<List<ListId>> {
         return database.listsQueries.getProjects().asFlow().mapToList(Dispatchers.Default)
     }
@@ -121,23 +108,6 @@ class TasksLocalDataSource(
     fun upsertTask(task: Task) {
         database.tasksQueries.upsert(task)
     }
-
-//    // Rank is a string a-z, this function finds the string that will be sorted before the given rank
-//    private fun rankAfter(rank: String): String {
-//        return when {
-//            rank.isEmpty() -> "a"
-//            rank.last() == 'z' -> rank + "a"
-//            else -> rank.dropLast(1) + (rank.last().code + 1).toChar()
-//        }
-//    }
-//
-//    private fun rankBefore(rank: String): String {
-//        return when {
-//            rank.isEmpty() -> "z"
-//            rank.last() == 'a' -> rank.dropLast(1) + "z"
-//            else -> rank.dropLast(1) + (rank.last().code - 1).toChar()
-//        }
-//    }
 
     fun createTask(listId: ListId): Task {
         val rank = getNextRank(listId)
