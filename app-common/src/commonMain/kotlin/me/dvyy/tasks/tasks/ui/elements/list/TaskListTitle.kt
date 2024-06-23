@@ -37,8 +37,7 @@ fun TaskListTitle(
         verticalAlignment = Alignment.Bottom,
     ) {
         val loadedProps = props.loadedOrNull() ?: return
-        val onChange = interactions?.onPropertiesChanged ?: return
-        CachedUpdate(loadedProps, onChange) { (props, setProps) ->
+        CachedUpdate(loadedProps, interactions?.onPropertiesChanged ?: {}) { (props, setProps) ->
             if (props.date != null) {
                 val date = props.date!!
                 Text(

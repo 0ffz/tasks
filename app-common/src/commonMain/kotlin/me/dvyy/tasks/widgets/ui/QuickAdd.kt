@@ -15,8 +15,7 @@ import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.rememberAppUIState
 import me.dvyy.tasks.app.ui.state.loaded
 import me.dvyy.tasks.app.ui.theme.AppTheme
-import me.dvyy.tasks.di.appModule
-import me.dvyy.tasks.di.viewModelsModule
+import me.dvyy.tasks.di.*
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.TaskInteractions
@@ -25,16 +24,15 @@ import me.dvyy.tasks.tasks.ui.elements.task.TaskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.TaskOptions
 import me.dvyy.tasks.tasks.ui.elements.task.TaskTextField
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
-import org.koin.compose.KoinApplication
-import org.koin.compose.koinInject
+import org.koin.compose.KoinIsolatedContext
+import org.koin.dsl.koinApplication
 
 @Composable
 fun QuickAdd(
     exit: () -> Unit,
-    time: TimeViewModel = koinInject(),
 ) = AppTheme {
-    KoinApplication(application = {
-        modules(appModule(), viewModelsModule())
+    KoinIsolatedContext(context = koinApplication {
+        modules(appModule(), syncModule(), repositoriesModule(), viewModelsModule())
     }) {
         val ui = rememberAppUIState()
         CompositionLocalProvider(LocalUIState provides ui) {
@@ -47,6 +45,7 @@ fun QuickAdd(
                     )
                 )
             }
+            val time: TimeViewModel = koinViewModel()
             var selectedDate by remember { mutableStateOf(time.today) }
 
             val interactions = remember {
