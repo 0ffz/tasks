@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction.Companion.Done
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.rememberAppUIState
@@ -49,12 +50,19 @@ fun QuickAdd(
             var selectedDate by remember { mutableStateOf(time.today) }
 
             val interactions = remember {
-                TaskInteractions(
-                    onTaskChanged = { task = it },
-                    onListChanged = { selectedDate = it },
-                    keyboardActions = KeyboardActions(onDone = { /* TODO save task*/ exit() }),
-                    keyboardOptions = KeyboardOptions(imeAction = Done),
-                )
+                object : TaskInteractions {
+                    override fun onTaskChanged(newState: TaskUiState) {
+                        task = newState
+                    }
+
+                    override fun onListChanged(date: LocalDate) {
+                        selectedDate = date
+                    }
+
+                    override val keyboardActions = KeyboardActions(onDone = { /* TODO save task*/ exit() })
+                    override val keyboardOptions = KeyboardOptions(imeAction = Done)
+
+                }
             }
             Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(8.dp)) {

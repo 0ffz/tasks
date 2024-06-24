@@ -14,52 +14,53 @@ import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
+import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskInteractions
+import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 @Composable
 fun Task(
     task: TaskUiState,
     selected: Boolean,
-    interactions: TaskInteractions,
+    getInteractions: (TaskUiState) -> TaskInteractions,
     date: LocalDate? = null,
+    viewModel: TasksViewModel = koinViewModel(),
 ) {
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
-    val selectedState by rememberUpdatedState(selected)
+//    val selected by viewModel.selectedTask.map { it == task }.collectAsState()
+    val onChange = remember(task) { getInteractions(task) }::onTaskChanged
     // cached task is the SSOT in this context, some things like text updates take too long to update in db
-    CachedUpdate(task, interactions.onTaskChanged) { (task, setTask) ->
-        LaunchedEffect(task) {
-            snapshotFlow { selectedState }
-                .distinctUntilChanged()
-                .drop(1)
-                .filter { !it } // Listen to deselect
-                .collect {
-                    println("Select changed $it for ${task.text}")
-                    if (task.text.isEmpty()) interactions.onDelete()
-                }
-        }
+    CachedUpdate(task, onChange) { (task, setTask) ->
+        val interactions = remember(task) { getInteractions(task) }
+//        LaunchedEffect(task) {
+//            snapshotFlow { selectedState }
+//                .distinctUntilChanged()
+//                .drop(1)
+//                .filter { !it } // Listen to deselect
+//                .collect {
+//                    println("Select changed $it for ${task.text}")
+//                    if (task.text.isEmpty()) interactions.onDelete()
+//                }
+//        }
 
         BoxWithConstraints(
             modifier = Modifier
@@ -68,9 +69,8 @@ fun Task(
                     onExit = { isHovered = false }
                 )
                 .heightIn(min = ui.taskHeight)
-                .focusProperties { canFocus = false }
-                .clickableWithoutRipple { interactions.onSelect() }
-                .onKeyEvent { interactions.onKeyEvent(it, task) }
+//                .focusProperties { canFocus = false }
+                .clickableWithoutRipple { } // Consume click so background (deselect) doesn't get it
         ) {
             TaskSelectedSurface(selected) {
                 val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
@@ -155,6 +155,7 @@ fun TaskSelectedSurface(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TaskTextField(
     task: TaskUiState,
@@ -172,16 +173,14 @@ fun TaskTextField(
         textDecoration = textDecoration,
     )
     val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(selected) {
         if (selected) focusRequester.requestFocus()
 //        else focusManager.clearFocus()
     }
-
     BasicTextField(
         value = task.text,
-        readOnly = task.completed,// || (!active),
+        readOnly = task.completed,
         singleLine = true,
         onValueChange = { setTask(task.copy(text = it)) },
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
@@ -194,11 +193,11 @@ fun TaskTextField(
             }
         },
         modifier = modifier
-//            .fillMaxHeight()
             .focusRequester(focusRequester)
             .onFocusEvent {
                 if (it.isFocused) interactions.onSelect()
             }
+            .onKeyEvent(interactions::onKeyEvent)
     )
 
 }

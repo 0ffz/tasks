@@ -11,7 +11,7 @@ private const val KEY_PASSWORD = "app-password"
 private const val KEY_SERVER_URL = "app-server-url"
 
 class CredentialsDataSource(
-    private val settings: Settings = Settings(),
+    private val settings: Settings,
 ) {
     fun readConfig(): SyncConfig? {
         val username: String = settings[KEY_USERNAME] ?: return null

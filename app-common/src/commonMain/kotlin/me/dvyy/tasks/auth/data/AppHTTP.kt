@@ -9,14 +9,13 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import me.dvyy.tasks.model.serializers.AppFormats
 import me.dvyy.tasks.tasks.data.SyncConfig
 
 class AppHTTP(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
 //    val inProgress = MutableStateFlow(false)
 //    val isError = MutableStateFlow(false)

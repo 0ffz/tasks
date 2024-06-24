@@ -2,21 +2,20 @@ package me.dvyy.tasks.tasks.ui
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.state.Loadable
+import me.dvyy.tasks.app.ui.state.loadedOrNull
 import me.dvyy.tasks.db.Task
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
@@ -47,22 +46,27 @@ class TasksViewModel(
         .stateIn(viewModelScope, WhileUiSubscribed, emptyList())
 
     fun selectTask(uuid: TaskId?) {
-        selectedTask.value = uuid
+        println("ran selectTask for $uuid")
+        selectedTask.update { uuid }
     }
+
+    // These flows will stop when coroutines aren't actively using them, they're safe to store in a map here
+    private val listObservers = mutableStateMapOf<ListId, StateFlow<Loadable<List<TaskWithIDState>>>>()
 
     @Composable
     fun tasksFor(listId: ListId): StateFlow<Loadable<List<TaskWithIDState>>> = remember(listId) {
-        listRepo
-            .observeTasksFor(listId)
-            .map { list ->
-                Loadable.Loaded(list.map { model ->
-                    TaskWithIDState(
-                        TaskUiState.fromModel(model),
-                        model.uuid,
-                    )
-                })
-            }
-            .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
+        listObservers.getOrPut(listId) {
+            listRepo.observeTasksFor(listId)
+                .map { list ->
+                    Loadable.Loaded(list.map { model ->
+                        TaskWithIDState(
+                            TaskUiState.fromModel(model),
+                            model.uuid,
+                        )
+                    })
+                }
+                .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
+        }
     }
 
     @Composable
@@ -101,76 +105,94 @@ class TasksViewModel(
         },
     )
 
-    fun interactionsFor(taskId: TaskId): TaskInteractions {
-        fun update(updater: (Task) -> Task) = viewModelScope.launch {
-            taskRepo.update(taskId, updater)
-        }
-        return TaskInteractions(
-            onTaskChanged = { uiState ->
-                update {
-                    it.copy(
-                        text = uiState.text,
-                        completed = uiState.completed,
-                        highlight = uiState.highlight
-                    )
-                }
-            },
-            onListChanged = { date ->
-                viewModelScope.launch { taskRepo.move(taskId, ListId.forDate(date)) }
-            },
-            onSelect = { selectTask(taskId) },
-            onDelete = {
+    fun interactionsFor(taskId: TaskId, listId: ListId, uiState: TaskUiState): TaskInteractions =
+        DefaultTaskInteractions(taskId, listId, uiState)
 
-//                val previous = taskRepo.taskBefore(taskId)
-//                selectTask(previous)
-                viewModelScope.launch { taskRepo.delete(taskId) }
-            },
-            onKeyEvent = { event, uiState ->
-                //TODO backspace
-                if (event.key == Key.Backspace) {
-                    if (uiState.text.isEmpty()) {
-//                        selectTask(taskRepo.taskBefore(taskId))
-                        viewModelScope.launch { taskRepo.delete(taskId) }
-                    }
-                    return@TaskInteractions false
-                }
-                if (event.type != KeyEventType.KeyDown) return@TaskInteractions false
-                when {
-//                    event.isCtrlPressed && event.key == Key.E -> {
-//                        task.highlight.update {
-//                            Highlight.entries[(it.ordinal + 1) % Highlight.entries.size]
-//                        }
-//                        true
-//                    }
-
-                    event.key == Key.Escape -> {
-                        selectTask(null)
-                        true
-                    }
-
-                    event.key == Key.Enter -> {
-                        selectNextTaskOrNew(taskId)
-                        true
-                    }
-
-                    else -> false
-                }
-            },
-            keyboardActions = KeyboardActions(onNext = { selectNextTaskOrNew(taskId) }),
-        )
+    private fun taskAfter(listId: ListId, taskId: TaskId): TaskId? {
+        val list = listObservers[listId]?.value?.loadedOrNull() ?: return null
+        return list.getOrNull(list.indexOfFirst { it.uuid == taskId } + 1)?.uuid
     }
 
-    fun selectNextTaskOrNew(uuid: TaskId) {
-        // TODO
-//        val nextTask = taskRepo.taskAfter(uuid)
-//        if (nextTask != null) {
-//            selectTask(nextTask)
-//        } else if (taskRepo.getModel(uuid)?.text?.isEmpty() != true) {
-//            viewModelScope.launch {
-//                val list = taskRepo.listIdFor(uuid) ?: return@launch
-//                selectTask(taskRepo.createTask(list))
-//            }
-//        }
+    private fun taskBefore(listId: ListId, taskId: TaskId): TaskId? {
+        val list = listObservers[listId]?.value?.loadedOrNull() ?: return null
+        return list.getOrNull(list.indexOfFirst { it.uuid == taskId } - 1)?.uuid
+    }
+
+    @Stable
+    inner class DefaultTaskInteractions(
+        private val taskId: TaskId,
+        private val listId: ListId,
+        private val uiState: TaskUiState,
+    ) : TaskInteractions {
+        override fun toString(): String {
+            return "DefaultTaskInteractions(taskId=$taskId, listId=$listId, uiState=$uiState)"
+        }
+
+        private fun update(updater: (Task) -> Task) = viewModelScope.launch {
+            taskRepo.update(taskId, updater)
+        }
+
+        private fun selectNextTaskOrNew() {
+            val nextTask = taskAfter(listId, /*selectedTask.value ?: */taskId)
+            println("Selected was ${selectedTask.value}, Next is ${nextTask?.uuid}")
+            if (nextTask != null) {
+                selectTask(nextTask)
+            } else if (uiState.text.isNotEmpty()) {
+                viewModelScope.launch {
+                    selectTask(taskRepo.create(listId).uuid)
+                }
+            }
+        }
+
+        override val keyboardActions = KeyboardActions(onNext = { selectNextTaskOrNew() })
+
+        override fun onTaskChanged(newState: TaskUiState) {
+            update {
+                it.copy(
+                    text = newState.text,
+                    completed = newState.completed,
+                    highlight = newState.highlight
+                )
+            }
+        }
+
+        override fun onListChanged(date: LocalDate) {
+            viewModelScope.launch { taskRepo.move(taskId, ListId.forDate(date)) }
+        }
+
+        override fun onDelete() {
+            viewModelScope.launch { taskRepo.delete(taskId) }
+        }
+
+        override fun onKeyEvent(event: KeyEvent): Boolean {
+            if (event.key == Key.Backspace) {
+                if (uiState.text.isEmpty()) {
+                    viewModelScope.launch {
+                        selectTask(taskBefore(listId, selectedTask.value ?: taskId))
+                        taskRepo.delete(taskId)
+                    }
+                }
+                return false
+            }
+            println(event)
+            if (event.type != KeyEventType.KeyDown) return false
+            when {
+                event.isCtrlPressed && event.key == Key.E -> {
+                    update { it.copy(highlight = Highlight.entries[(it.highlight.ordinal + 1) % Highlight.entries.size]) }
+                }
+
+                event.key == Key.Escape -> {
+                    selectTask(null)
+                }
+
+                else -> return false
+            }
+            return true
+        }
+
+        override fun onSelect() {
+            if (selectedTask.value != taskId) selectTask(taskId)
+        }
     }
 
     fun queueSync() = viewModelScope.launch {

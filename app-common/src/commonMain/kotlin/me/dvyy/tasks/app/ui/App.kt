@@ -1,7 +1,6 @@
 package me.dvyy.tasks.app.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,23 +41,21 @@ fun App(database: Database) {
             CompositionLocalProvider(
                 LocalUIState provides responsive,
             ) {
-                BoxWithConstraints(
-                    Modifier.clickableWithoutRipple { tasksViewModel.selectTask(null) }
-                ) {
-                    val scrollBehavior = if (responsive.isSingleColumn)
-                        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-                    else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                    AppDrawer {
-                        Scaffold(
-                            Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
-                            topBar = { AppTopBar(scrollBehavior) },
-                        ) { paddingValues ->
-                            Box(Modifier.padding(paddingValues)) {
-                                HomeScreen()
-                            }
+                val scrollBehavior = if (responsive.isSingleColumn)
+                    TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+                else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                AppDrawer {
+                    Scaffold(
+                        Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = { AppTopBar(scrollBehavior) },
+                    ) { paddingValues ->
+                        Box(
+                            Modifier.padding(paddingValues)
+                                .clickableWithoutRipple { tasksViewModel.selectTask(null) }) {
+                            HomeScreen()
                         }
-                        AppDialogs()
                     }
+                    AppDialogs()
                 }
             }
         }

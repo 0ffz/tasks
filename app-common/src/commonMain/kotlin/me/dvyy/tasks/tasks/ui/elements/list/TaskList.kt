@@ -68,13 +68,10 @@ fun TaskList(
                 tasks.forEachIndexed { index, task ->
                     key(task.uuid) {
                         val selected = selectedTask == task.uuid
-                        val taskInter = remember(task.uuid) {
-                            viewModel.interactionsFor(task.uuid)
-                        }
                         ReorderableTask(
                             task = task,
                             reorderInteractions = reorderInteractions,
-                            interactions = taskInter,
+                            getInteractions = { state -> viewModel.interactionsFor(task.uuid, listId, state) },
                             selected = selected,
                         )
                     }

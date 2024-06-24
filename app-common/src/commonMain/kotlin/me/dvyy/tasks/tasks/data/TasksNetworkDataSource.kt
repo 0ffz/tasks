@@ -4,7 +4,6 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.model.Changelist
@@ -49,7 +48,7 @@ class SyncAPI(
 
 class TasksNetworkDataSource(
     private val http: AppHTTP,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
     val sync: SyncAPI = SyncAPI(http, ioDispatcher)
 

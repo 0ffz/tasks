@@ -12,45 +12,39 @@ import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.auth.data.AuthRepository
 import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.ui.AuthViewModel
-import me.dvyy.tasks.db.Database
 import me.dvyy.tasks.tasks.data.TaskListRepository
 import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import me.dvyy.tasks.tasks.data.TasksNetworkDataSource
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.currentKoinScope
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 fun appModule() = module {
-    single { AppState() }
-    single { DialogViewModel() }
+    singleOf(::AppState)
+    single { Dispatchers.Default }
 }
 
 fun syncModule() = module {
-    single { CredentialsDataSource() }
-    single { AppHTTP() }
-    single { TasksNetworkDataSource(get()) }
-    single { AuthRepository(get<AppHTTP>(), get<CredentialsDataSource>()) }
-    single { Settings() }
+    singleOf(::CredentialsDataSource)
+    singleOf(::AppHTTP)
+    singleOf(::TasksNetworkDataSource)
+    singleOf(::AuthRepository)
+    singleOf(::Settings)
 }
 
 fun repositoriesModule() = module {
-    single { TasksLocalDataSource(get<Database>()) }
-    single {
-        TaskRepository(
-            localStore = get(),
-            network = get<TasksNetworkDataSource>(),
-            ioDispatcher = Dispatchers.Default,
-            settings = get<Settings>(),
-        )
-    }
-    single { TaskListRepository(get()) }
+    singleOf(::TasksLocalDataSource)
+    singleOf(::TaskRepository)
+    singleOf(::TaskListRepository)
 }
 
 fun viewModelsModule() = module {
-    single { TimeViewModel() }
-    single { TasksViewModel(get(), get()) }
-    single { AuthViewModel(get<AuthRepository>()) }
+    singleOf(::TimeViewModel)
+    singleOf(::TasksViewModel)
+    singleOf(::AuthViewModel)
+    singleOf(::DialogViewModel)
 }
 
 @Composable

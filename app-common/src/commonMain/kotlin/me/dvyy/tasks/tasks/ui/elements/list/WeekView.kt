@@ -1,8 +1,8 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import kotlinx.datetime.DatePeriod
@@ -48,9 +47,8 @@ fun WeekView(
                 if (responsive.appScrollable) Modifier.verticalScroll(scrollState)
                 else Modifier
             val weekStart by time.weekStart.collectAsState()
-            val halfHeight = 300.dp
             val restrictHeight =
-                if (ui.isSingleColumn) Modifier else Modifier.height(halfHeight)
+                if (ui.isSingleColumn) Modifier else Modifier.fillMaxHeight(0.5f)
 
             Column {
                 NonlazyGrid(
@@ -83,7 +81,7 @@ fun WeekView(
             if (ui.isSingleColumn) ProjectsList {
                 ProjectListContent(
                     reorderInteractions = reorderInteractions,
-                    modifier = Modifier.height(halfHeight)
+                    modifier = Modifier.fillMaxHeight(0.5f)
                 )
             }
         }

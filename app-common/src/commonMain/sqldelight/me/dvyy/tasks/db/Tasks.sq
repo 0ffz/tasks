@@ -44,3 +44,18 @@ WHERE list = ? AND rank >= ?;
 isRankAvailable:
 SELECT 1 FROM task
 WHERE list = ? AND rank = ?;
+
+
+-- taskAfter:
+-- WITH original AS (SELECT rank, list FROM task WHERE uuid = ?)
+-- SELECT uuid FROM task, original
+-- WHERE task.rank > original.rank AND task.list = original.list
+-- LIMIT 1;
+--
+--
+-- taskBefore:
+-- WITH original AS (SELECT rank, list FROM task WHERE uuid = ?)
+-- SELECT uuid FROM task, original
+-- WHERE task.rank < original.rank AND task.list = original.list
+-- ORDER BY task.rank DESC
+-- LIMIT 1;

@@ -52,10 +52,6 @@ class TaskRepository(
         localStore.swapRank(from, to)
     }
 
-//    fun taskBefore(uuid: TaskId) = listFor(uuid)?.taskBefore(uuid)
-//    fun taskAfter(uuid: TaskId) = listFor(uuid)?.taskAfter(uuid)
-
-
     /** Ensures any currently loaded dates are synced with the server. */
     suspend fun sync() = withContext(ioDispatcher) {
         val now = Clock.System.now()

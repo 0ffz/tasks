@@ -19,13 +19,14 @@ import me.dvyy.tasks.core.ui.PlatformSpecifics
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
+import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 
 @Composable
 fun ReorderableTask(
     task: TaskWithIDState,
     reorderInteractions: TaskReorderInteractions,
-    interactions: TaskInteractions,
+    getInteractions: (TaskUiState) -> TaskInteractions,
     selected: Boolean,
 ) {
     ReorderableItem(
@@ -55,7 +56,7 @@ fun ReorderableTask(
         },
         onDragEnter = { reorderInteractions.onDragEnterItem(task.uuid, it) },
     ) {
-        Task(task.state, selected, interactions)
+        Task(task.state, selected, getInteractions)
     }
     HorizontalDivider()
 }

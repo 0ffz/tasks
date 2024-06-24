@@ -1,7 +1,6 @@
 package me.dvyy.tasks.auth.data
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import me.dvyy.tasks.auth.data.AppHTTP.AuthResult
@@ -10,7 +9,7 @@ import me.dvyy.tasks.tasks.data.SyncConfig
 class AuthRepository(
     private val http: AppHTTP,
     private val source: CredentialsDataSource,
-    ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    ioDispatcher: CoroutineDispatcher,
 ) {
     private val credentials = MutableStateFlow(source.readConfig()?.auth)
     private val serverUrl = MutableStateFlow(source.readConfig()?.url)
