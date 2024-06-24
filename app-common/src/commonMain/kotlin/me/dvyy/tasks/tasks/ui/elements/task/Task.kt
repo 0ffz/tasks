@@ -18,6 +18,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
@@ -25,15 +26,14 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.filter
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskInteractions
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 @Composable
@@ -42,25 +42,25 @@ fun Task(
     selected: Boolean,
     getInteractions: (TaskUiState) -> TaskInteractions,
     date: LocalDate? = null,
-    viewModel: TasksViewModel = koinViewModel(),
 ) {
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
+    val selectedState by rememberUpdatedState(selected)
 //    val selected by viewModel.selectedTask.map { it == task }.collectAsState()
     val onChange = remember(task) { getInteractions(task) }::onTaskChanged
     // cached task is the SSOT in this context, some things like text updates take too long to update in db
     CachedUpdate(task, onChange) { (task, setTask) ->
         val interactions = remember(task) { getInteractions(task) }
-//        LaunchedEffect(task) {
-//            snapshotFlow { selectedState }
+        LaunchedEffect(task) {
+            snapshotFlow { selectedState }
 //                .distinctUntilChanged()
 //                .drop(1)
-//                .filter { !it } // Listen to deselect
-//                .collect {
-//                    println("Select changed $it for ${task.text}")
-//                    if (task.text.isEmpty()) interactions.onDelete()
-//                }
-//        }
+                .filter { !it } // Listen to deselect
+                .collect {
+                    println("Select changed $it for ${task.text}")
+                    if (task.text.isEmpty()) interactions.onDelete()
+                }
+        }
 
         BoxWithConstraints(
             modifier = Modifier
@@ -69,7 +69,7 @@ fun Task(
                     onExit = { isHovered = false }
                 )
                 .heightIn(min = ui.taskHeight)
-//                .focusProperties { canFocus = false }
+                .focusProperties { canFocus = false }
                 .clickableWithoutRipple { } // Consume click so background (deselect) doesn't get it
         ) {
             TaskSelectedSurface(selected) {
@@ -105,22 +105,6 @@ fun Task(
         }
     }
 }
-
-//@Composable
-//fun QueueSaveWhenModified(dateState: DateState, task: TaskState) {
-//    val name by task.name.collectAsState()
-//    val date by task.date.collectAsState()
-//    val completed by task.completed.collectAsState()
-//    val highlight by task.highlight.collectAsState()
-//    val app = LocalAppState
-//    LaunchedEffect(dateState, task) {
-//        // Drop 1 to ignore initial state, for existing tasks this means they're already saved, for new ones, it's the empty state
-//        snapshotFlow { arrayOf(name, date, completed, highlight) }.drop(1).collect {
-//            task.syncStatus.value = SyncStatus.LOCAL_MODIFIED
-//            app.queueSaveDay(dateState)
-//        }
-//    }
-//}
 
 @Composable
 fun TaskHighlight(text: String, highlight: Highlight) {

@@ -168,7 +168,7 @@ class TasksViewModel(
             if (event.key == Key.Backspace) {
                 if (uiState.text.isEmpty()) {
                     viewModelScope.launch {
-                        selectTask(taskBefore(listId, selectedTask.value ?: taskId))
+                        selectTask(taskBefore(listId, taskId))
                         taskRepo.delete(taskId)
                     }
                 }

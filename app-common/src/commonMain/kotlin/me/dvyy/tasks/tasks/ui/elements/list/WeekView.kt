@@ -1,18 +1,21 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Splitscreen
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import kotlinx.datetime.DatePeriod
@@ -20,7 +23,6 @@ import kotlinx.datetime.plus
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
-import me.dvyy.tasks.core.ui.debug.LogCompositions
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.sync.ui.SyncButton
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -35,9 +37,18 @@ fun WeekView(
 ) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
-//    SelectTaskWhenRequested()
+    var splitHeight by remember { mutableStateOf(0.5f) }
+    val splitCutoff = 0.05f..0.95f
+
     Scaffold(
-        floatingActionButton = { SyncButton() },
+        floatingActionButton = {
+            SyncButton()
+            if (splitHeight !in splitCutoff) {
+                FloatingActionButton(onClick = { splitHeight = 0.5f }) {
+                    Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
+                }
+            }
+        },
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         val reorderInteractions = tasksViewModel.reorderInteractions()
         ReorderContainer(state = reorderInteractions.draggedState) {
@@ -48,10 +59,16 @@ fun WeekView(
                 else Modifier
             val weekStart by time.weekStart.collectAsState()
             val restrictHeight =
-                if (ui.isSingleColumn) Modifier else Modifier.fillMaxHeight(0.5f)
-
-            Column {
-                NonlazyGrid(
+                if (ui.isSingleColumn) Modifier else Modifier.fillMaxHeight(
+                    when {
+                        splitHeight >= splitCutoff.endInclusive -> 1f
+                        splitHeight <= splitCutoff.start -> 0f
+                        else -> splitHeight
+                    }
+                )
+            var height by remember { mutableStateOf(0) }
+            Column(Modifier.onGloballyPositioned { height = it.size.height }) {
+                if (splitHeight > splitCutoff.start) NonlazyGrid(
                     columns = columns,
                     itemCount = 7,
                     modifier = scrollModifier.fillMaxWidth().then(restrictHeight)
@@ -61,7 +78,6 @@ fun WeekView(
                     val listId = ListId.forDate(day)
                     val properties by tasksViewModel.getListProperties(listId).collectAsState()
                     val tasks by tasksViewModel.tasksFor(listId).collectAsState()
-                    LogCompositions("Tasks")
                     TaskList(
                         listId = listId,
                         tasks = tasks,
@@ -73,9 +89,25 @@ fun WeekView(
                         scrollable = !ui.isSingleColumn
                     )
                 }
-                if (!ui.isSingleColumn) ProjectListContent(
+                val draggableState = rememberDraggableState {
+                    splitHeight = (splitHeight + it / height).coerceIn(0f, 1f)
+                    println("Dragged to $it")
+                }
+                Box(
+                    Modifier.fillMaxWidth().draggable(draggableState, Orientation.Vertical),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (splitHeight in splitCutoff) Box(Modifier.height(15.dp)) {
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            tonalElevation = 2.dp,
+                            modifier = Modifier.height(8.dp).width(200.dp)
+                        ) { }
+                    }
+                }
+                if (!ui.isSingleColumn && splitHeight < splitCutoff.endInclusive) ProjectListContent(
                     reorderInteractions = reorderInteractions,
-                    modifier = restrictHeight
+                    modifier = Modifier.fillMaxHeight() //Fill remaining height
                 )
             }
             if (ui.isSingleColumn) ProjectsList {
