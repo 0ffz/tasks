@@ -7,6 +7,7 @@ import com.russhwolf.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.DialogViewModel
+import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.auth.data.AuthRepository
@@ -45,6 +46,7 @@ fun viewModelsModule() = module {
     singleOf(::TasksViewModel)
     singleOf(::AuthViewModel)
     singleOf(::DialogViewModel)
+    singleOf(::PreferencesViewModel)
 }
 
 @Composable

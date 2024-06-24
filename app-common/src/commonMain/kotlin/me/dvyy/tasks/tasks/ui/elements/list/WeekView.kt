@@ -22,7 +22,9 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.sync.ui.SyncButton
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -33,11 +35,12 @@ import org.koin.compose.koinInject
 fun WeekView(
     tasksViewModel: TasksViewModel = viewModel(),
     app: AppState = koinInject(),
-    time: TimeViewModel = koinInject(),
+    time: TimeViewModel = koinViewModel(),
+    prefs: PreferencesViewModel = koinViewModel(),
 ) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
-    var splitHeight by remember { mutableStateOf(0.5f) }
+    var splitHeight by prefs.floatSetting("splitHeight", 0.5f)
     val splitCutoff = 0.05f..0.95f
 
     Scaffold(
