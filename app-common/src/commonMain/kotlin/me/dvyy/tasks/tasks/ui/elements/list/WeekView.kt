@@ -26,7 +26,6 @@ import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.sync.ui.SyncButton
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.koinInject
@@ -45,7 +44,7 @@ fun WeekView(
 
     Scaffold(
         floatingActionButton = {
-            SyncButton()
+//            SyncButton()
             if (splitHeight !in splitCutoff) {
                 FloatingActionButton(onClick = { splitHeight = 0.5f }) {
                     Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
@@ -94,7 +93,6 @@ fun WeekView(
                 }
                 val draggableState = rememberDraggableState {
                     splitHeight = (splitHeight + it / height).coerceIn(0f, 1f)
-                    println("Dragged to $it")
                 }
                 Box(
                     Modifier.fillMaxWidth().draggable(draggableState, Orientation.Vertical),
@@ -153,15 +151,30 @@ fun ProjectListContent(
                 viewModel = tasksViewModel,
                 reorderInteractions = reorderInteractions,
                 interactions = tasksViewModel.listInteractionsFor(key),
-                modifier = Modifier
-                    .width(ui.taskListWidth),
+                modifier = Modifier.width(ui.taskListWidth),
                 scrollable = true
             )
         }
         item {
-            Button(onClick = { tasksViewModel.createProject() }) {
+//            Column(modifier = Modifier.width(ui.taskListWidth)) {
+//                TaskListTitle(
+//                    TaskListProperties(displayName = "").loaded(),
+//                    false,
+//                    TaskListInteractions(
+//                        onPropertiesChanged = { }
+//                    ),
+//                )
+//            }
+//            Box(
+//                contentAlignment = Alignment.Center,
+//            ) {
+            FilledTonalButton(
+                modifier = Modifier.width(ui.taskListWidth),
+                onClick = { tasksViewModel.createProject() },
+            ) {
                 Text("New project")
             }
+//            }
         }
     }
 }

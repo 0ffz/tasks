@@ -32,6 +32,7 @@ import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
@@ -42,6 +43,7 @@ fun Task(
     selected: Boolean,
     getInteractions: (TaskUiState) -> TaskInteractions,
     date: LocalDate? = null,
+    key: TaskId,
 ) {
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
@@ -49,7 +51,7 @@ fun Task(
 //    val selected by viewModel.selectedTask.map { it == task }.collectAsState()
     val onChange = remember(task) { getInteractions(task) }::onTaskChanged
     // cached task is the SSOT in this context, some things like text updates take too long to update in db
-    CachedUpdate(task, onChange) { (task, setTask) ->
+    CachedUpdate(key, task, onChange) { task, setTask ->
         val interactions = remember(task) { getInteractions(task) }
         LaunchedEffect(task) {
             snapshotFlow { selectedState }

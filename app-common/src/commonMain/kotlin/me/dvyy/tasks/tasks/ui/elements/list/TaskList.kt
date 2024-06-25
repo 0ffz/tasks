@@ -46,7 +46,8 @@ fun TaskList(
             properties,
             colored,
             interactions,
-            loading = isLoading
+            loading = isLoading,
+            key = listId,
         )
         val tasks = tasks.loadedOrNull() ?: return@Column
         val scrollState = rememberScrollState()

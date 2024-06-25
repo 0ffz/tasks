@@ -18,6 +18,7 @@ import me.dvyy.tasks.app.ui.state.loaded
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.di.*
 import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListTitle
@@ -71,7 +72,8 @@ fun QuickAdd(
                             props = TaskListProperties(date = selectedDate).loaded(),
                             colored = false,
                             loading = false,
-                            showDivider = false
+                            showDivider = false,
+                            key = ListId.forDate(selectedDate)
                         )
                     }
                     Box(

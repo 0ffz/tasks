@@ -71,7 +71,6 @@ class TasksViewModel(
 
     @Composable
     fun getListProperties(key: ListId) = remember(key) {
-        println("Ran for $key")
         listRepo.observeProperties(key)
             .map { Loadable.Loaded(it) }
             .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
@@ -134,7 +133,6 @@ class TasksViewModel(
 
         private fun selectNextTaskOrNew() {
             val nextTask = taskAfter(listId, /*selectedTask.value ?: */taskId)
-            println("Selected was ${selectedTask.value}, Next is ${nextTask?.uuid}")
             if (nextTask != null) {
                 selectTask(nextTask)
             } else if (uiState.text.isNotEmpty()) {

@@ -17,11 +17,18 @@ class TasksLocalDataSource(
     val database: Database,
 ) {
     fun createList(listId: ListId, list: TaskListModel) {
-        database.listsQueries.insert(
-            uuid = listId,
-            isProject = !listId.isDate,
-            title = list.properties.displayName,
-        )
+        database.listsQueries.transaction {
+            val lastRank = database.listsQueries.lastRank().executeAsOneOrNull() ?: 0
+            database.listsQueries.insert(
+                TaskList(
+                    uuid = listId,
+                    isProject = !listId.isDate,
+                    title = list.properties.displayName,
+                    rank = lastRank + 1
+                )
+            )
+
+        }
         database.tasksQueries.transaction {
             list.tasks.forEach {
                 database.tasksQueries.upsert(it)
@@ -43,6 +50,7 @@ class TasksLocalDataSource(
                     listId,
                     isProject = !listId.isDate,
                     title = null,
+                    rank = 0,
                 ), Dispatchers.Default
             )
             .map {
@@ -98,11 +106,17 @@ class TasksLocalDataSource(
     }
 
     fun setListProperties(listId: ListId, props: TaskListProperties) {
-        database.listsQueries.insert(
-            uuid = listId,
-            isProject = !listId.isDate,
-            title = props.displayName,
-        )
+        database.listsQueries.transaction {
+            val list = database.listsQueries.get(listId).executeAsOneOrNull()
+            database.listsQueries.insert(
+                TaskList(
+                    uuid = listId,
+                    isProject = !listId.isDate,
+                    title = props.displayName,
+                    rank = list?.rank ?: 0
+                )
+            )
+        }
     }
 
     fun upsertTask(task: Task) {

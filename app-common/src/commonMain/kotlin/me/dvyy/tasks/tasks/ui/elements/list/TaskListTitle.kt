@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.state.Loadable
 import me.dvyy.tasks.app.ui.state.loadedOrNull
+import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 
@@ -28,6 +29,7 @@ fun TaskListTitle(
     interactions: TaskListInteractions? = null,
     loading: Boolean = false,
     showDivider: Boolean = true,
+    key: ListId,
 ) {
     val color =
         if (colored) MaterialTheme.colorScheme.tertiary
@@ -37,7 +39,7 @@ fun TaskListTitle(
         verticalAlignment = Alignment.Bottom,
     ) {
         val loadedProps = props.loadedOrNull() ?: return
-        CachedUpdate(loadedProps, interactions?.onPropertiesChanged ?: {}) { (props, setProps) ->
+        CachedUpdate(key, loadedProps, interactions?.onPropertiesChanged ?: {}) { props, setProps ->
             if (props.date != null) {
                 val date = props.date!!
                 Text(

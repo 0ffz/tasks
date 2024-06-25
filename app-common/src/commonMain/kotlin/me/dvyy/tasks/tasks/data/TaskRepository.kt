@@ -2,13 +2,13 @@ package me.dvyy.tasks.tasks.data
 
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.Message
 import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.utils.AppDispatchers
 
 private const val KEY_LAST_EDIT = "app-last-edit"
 //private const val KEY_DELETED_TASKS = "app-deleted-tasks"
@@ -19,36 +19,35 @@ class TaskRepository(
     private val ioDispatcher: CoroutineDispatcher,
     private val settings: Settings,
 ) {
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val taskEditDispatcher = ioDispatcher.limitedParallelism(1)
+    private val dbContext = AppDispatchers.db
 
     //    private val tasksToList = mutableMapOf<TaskId, ListId>()
 //    private val lists = mutableStateMapOf<ListId, MutableTaskList>()
 //    private var lastAppSync = MutableStateFlow(settings.decodeValueOrNull(Instant.serializer(), KEY_LAST_EDIT))
 
-    suspend fun create(list: ListId): Task = withContext(taskEditDispatcher) {
+    suspend fun create(list: ListId): Task = withContext(dbContext) {
         localStore.createTask(list)
     }
 
     suspend fun update(
         taskId: TaskId,
         updater: (Task) -> Task,
-    ) = withContext(taskEditDispatcher) {
+    ) = withContext(dbContext) {
         val task = localStore.getTask(taskId) ?: return@withContext
         localStore.upsertTask(updater(task))
         localStore.saveMessage(Message.Type.Update, taskId)
     }
 
-    suspend fun delete(taskId: TaskId) = withContext(taskEditDispatcher) {
+    suspend fun delete(taskId: TaskId) = withContext(dbContext) {
         localStore.deleteTask(taskId)
         localStore.saveMessage(Message.Type.Delete, taskId, Clock.System.now())
     }
 
-    suspend fun move(taskKey: TaskId, listKey: ListId) = withContext(taskEditDispatcher) {
+    suspend fun move(taskKey: TaskId, listKey: ListId) = withContext(dbContext) {
         localStore.moveTask(taskKey, listKey)
     }
 
-    suspend fun reorder(from: TaskId, to: TaskId) = withContext(taskEditDispatcher) {
+    suspend fun reorder(from: TaskId, to: TaskId) = withContext(dbContext) {
         localStore.swapRank(from, to)
     }
 

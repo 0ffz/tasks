@@ -1,18 +1,17 @@
-import com.benasher44.uuid.Uuid;
 import kotlin.Boolean;
-import me.dvyy.tasks.model.Highlight;
 import me.dvyy.tasks.model.ListId;
 
 CREATE TABLE IF NOT EXISTS taskList (
   uuid BLOB AS ListId PRIMARY KEY NOT NULL,
   isProject INTEGER AS Boolean NOT NULL,
-  title TEXT
+  title TEXT,
+  rank INTEGER NOT NULL
 );
 
 
 insert:
-INSERT OR REPLACE INTO taskList(uuid, isProject, title)
-VALUES (?, ?, ?);
+INSERT OR REPLACE INTO taskList
+VALUES ?;
 
 delete:
 DELETE FROM taskList
@@ -21,8 +20,22 @@ WHERE uuid = ?;
 getProjects:
 SELECT uuid FROM taskList
 WHERE isProject = 1
-ORDER BY uuid;
+ORDER BY rank, uuid;
 
 get:
 SELECT * FROM taskList
 WHERE uuid = ?;
+
+lastRank:
+SELECT rank FROM taskList
+ORDER BY rank DESC
+LIMIT 1;
+
+shiftRanksDown:
+UPDATE taskList SET rank = rank + 1
+WHERE rank >= ?;
+
+isRankAvailable:
+SELECT 1 FROM taskList
+WHERE rank = ?;
+

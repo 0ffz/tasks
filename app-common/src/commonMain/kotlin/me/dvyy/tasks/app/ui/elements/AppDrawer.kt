@@ -32,11 +32,12 @@ fun AppDrawer(
     app: AppState = koinInject(),
     auth: AuthViewModel = koinViewModel(),
     dialogs: DialogViewModel = koinViewModel(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val ui = LocalUIState.current
     ModalNavigationDrawer(
-        gesturesEnabled = ui.isSingleColumn,
+        // Prevent swipe to open on desktop, but allow swipe to close.
+        gesturesEnabled = ui.isSingleColumn || app.drawerState.isOpen,
         drawerState = app.drawerState,
         drawerContent = {
             ModalDrawerSheet {

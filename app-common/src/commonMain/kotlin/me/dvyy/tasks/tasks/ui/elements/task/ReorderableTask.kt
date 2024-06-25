@@ -56,7 +56,7 @@ fun ReorderableTask(
         },
         onDragEnter = { reorderInteractions.onDragEnterItem(task.uuid, it) },
     ) {
-        Task(task.state, selected, getInteractions)
+        Task(task.state, selected, getInteractions, key = task.uuid)
     }
     HorizontalDivider()
 }
