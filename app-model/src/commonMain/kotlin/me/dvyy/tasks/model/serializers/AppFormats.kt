@@ -28,4 +28,11 @@ object AppFormats {
         encodeDefaults = false
         serializersModule = networkModule
     }
+
+    val databaseJson = Json {
+        prettyPrint = false
+        ignoreUnknownKeys = true
+        encodeDefaults = false
+        serializersModule = networkModule
+    }
 }

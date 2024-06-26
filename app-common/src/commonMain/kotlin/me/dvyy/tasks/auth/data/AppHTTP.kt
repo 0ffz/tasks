@@ -17,10 +17,6 @@ import me.dvyy.tasks.tasks.data.SyncConfig
 class AppHTTP(
     private val ioDispatcher: CoroutineDispatcher,
 ) {
-//    val inProgress = MutableStateFlow(false)
-//    val isError = MutableStateFlow(false)
-//    val diffRemoved = mutableSetOf<Uuid>()
-
     private val baseClient = HttpClient {
         install(ContentNegotiation) {
             json(json = Json {

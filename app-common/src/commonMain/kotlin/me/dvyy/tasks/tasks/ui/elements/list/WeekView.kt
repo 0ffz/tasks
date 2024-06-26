@@ -26,6 +26,7 @@ import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.sync.ui.SyncButton
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.koinInject
@@ -44,10 +45,12 @@ fun WeekView(
 
     Scaffold(
         floatingActionButton = {
-//            SyncButton()
-            if (splitHeight !in splitCutoff) {
-                FloatingActionButton(onClick = { splitHeight = 0.5f }) {
-                    Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
+            Column {
+                SyncButton()
+                if (splitHeight !in splitCutoff) {
+                    FloatingActionButton(onClick = { splitHeight = 0.5f }) {
+                        Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
+                    }
                 }
             }
         },

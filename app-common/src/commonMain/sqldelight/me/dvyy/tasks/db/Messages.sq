@@ -1,22 +1,33 @@
 import com.benasher44.uuid.Uuid;
 import kotlinx.datetime.Instant;
-import me.dvyy.tasks.model.Message;
+import me.dvyy.tasks.model.EntityType;
+import me.dvyy.tasks.model.network.NetworkMessage;
 
 CREATE TABLE IF NOT EXISTS  message (
   uuid BLOB AS Uuid PRIMARY KEY NOT NULL,
   modified INTEGER AS Instant NOT NULL,
-  type TEXT AS Message.Type NOT NULL
+  type TEXT AS NetworkMessage.Type NOT NULL,
+  entityType TEXT AS EntityType NOT NULL
 );
 
 -- CREATE INDEX hockeyPlayer_full_name ON hockeyPlayer(full_name);
 
-selectAll:
-SELECT *
-FROM message;
+selectTasks:
+SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid
+WHERE message.modified <= ? AND type = 'Update';
+
+selectLists:
+SELECT * FROM message INNER JOIN taskList ON message.uuid = taskList.uuid
+WHERE message.modified <= ? AND type = 'Update';
+
+selectDeleted:
+SELECT * FROM message
+WHERE modified <= ? AND type = 'Delete';
 
 insert:
-INSERT OR REPLACE INTO message(uuid, modified, type)
-VALUES (?, ?, ?);
+INSERT OR REPLACE INTO message(uuid, modified, type, entityType)
+VALUES (?, ?, ?, ?);
 
 clear:
-DELETE FROM message;
+DELETE FROM message
+WHERE modified <= ?;

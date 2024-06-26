@@ -32,6 +32,7 @@ fun App(database: Database) {
                 module { single { database } },
                 appModule(),
                 repositoriesModule(),
+                authModule(),
                 syncModule(),
                 viewModelsModule(),
             )

@@ -2,10 +2,7 @@ package me.dvyy.tasks.tasks.ui
 
 import androidx.compose.runtime.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 
 // from https://stackoverflow.com/questions/76193549/how-to-use-database-as-source-of-truth-for-text-state-while-updating-textinput-q
 @Composable
@@ -13,7 +10,8 @@ fun <T> CachedUpdate(
     key: Any,
     value: T,
     onValueChanged: (T) -> Unit,
-    debounceMillis: Long = 100,
+    debounceMillis: Long = 500,
+    userOverrideMillis: Long = 500,
     content: @Composable (cached: T, setCached: (T) -> Unit) -> Unit,
 ) {
     // this will run whenever a new value comes in from the outside (e.g. from DB)
@@ -25,6 +23,7 @@ fun <T> CachedUpdate(
     // Specifically had issues with onPropertiesChanged
     LaunchedEffect(key, debounceMillis) {
         snapshotFlow { cached.value }
+            .drop(1)
             .debounce(debounceMillis)
             .onEach {
                 onValueChanged(it)
@@ -43,7 +42,7 @@ fun <T> CachedUpdate(
         snapshotFlow { cached.value }
             .collectLatest {
                 if (!awaitingPush) return@collectLatest
-                delay(500)
+                delay(userOverrideMillis)
                 onValueChanged(it)
                 awaitingPush = false
             }

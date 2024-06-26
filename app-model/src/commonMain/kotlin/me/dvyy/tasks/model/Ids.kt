@@ -7,14 +7,20 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
+enum class EntityType {
+    LIST, TASK
+}
+
 @Serializable
 sealed interface EntityId {
     val uuid: Uuid
+    val type: EntityType
 }
 
 @Serializable
 @JvmInline
 value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
+    override val type: EntityType get() = EntityType.TASK
     companion object {
         fun new(): TaskId = TaskId(uuid4())
     }
@@ -23,6 +29,8 @@ value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
 @Serializable
 @JvmInline
 value class ListId(override val uuid: @Contextual Uuid) : EntityId {
+    override val type: EntityType get() = EntityType.LIST
+
     val isDate: Boolean get() = uuid.mostSignificantBits == TOP_BITS
     val date: LocalDate?
         get() = if (isDate)

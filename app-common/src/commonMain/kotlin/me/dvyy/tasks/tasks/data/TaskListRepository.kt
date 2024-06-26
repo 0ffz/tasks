@@ -1,25 +1,26 @@
 package me.dvyy.tasks.tasks.data
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.model.network.NetworkMessage.Type.Update
 import me.dvyy.tasks.utils.AppDispatchers
 
 class TaskListRepository(
     private val localStore: TasksLocalDataSource,
-    private val ioDispatcher: CoroutineDispatcher,
 ) {
     private val dbContext = AppDispatchers.db
 
-    suspend fun create(key: ListId, properties: TaskListProperties) = withContext(dbContext) {
-        localStore.createList(key, TaskListModel(properties))
+    suspend fun create(listId: ListId, properties: TaskListProperties) = withContext(dbContext) {
+        localStore.createList(listId, TaskListModel(properties))
+        localStore.saveMessage(Update, listId)
     }
 
-    suspend fun update(list: ListId, properties: TaskListProperties) = withContext(dbContext) {
-        localStore.setListProperties(list, properties)
+    suspend fun update(listId: ListId, properties: TaskListProperties) = withContext(dbContext) {
+        localStore.setListProperties(listId, properties)
+        localStore.saveMessage(Update, listId)
     }
 
     fun observeProjects() =

@@ -37,9 +37,6 @@ class TasksViewModel(
     private val taskRepo: TaskRepository,
     private val listRepo: TaskListRepository,
 ) : ViewModel() {
-    val syncState: StateFlow<SyncState> get() = _syncState
-    private val _syncState = MutableStateFlow<SyncState>(SyncState.UnSynced)
-
     val selectedTask = MutableStateFlow<TaskId?>(null)
 
     val projects = listRepo.observeProjects()
@@ -190,20 +187,6 @@ class TasksViewModel(
 
         override fun onSelect() {
             if (selectedTask.value != taskId) selectTask(taskId)
-        }
-    }
-
-    fun queueSync() = viewModelScope.launch {
-        if (syncState.value == SyncState.InProgress) return@launch
-        //TODO buffer
-        _syncState.value = SyncState.InProgress
-        runCatching {
-            taskRepo.sync()
-        }.onFailure {
-            _syncState.value = SyncState.Error
-            it.printStackTrace()
-        }.onSuccess {
-            _syncState.value = SyncState.Success
         }
     }
 }

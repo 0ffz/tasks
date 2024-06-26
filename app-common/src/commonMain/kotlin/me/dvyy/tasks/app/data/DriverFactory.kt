@@ -13,7 +13,6 @@ import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.db.TaskList
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.model.Message.Type
 import me.dvyy.tasks.model.TaskId
 
 expect class DriverFactory {
@@ -27,7 +26,8 @@ fun createDatabase(driverFactory: DriverFactory): Database {
         messageAdapter = Message.Adapter(
             uuidAdapter = uuidAdapter,
             modifiedAdapter = instantAdapter,
-            typeAdapter = EnumColumnAdapter<Type>(),
+            typeAdapter = EnumColumnAdapter(),
+            entityTypeAdapter = EnumColumnAdapter(),
         ),
         taskAdapter = Task.Adapter(
             uuidAdapter = taskIdAdapter,

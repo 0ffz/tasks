@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS taskList (
   rank INTEGER NOT NULL
 );
 
-
 insert:
 INSERT OR REPLACE INTO taskList
 VALUES ?;
@@ -39,3 +38,5 @@ isRankAvailable:
 SELECT 1 FROM taskList
 WHERE rank = ?;
 
+date:
+SELECT datetime('now', '%s');

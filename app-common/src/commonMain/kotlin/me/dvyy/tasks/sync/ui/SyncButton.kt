@@ -15,21 +15,20 @@ import androidx.compose.ui.draw.rotate
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.tasks.ui.SyncState
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 
 @Composable
 fun SyncButton(
-    tasks: TasksViewModel = koinViewModel(),
+    sync: SyncViewModel = koinViewModel(),
 ) {
     val scope = rememberCoroutineScope()
-    IconButton(onClick = { scope.launch { tasks.queueSync() } }) {
+    IconButton(onClick = { scope.launch { sync.queueSync() } }) {
         val infiniteTransition = rememberInfiniteTransition()
         val rotation by infiniteTransition.animateFloat(
             initialValue = 0f,
             targetValue = 360f,
             animationSpec = infiniteRepeatable(tween(1000))
         )
-        val syncState by tasks.syncState.collectAsState()
+        val syncState by sync.syncState.collectAsState()
         val isError = syncState == SyncState.Error
         val inProgress = syncState == SyncState.InProgress
         val icon = remember(isError) {
