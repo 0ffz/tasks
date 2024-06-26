@@ -10,6 +10,7 @@ import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.auth.data.AppHTTP
+import me.dvyy.tasks.auth.data.AuthAPI
 import me.dvyy.tasks.auth.data.AuthRepository
 import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.ui.AuthViewModel
@@ -34,6 +35,7 @@ fun appModule() = module {
 fun authModule() = module {
     singleOf(::CredentialsDataSource)
     singleOf(::AppHTTP)
+    singleOf(::AuthAPI)
     singleOf(::AuthRepository)
 }
 

@@ -1,18 +1,29 @@
 package me.dvyy.tasks
 
 import io.ktor.server.application.*
-import me.dvyy.tasks.plugins.configureCORS
-import me.dvyy.tasks.plugins.configureDatabases
-import me.dvyy.tasks.plugins.configureSecurity
-import me.dvyy.tasks.plugins.configureSerialization
+import me.dvyy.tasks.config.JWTConfig
+import me.dvyy.tasks.config.LDAPConfig
+import me.dvyy.tasks.plugins.*
+import org.jetbrains.exposed.sql.Database
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
 fun Application.module() {
-    configureSecurity()
+    val database = Database.connect(
+        url = environment.config.property("database.url").getString(),
+    )
+    val server = ServerDataSource(database)
+    val jwtConfig = JWTConfig(environment)
+    val ldapConfig = LDAPConfig(environment)
+
+    configureSecurity(jwtConfig)
     configureCORS()
     configureSerialization()
-    configureDatabases()
+    configureRouting(
+        server,
+        jwtConfig,
+        ldapConfig
+    )
 }

@@ -1,6 +1,10 @@
-GET http://localhost:4000/dates?dates=2024-05-11,2024-05-12,2024-05-13
+POST http://localhost:4000/login
 Content-Type: application/json
 
+{
+  "username": "offz",
+  "password": "password"
+}
 
 
 ###

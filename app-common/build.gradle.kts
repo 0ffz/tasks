@@ -70,6 +70,7 @@ kotlin {
                 implementation(libs.kotlin.result)
                 implementation(libs.primitive.adapters)
                 implementation(libs.coroutines.extensions)
+                implementation(libs.oidc.appsupport)
 
             }
         }

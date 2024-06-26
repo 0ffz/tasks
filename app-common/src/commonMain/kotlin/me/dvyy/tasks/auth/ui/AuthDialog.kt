@@ -10,7 +10,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.DialogViewModel
-import me.dvyy.tasks.auth.data.AppHTTP.AuthResult
+import me.dvyy.tasks.auth.data.AuthResult
 import me.dvyy.tasks.auth.ui.LoginState.Error
 import me.dvyy.tasks.di.koinViewModel
 
@@ -83,7 +83,7 @@ fun AuthDialog(
         confirmButton = {
             TextButton(onClick = {
                 scope.launch {
-                    if (auth.login(serverUrl, username, password) == AuthResult.SUCCESS)
+                    if (auth.login(serverUrl, username, password) is AuthResult.Success)
                         dismiss()
                 }
             }) {

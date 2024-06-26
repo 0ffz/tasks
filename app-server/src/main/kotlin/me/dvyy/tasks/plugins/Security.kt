@@ -1,44 +1,38 @@
 package me.dvyy.tasks.plugins
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import com.benasher44.uuid.Uuid
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import java.security.MessageDigest
-import kotlin.text.Charsets.UTF_8
+import me.dvyy.tasks.config.JWTConfig
 
-fun getMd5Digest(str: String): ByteArray = MessageDigest.getInstance("MD5").digest(str.toByteArray(UTF_8))
-
-val myRealm = "Access to the '/' path"
-val userTable: Map<String, ByteArray> = mapOf(
-    "admin" to getMd5Digest("admin:$myRealm:password")
-)
-
-fun Application.configureSecurity() {
-    install(Authentication) {
-        digest {
-            realm = myRealm
-            digestProvider { userName, realm ->
-                userTable[userName]
-            }
-            validate { credentials ->
-                if (credentials.userName.isNotEmpty()) {
-                    UserSession(credentials.userName, credentials.userName)
-                } else {
-                    null
-                }
-            }
+fun Application.configureSecurity(
+    jwtConfig: JWTConfig,
+) = install(Authentication) {
+    jwt {
+        realm = jwtConfig.myRealm
+        verifier(
+            JWT.require(Algorithm.HMAC256(jwtConfig.secret))
+                .withAudience(jwtConfig.audience)
+                .withIssuer(jwtConfig.issuer)
+                .build()
+        )
+        validate { credential ->
+            val name = credential.payload.getClaim("username").asString() ?: return@validate null
+            val uuid = Uuid.fromString(credential.payload.getClaim("uuid").asString()) ?: return@validate null
+            UserSession(name, uuid)
         }
-    }
-
-    routing {
-        authenticate {
-            get("/auth/check") {
-                call.respond(HttpStatusCode.OK)
-            }
+        challenge { _, _ ->
+            call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
         }
     }
 }
 
-data class UserSession(val email: String, val username: String) : Principal
+data class UserSession(
+    val username: String,
+    val uuid: Uuid,
+) : Principal

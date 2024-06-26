@@ -34,9 +34,11 @@ dependencies {
 
     implementation(libs.h2)
     implementation("io.ktor:ktor-server-auth-jvm")
+    implementation("io.ktor:ktor-server-auth-ldap")
     implementation("io.ktor:ktor-client-core-jvm")
     implementation("io.ktor:ktor-client-apache-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-server-auth-jwt")
     implementation(libs.logback)
     implementation("io.ktor:ktor-server-config-yaml:2.3.10")
 

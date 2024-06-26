@@ -1,21 +1,24 @@
 package me.dvyy.tasks.tasks.data
 
 import io.ktor.client.call.*
-import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.CoroutineDispatcher
 import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.model.network.Changelist
 
+class LoginInfo(
+    val url: String,
+    val username: String,
+)
+
 class SyncConfig(
     val url: String,
-    val auth: DigestAuthCredentials,
+    val loadToken: suspend () -> String?,
+    val refreshToken: suspend () -> String?,
 )
 
 class SyncAPI(
     private val http: AppHTTP,
-    private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend fun sync(
         changelist: Changelist,

@@ -6,3 +6,11 @@ ktor:
     port: "$PORT:4000"
 database:
   url: "$DATABASE_URL:jdbc:h2:file:./build/db"
+ldap:
+  serverURL: "$LDAP_SERVER_URL:ldap://localhost:3890"
+  userDNFormat: "$LDAP_USER_DN_FORMAT:cn=%s,ou=people,dc=example,dc=com"
+jwt:
+  secret: "$JWT_SECRET:secret"
+  issuer: "$JWT_ISSUER:http://localhost:4000"
+  audience: "$JWT_AUDIENCE:http://localhost:4000/sync"
+  realm: "$JWT_REALM:Access to sync api"
