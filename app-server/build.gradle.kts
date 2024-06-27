@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.jib)
 //    alias(libs.plugins.sqldelight)
 }
 
@@ -24,8 +25,8 @@ dependencies {
 
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.serialization.json)
-    implementation("io.ktor:ktor-server-cors")
-    implementation("io.ktor:ktor-server-content-negotiation-jvm")
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.content.negotiation.jvm)
 
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
@@ -33,28 +34,37 @@ dependencies {
     implementation(libs.exposed.json)
 
     implementation(libs.h2)
-    implementation("io.ktor:ktor-server-auth-jvm")
-    implementation("io.ktor:ktor-server-auth-ldap")
-    implementation("io.ktor:ktor-client-core-jvm")
-    implementation("io.ktor:ktor-client-apache-jvm")
-    implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("io.ktor:ktor-server-auth-jwt")
+    implementation(libs.ktor.server.auth.jvm)
+    implementation(libs.ktor.server.auth.ldap)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.auth.jwt)
     implementation(libs.logback)
-    implementation("io.ktor:ktor-server-config-yaml:2.3.10")
+    implementation(libs.ktor.server.config.yaml)
 
-//    implementation("app.cash.sqldelight:jdbc-driver:2.0.2")
-//    implementation("org.postgresql:postgresql:42.7.3")
+    implementation(libs.postgresql)
 //    implementation("com.zaxxer:HikariCP:5.1.0")
     implementation(libs.koin.core)
 
 }
 
-//sqldelight {
-//    databases {
-//        create("ServerDatabase") {
-//            packageName.set("me.dvyy.tasks.db")
-//            dialect("app.cash.sqldelight:postgresql-dialect:2.0.2")
-//            deriveSchemaFromMigrations.set(true)
-//        }
-//    }
-//}
+jib {
+    to.image = "ghcr.io/0ffz/tasks-server"
+    container {
+        ports = listOf("4000")
+        mainClass = "io.ktor.server.netty.EngineMain"
+        creationTime = "USE_CURRENT_TIMESTAMP"
+
+        // good defaults intended for Java 8 (>= 8u191) containers
+//        jvmFlags = listOf(
+//            "-server",
+//            "-Djava.awt.headless=true",
+//            "-XX:InitialRAMFraction=2",
+//            "-XX:MinRAMFraction=2",
+//            "-XX:MaxRAMFraction=2",
+//            "-XX:+UseG1GC",
+//            "-XX:MaxGCPauseMillis=100",
+//            "-XX:+UseStringDeduplication"
+//        )
+    }
+}
+

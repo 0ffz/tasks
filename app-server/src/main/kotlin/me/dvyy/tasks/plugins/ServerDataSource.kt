@@ -11,8 +11,6 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.security.MessageDigest
-import kotlin.text.Charsets.UTF_8
 
 class ServerDataSource(
     private val database: Database,
@@ -20,7 +18,6 @@ class ServerDataSource(
     object UserDAO : Table() {
         val uuid = uuid("uuid").uniqueIndex()
         val username = text("username").uniqueIndex()
-        val digest = binary("digest")
         override val primaryKey = PrimaryKey(uuid)
     }
 
@@ -89,19 +86,6 @@ class ServerDataSource(
             }
     }
 
-//    suspend fun createUser(request: UserCreationRequest): Unit = dbQuery {
-//        val hashedPassword = getMd5Digest("${request.username}:${Realms.user}:${request.digest}")
-//        UserDAO.insert {
-//            it[UserDAO.uuid] = uuid4()
-//            it[UserDAO.username] = request.username
-//            it[UserDAO.digest] = hashedPassword
-//        }
-//    }
-
-    suspend fun getUserDigest(username: String): ByteArray? = dbQuery {
-        UserDAO.select(UserDAO.digest).where { UserDAO.username eq username }.singleOrNull()?.get(UserDAO.digest)
-    }
-
     suspend fun getOrCreateUserUuid(username: String): Uuid = dbQuery {
         UserDAO.select(UserDAO.uuid)
             .where { UserDAO.username eq username }
@@ -114,11 +98,4 @@ class ServerDataSource(
             }[UserDAO.uuid]
     }
 
-    fun getMd5Digest(str: String): ByteArray = MessageDigest.getInstance("MD5").digest(str.toByteArray(UTF_8))
-
-}
-
-object Realms {
-    val user = "Access to the '/' path"
-    val userCreate = "Create a new user"
 }
