@@ -26,7 +26,7 @@ class SyncRepository(
     suspend fun sync() = withContext(AppDispatchers.db) {
         val now = Clock.System.now()
         val changes = Changelist(
-            lastSynced = lastAppSync.value ?: Instant.DISTANT_PAST,
+            lastSynced = lastAppSync.value,
             upTo = now,
             messages = messages.getLocalChanges(now)
         )

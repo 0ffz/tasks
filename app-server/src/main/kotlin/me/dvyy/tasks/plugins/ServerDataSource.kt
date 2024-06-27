@@ -71,12 +71,16 @@ class ServerDataSource(
     }
 
     private suspend fun getMessages(
-        lastSync: Instant,
+        lastSync: Instant?,
         upTo: Instant,
         userSession: UserSession,
     ): List<NetworkMessage> = dbQuery {
         MessageDAO.selectAll()
-            .where { (MessageDAO.user eq userSession.uuid) and (MessageDAO.modified greaterEq lastSync) and (MessageDAO.modified lessEq upTo) }
+            .where {
+                (MessageDAO.user eq userSession.uuid).run {
+                    if (lastSync != null) and(MessageDAO.modified greaterEq lastSync) else this
+                } and (MessageDAO.modified lessEq upTo)
+            }
             .map {
                 NetworkMessage(
                     AppFormats.json.decodeFromString(NetworkModel.serializer(), it[MessageDAO.data]),

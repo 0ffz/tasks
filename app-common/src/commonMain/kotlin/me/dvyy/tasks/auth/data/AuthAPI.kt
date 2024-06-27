@@ -28,7 +28,7 @@ class AuthAPI(
                 ?.body<Map<String, String>>()
                 ?.get("token")
                 ?: return AuthResult.InvalidCredentials
-        }.getOrElse { return AuthResult.ConnectionError }
+        }.onFailure { it.printStackTrace() }.getOrElse { return AuthResult.ConnectionError }
         return AuthResult.Success(token)
     }
 }
