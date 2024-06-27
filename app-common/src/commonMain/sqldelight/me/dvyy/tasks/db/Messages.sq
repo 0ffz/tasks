@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS  message (
   entityType TEXT AS EntityType NOT NULL
 );
 
--- CREATE INDEX hockeyPlayer_full_name ON hockeyPlayer(full_name);
+CREATE INDEX IF NOT EXISTS message_modified ON message(modified);
 
 selectTasks:
 SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid
@@ -31,3 +31,6 @@ VALUES (?, ?, ?, ?);
 clear:
 DELETE FROM message
 WHERE modified <= ?;
+
+lastUpdate:
+SELECT MAX(modified) FROM message;

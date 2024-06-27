@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
@@ -25,12 +26,15 @@ import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.auth.ui.LoginState
 import me.dvyy.tasks.core.ui.modifiers.NoRippleInteractionSource
 import me.dvyy.tasks.di.koinViewModel
+import me.dvyy.tasks.sync.ui.SyncStatusIcon
+import me.dvyy.tasks.sync.ui.SyncViewModel
 import org.koin.compose.koinInject
 
 @Composable
 fun AppDrawer(
     app: AppState = koinInject(),
     auth: AuthViewModel = koinViewModel(),
+    sync: SyncViewModel = koinViewModel(),
     dialogs: DialogViewModel = koinViewModel(),
     content: @Composable () -> Unit,
 ) {
@@ -60,6 +64,18 @@ fun AppDrawer(
                             onClick = { dialogs.show(AppDialog.Auth) }
                         )
                     } else {
+                        NavigationDrawerItem(
+                            icon = { SyncStatusIcon() },
+                            label = { Text(text = "Sync") },
+                            selected = false,
+                            onClick = { sync.queueSync() },
+                        )
+                        NavigationDrawerItem(
+                            icon = { Icon(Icons.Outlined.CloudUpload, contentDescription = "Full sync") },
+                            label = { Text(text = "Full sync") },
+                            selected = false,
+                            onClick = { sync.fullSync() },
+                        )
                         NavigationDrawerItem(
                             icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = "Account") },
                             label = { Text(text = login.username) },

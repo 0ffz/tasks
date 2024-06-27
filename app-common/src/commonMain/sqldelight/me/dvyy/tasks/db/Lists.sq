@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS taskList (
   rank INTEGER NOT NULL
 );
 
+selectAllUUIDs:
+SELECT uuid FROM taskList;
+
 insert:
 INSERT OR REPLACE INTO taskList
 VALUES ?;

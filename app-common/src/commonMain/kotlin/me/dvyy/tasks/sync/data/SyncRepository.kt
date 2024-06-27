@@ -23,8 +23,11 @@ class SyncRepository(
     private val _lastAppSync = MutableStateFlow(settings.decodeValueOrNull(Instant.serializer(), KEY_LAST_EDIT))
     val lastAppSync = _lastAppSync.asStateFlow()
 
+    suspend fun observeLastUpdated() = messages.observeLastUpdated()
+
     suspend fun sync() = withContext(AppDispatchers.db) {
         val now = Clock.System.now()
+//        val lastSync = lastAppSync.value ?: Instant.DISTANT_PAST
         val changes = Changelist(
             lastSynced = lastAppSync.value,
             upTo = now,
@@ -34,6 +37,12 @@ class SyncRepository(
         messages.applyMessages(received.messages)
         messages.clear(now)
         updateSyncTime(now)
+    }
+
+    suspend fun fullSync() = withContext(AppDispatchers.db) {
+        val now = Clock.System.now()
+        messages.createMessagesForAllEntities(now)
+        sync()
     }
 
     private fun updateSyncTime(time: Instant) {

@@ -1,9 +1,12 @@
 package me.dvyy.tasks.sync.data
 
+import app.cash.sqldelight.coroutines.asFlow
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import me.dvyy.tasks.db.Database
 import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.db.TaskList
+import me.dvyy.tasks.model.EntityId
 import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
@@ -15,6 +18,19 @@ import me.dvyy.tasks.model.network.TaskNetworkModel
 class MessagesDataSource(
     val db: Database,
 ) {
+    /** Fills the message table with all entities, as if they were update [now] */
+    fun createMessagesForAllEntities(now: Instant) {
+        db.transaction {
+            db.tasksQueries.selectAllUUIDs().executeAsList().forEach {
+                saveMessage(NetworkMessage.Type.Update, it, now)
+            }
+
+            db.listsQueries.selectAllUUIDs().executeAsList().forEach {
+                saveMessage(NetworkMessage.Type.Update, it, now)
+            }
+        }
+    }
+
     fun getLocalChanges(upTo: Instant): List<NetworkMessage> = db.transactionWithResult {
         buildList {
             addAll(db.messagesQueries.selectTasks(upTo).executeAsList().map {
@@ -84,4 +100,12 @@ class MessagesDataSource(
     }
 
     fun clear(now: Instant) = db.messagesQueries.clear(now)
+
+    fun saveMessage(
+        messageType: NetworkMessage.Type,
+        uuid: EntityId,
+        timestamp: Instant = Clock.System.now(),
+    ) = db.messagesQueries.insert(uuid.uuid, timestamp, messageType, uuid.type)
+
+    fun observeLastUpdated() = db.messagesQueries.lastUpdate().asFlow()
 }

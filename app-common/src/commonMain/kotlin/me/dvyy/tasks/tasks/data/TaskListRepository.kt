@@ -6,21 +6,23 @@ import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Update
+import me.dvyy.tasks.sync.data.MessagesDataSource
 import me.dvyy.tasks.utils.AppDispatchers
 
 class TaskListRepository(
     private val localStore: TasksLocalDataSource,
+    private val messages: MessagesDataSource,
 ) {
     private val dbContext = AppDispatchers.db
 
     suspend fun create(listId: ListId, properties: TaskListProperties) = withContext(dbContext) {
         localStore.createList(listId, TaskListModel(properties))
-        localStore.saveMessage(Update, listId)
+        messages.saveMessage(Update, listId)
     }
 
     suspend fun update(listId: ListId, properties: TaskListProperties) = withContext(dbContext) {
         localStore.setListProperties(listId, properties)
-        localStore.saveMessage(Update, listId)
+        messages.saveMessage(Update, listId)
     }
 
     fun observeProjects() =

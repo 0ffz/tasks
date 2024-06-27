@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS task (
 
 CREATE INDEX IF NOT EXISTS task_list ON task(list);
 
+selectAllUUIDs:
+SELECT uuid FROM task;
+
 upsert:
 INSERT OR REPLACE INTO task
 VALUES ?;
