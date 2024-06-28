@@ -4,12 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.tasks.ui.SyncState
-import kotlin.time.Duration.Companion.seconds
 
 class SyncViewModel(
     private val syncRepo: SyncRepository,
@@ -18,13 +16,14 @@ class SyncViewModel(
     private val _syncState = MutableStateFlow<SyncState>(SyncState.UnSynced)
 
     init {
-        viewModelScope.launch {
-            syncRepo.observeLastUpdated()
-                .debounce(10.seconds)
-                .collect {
-                    queueSync()
-                }
-        }
+//        viewModelScope.launch {
+//            syncRepo.observeLastUpdated()
+//                .mapToOneOrNull(Dispatchers.Default)
+//                .debounce(10.seconds)
+//                .collect {
+//                    queueSync()
+//                }
+//        }
     }
 
     fun queueSync() = viewModelScope.launch {

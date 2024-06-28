@@ -15,6 +15,7 @@ import me.dvyy.tasks.app.ui.state.loadedOrNull
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
@@ -69,12 +70,24 @@ fun TaskList(
                 tasks.forEachIndexed { index, task ->
                     key(task.uuid) {
                         val selected = selectedTask == task.uuid
-                        ReorderableTask(
-                            task = task,
-                            reorderInteractions = reorderInteractions,
-                            getInteractions = { state -> viewModel.interactionsFor(task.uuid, listId, state) },
-                            selected = selected,
-                        )
+//                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
+                        // cached task is the SSOT in this context, some things like text updates take too long to update in db
+                        CachedUpdate(
+                            key = task.uuid,
+                            value = task.state,
+                            onValueChanged = { viewModel.onTaskChanged(task.uuid, it) }
+                        ) { cachedTask, setTask ->
+                            val taskInteractions =
+                                remember(cachedTask) { viewModel.interactionsFor(task.uuid, listId, cachedTask) }
+                            ReorderableTask(
+                                key = task.uuid,
+                                task = cachedTask,
+                                setTask = setTask,
+                                reorderInteractions = reorderInteractions,
+                                interactions = taskInteractions,
+                                selected = selected,
+                            )
+                        }
                     }
                 }
                 Column(Modifier.clickableWithoutRipple {

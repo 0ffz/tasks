@@ -52,10 +52,6 @@ fun QuickAdd(
 
             val interactions = remember {
                 object : TaskInteractions {
-                    override fun onTaskChanged(newState: TaskUiState) {
-                        task = newState
-                    }
-
                     override fun onListChanged(date: LocalDate) {
                         selectedDate = date
                     }

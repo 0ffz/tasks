@@ -16,23 +16,25 @@ import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.PlatformSpecifics
+import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
-import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 
 @Composable
 fun ReorderableTask(
-    task: TaskWithIDState,
+    key: TaskId,
+    task: TaskUiState,
+    setTask: (TaskUiState) -> Unit,
     reorderInteractions: TaskReorderInteractions,
-    getInteractions: (TaskUiState) -> TaskInteractions,
+    interactions: TaskInteractions,
     selected: Boolean,
 ) {
     ReorderableItem(
         state = reorderInteractions.draggedState,
-        key = task.uuid,
-        data = task.uuid,
+        key = key,
+        data = key,
         dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
         zIndex = 1f,
         dropAnimationSpec = tween(0),
@@ -47,16 +49,16 @@ fun ReorderableTask(
                     contentAlignment = Alignment.CenterStart,
                     modifier = Modifier.padding(horizontal = ui.taskTextPadding)
                 ) {
-                    TaskHighlight(task.state.text, task.state.highlight)
+                    TaskHighlight(task.text, task.highlight)
                     TaskTextPadding {
-                        Text(task.state.text, Modifier.height(ui.taskHeight))
+                        Text(task.text, Modifier.height(ui.taskHeight))
                     }
                 }
             }
         },
-        onDragEnter = { reorderInteractions.onDragEnterItem(task.uuid, it) },
+        onDragEnter = { reorderInteractions.onDragEnterItem(key, it) },
     ) {
-        Task(task.state, selected, getInteractions, key = task.uuid)
+        Task(task, setTask, selected, interactions)
     }
     HorizontalDivider()
 }

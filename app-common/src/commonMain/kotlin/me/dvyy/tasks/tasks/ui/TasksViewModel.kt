@@ -43,7 +43,6 @@ class TasksViewModel(
         .stateIn(viewModelScope, WhileUiSubscribed, emptyList())
 
     fun selectTask(uuid: TaskId?) {
-        println("ran selectTask for $uuid")
         selectedTask.update { uuid }
     }
 
@@ -114,6 +113,16 @@ class TasksViewModel(
         return list.getOrNull(list.indexOfFirst { it.uuid == taskId } - 1)?.uuid
     }
 
+    fun onTaskChanged(key: TaskId, newState: TaskUiState) = viewModelScope.launch {
+        taskRepo.update(key) {
+            it.copy(
+                text = newState.text,
+                completed = newState.completed,
+                highlight = newState.highlight
+            )
+        }
+    }
+
     @Stable
     inner class DefaultTaskInteractions(
         private val taskId: TaskId,
@@ -141,16 +150,6 @@ class TasksViewModel(
 
         override val keyboardActions = KeyboardActions(onNext = { selectNextTaskOrNew() })
 
-        override fun onTaskChanged(newState: TaskUiState) {
-            update {
-                it.copy(
-                    text = newState.text,
-                    completed = newState.completed,
-                    highlight = newState.highlight
-                )
-            }
-        }
-
         override fun onListChanged(date: LocalDate) {
             viewModelScope.launch { taskRepo.move(taskId, ListId.forDate(date)) }
         }
@@ -169,7 +168,6 @@ class TasksViewModel(
                 }
                 return false
             }
-            println(event)
             if (event.type != KeyEventType.KeyDown) return false
             when {
                 event.isCtrlPressed && event.key == Key.E -> {

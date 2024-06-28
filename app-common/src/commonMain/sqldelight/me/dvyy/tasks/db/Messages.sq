@@ -33,4 +33,6 @@ DELETE FROM message
 WHERE modified <= ?;
 
 lastUpdate:
-SELECT MAX(modified) FROM message;
+SELECT modified FROM message
+ORDER BY modified DESC
+LIMIT 1;
