@@ -8,8 +8,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldLineLimits
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.outlined.TaskAlt
@@ -174,20 +173,26 @@ fun TaskTextField(
         if (selected) {
             focusRequester.requestFocus()
         }
-//        else focusManager.clearFocus()
     }
-    BasicTextField2(
+    BasicTextField(
         value = task.text,
         readOnly = task.completed,
-        lineLimits = if (selected) TextFieldLineLimits.MultiLine() else TextFieldLineLimits.SingleLine,
+        singleLine = !selected,
+//        maxLines = if (selected) Int.MAX_VALUE else 1,
+//        lineLimits = if (selected) TextFieldLineLimits.MultiLine() else TextFieldLineLimits.SingleLine,
         onValueChange = { setTask(task.copy(text = it)) },
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
         textStyle = textStyle,
         keyboardActions = interactions.keyboardActions,
         keyboardOptions = interactions.keyboardOptions,
-        decorator = { innerTextField ->
+//        decorator = { innerTextField ->
+//            Row(verticalAlignment = Alignment.CenterVertically) {
+//                TaskTextPadding { innerTextField() }
+//            }
+//        },
+        decorationBox = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                TaskTextPadding { innerTextField() }
+                TaskTextPadding { it() }
             }
 
         },

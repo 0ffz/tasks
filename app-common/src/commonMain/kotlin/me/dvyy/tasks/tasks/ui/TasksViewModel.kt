@@ -100,8 +100,13 @@ class TasksViewModel(
         },
     )
 
-    fun interactionsFor(taskId: TaskId, listId: ListId, uiState: TaskUiState): TaskInteractions =
-        DefaultTaskInteractions(taskId, listId, uiState)
+    fun interactionsFor(
+        taskId: TaskId,
+        listId: ListId,
+        uiState: TaskUiState,
+        setUiState: (TaskUiState) -> Unit,
+    ): TaskInteractions =
+        DefaultTaskInteractions(taskId, listId, uiState, setUiState)
 
     private fun taskAfter(listId: ListId, taskId: TaskId): TaskId? {
         val list = listObservers[listId]?.value?.loadedOrNull() ?: return null
@@ -128,6 +133,7 @@ class TasksViewModel(
         private val taskId: TaskId,
         private val listId: ListId,
         private val uiState: TaskUiState,
+        private val setUiState: (TaskUiState) -> Unit,
     ) : TaskInteractions {
         override fun toString(): String {
             return "DefaultTaskInteractions(taskId=$taskId, listId=$listId, uiState=$uiState)"
@@ -148,7 +154,9 @@ class TasksViewModel(
             }
         }
 
-        override val keyboardActions = KeyboardActions(onNext = { selectNextTaskOrNew() })
+        override val keyboardActions = KeyboardActions(onNext = {
+            selectNextTaskOrNew()
+        })
 
         override fun onListChanged(date: LocalDate) {
             viewModelScope.launch { taskRepo.move(taskId, ListId.forDate(date)) }
@@ -159,6 +167,7 @@ class TasksViewModel(
         }
 
         override fun onKeyEvent(event: KeyEvent): Boolean {
+            if (event.key == Key.Enter) return true
             if (event.key == Key.Backspace) {
                 if (uiState.text.isEmpty()) {
                     viewModelScope.launch {
@@ -171,7 +180,8 @@ class TasksViewModel(
             if (event.type != KeyEventType.KeyDown) return false
             when {
                 event.isCtrlPressed && event.key == Key.E -> {
-                    update { it.copy(highlight = Highlight.entries[(it.highlight.ordinal + 1) % Highlight.entries.size]) }
+                    val shift = if (event.isShiftPressed) -1 else 1
+                    setUiState(uiState.copy(highlight = Highlight.entries[(uiState.highlight.ordinal + shift) % Highlight.entries.size]))
                 }
 
                 event.key == Key.Escape -> {

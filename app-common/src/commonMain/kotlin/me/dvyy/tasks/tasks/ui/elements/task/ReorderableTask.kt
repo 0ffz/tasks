@@ -34,6 +34,7 @@ fun ReorderableTask(
     ReorderableItem(
         state = reorderInteractions.draggedState,
         key = key,
+        enabled = true,
         data = key,
         dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
         zIndex = 1f,

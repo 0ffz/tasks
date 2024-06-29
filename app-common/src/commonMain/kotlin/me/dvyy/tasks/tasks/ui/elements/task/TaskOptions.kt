@@ -2,7 +2,9 @@ package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Delete
@@ -44,7 +46,8 @@ fun TaskOptions(
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-//                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.SpaceBetween//Arrangement.spacedBy(8.dp)
             ) {
                 val spacing = 8.dp
                 fun toggleFocused() {

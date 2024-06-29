@@ -70,6 +70,8 @@ kotlin {
                 implementation(libs.kotlin.result)
                 implementation(libs.primitive.adapters)
                 implementation(libs.coroutines.extensions)
+                implementation("org.kodein.emoji:emoji-kt:2.0.1")
+                implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
             }
         }
         val jvmMain by creating {

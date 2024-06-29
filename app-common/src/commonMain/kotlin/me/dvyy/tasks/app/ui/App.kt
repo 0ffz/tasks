@@ -24,6 +24,7 @@ import org.koin.core.module.Module
 fun App(
     extraModules: List<Module> = emptyList(),
     topBar: @Composable (TopAppBarScrollBehavior) -> Unit = { AppTopBar(it) },
+    extras: @Composable () -> Unit = { },
 ) {
     AppTheme {
         KoinApplication(application = {
@@ -58,6 +59,7 @@ fun App(
                     AppDialogs()
                 }
             }
+            extras()
         }
     }
 }

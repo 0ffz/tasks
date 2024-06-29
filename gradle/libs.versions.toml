@@ -38,8 +38,10 @@ navigationCompose = "2.7.0-alpha03"
 slf4j = "2.0.9"
 sqlDelight = "2.0.2"
 oidc = "0.10.0"
+colorpicker = "1.1.0"
 
 [libraries]
+compose-colorpicker = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpicker" }
 compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }
 coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }

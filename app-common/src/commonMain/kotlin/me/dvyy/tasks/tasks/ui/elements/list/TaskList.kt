@@ -6,6 +6,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
@@ -76,8 +78,18 @@ fun TaskList(
                             value = task.state,
                             onValueChanged = { viewModel.onTaskChanged(task.uuid, it) }
                         ) { cachedTask, setTask ->
+                            val focusManager = LocalFocusManager.current
+                            val keyboardOpen by keyboardAsState()
+                            LaunchedEffect(keyboardOpen) {
+                                if (!keyboardOpen) {
+//                                    viewModel.selectTask(null)
+                                    focusManager.clearFocus()
+                                }
+                            }
                             val taskInteractions =
-                                remember(cachedTask) { viewModel.interactionsFor(task.uuid, listId, cachedTask) }
+                                remember(cachedTask) {
+                                    viewModel.interactionsFor(task.uuid, listId, cachedTask, setTask)
+                                }
                             ReorderableTask(
                                 key = task.uuid,
                                 task = cachedTask,
@@ -104,4 +116,10 @@ fun TaskList(
             })
         }
     }
+}
+
+@Composable
+fun keyboardAsState(): State<Boolean> {
+    val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    return rememberUpdatedState(isImeVisible)
 }
