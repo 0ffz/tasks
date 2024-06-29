@@ -1,21 +1,23 @@
 package me.dvyy.tasks.sync.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.PublishedWithChanges
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onEach
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.tasks.ui.SyncState
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun SyncStatusIcon(
@@ -27,16 +29,25 @@ fun SyncStatusIcon(
         targetValue = 360f,
         animationSpec = infiniteRepeatable(tween(1000))
     )
-    val syncState by sync.syncState.collectAsState()
-    val isError = syncState == SyncState.Error
-    val inProgress = syncState == SyncState.InProgress
-    val icon = remember(isError) {
-        if (isError) Icons.Outlined.SyncProblem
-        else Icons.Outlined.Sync
+    var syncState: SyncState by remember { mutableStateOf(SyncState.UnSynced) }
+    LaunchedEffect(Unit) {
+        sync.syncState.onEach {
+            syncState = it
+        }.debounce(3.seconds).collect {
+            syncState = SyncState.UnSynced
+        }
     }
-    Icon(
-        icon,
-        contentDescription = "Sync",
-        modifier = Modifier.rotate(if (inProgress) -rotation else 0f)
-    )
+
+    Crossfade(syncState) {
+        val icon = when (it) {
+            is SyncState.Error -> Icons.Outlined.SyncProblem
+            is SyncState.Success -> Icons.Outlined.PublishedWithChanges
+            else -> Icons.Outlined.Sync
+        }
+        Icon(
+            icon,
+            contentDescription = "Sync",
+            modifier = Modifier.rotate(if (syncState is SyncState.InProgress) -rotation else 0f)
+        )
+    }
 }
