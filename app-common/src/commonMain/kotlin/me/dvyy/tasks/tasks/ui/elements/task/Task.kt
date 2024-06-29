@@ -22,6 +22,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
@@ -69,15 +70,18 @@ fun Task(
             .focusProperties { canFocus = false }
             .clickableWithoutRipple { } // Consume click so background (deselect) doesn't get it
     ) {
-        TaskSelectedSurface(selected) {
+        TaskSelectedSurface(
+            selected,
+            task.highlight,
+        ) {
             val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
             Column(Modifier.alpha(alpha)) {
                 Box(
                     modifier = Modifier.padding(horizontal = ui.horizontalTaskTextPadding),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    TaskHighlight(task.text, task.highlight)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (!selected) TaskHighlight(task.text, task.highlight)
+                    Row(verticalAlignment = Alignment.Top) {
                         val responsive = LocalUIState.current
 
                         TaskTextField(task, selected, setTask, interactions, Modifier.weight(1f, true))
@@ -119,18 +123,31 @@ fun TaskHighlight(text: String, highlight: Highlight) {
 @Composable
 fun TaskSelectedSurface(
     visible: Boolean,
+    highlight: Highlight,
     content: @Composable () -> Unit,
 ) {
+    val defaultColor = CardDefaults.elevatedCardColors().containerColor
     val elevation by animateFloatAsState(if (visible) 1f else 0f)
-    val cornerShape by animateDpAsState(if (visible) 20.dp else 0.dp)
+    val fullCornerSize = 20.dp
+    val cornerShape by animateDpAsState(if (visible) fullCornerSize else 0.dp)
     val padding by animateDpAsState(if (visible) 10.dp else 0.dp)
+    val highlightColor = highlight.color
+        .copy(alpha = 0.05f)
+        .takeIf { visible && highlight != Highlight.Unmarked } ?: Color.Transparent
+    val animatedHighlight by animateColorAsState(highlightColor)
     Surface(
         modifier = Modifier.padding(vertical = padding),
         shape = RoundedCornerShape(cornerShape),
-        color = CardDefaults.elevatedCardColors().containerColor,
+        color = defaultColor,
+        contentColor = contentColorFor(defaultColor),
         tonalElevation = elevation.dp,
     ) {
-        content()
+        Surface(
+            color = animatedHighlight,
+            shape = RoundedCornerShape(fullCornerSize),
+        ) {
+            content()
+        }
     }
 }
 
@@ -162,7 +179,7 @@ fun TaskTextField(
     BasicTextField2(
         value = task.text,
         readOnly = task.completed,
-        lineLimits = TextFieldLineLimits.SingleLine,
+        lineLimits = if (selected) TextFieldLineLimits.MultiLine() else TextFieldLineLimits.SingleLine,
         onValueChange = { setTask(task.copy(text = it)) },
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
         textStyle = textStyle,
@@ -188,7 +205,7 @@ fun TaskTextField(
 fun TaskTextPadding(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val ui = LocalUIState.current
     Box(
-        modifier.height(ui.taskHeight).padding(ui.taskTextPadding),
+        modifier/*.height(ui.taskHeight)*/.padding(ui.taskTextPadding),
         contentAlignment = Alignment.CenterStart
     ) {
         content()

@@ -10,6 +10,7 @@ import androidx.compose.material.icons.outlined.PublishedWithChanges
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -18,6 +19,15 @@ import kotlinx.coroutines.flow.onEach
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.tasks.ui.SyncState
 import kotlin.time.Duration.Companion.seconds
+
+@Composable
+fun ClickableSyncStatusIcon(
+    sync: SyncViewModel = koinViewModel(),
+) {
+    IconButton(onClick = { sync.queueSync() }) {
+        SyncStatusIcon(sync)
+    }
+}
 
 @Composable
 fun SyncStatusIcon(

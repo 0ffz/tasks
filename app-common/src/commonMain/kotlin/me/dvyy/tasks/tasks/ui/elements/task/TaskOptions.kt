@@ -1,5 +1,6 @@
 package me.dvyy.tasks.tasks.ui.elements.task
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,12 @@ import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.koin.compose.koinInject
 
+sealed interface FocusedOption {
+    data object None : FocusedOption
+    data object Highlight : FocusedOption
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskOptions(
     task: TaskUiState,
@@ -32,15 +39,27 @@ fun TaskOptions(
     time: TimeViewModel = koinViewModel(),
 ) {
     val ui = LocalUIState.current
+    var focused: FocusedOption by remember { mutableStateOf(FocusedOption.None) }
     Box(Modifier.padding(horizontal = ui.horizontalTaskTextPadding, vertical = 4.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                HighlightButton(Highlight.Unmarked, task, setTask)
-                HighlightButton(Highlight.Important, task, setTask)
-                HighlightButton(Highlight.InProgress, task, setTask)
+                val spacing = 8.dp
+                fun toggleFocused() {
+                    focused = if (focused == FocusedOption.Highlight) FocusedOption.None else FocusedOption.Highlight
+                }
+                HighlightButton(task.highlight, task) { toggleFocused() }
+                AnimatedVisibility(focused == FocusedOption.Highlight) {
+                    Row(Modifier.padding(start = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        VerticalDivider(Modifier.height(24.dp))
+                        Highlight.entries.forEach {
+                            HighlightButton(it, task) { setTask(it); toggleFocused() }
+                        }
+                    }
+                }
+                Spacer(Modifier.width(spacing))
                 TaskDatePicker(initialDate ?: time.today, interactions)
 
                 Spacer(Modifier.weight(1f))
