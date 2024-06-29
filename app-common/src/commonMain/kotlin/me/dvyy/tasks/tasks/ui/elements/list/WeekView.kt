@@ -95,11 +95,15 @@ fun WeekView(
                 val draggableState = rememberDraggableState {
                     splitHeight = (splitHeight + it / height).coerceIn(0f, 1f)
                 }
-                Box(
+                if (!ui.isSingleColumn) Box(
                     Modifier.fillMaxWidth().draggable(draggableState, Orientation.Vertical),
-                    contentAlignment = Alignment.Center
                 ) {
-                    if (splitHeight in splitCutoff) Box(Modifier.height(15.dp)) {
+                    if (splitHeight in splitCutoff) Box(
+                        Modifier.height(15.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        HorizontalDivider()
+                        Surface(Modifier.height(8.dp).width(220.dp)) {}
                         Surface(
                             shape = MaterialTheme.shapes.small,
                             tonalElevation = 2.dp,

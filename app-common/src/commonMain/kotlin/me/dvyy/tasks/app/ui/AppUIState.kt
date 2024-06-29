@@ -20,10 +20,12 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     private val atMostMedium get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Medium
 
     // Tasks
-    val taskHeight = 42.dp
-    val taskCheckboxSize = 42.dp
-    val taskHighlightHeight = 26.dp
-    val taskTextPadding = 8.dp
+    val taskHeight = 36.dp
+    val taskCheckboxSize = 36.dp
+    val taskOptionSize = 26.dp
+    val taskHighlightHeight = 24.dp
+    val taskTextPadding = 6.dp
+    val horizontalTaskTextPadding = 6.dp
     val alwaysShowCheckbox get() = isSingleColumn
 
     // Task lists

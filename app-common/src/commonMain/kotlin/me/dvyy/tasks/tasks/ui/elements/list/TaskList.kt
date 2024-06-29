@@ -38,8 +38,7 @@ fun TaskList(
     Column(
         modifier/*.animateContentSize()*/
             .padding(
-                start = 6.dp,
-                end = 6.dp,
+                6.dp,
             ).fillMaxWidth()
     ) {
         val isLoading = tasks is Loadable.Loading

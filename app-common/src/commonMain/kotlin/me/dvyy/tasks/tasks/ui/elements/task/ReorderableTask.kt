@@ -47,7 +47,7 @@ fun ReorderableTask(
                 val ui = LocalUIState.current
                 Box(
                     contentAlignment = Alignment.CenterStart,
-                    modifier = Modifier.padding(horizontal = ui.taskTextPadding)
+                    modifier = Modifier.padding(horizontal = ui.horizontalTaskTextPadding)
                 ) {
                     TaskHighlight(task.text, task.highlight)
                     TaskTextPadding {

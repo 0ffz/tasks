@@ -27,6 +27,8 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
@@ -47,15 +49,15 @@ fun Task(
     val ui = LocalUIState.current
     val selectedState by rememberUpdatedState(selected)
 //    val selected by viewModel.selectedTask.map { it == task }.collectAsState()
-//    LaunchedEffect(key) {
-//        snapshotFlow { selectedState }
-////                .distinctUntilChanged()
-////                .drop(1)
-//            .filter { !it } // Listen to deselect
-//            .collect {
-////                    if (task.text.isEmpty()) interactions.onDelete()
-//            }
-//    }
+    LaunchedEffect(task) {
+        snapshotFlow { selectedState }
+//                .distinctUntilChanged()
+            .drop(1)
+            .filter { !it } // Listen to deselect
+            .collect {
+                if (task.text.isEmpty()) interactions.onDelete()
+            }
+    }
 
     BoxWithConstraints(
         modifier = Modifier
@@ -71,7 +73,7 @@ fun Task(
             val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
             Column(Modifier.alpha(alpha)) {
                 Box(
-                    modifier = Modifier.padding(horizontal = ui.taskTextPadding),
+                    modifier = Modifier.padding(horizontal = ui.horizontalTaskTextPadding),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     TaskHighlight(task.text, task.highlight)

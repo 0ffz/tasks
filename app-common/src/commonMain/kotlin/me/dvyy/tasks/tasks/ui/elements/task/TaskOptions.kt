@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 import me.dvyy.tasks.app.ui.LocalUIState
@@ -31,7 +32,7 @@ fun TaskOptions(
     time: TimeViewModel = koinViewModel(),
 ) {
     val ui = LocalUIState.current
-    Box(Modifier.padding(horizontal = ui.taskTextPadding, vertical = 4.dp)) {
+    Box(Modifier.padding(horizontal = ui.horizontalTaskTextPadding, vertical = 4.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -66,7 +67,13 @@ fun TaskDatePicker(initialDate: LocalDate, interactions: TaskInteractions, time:
     )
 
     AssistChip(
-        label = { Text("Move") },
+        label = {
+            Text(
+                "Move",
+                maxLines = 1,
+                overflow = TextOverflow.Clip,
+            )
+        },
         leadingIcon = { Icon(Icons.Outlined.CalendarMonth, contentDescription = "Move") },
         onClick = { showDatePicker = true },
     )
@@ -96,7 +103,7 @@ fun HighlightButton(highlight: Highlight, task: TaskUiState, setTask: (TaskUiSta
             containerColor = highlight.color,
         ),
         onClick = { setTask(task.copy(highlight = highlight)) },
-        modifier = Modifier.size(ui.taskHighlightHeight).focusProperties { canFocus = false },
+        modifier = Modifier.size(ui.taskOptionSize).focusProperties { canFocus = false },
         border = border,
     ) { }
 }

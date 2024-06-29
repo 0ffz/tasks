@@ -12,6 +12,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(libs.slf4j)
+                implementation(libs.koin.core)
                 implementation(project(":app-common"))
                 implementation(project(":app-model"))
                 implementation(compose.desktop.currentOs)
