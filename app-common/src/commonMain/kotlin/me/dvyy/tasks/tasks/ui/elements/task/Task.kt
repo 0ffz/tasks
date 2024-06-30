@@ -4,7 +4,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -78,13 +77,15 @@ fun Task(
             Column(Modifier.alpha(alpha)) {
                 Box(
                     modifier = Modifier.padding(horizontal = ui.horizontalTaskTextPadding),
-                    contentAlignment = Alignment.CenterStart,
+//                    contentAlignment = Alignment.CenterStart,
                 ) {
-                    if (!selected) TaskHighlight(task.text, task.highlight)
                     Row(verticalAlignment = Alignment.Top) {
+                        Box(Modifier.weight(1f, true), contentAlignment = Alignment.CenterStart) {
+                            if (!selected) TaskHighlight(task.text, task.highlight)
+                            TaskTextField(task, selected, setTask, interactions, Modifier)
+                        }
                         val responsive = LocalUIState.current
 
-                        TaskTextField(task, selected, setTask, interactions, Modifier.weight(1f, true))
                         if (responsive.alwaysShowCheckbox || isHovered || selected)
                             TaskCheckBox(task, setTask)
                     }
@@ -152,7 +153,6 @@ fun TaskSelectedSurface(
 
 fun Color.getBestTextColor() = if (luminance() > 0.36f) Color.Black else Color.White
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskTextField(
     task: TaskUiState,
@@ -179,18 +179,11 @@ fun TaskTextField(
         value = task.text,
         readOnly = task.completed,
         singleLine = !selected,
-//        maxLines = if (selected) Int.MAX_VALUE else 1,
-//        lineLimits = if (selected) TextFieldLineLimits.MultiLine() else TextFieldLineLimits.SingleLine,
         onValueChange = { setTask(task.copy(text = it)) },
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
         textStyle = textStyle,
         keyboardActions = interactions.keyboardActions,
         keyboardOptions = interactions.keyboardOptions,
-//        decorator = { innerTextField ->
-//            Row(verticalAlignment = Alignment.CenterVertically) {
-//                TaskTextPadding { innerTextField() }
-//            }
-//        },
         decorationBox = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TaskTextPadding { it() }
