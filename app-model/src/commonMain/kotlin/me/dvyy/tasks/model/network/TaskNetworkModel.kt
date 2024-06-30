@@ -2,6 +2,7 @@ package me.dvyy.tasks.model.network
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 
@@ -13,4 +14,6 @@ data class TaskNetworkModel(
     val completed: Boolean = true,
     val highlight: Highlight = Highlight.Unmarked,
     val rank: Long,
-) : NetworkModel
+) : NetworkModel {
+    override val entityType: EntityType get() = EntityType.TASK
+}

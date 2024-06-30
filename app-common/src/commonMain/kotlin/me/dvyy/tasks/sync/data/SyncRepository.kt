@@ -31,7 +31,7 @@ class SyncRepository(
         val changes = Changelist(
             lastSynced = lastAppSync.value,
             upTo = now,
-            messages = messages.getLocalChanges(now)
+            messages = messages.getChanges(now)
         )
         val received = withContext(Dispatchers.Default) { syncApi.sync(changes) }
         messages.applyMessages(received.messages)

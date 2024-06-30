@@ -1,0 +1,14 @@
+import kotlin.Boolean;
+import me.dvyy.tasks.model.ListId;
+
+CREATE TABLE IF NOT EXISTS userEntity (
+  id SERIAL PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL
+);
+
+selectIdByName:
+SELECT id FROM userEntity WHERE username = ?;
+
+insertUser:
+INSERT INTO userEntity(username) VALUES (?)
+RETURNING id;

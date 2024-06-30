@@ -1,0 +1,22 @@
+import kotlin.Boolean;
+import me.dvyy.tasks.model.ListId;
+
+CREATE TABLE IF NOT EXISTS taskList (
+  uuid UUID AS ListId NOT NULL,
+  isProject BOOLEAN NOT NULL,
+  title TEXT,
+  rank INT8 NOT NULL,
+  userId INTEGER NOT NULL REFERENCES userEntity (id) ON DELETE CASCADE,
+  PRIMARY KEY (uuid, userId)
+);
+
+CREATE INDEX IF NOT EXISTS taskList_user ON task (userId);
+
+upsert:
+INSERT INTO taskList VALUES ? ON CONFLICT(uuid, userId) DO UPDATE
+SET isProject = excluded.isProject,
+    title = excluded.title,
+    rank = excluded.rank;
+
+delete:
+DELETE FROM taskList WHERE uuid = ?;

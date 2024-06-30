@@ -22,20 +22,20 @@ fun Route.login(
 ) = post("/login") {
     val user = call.receive<AuthRequest>()
 
-    val userId = ldapAuthenticate(
+    val userPrincipal = ldapAuthenticate(
         UserPasswordCredential(user.username, user.password),
         ldapConfig.connection,
         ldapConfig.userDNFormat
     )
         ?: return@post call.respond(HttpStatusCode.Conflict, "Invalid credentials")
 
-    val uuid = server.getOrCreateUserUuid(userId.name)
+    val userId = server.getOrCreateUserId(userPrincipal.name)
 
     val token = JWT.create()
         .withAudience(jwtConfig.audience)
         .withIssuer(jwtConfig.issuer)
         .withClaim("username", user.username)
-        .withClaim("uuid", uuid.toString())
+        .withClaim("userId", userId.toString())
         .withExpiresAt(Date(System.currentTimeMillis() + 1000 * 60 * 20))
         .sign(Algorithm.HMAC256(jwtConfig.secret))
 

@@ -134,8 +134,13 @@ sqldelight {
     databases {
         create("Database") {
             packageName.set("me.dvyy.tasks.db")
-//            sourceFolders = listOf("sqldelight")
-//            dialect("app.cash.sqldelight:mysql-dialect:2.0.2")
+            srcDirs("src/commonMain/sqldelight")
+        }
+        create("ServerDatabase") {
+            packageName.set("me.dvyy.tasks.db")
+//            dialect("app.cash.sqldelight:postgres-dialect:2.0.2")
+            dialect("app.cash.sqldelight:postgresql-dialect:2.0.2")
+            srcDirs("src/commonMain/sqldelight-server")
         }
     }
 }

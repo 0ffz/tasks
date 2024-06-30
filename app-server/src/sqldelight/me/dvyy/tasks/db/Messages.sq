@@ -1,0 +1,36 @@
+import kotlin.Boolean;
+import me.dvyy.tasks.model.ListId;
+import kotlinx.datetime.Instant;
+import me.dvyy.tasks.model.network.NetworkMessage;
+import me.dvyy.tasks.model.EntityType;
+
+CREATE TABLE IF NOT EXISTS message (
+  uuid UUID NOT NULL,
+  modified INT8 AS Instant NOT NULL,
+  type TEXT AS NetworkMessage.Type NOT NULL,
+  entityType TEXT AS EntityType NOT NULL,
+  userId INTEGER NOT NULL REFERENCES userEntity (id) ON DELETE CASCADE,
+  PRIMARY KEY (uuid, userId)
+);
+
+CREATE INDEX IF NOT EXISTS message_user ON message (userId);
+
+selectTasks:
+SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid
+WHERE message.userId = ? AND message.modified > ? AND message.modified <= ? AND type = 'Update';
+
+selectLists:
+SELECT * FROM message INNER JOIN taskList ON message.uuid = taskList.uuid
+WHERE message.userId = ? AND message.modified > ? AND message.modified <= ? AND type = 'Update';
+
+selectDeleted:
+SELECT * FROM message
+WHERE message.userId = ? AND message.modified > ? AND modified <= ? AND type = 'Delete';
+
+insertMessage:
+INSERT INTO message VALUES ?
+ON CONFLICT(uuid, userId) DO UPDATE
+    SET modified = excluded.modified,
+        type = excluded.type,
+        entityType = excluded.entityType,
+        userId = excluded.userId;

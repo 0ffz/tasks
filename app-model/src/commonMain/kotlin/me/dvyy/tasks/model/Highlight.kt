@@ -19,7 +19,7 @@ data class Highlight(
             encoder.encodeString(serialize(value))
         }
 
-        fun serialize(value: Highlight) = "${value.type.name}${if (!value.isLight) " Dark" else ""}"
+        fun serialize(value: Highlight): String = "${value.type.name}${if (!value.isLight) " Dark" else ""}"
 
         override fun deserialize(decoder: Decoder) = deserialize(decoder.decodeString())
 

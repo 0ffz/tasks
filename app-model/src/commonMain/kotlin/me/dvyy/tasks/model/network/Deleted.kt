@@ -7,5 +7,5 @@ import me.dvyy.tasks.model.EntityType
 @Serializable
 @SerialName("deleted")
 class Deleted(
-    val entityType: EntityType,
+    override val entityType: EntityType,
 ) : NetworkModel

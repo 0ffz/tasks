@@ -7,10 +7,6 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
-enum class EntityType {
-    LIST, TASK
-}
-
 @Serializable
 sealed interface EntityId {
     val uuid: Uuid

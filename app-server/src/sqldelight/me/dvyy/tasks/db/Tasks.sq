@@ -1,0 +1,28 @@
+import kotlin.Boolean;
+import me.dvyy.tasks.model.Highlight;
+import me.dvyy.tasks.model.ListId;
+import me.dvyy.tasks.model.TaskId;
+
+CREATE TABLE IF NOT EXISTS task (
+  uuid UUID AS TaskId NOT NULL,
+  text TEXT,
+  highlight TEXT AS Highlight NOT NULL,
+  completed BOOLEAN NOT NULL,
+  list UUID AS ListId NOT NULL,
+  rank INT8 NOT NULL,
+  userId INTEGER NOT NULL REFERENCES userEntity (id) ON DELETE CASCADE,
+  PRIMARY KEY (uuid, userId)
+);
+
+CREATE INDEX IF NOT EXISTS tasks_userId ON task (userId);
+
+upsert:
+INSERT INTO task VALUES ? ON CONFLICT(uuid, userId) DO UPDATE
+SET text = excluded.text,
+    highlight = excluded.highlight,
+    completed = excluded.completed,
+    list = excluded.list,
+    rank = excluded.rank;
+
+delete:
+DELETE FROM task WHERE uuid = ?;

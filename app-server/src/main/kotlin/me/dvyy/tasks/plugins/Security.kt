@@ -2,7 +2,6 @@ package me.dvyy.tasks.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.benasher44.uuid.Uuid
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -23,8 +22,8 @@ fun Application.configureSecurity(
         )
         validate { credential ->
             val name = credential.payload.getClaim("username").asString() ?: return@validate null
-            val uuid = Uuid.fromString(credential.payload.getClaim("uuid").asString()) ?: return@validate null
-            UserSession(name, uuid)
+            val userId = credential.payload.getClaim("userId").asString().toIntOrNull() ?: return@validate null
+            UserSession(name, userId)
         }
         challenge { _, _ ->
             call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
@@ -34,5 +33,5 @@ fun Application.configureSecurity(
 
 data class UserSession(
     val username: String,
-    val uuid: Uuid,
+    val userId: Int,
 ) : Principal

@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.jib)
-//    alias(libs.plugins.sqldelight)
+    alias(libs.plugins.sqldelight)
 }
 
 application {
@@ -42,7 +42,8 @@ dependencies {
     implementation(libs.ktor.server.config.yaml)
 
     implementation(libs.postgresql)
-//    implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation("app.cash.sqldelight:jdbc-driver:2.0.2")
     implementation(libs.koin.core)
 
 }
@@ -68,3 +69,12 @@ jib {
     }
 }
 
+sqldelight {
+    databases {
+        create("ServerDatabase") {
+            packageName.set("me.dvyy.tasks.db")
+            dialect("app.cash.sqldelight:postgresql-dialect:2.0.2")
+            srcDirs("src/sqldelight")
+        }
+    }
+}

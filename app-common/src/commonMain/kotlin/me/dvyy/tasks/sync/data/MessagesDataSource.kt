@@ -31,28 +31,18 @@ class MessagesDataSource(
         }
     }
 
-    fun getLocalChanges(upTo: Instant): List<NetworkMessage> = db.transactionWithResult {
+    fun getChanges(upTo: Instant): List<NetworkMessage> = db.transactionWithResult {
         buildList {
             addAll(db.messagesQueries.selectTasks(upTo).executeAsList().map {
                 NetworkMessage(
-                    data = TaskNetworkModel(
-                        listId = it.list,
-                        text = it.text,
-                        completed = it.completed,
-                        highlight = it.highlight,
-                        rank = it.rank,
-                    ),
+                    data = TaskNetworkModel(it.list, it.text, it.completed, it.highlight, it.rank),
                     entityId = it.uuid,
                     modified = it.modified,
                 )
             })
             addAll(db.messagesQueries.selectLists(upTo).executeAsList().map {
                 NetworkMessage(
-                    data = TaskListNetworkModel(
-                        displayName = it.title,
-                        isProject = it.isProject,
-                        rank = it.rank,
-                    ),
+                    data = TaskListNetworkModel(it.title, it.isProject, it.rank),
                     entityId = it.uuid,
                     modified = it.modified,
                 )
@@ -79,7 +69,7 @@ class MessagesDataSource(
                 is TaskListNetworkModel -> db.listsQueries.insert(
                     TaskList(
                         uuid = ListId(uuid),
-                        title = data.displayName,
+                        title = data.title,
                         isProject = data.isProject,
                         rank = data.rank,
                     )

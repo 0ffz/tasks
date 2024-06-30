@@ -33,6 +33,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.serialization.cbor)
                 implementation(libs.uuid)
+                implementation("app.cash.sqldelight:primitive-adapters:2.0.2")
             }
         }
     }
