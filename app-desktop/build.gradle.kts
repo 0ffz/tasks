@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -22,6 +23,13 @@ kotlin {
     }
 }
 
+// Conveyor
+configurations.all {
+    attributes {
+        attribute(Attribute.of("ui", String::class.java), "awt")
+    }
+}
+
 compose.desktop {
     application {
         mainClass = "MainKt"
@@ -29,6 +37,103 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "jetsnak-mpp"
             packageVersion = "1.0.0"
+        }
+    }
+}
+
+// ==== Packaging ====
+
+val appName = "Tasks"
+
+val appInstallerName = "$appName-" + when {
+    Os.isFamily(Os.FAMILY_MAC) -> "macOS"
+    Os.isFamily(Os.FAMILY_WINDOWS) -> "windows"
+    else -> "linux"
+}
+
+compose.desktop {
+    application {
+        mainClass = "MainKt"
+        buildTypes.release.proguard {
+            configurationFiles.from(
+                project.file("proguard/custom.pro")
+            )
+            optimize = true
+            obfuscate = true
+        }
+
+        nativeDistributions {
+            when {
+                Os.isFamily(Os.FAMILY_MAC) -> targetFormats(TargetFormat.Dmg)
+                Os.isFamily(Os.FAMILY_WINDOWS) -> targetFormats(TargetFormat.Exe)
+                else -> targetFormats(TargetFormat.AppImage)
+            }
+
+            modules(
+//                "java.instrument",
+//                "java.management",
+//                "java.naming",
+                "java.sql",
+//                "java.security.jgss",
+//                "jdk.httpserver",
+//                "jdk.unsupported"
+            )
+            packageName = appName
+            packageVersion = "${project.version}"
+            val strippedVersion = project.version.toString().substringBeforeLast("-")
+            val iconsRoot = project.file("icons")
+            macOS {
+                packageVersion = strippedVersion
+                iconFile.set(iconsRoot.resolve("icon.icns"))
+            }
+            windows {
+                packageVersion = strippedVersion
+                menu = true
+                shortcut = true
+                upgradeUuid = "ac99e6ed-7dbf-410b-bd3b-e9a143cebcd7"
+                iconFile.set(iconsRoot.resolve("icon.ico"))
+                dirChooser = false
+                perUserInstall = false
+            }
+            linux {
+                iconFile.set(iconsRoot.resolve("icon.png"))
+            }
+        }
+    }
+}
+
+val composePackageDir = "$buildDir/compose/binaries/main-release/${
+    when {
+        Os.isFamily(Os.FAMILY_MAC) -> "dmg"
+        Os.isFamily(Os.FAMILY_WINDOWS) -> "exe"
+        else -> "app"
+    }
+}"
+
+tasks {
+    val exeRelease by registering(Copy::class) {
+        dependsOn("packageReleaseDistributionForCurrentOS")
+        from(composePackageDir)
+        include("*.exe")
+        rename("$appName*", appInstallerName)
+        into("releases")
+    }
+
+    val dmgRelease by registering(Copy::class) {
+        dependsOn("packageReleaseDistributionForCurrentOS")
+        from(composePackageDir)
+        include("*.dmg")
+        rename("$appName*", appInstallerName)
+        into("releases")
+    }
+
+
+    val packageForRelease by registering {
+        mkdir(project.file("releases"))
+        when {
+            Os.isFamily(Os.FAMILY_WINDOWS) -> dependsOn(exeRelease)
+            Os.isFamily(Os.FAMILY_MAC) -> dependsOn(dmgRelease)
+//            else -> dependsOn(executeAppImageBuilder) //TODO copy over from launchy
         }
     }
 }
