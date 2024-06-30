@@ -181,7 +181,15 @@ class TasksViewModel(
             when {
                 event.isCtrlPressed && event.key == Key.E -> {
                     val shift = if (event.isShiftPressed) -1 else 1
-                    setUiState(uiState.copy(highlight = Highlight.entries[(uiState.highlight.ordinal + shift) % Highlight.entries.size]))
+                    val (type, isLight) = uiState.highlight
+                    setUiState(
+                        uiState.copy(
+                            highlight = Highlight(
+                                Highlight.Type.entries[(type.ordinal + shift) % Highlight.Type.entries.size],
+                                isLight
+                            )
+                        )
+                    )
                 }
 
                 event.key == Key.Escape -> {

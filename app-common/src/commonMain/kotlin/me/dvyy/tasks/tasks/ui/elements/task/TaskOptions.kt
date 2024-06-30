@@ -1,19 +1,19 @@
 package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
@@ -55,12 +55,7 @@ fun TaskOptions(
                 }
                 HighlightButton(task.highlight, task) { toggleFocused() }
                 AnimatedVisibility(focused == FocusedOption.Highlight) {
-                    Row(Modifier.padding(start = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        VerticalDivider(Modifier.height(24.dp))
-                        Highlight.entries.forEach {
-                            HighlightButton(it, task) { setTask(it); toggleFocused() }
-                        }
-                    }
+                    HighlightButtons(task, setTask, ::toggleFocused)
                 }
                 Spacer(Modifier.width(spacing))
                 TaskDatePicker(initialDate ?: time.today, interactions)
@@ -76,6 +71,21 @@ fun TaskOptions(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun HighlightButtons(task: TaskUiState, setTask: (TaskUiState) -> Unit, toggleFocused: () -> Unit) {
+    var isLight by remember { mutableStateOf(task.highlight.isLight) }
+    Row(Modifier.padding(start = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        LightDarkHighlightToggle(isLight, onToggle = {
+            isLight = !isLight
+            setTask(task.copy(highlight = task.highlight.copy(isLight = isLight)))
+        })
+        VerticalDivider(Modifier.height(24.dp))
+        Highlight.Type.entries.forEach {
+            HighlightButton(Highlight(it, isLight), task) { setTask(it); toggleFocused() }
         }
     }
 }
@@ -116,16 +126,39 @@ fun TaskDatePicker(initialDate: LocalDate, interactions: TaskInteractions, time:
 }
 
 @Composable
-fun HighlightButton(highlight: Highlight, task: TaskUiState, setTask: (TaskUiState) -> Unit) {
+fun LightDarkHighlightToggle(isLight: Boolean, onToggle: () -> Unit) {
     val ui = LocalUIState.current
-    val border = if (highlight == Highlight.Unmarked) BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface) else null
+    IconButton(onClick = { onToggle() }, modifier = Modifier.size(ui.taskOptionSize)) {
+        Crossfade(isLight) {
+            if (it) {
+                Icon(Icons.Outlined.LightMode, contentDescription = "Light")
+            } else {
+                Icon(Icons.Outlined.DarkMode, contentDescription = "Dark")
+            }
+        }
+    }
+}
+
+@Composable
+fun HighlightButton(highlight: Highlight, task: TaskUiState, setTask: (TaskUiState) -> Unit) {
+    CircleButton(onClick = { setTask(task.copy(highlight = highlight)) }, highlight.color)
+}
+
+@Composable
+fun CircleButton(
+    onClick: () -> Unit,
+    color: Color = Color.Transparent,
+    content: @Composable () -> Unit = {},
+) {
+    val ui = LocalUIState.current
+    val border = if (color == Color.Transparent) BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface) else null
     Button(
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.onSurface,
-            containerColor = highlight.color,
+            containerColor = color,
         ),
-        onClick = { setTask(task.copy(highlight = highlight)) },
+        onClick = onClick,
         modifier = Modifier.size(ui.taskOptionSize).focusProperties { canFocus = false },
         border = border,
-    ) { }
+    ) { content() }
 }

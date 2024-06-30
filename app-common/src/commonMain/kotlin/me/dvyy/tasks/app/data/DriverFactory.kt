@@ -31,7 +31,7 @@ fun createDatabase(driverFactory: DriverFactory): Database {
         ),
         taskAdapter = Task.Adapter(
             uuidAdapter = taskIdAdapter,
-            highlightAdapter = EnumColumnAdapter<Highlight>(),
+            highlightAdapter = highlightAdapter,
             listAdapter = listIdAdapter,
         ),
         taskListAdapter = TaskList.Adapter(
@@ -44,6 +44,12 @@ val uuidAdapter = object : ColumnAdapter<Uuid, ByteArray> {
     override fun encode(value: Uuid) = value.bytes
 
     override fun decode(databaseValue: ByteArray) = uuidOf(databaseValue)
+}
+
+val highlightAdapter = object : ColumnAdapter<Highlight, String> {
+    override fun encode(value: Highlight) = Highlight.Serializer.serialize(value)
+
+    override fun decode(databaseValue: String) = Highlight.Serializer.deserialize(databaseValue)
 }
 
 class WrappedAdapter<Inner : Any, Outer : Any, S>(

@@ -23,6 +23,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
@@ -138,7 +139,6 @@ fun TaskSelectedSurface(
         modifier = Modifier.padding(vertical = padding),
         shape = RoundedCornerShape(cornerShape),
         color = defaultColor,
-        contentColor = contentColorFor(defaultColor),
         tonalElevation = elevation.dp,
     ) {
         Surface(
@@ -150,6 +150,8 @@ fun TaskSelectedSurface(
     }
 }
 
+fun Color.getBestTextColor() = if (luminance() > 0.36f) Color.Black else Color.White
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskTextField(
@@ -160,9 +162,7 @@ fun TaskTextField(
     modifier: Modifier = Modifier,
 ) {
     val textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
-    val textColor by animateColorAsState(
-        MaterialTheme.colorScheme.onSurface
-    )
+    val textColor by animateColorAsState(if (selected) MaterialTheme.colorScheme.onSurface else task.highlight.color.getBestTextColor())
     val textStyle = MaterialTheme.typography.bodyLarge.copy(
         color = textColor,
         textDecoration = textDecoration,
@@ -174,6 +174,7 @@ fun TaskTextField(
             focusRequester.requestFocus()
         }
     }
+
     BasicTextField(
         value = task.text,
         readOnly = task.completed,
