@@ -70,7 +70,8 @@ fun TaskList(
             Column(scrollModifier) {
                 tasks.forEachIndexed { index, task ->
                     key(task.uuid) {
-                        val selected = selectedTask == task.uuid
+                        val selected = selectedTask?.taskId == task.uuid
+                        val focusRequested = selected && selectedTask?.requestFocus == true
 //                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
                         // cached task is the SSOT in this context, some things like text updates take too long to update in db
                         CachedUpdate(
@@ -97,6 +98,7 @@ fun TaskList(
                                 reorderInteractions = reorderInteractions,
                                 interactions = taskInteractions,
                                 selected = selected,
+                                focusRequested = focusRequested,
                             )
                         }
                     }

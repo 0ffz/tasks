@@ -17,7 +17,7 @@ class TopbarViewModel(
     private val onClose: () -> Unit,
 ) : ViewModel() {
 
-    val _floatingWindowSize = MutableStateFlow<WindowSize?>(null)
+    private val _floatingWindowSize = MutableStateFlow<WindowSize?>(null)
     val floatingWindowSize = _floatingWindowSize.asStateFlow()
 
     fun minimize() {

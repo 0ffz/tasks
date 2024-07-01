@@ -33,17 +33,25 @@ sealed interface SyncState {
     data object Error : SyncState
 }
 
+data class SelectedTask(
+    val taskId: TaskId,
+    val requestFocus: Boolean,
+)
+
 class TasksViewModel(
     private val taskRepo: TaskRepository,
     private val listRepo: TaskListRepository,
 ) : ViewModel() {
-    val selectedTask = MutableStateFlow<TaskId?>(null)
+    val selectedTask = MutableStateFlow<SelectedTask?>(null)
 
     val projects = listRepo.observeProjects()
         .stateIn(viewModelScope, WhileUiSubscribed, emptyList())
 
-    fun selectTask(uuid: TaskId?) {
-        selectedTask.update { uuid }
+    fun selectTask(uuid: TaskId?, focus: Boolean = false) {
+        selectedTask.update {
+            if (uuid == null) null
+            else SelectedTask(uuid, focus)
+        }
     }
 
     // These flows will stop when coroutines aren't actively using them, they're safe to store in a map here
@@ -94,7 +102,7 @@ class TasksViewModel(
     }
 
     fun listInteractionsFor(list: ListId) = TaskListInteractions(
-        createNewTask = { viewModelScope.launch { selectTask(taskRepo.create(list).uuid) } },
+        createNewTask = { viewModelScope.launch { selectTask(taskRepo.create(list).uuid, focus = true) } },
         onPropertiesChanged = { props ->
             viewModelScope.launch { listRepo.update(list, props) }
         },
@@ -139,17 +147,13 @@ class TasksViewModel(
             return "DefaultTaskInteractions(taskId=$taskId, listId=$listId, uiState=$uiState)"
         }
 
-        private fun update(updater: (Task) -> Task) = viewModelScope.launch {
-            taskRepo.update(taskId, updater)
-        }
-
         private fun selectNextTaskOrNew() {
             val nextTask = taskAfter(listId, /*selectedTask.value ?: */taskId)
             if (nextTask != null) {
                 selectTask(nextTask)
             } else if (uiState.text.isNotEmpty()) {
                 viewModelScope.launch {
-                    selectTask(taskRepo.create(listId).uuid)
+                    selectTask(taskRepo.create(listId).uuid, focus = true)
                 }
             }
         }
@@ -171,7 +175,7 @@ class TasksViewModel(
             if (event.key == Key.Backspace) {
                 if (uiState.text.isEmpty()) {
                     viewModelScope.launch {
-                        selectTask(taskBefore(listId, taskId))
+                        selectTask(taskBefore(listId, taskId), focus = true)
                         taskRepo.delete(taskId)
                     }
                 }
@@ -202,7 +206,7 @@ class TasksViewModel(
         }
 
         override fun onSelect() {
-            if (selectedTask.value != taskId) selectTask(taskId)
+            if (selectedTask.value?.taskId != taskId) selectTask(taskId)
         }
     }
 }

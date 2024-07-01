@@ -80,6 +80,7 @@ fun QuickAdd(
                         TaskTextField(
                             task = task,
                             selected = true,
+                            focusRequested = true,
                             setTask = { task = it },
                             interactions = interactions,
                             modifier = Modifier.fillMaxWidth()

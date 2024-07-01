@@ -27,6 +27,7 @@ fun ReorderableTask(
     reorderInteractions: TaskReorderInteractions,
     interactions: TaskInteractions,
     selected: Boolean,
+    focusRequested: Boolean = false,
 ) {
     ReorderableItem(
         state = reorderInteractions.draggedState,
@@ -56,7 +57,7 @@ fun ReorderableTask(
         },
         onDragEnter = { reorderInteractions.onDragEnterItem(key, it) },
     ) {
-        Task(task, setTask, selected, interactions)
+        Task(task, setTask, selected, interactions, focusRequested = focusRequested)
     }
     HorizontalDivider()
 }

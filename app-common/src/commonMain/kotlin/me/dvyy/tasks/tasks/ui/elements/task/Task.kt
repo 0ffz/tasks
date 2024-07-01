@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -43,6 +44,7 @@ fun Task(
     setTask: (TaskUiState) -> Unit,
     selected: Boolean,
     interactions: TaskInteractions,
+    focusRequested: Boolean = false,
     date: LocalDate? = null,
 ) {
     var isHovered by remember { mutableStateOf(false) }
@@ -67,7 +69,9 @@ fun Task(
             )
             .heightIn(min = ui.taskHeight)
             .focusProperties { canFocus = false }
-            .clickableWithoutRipple { } // Consume click so background (deselect) doesn't get it
+            .clickableWithoutRipple {
+                interactions.onSelect()
+            } // Consume click so background (deselect) doesn't get it
     ) {
         TaskSelectedSurface(
             selected,
@@ -82,7 +86,7 @@ fun Task(
                     Row(verticalAlignment = Alignment.Top) {
                         Box(Modifier.weight(1f, true), contentAlignment = Alignment.CenterStart) {
                             if (!selected) TaskHighlight(task.text, task.highlight)
-                            TaskTextField(task, selected, setTask, interactions, Modifier)
+                            TaskTextField(task, selected, setTask, interactions, focusRequested, Modifier)
                         }
                         val responsive = LocalUIState.current
 
@@ -159,6 +163,7 @@ fun TaskTextField(
     selected: Boolean,
     setTask: (TaskUiState) -> Unit,
     interactions: TaskInteractions,
+    focusRequested: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
@@ -169,13 +174,20 @@ fun TaskTextField(
     )
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(selected) {
-        if (selected) {
+    LaunchedEffect(focusRequested) {
+        if (focusRequested) {
             focusRequester.requestFocus()
         }
     }
-
-    BasicTextField(
+    if (!selected) TaskTextPadding {
+        Text(
+            text = task.text,
+            style = textStyle,
+            modifier = modifier,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    } else BasicTextField(
         value = task.text,
         readOnly = task.completed,
         singleLine = !selected,
