@@ -19,48 +19,52 @@ import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.KoinApplication
 import org.koin.core.module.Module
 
+@Composable
+fun AppKoinContext(extraModules: List<Module> = emptyList(), content: @Composable () -> Unit) {
+    KoinApplication(application = {
+        modules(extraModules)
+        modules(
+            appModule(),
+            repositoriesModule(),
+            authModule(),
+            syncModule(),
+            viewModelsModule(),
+        )
+    }) {
+        content()
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(
-    extraModules: List<Module> = emptyList(),
     topBar: @Composable (TopAppBarScrollBehavior) -> Unit = { AppTopBar(it) },
     extras: @Composable () -> Unit = { },
 ) {
     AppTheme {
-        KoinApplication(application = {
-            modules(extraModules)
-            modules(
-                appModule(),
-                repositoriesModule(),
-                authModule(),
-                syncModule(),
-                viewModelsModule(),
-            )
-        }) {
-            val responsive = rememberAppUIState()
-            val tasksViewModel = koinViewModel<TasksViewModel>()
-            CompositionLocalProvider(
-                LocalUIState provides responsive,
-            ) {
-                val scrollBehavior = if (responsive.isSingleColumn)
-                    TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-                else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                AppDrawer {
-                    Scaffold(
-                        Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
-                        topBar = { topBar(scrollBehavior) },
-                    ) { paddingValues ->
-                        Box(
-                            Modifier.padding(paddingValues)
-                                .clickableWithoutRipple { tasksViewModel.selectTask(null) }) {
-                            HomeScreen()
-                        }
+        val responsive = rememberAppUIState()
+        val tasksViewModel = koinViewModel<TasksViewModel>()
+        CompositionLocalProvider(
+            LocalUIState provides responsive,
+        ) {
+            val scrollBehavior = if (responsive.isSingleColumn)
+                TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+            else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+            AppDrawer {
+                Scaffold(
+                    Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+                    topBar = { topBar(scrollBehavior) },
+                ) { paddingValues ->
+                    Box(
+                        Modifier.padding(paddingValues)
+                            .clickableWithoutRipple { tasksViewModel.selectTask(null) }) {
+                        HomeScreen()
                     }
-                    AppDialogs()
                 }
+                AppDialogs()
             }
-            extras()
         }
+        extras()
     }
 }
 
