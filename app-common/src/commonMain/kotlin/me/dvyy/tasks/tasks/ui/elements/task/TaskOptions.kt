@@ -42,50 +42,64 @@ fun TaskOptions(
 ) {
     val ui = LocalUIState.current
     var focused: FocusedOption by remember { mutableStateOf(FocusedOption.None) }
-    Box(Modifier.padding(horizontal = ui.horizontalTaskTextPadding, vertical = 4.dp)) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.SpaceBetween//Arrangement.spacedBy(8.dp)
-            ) {
-                val spacing = 8.dp
-                fun toggleFocused() {
-                    focused = if (focused == FocusedOption.Highlight) FocusedOption.None else FocusedOption.Highlight
+    fun toggleFocused() {
+        focused = if (focused == FocusedOption.Highlight) FocusedOption.None else FocusedOption.Highlight
+    }
+    Column(
+        Modifier.padding(horizontal = ui.horizontalTaskTextPadding, vertical = 4.dp),
+//        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            HighlightButton(task.highlight, task) { toggleFocused() }
+            TaskDatePicker(initialDate ?: time.today, interactions)
+            Spacer(Modifier.weight(1f))
+            if (submitAction != null) {
+                FilledIconButton(onClick = submitAction) {
+                    Icon(Icons.Outlined.Done, contentDescription = "Submit")
                 }
-                HighlightButton(task.highlight, task) { toggleFocused() }
-                AnimatedVisibility(focused == FocusedOption.Highlight) {
-                    HighlightButtons(task, setTask, ::toggleFocused)
-                }
-                Spacer(Modifier.width(spacing))
-                TaskDatePicker(initialDate ?: time.today, interactions)
-
-                Spacer(Modifier.weight(1f))
-                if (submitAction != null) {
-                    FilledIconButton(onClick = submitAction) {
-                        Icon(Icons.Outlined.Done, contentDescription = "Submit")
-                    }
-                } else {
-                    IconButton(onClick = { interactions.onDelete() }, modifier = Modifier.size(ui.taskCheckboxSize)) {
-                        Icon(Icons.Outlined.Delete, contentDescription = "Delete")
-                    }
+            } else {
+                IconButton(onClick = { interactions.onDelete() }, modifier = Modifier.size(ui.taskCheckboxSize)) {
+                    Icon(Icons.Outlined.Delete, contentDescription = "Delete")
                 }
             }
+        }
+        AnimatedVisibility(focused == FocusedOption.Highlight) {
+            HighlightButtons(
+                task,
+                setTask,
+                ::toggleFocused,
+                Modifier.height(ui.taskCheckboxSize).fillMaxWidth().horizontalScroll(rememberScrollState())
+            )
         }
     }
 }
 
 @Composable
-fun HighlightButtons(task: TaskUiState, setTask: (TaskUiState) -> Unit, toggleFocused: () -> Unit) {
-    var isLight by remember { mutableStateOf(task.highlight.isLight) }
-    Row(Modifier.padding(start = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        LightDarkHighlightToggle(isLight, onToggle = {
-            isLight = !isLight
-            setTask(task.copy(highlight = task.highlight.copy(isLight = isLight)))
-        })
-        VerticalDivider(Modifier.height(24.dp))
+fun HighlightButtons(
+    task: TaskUiState,
+    setTask: (TaskUiState) -> Unit,
+    toggleFocused: () -> Unit,
+    modifier: Modifier = Modifier,
+) = Column {
+    HorizontalDivider(Modifier.fillMaxWidth())
+//    var isLight by remember { mutableStateOf(task.highlight.isLight) }
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+//        LightDarkHighlightToggle(isLight, onToggle = {
+//            isLight = !isLight
+//            setTask(task.copy(highlight = task.highlight.copy(isLight = isLight)))
+//        })
         Highlight.Type.entries.forEach {
-            HighlightButton(Highlight(it, isLight), task) { setTask(it); toggleFocused() }
+            HighlightButton(Highlight(it, true), task) { setTask(it); toggleFocused() }
+        }
+    }
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+
+        Highlight.Type.entries.forEach {
+            HighlightButton(Highlight(it, false), task) { setTask(it); toggleFocused() }
         }
     }
 }
