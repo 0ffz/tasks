@@ -159,8 +159,9 @@ tasks {
         environment("ARCH", "x86_64")
         commandLine(
             appImageTool,
-            linuxAppDir.absolutePath
-        )//, project.file("releases/$appInstallerName-${project.version}.AppImage"))
+            linuxAppDir.absolutePath,
+            project.file("releases/$appInstallerName-${project.version}.AppImage")
+        )
     }
 
 
