@@ -24,7 +24,7 @@ import kotlin.time.Duration.Companion.seconds
 fun ClickableSyncStatusIcon(
     sync: SyncViewModel = koinViewModel(),
 ) {
-    IconButton(onClick = { sync.queueSync() }) {
+    IconButton(onClick = { sync.sync() }) {
         SyncStatusIcon(sync)
     }
 }

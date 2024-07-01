@@ -26,11 +26,11 @@ class SyncViewModel(
 //        }
     }
 
-    fun queueSync() = viewModelScope.launch {
+    private inline fun queueSync(crossinline run: suspend () -> Unit) = viewModelScope.launch {
         if (syncState.value == SyncState.InProgress) return@launch
         _syncState.value = SyncState.InProgress
         runCatching {
-            syncRepo.sync()
+            run()
         }.onFailure {
             _syncState.update { SyncState.Error }
             it.printStackTrace()
@@ -39,16 +39,15 @@ class SyncViewModel(
         }
     }
 
-    fun fullSync() = viewModelScope.launch {
-        if (syncState.value == SyncState.InProgress) return@launch
-        _syncState.value = SyncState.InProgress
-        runCatching {
-            syncRepo.fullSync()
-        }.onFailure {
-            _syncState.update { SyncState.Error }
-            it.printStackTrace()
-        }.onSuccess {
-            _syncState.update { SyncState.Success }
-        }
+    fun sync() = queueSync {
+        syncRepo.sync()
+    }
+
+    fun fullSync() = queueSync {
+        syncRepo.fullSync()
+    }
+
+    fun forcePull() = queueSync {
+        syncRepo.sync(lastSynced = null)
     }
 }

@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.CloudUpload
-import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -68,11 +65,17 @@ fun AppDrawer(
                             icon = { SyncStatusIcon() },
                             label = { Text(text = "Sync") },
                             selected = false,
-                            onClick = { sync.queueSync() },
+                            onClick = { sync.sync() },
                         )
                         NavigationDrawerItem(
-                            icon = { Icon(Icons.Outlined.CloudUpload, contentDescription = "Full sync") },
-                            label = { Text(text = "Full sync") },
+                            icon = { Icon(Icons.Outlined.CloudDownload, contentDescription = "Pull all") },
+                            label = { Text(text = "Pull all") },
+                            selected = false,
+                            onClick = { sync.forcePull() },
+                        )
+                        NavigationDrawerItem(
+                            icon = { Icon(Icons.Outlined.CloudUpload, contentDescription = "Push all") },
+                            label = { Text(text = "Push all") },
                             selected = false,
                             onClick = { sync.fullSync() },
                         )
