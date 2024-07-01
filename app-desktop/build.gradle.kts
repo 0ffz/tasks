@@ -1,3 +1,4 @@
+import de.undercouch.gradle.tasks.download.Download
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
@@ -5,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    id("de.undercouch.download") version "5.3.1"
 }
 
 kotlin {
@@ -81,7 +83,7 @@ compose.desktop {
             packageName = appName
             packageVersion = "${project.version}"
             val strippedVersion = project.version.toString().substringBeforeLast("-")
-            val iconsRoot = project.file("icons")
+            val iconsRoot = project.file("packaging/icons")
             macOS {
                 packageVersion = strippedVersion
                 iconFile.set(iconsRoot.resolve("icon.icns"))
@@ -102,6 +104,8 @@ compose.desktop {
     }
 }
 
+val linuxAppDir = project.file("packaging/appimage/$appName.AppDir")
+val appImageTool = project.file("packaging/deps/appimagetool.AppImage")
 val composePackageDir = "$buildDir/compose/binaries/main-release/${
     when {
         Os.isFamily(Os.FAMILY_MAC) -> "dmg"
@@ -127,13 +131,46 @@ tasks {
         into("releases")
     }
 
+    // Appimage
+    val downloadAppImageBuilder by registering(Download::class) {
+        src("https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage")
+        dest(appImageTool)
+        doLast {
+            exec {
+                commandLine("chmod", "+x", appImageTool)
+            }
+        }
+    }
+
+    val deleteOldAppDirFiles by registering(Delete::class) {
+        delete("$linuxAppDir/usr/bin", "$linuxAppDir/usr/lib")
+    }
+
+    val copyBuildToPackaging by registering(Copy::class) {
+        dependsOn("packageReleaseDistributionForCurrentOS")
+        dependsOn(deleteOldAppDirFiles)
+        from("$buildDir/compose/binaries/main-release/app/$appName")
+        into("$linuxAppDir/usr")
+    }
+
+    val executeAppImageBuilder by registering(Exec::class) {
+        dependsOn(downloadAppImageBuilder)
+        dependsOn(copyBuildToPackaging)
+        environment("ARCH", "x86_64")
+        commandLine(
+            appImageTool,
+            linuxAppDir.absolutePath
+        )//, project.file("releases/$appInstallerName-${project.version}.AppImage"))
+    }
+
 
     val packageForRelease by registering {
         mkdir(project.file("releases"))
         when {
             Os.isFamily(Os.FAMILY_WINDOWS) -> dependsOn(exeRelease)
             Os.isFamily(Os.FAMILY_MAC) -> dependsOn(dmgRelease)
-//            else -> dependsOn(executeAppImageBuilder) //TODO copy over from launchy
+            else -> dependsOn(executeAppImageBuilder)
         }
     }
 }
+
