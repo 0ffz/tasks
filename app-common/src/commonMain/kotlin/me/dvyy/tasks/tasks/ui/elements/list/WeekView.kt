@@ -39,14 +39,14 @@ fun WeekView(
 ) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
-    var splitHeight by prefs.floatSetting("splitHeight", 0.5f)
+    val splitHeight by prefs.splitHeight.collectAsState()
     val splitCutoff = 0.05f..0.95f
 
     Scaffold(
         floatingActionButton = {
             Column {
                 if (splitHeight !in splitCutoff) {
-                    FloatingActionButton(onClick = { splitHeight = 0.5f }) {
+                    FloatingActionButton(onClick = { prefs.splitHeight.value = 0.5f }) {
                         Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
                     }
                 }
@@ -93,7 +93,7 @@ fun WeekView(
                     )
                 }
                 val draggableState = rememberDraggableState {
-                    splitHeight = (splitHeight + it / height).coerceIn(0f, 1f)
+                    prefs.splitHeight.value = (splitHeight + it / height).coerceIn(0f, 1f)
                 }
                 if (!ui.isSingleColumn) Box(
                     Modifier.fillMaxWidth().draggable(draggableState, Orientation.Vertical),

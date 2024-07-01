@@ -5,6 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import me.dvyy.tasks.app.ui.AppDialog
 import me.dvyy.tasks.app.ui.DialogViewModel
+import me.dvyy.tasks.app.ui.ThemeDialog
 import me.dvyy.tasks.auth.ui.AuthDialog
 import me.dvyy.tasks.di.koinViewModel
 
@@ -15,5 +16,6 @@ fun AppDialogs(app: DialogViewModel = koinViewModel()) {
     when (dialog) {
         null -> {}
         AppDialog.Auth -> AuthDialog()
+        AppDialog.Theme -> ThemeDialog()
     }
 }

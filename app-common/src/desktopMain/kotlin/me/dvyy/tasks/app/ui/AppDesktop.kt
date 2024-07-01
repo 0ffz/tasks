@@ -27,7 +27,7 @@ fun ApplicationScope.AppDesktop() = AppKoinContext {
     val icon = painterResource("icon.png")
     var resizable by remember { mutableStateOf(true) }
     val prefs = koinInject<PreferencesViewModel>()
-    var density by prefs.floatSetting("density", LocalDensity.current.density)
+    val density by prefs.density.collectAsState()
     Window(
         state = windowState,
         title = "Tasks",
@@ -39,11 +39,11 @@ fun ApplicationScope.AppDesktop() = AppKoinContext {
             if(it.type == KeyEventType.KeyUp) return@Window false
             when {
                 it.isCtrlPressed && it.key == Key.Equals -> {
-                    density += 0.1f
+                    prefs.density.value += 0.1f
                     true
                 }
                 it.isCtrlPressed && it.key == Key.Minus -> {
-                    density -= 0.1f
+                    prefs.density.value -= 0.1f
                     true
                 }
                 else -> {

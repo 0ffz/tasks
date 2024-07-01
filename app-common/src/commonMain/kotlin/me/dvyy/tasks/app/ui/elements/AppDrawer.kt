@@ -49,6 +49,12 @@ fun AppDrawer(
                         selected = false,
                         onClick = { /*TODO*/ }
                     )
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Outlined.Palette, contentDescription = "Theme") },
+                        label = { Text(text = "Theme") },
+                        selected = false,
+                        onClick = { dialogs.show(AppDialog.Theme) }
+                    )
                     Spacer(Modifier.weight(1f))
                     if (login !is LoginState.Success) {
                         NavigationDrawerItem(

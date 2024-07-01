@@ -1,9 +1,52 @@
 package me.dvyy.tasks.tasks.ui.elements.task
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import me.dvyy.tasks.app.ui.PreferencesViewModel
+import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.Highlight.Type
 
+@Serializable
+data class SerializableColorScheme(
+    val light: List<String>,
+    val dark: List<String>,
+): ColorScheme {
+    @Transient
+    val lightInts = light.map { it.toInt(16) }
+
+    @Transient
+    val darkInts = dark.map { it.toInt(16) }
+
+    override val lightAndDark: Boolean = dark.isNotEmpty()
+
+    override fun color(highlight: Highlight): Color {
+        return if (highlight.isLight) when (highlight.type) {
+            Type.Unmarked -> Color.Transparent
+            Type.Red -> Color(lightInts[0])
+            Type.Green -> Color(lightInts[1])
+            Type.Yellow -> Color(lightInts[2])
+            Type.Blue -> Color(lightInts[3])
+            Type.Magenta -> Color(lightInts[4])
+            Type.Cyan -> Color(lightInts[5])
+            Type.Light -> Color(lightInts[6])
+        }
+        else when (highlight.type) {
+            Type.Unmarked -> Color.Transparent
+            Type.Red -> Color(darkInts[0])
+            Type.Green -> Color(darkInts[1])
+            Type.Yellow -> Color(darkInts[2])
+            Type.Blue -> Color(darkInts[3])
+            Type.Magenta -> Color(darkInts[4])
+            Type.Cyan -> Color(darkInts[5])
+            Type.Light -> Color(darkInts[6])
+        }
+    }
+}
 interface ColorScheme {
     val lightAndDark: Boolean
     fun color(highlight: Highlight): Color
@@ -66,8 +109,11 @@ object ArgonautColorScheme : ColorScheme {
 val DefaultColorScheme = EspressoLibreColorScheme
 
 val Highlight.color: Color
+    @Composable
     get() {
+        val prefs = koinViewModel<PreferencesViewModel>()
+        val theme by prefs.deserializedTheme.collectAsState()
         if (this == Highlight.Unmarked) return Color.Transparent
-        val alpha = if (isLight || DefaultColorScheme.lightAndDark) 1f else 0.5f
-        return DefaultColorScheme.color(this).copy(alpha = alpha)
+        val alpha = if (isLight || theme.lightAndDark) 1f else 0.5f
+        return theme.color(this).copy(alpha = alpha)
     }
