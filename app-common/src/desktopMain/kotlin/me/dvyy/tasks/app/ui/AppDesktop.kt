@@ -2,6 +2,7 @@ package me.dvyy.tasks.app.ui
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
@@ -17,8 +18,11 @@ import org.koin.dsl.module
 @Composable
 fun ApplicationScope.AppDesktop() {
     val windowState = rememberWindowState(width = 1200.dp, height = 960.dp)
+    val icon = painterResource("icon.png")
     Window(
         state = windowState,
+        title = "Tasks",
+        icon = icon,
         onCloseRequest = ::exitApplication,
         undecorated = true,
     ) {

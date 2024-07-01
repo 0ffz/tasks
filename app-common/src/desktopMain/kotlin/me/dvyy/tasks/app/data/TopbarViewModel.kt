@@ -27,7 +27,7 @@ class TopbarViewModel(
     fun ensureMaximized() {
         when (OS.get()) {
             OS.WINDOWS -> {
-                if (_floatingWindowSize != null) return
+                if (_floatingWindowSize.value != null) return
                 val window = windowScope.window
                 val graphicsConfiguration = window.graphicsConfiguration
                 val insets = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfiguration)

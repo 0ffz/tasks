@@ -16,6 +16,8 @@
     public static ** valueOf(java.lang.String);
 }
 
+# === Windows ===
+-keep class com.sun.jna.** { *; }
 
 # === OkHttp ===
 # JSR 305 annotations are for embedding nullability information.

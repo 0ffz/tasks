@@ -61,13 +61,13 @@ compose.desktop {
                 project.file("proguard/custom.pro")
             )
             optimize = true
-            obfuscate = true
+            obfuscate = false
         }
 
         nativeDistributions {
             when {
                 Os.isFamily(Os.FAMILY_MAC) -> targetFormats(TargetFormat.Dmg)
-                Os.isFamily(Os.FAMILY_WINDOWS) -> targetFormats(TargetFormat.Exe)
+                Os.isFamily(Os.FAMILY_WINDOWS) -> targetFormats(TargetFormat.Msi)
                 else -> targetFormats(TargetFormat.AppImage)
             }
 
@@ -94,8 +94,8 @@ compose.desktop {
                 shortcut = true
                 upgradeUuid = "ac99e6ed-7dbf-410b-bd3b-e9a143cebcd7"
                 iconFile.set(iconsRoot.resolve("icon.ico"))
-                dirChooser = false
-                perUserInstall = false
+                dirChooser = true
+                perUserInstall = true
             }
             linux {
                 iconFile.set(iconsRoot.resolve("icon.png"))
@@ -109,16 +109,16 @@ val appImageTool = project.file("packaging/deps/appimagetool.AppImage")
 val composePackageDir = "$buildDir/compose/binaries/main-release/${
     when {
         Os.isFamily(Os.FAMILY_MAC) -> "dmg"
-        Os.isFamily(Os.FAMILY_WINDOWS) -> "exe"
+        Os.isFamily(Os.FAMILY_WINDOWS) -> "msi"
         else -> "app"
     }
 }"
 
 tasks {
-    val exeRelease by registering(Copy::class) {
+    val windowsRelease by registering(Copy::class) {
         dependsOn("packageReleaseDistributionForCurrentOS")
         from(composePackageDir)
-        include("*.exe")
+        include("*.msi")
         rename("$appName*", appInstallerName)
         into("releases")
     }
@@ -168,7 +168,7 @@ tasks {
     val packageForRelease by registering {
         mkdir(project.file("releases"))
         when {
-            Os.isFamily(Os.FAMILY_WINDOWS) -> dependsOn(exeRelease)
+            Os.isFamily(Os.FAMILY_WINDOWS) -> dependsOn(windowsRelease)
             Os.isFamily(Os.FAMILY_MAC) -> dependsOn(dmgRelease)
             else -> dependsOn(executeAppImageBuilder)
         }
