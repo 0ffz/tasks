@@ -7,6 +7,7 @@ import me.dvyy.tasks.model.EntityType;
 CREATE TABLE IF NOT EXISTS message (
   uuid UUID NOT NULL,
   modified INT8 AS Instant NOT NULL,
+  inserted INT8 AS Instant NOT NULL,
   type TEXT AS NetworkMessage.Type NOT NULL,
   entityType TEXT AS EntityType NOT NULL,
   userId INTEGER NOT NULL REFERENCES userEntity (id) ON DELETE CASCADE,
@@ -17,15 +18,15 @@ CREATE INDEX IF NOT EXISTS message_user ON message (userId);
 
 selectTasks:
 SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid
-WHERE message.userId = ? AND message.modified > ? AND message.modified <= ? AND type = 'Update';
+WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update';
 
 selectLists:
 SELECT * FROM message INNER JOIN taskList ON message.uuid = taskList.uuid
-WHERE message.userId = ? AND message.modified > ? AND message.modified <= ? AND type = 'Update';
+WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update';
 
 selectDeleted:
 SELECT * FROM message
-WHERE message.userId = ? AND message.modified > ? AND modified <= ? AND type = 'Delete';
+WHERE message.userId = ? AND message.inserted > ? AND inserted <= ? AND type = 'Delete';
 
 insertMessage:
 INSERT INTO message VALUES ?

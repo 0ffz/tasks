@@ -37,7 +37,7 @@ class ServerDataSource(
 //        }
 //    }
 
-    suspend fun resolveMessages(
+    fun resolveMessages(
         changelist: Changelist,
         userSession: UserSession,
     ): Changelist {
@@ -51,11 +51,12 @@ class ServerDataSource(
         val sendToServer = changelist.messages
             .filter { it.modified > (serverUpdates[it.entityId]?.modified ?: return@filter true) }
 
-        insertMessages(sendToServer, userSession)
+        insertMessages(changelist.upTo, sendToServer, userSession)
         return Changelist(changelist.lastSynced, changelist.upTo, sendToClient)
     }
 
     private fun insertMessages(
+        now: Instant,
         messages: List<NetworkMessage>,
         userSession: UserSession,
     ) = database.transaction {
@@ -66,6 +67,7 @@ class ServerDataSource(
                 Message(
                     uuid = uuid,
                     modified = message.modified,
+                    inserted = now,
                     type = if (message.data is Deleted) Delete else Update,
                     userId = user,
                     entityType = message.data.entityType
