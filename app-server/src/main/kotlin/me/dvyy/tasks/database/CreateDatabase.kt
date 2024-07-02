@@ -28,6 +28,7 @@ fun createDatabase(dataSource: DataSource): ServerDatabase {
         driver,
         messageAdapter = Message.Adapter(
             modifiedAdapter = Adapters.LongToInstant,
+            insertedAdapter = Adapters.LongToInstant,
             typeAdapter = EnumColumnAdapter(),
             entityTypeAdapter = EnumColumnAdapter(),
         ),
