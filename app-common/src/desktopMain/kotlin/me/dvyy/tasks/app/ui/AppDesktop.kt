@@ -16,13 +16,14 @@ import me.dvyy.tasks.app.data.createDatabase
 import me.dvyy.tasks.app.ui.topbar.DesktopTopBar
 import me.dvyy.tasks.db.Database
 import me.dvyy.tasks.di.koinViewModel
+import org.koin.compose.KoinIsolatedContext
+import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.dsl.module
-import org.koin.mp.KoinPlatform
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApplicationScope.AppDesktop() = AppKoinContext {
+fun ApplicationScope.AppDesktop() = KoinIsolatedContext(createAppKoinApplication()) {
     val windowState = rememberWindowState(width = 1200.dp, height = 960.dp)
     val icon = painterResource("icon.png")
     var resizable by remember { mutableStateOf(true) }
@@ -53,7 +54,7 @@ fun ApplicationScope.AppDesktop() = AppKoinContext {
             }
         }
     ) {
-        KoinPlatform.getKoin().loadModules(remember {
+        getKoin().loadModules(remember {
             listOf(module {
                 single<Database> { createDatabase(DriverFactory()) }
                 single {

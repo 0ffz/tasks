@@ -1,4 +1,4 @@
-package me.dvyy.tasks.widgets.ui
+package me.dvyy.tasks.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -16,26 +16,27 @@ import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.rememberAppUIState
 import me.dvyy.tasks.app.ui.state.loaded
 import me.dvyy.tasks.app.ui.theme.AppTheme
-import me.dvyy.tasks.di.*
+import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.TaskInteractions
+import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListTitle
 import me.dvyy.tasks.tasks.ui.elements.task.TaskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.TaskOptions
 import me.dvyy.tasks.tasks.ui.elements.task.TaskTextField
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
-import org.koin.compose.KoinIsolatedContext
-import org.koin.dsl.koinApplication
+import org.koin.compose.KoinContext
 
 @Composable
 fun QuickAdd(
     exit: () -> Unit,
+    scheduleSync: () -> Unit,
+    tasks: TasksViewModel = koinViewModel(),
+    time: TimeViewModel = koinViewModel(),
 ) = AppTheme {
-    KoinIsolatedContext(context = koinApplication {
-        modules(appModule(), syncModule(), repositoriesModule(), viewModelsModule())
-    }) {
+    KoinContext {
         val ui = rememberAppUIState()
         CompositionLocalProvider(LocalUIState provides ui) {
             var task by remember {
@@ -47,8 +48,15 @@ fun QuickAdd(
                     )
                 )
             }
-            val time: TimeViewModel = koinViewModel()
             var selectedDate by remember { mutableStateOf(time.today) }
+            val listId = ListId.forDate(selectedDate)
+            val coroutineScope = rememberCoroutineScope()
+
+            fun saveTask() {
+                tasks.createTask(task, listId)
+                scheduleSync()
+                exit()
+            }
 
             val interactions = remember {
                 object : TaskInteractions {
@@ -56,7 +64,7 @@ fun QuickAdd(
                         selectedDate = date
                     }
 
-                    override val keyboardActions = KeyboardActions(onDone = { /* TODO save task*/ exit() })
+                    override val keyboardActions = KeyboardActions(onDone = { saveTask() })
                     override val keyboardOptions = KeyboardOptions(imeAction = Done)
 
                 }
@@ -69,7 +77,7 @@ fun QuickAdd(
                             colored = false,
                             loading = false,
                             showDivider = false,
-                            key = ListId.forDate(selectedDate)
+                            key = listId
                         )
                     }
                     Box(
@@ -91,10 +99,7 @@ fun QuickAdd(
                         setTask = { task = it },
                         initialDate = selectedDate,
                         interactions = interactions,
-                        submitAction = {
-                            // TODO save task
-                            exit()
-                        }
+                        submitAction = { saveTask() }
                     )
                 }
             }

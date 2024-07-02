@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         application.attachAppDirs()
         super.onCreate(savedInstanceState)
         setContent {
-            AppAndroid(applicationContext)
+            AppAndroid()
         }
     }
 }

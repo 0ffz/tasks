@@ -16,23 +16,18 @@ import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.di.*
 import me.dvyy.tasks.tasks.ui.HomeScreen
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import org.koin.compose.KoinApplication
-import org.koin.core.module.Module
+import org.koin.dsl.KoinAppDeclaration
+import org.koin.dsl.koinApplication
 
-@Composable
-fun AppKoinContext(extraModules: List<Module> = emptyList(), content: @Composable () -> Unit) {
-    KoinApplication(application = {
-        modules(extraModules)
-        modules(
-            appModule(),
-            repositoriesModule(),
-            authModule(),
-            syncModule(),
-            viewModelsModule(),
-        )
-    }) {
-        content()
-    }
+fun createAppKoinApplication(extras: KoinAppDeclaration = {}) = koinApplication {
+    extras()
+    modules(
+        appModule(),
+        repositoriesModule(),
+        authModule(),
+        syncModule(),
+        viewModelsModule(),
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

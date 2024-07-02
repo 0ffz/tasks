@@ -23,6 +23,8 @@ import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.currentKoinScope
+import org.koin.core.definition.Definition
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -50,15 +52,15 @@ fun syncModule() = module {
     singleOf(::MessagesDataSource)
     singleOf(::SyncAPI)
     singleOf(::SyncRepository)
-    singleOf(::SyncViewModel)
+    viewModel { SyncViewModel(get()) }
 }
 
 fun viewModelsModule() = module {
-    singleOf(::TimeViewModel)
-    singleOf(::TasksViewModel)
-    singleOf(::AuthViewModel)
-    singleOf(::DialogViewModel)
-    singleOf(::PreferencesViewModel)
+    viewModel { TimeViewModel() }
+    viewModel { TasksViewModel(get(), get()) }
+    viewModel { AuthViewModel(get()) }
+    viewModel { DialogViewModel() }
+    viewModel { PreferencesViewModel(get()) }
 }
 
 @Composable
@@ -66,3 +68,6 @@ inline fun <reified T : ViewModel> koinViewModel(): T {
     val scope = currentKoinScope()
     return viewModel { scope.get<T>() }
 }
+
+
+expect inline fun <reified VM : ViewModel> Module.viewModel(crossinline factory: Definition<VM>)

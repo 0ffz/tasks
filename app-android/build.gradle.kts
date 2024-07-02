@@ -15,6 +15,9 @@ dependencies {
     implementation("androidx.glance:glance-appwidget:1.0.0")
     implementation("androidx.glance:glance-material3:1.0.0")
     implementation(libs.kotlin.multiplatform.appdirs)
+    implementation(libs.koin.android)
+    implementation(libs.androidx.startup.runtime)
+    implementation(libs.androidx.work.runtime.ktx)
 }
 
 val androidKeystoreFile: String? by project

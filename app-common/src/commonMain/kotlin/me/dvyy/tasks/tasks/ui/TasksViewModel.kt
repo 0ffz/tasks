@@ -1,10 +1,8 @@
 package me.dvyy.tasks.tasks.ui
 
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.state.Loadable
 import me.dvyy.tasks.app.ui.state.loadedOrNull
-import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
@@ -55,11 +52,11 @@ class TasksViewModel(
     }
 
     // These flows will stop when coroutines aren't actively using them, they're safe to store in a map here
-    private val listObservers = mutableStateMapOf<ListId, StateFlow<Loadable<List<TaskWithIDState>>>>()
+    private val listTaskObservers = mutableStateMapOf<ListId, StateFlow<Loadable<List<TaskWithIDState>>>>()
+    private val listPropertiesObservers = mutableStateMapOf<ListId, StateFlow<Loadable<TaskListProperties>>>()
 
-    @Composable
-    fun tasksFor(listId: ListId): StateFlow<Loadable<List<TaskWithIDState>>> = remember(listId) {
-        listObservers.getOrPut(listId) {
+    fun tasksFor(listId: ListId): StateFlow<Loadable<List<TaskWithIDState>>> =
+        listTaskObservers.getOrPut(listId) {
             listRepo.observeTasksFor(listId)
                 .map { list ->
                     Loadable.Loaded(list.map { model ->
@@ -71,10 +68,8 @@ class TasksViewModel(
                 }
                 .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
         }
-    }
 
-    @Composable
-    fun getListProperties(key: ListId) = remember(key) {
+    fun getListProperties(key: ListId) = listPropertiesObservers.getOrPut(key) {
         listRepo.observeProperties(key)
             .map { Loadable.Loaded(it) }
             .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
@@ -117,12 +112,12 @@ class TasksViewModel(
         DefaultTaskInteractions(taskId, listId, uiState, setUiState)
 
     private fun taskAfter(listId: ListId, taskId: TaskId): TaskId? {
-        val list = listObservers[listId]?.value?.loadedOrNull() ?: return null
+        val list = listTaskObservers[listId]?.value?.loadedOrNull() ?: return null
         return list.getOrNull(list.indexOfFirst { it.uuid == taskId } + 1)?.uuid
     }
 
     private fun taskBefore(listId: ListId, taskId: TaskId): TaskId? {
-        val list = listObservers[listId]?.value?.loadedOrNull() ?: return null
+        val list = listTaskObservers[listId]?.value?.loadedOrNull() ?: return null
         return list.getOrNull(list.indexOfFirst { it.uuid == taskId } - 1)?.uuid
     }
 
@@ -134,6 +129,11 @@ class TasksViewModel(
                 highlight = newState.highlight
             )
         }
+    }
+
+    fun createTask(task: TaskUiState, listId: ListId) = viewModelScope.launch {
+        val id = taskRepo.create(listId).uuid
+        onTaskChanged(id, task)
     }
 
     @Stable

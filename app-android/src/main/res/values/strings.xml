@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Tasks</string>
-    <string name="compose_shortcut_short_label1">Short label</string>
-    <string name="compose_shortcut_long_label1">Long label</string>
+    <string name="compose_shortcut_short_label1">Add task</string>
+    <string name="compose_shortcut_long_label1">Add task</string>
     <string name="compose_disabled_message1">Shortcut disabled</string>
 </resources>
