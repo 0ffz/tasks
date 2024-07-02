@@ -32,6 +32,7 @@ insertMessage:
 INSERT INTO message VALUES ?
 ON CONFLICT(uuid, userId) DO UPDATE
     SET modified = excluded.modified,
+        inserted = excluded.inserted,
         type = excluded.type,
         entityType = excluded.entityType,
         userId = excluded.userId;
