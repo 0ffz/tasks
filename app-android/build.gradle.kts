@@ -33,7 +33,8 @@ android {
         minSdk = 24
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0-SNAPSHOT"
+        versionName = version.toString()
+        setProperty("archivesBaseName", "Tasks-$version")
     }
     signingConfigs {
         if (androidKeystoreFile != null) create("release") {
@@ -52,9 +53,19 @@ android {
         jvmToolchain(17)
     }
     buildTypes {
-        getByName("release") {
+        debug {
+            applicationIdSuffix = ".debug"
+        }
+        release {
+            isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
+
+//            applicationVariants.all {
+//                outputs.configureEach {
+//                    outputFile = outputFile.
+//                }
+//            }
 
             proguardFiles(
                 // Includes the default ProGuard rules files that are packaged with

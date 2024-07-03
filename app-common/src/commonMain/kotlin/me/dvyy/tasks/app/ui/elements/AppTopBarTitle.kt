@@ -9,12 +9,12 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import me.dvyy.tasks.app.ui.TimeViewModel
-import org.koin.compose.koinInject
+import me.dvyy.tasks.di.koinViewModel
 
 @Composable
 fun AppTopBarTitle(
     color: Color = Color.Unspecified,
-    time: TimeViewModel = koinInject(),
+    time: TimeViewModel = koinViewModel(),
 ) {
     // current week
     val weekStart by time.weekStart.collectAsState()
