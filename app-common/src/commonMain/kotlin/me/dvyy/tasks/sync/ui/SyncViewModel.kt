@@ -2,12 +2,13 @@ package me.dvyy.tasks.sync.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import app.cash.sqldelight.coroutines.mapToOneOrNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.tasks.ui.SyncState
+import kotlin.time.Duration.Companion.seconds
 
 class SyncViewModel(
     private val syncRepo: SyncRepository,
@@ -16,14 +17,16 @@ class SyncViewModel(
     private val _syncState = MutableStateFlow<SyncState>(SyncState.UnSynced)
 
     init {
-//        viewModelScope.launch {
-//            syncRepo.observeLastUpdated()
-//                .mapToOneOrNull(Dispatchers.Default)
-//                .debounce(10.seconds)
-//                .collect {
-//                    queueSync()
-//                }
-//        }
+        viewModelScope.launch {
+            syncRepo.observeLastUpdated()
+                .mapToOneOrNull(Dispatchers.Default)
+                .filter { it != null }
+                .debounce(3.seconds)
+                .collectLatest {
+                    println(it)
+                    sync()
+                }
+        }
     }
 
     private inline fun queueSync(crossinline run: suspend () -> Unit) = viewModelScope.launch {

@@ -33,7 +33,6 @@ import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.AppTopBarTitle
 import me.dvyy.tasks.di.koinViewModel
-import me.dvyy.tasks.sync.ui.ClickableSyncStatusIcon
 import org.koin.compose.koinInject
 
 @Composable
@@ -96,9 +95,9 @@ fun DesktopTopBar(
                     }
                 }
                 Row {
-                    Box(Modifier.padding(4.dp)) {
-                        ClickableSyncStatusIcon()
-                    }
+//                    Box(Modifier.padding(4.dp)) {
+//                        ClickableSyncStatusIcon()
+//                    }
                     Box(Modifier.padding(4.dp)) {
                         AppTopBarActions()
                     }

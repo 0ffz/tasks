@@ -43,7 +43,7 @@ fun SyncStatusIcon(
     LaunchedEffect(Unit) {
         sync.syncState.onEach {
             syncState = it
-        }.debounce(3.seconds).collect {
+        }.debounce(2.seconds).collect {
             syncState = SyncState.UnSynced
         }
     }
