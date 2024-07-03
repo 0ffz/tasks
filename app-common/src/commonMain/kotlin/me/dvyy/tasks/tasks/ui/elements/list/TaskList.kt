@@ -104,18 +104,20 @@ fun TaskList(
                     }
                 }
                 Column(Modifier.clickableWithoutRipple {
-                    if (tasks.lastOrNull()?.state?.text?.isEmpty() != true)
+                    val lastTask = tasks.lastOrNull()
+                    if (lastTask == null || lastTask.state.text.isNotEmpty())
                         interactions.createNewTask()
+                    else viewModel.selectTask(lastTask.uuid, focus = true)
                 }) {
                     Spacer(modifier = Modifier.height(ui.taskHeight))
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 }
             }
-            val fullHeight = !ui.isSingleColumn
-            if (fullHeight) Box(Modifier.fillMaxSize().clickableWithoutRipple {
-                if (tasks.lastOrNull()?.state?.text?.isEmpty() != true)
-                    interactions.createNewTask()
-            })
+//            val fullHeight = !ui.isSingleColumn
+//            if (fullHeight) Box(Modifier.fillMaxSize().clickableWithoutRipple {
+//                if (tasks.lastOrNull()?.state?.text?.isEmpty() != true)
+//                    interactions.createNewTask()
+//            })
         }
     }
 }

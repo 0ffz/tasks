@@ -150,7 +150,7 @@ class TasksViewModel(
         private fun selectNextTaskOrNew() {
             val nextTask = taskAfter(listId, /*selectedTask.value ?: */taskId)
             if (nextTask != null) {
-                selectTask(nextTask)
+                selectTask(nextTask, focus = true)
             } else if (uiState.text.isNotEmpty()) {
                 viewModelScope.launch {
                     selectTask(taskRepo.create(listId).uuid, focus = true)
@@ -171,7 +171,7 @@ class TasksViewModel(
         }
 
         override fun onKeyEvent(event: KeyEvent): Boolean {
-            if (event.key == Key.Enter) return true
+            if (event.type != KeyEventType.KeyDown) return false
             if (event.key == Key.Backspace) {
                 if (uiState.text.isEmpty()) {
                     viewModelScope.launch {
@@ -181,7 +181,6 @@ class TasksViewModel(
                 }
                 return false
             }
-            if (event.type != KeyEventType.KeyDown) return false
             when {
                 event.isCtrlPressed && event.key == Key.E -> {
                     val shift = if (event.isShiftPressed) -1 else 1
@@ -198,6 +197,11 @@ class TasksViewModel(
 
                 event.key == Key.Escape -> {
                     selectTask(null)
+                }
+
+                event.key == Key.Enter -> {
+                    if (event.isShiftPressed) setUiState(uiState.copy(text = "${uiState.text}\n"))
+                    else selectNextTaskOrNew()
                 }
 
                 else -> return false

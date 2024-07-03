@@ -23,7 +23,7 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -72,6 +72,7 @@ fun Task(
             .clickableWithoutRipple {
                 interactions.onSelect()
             } // Consume click so background (deselect) doesn't get it
+            .onPreviewKeyEvent(interactions::onKeyEvent)
     ) {
         TaskSelectedSurface(
             selected,
@@ -207,7 +208,6 @@ fun TaskTextField(
             .onFocusEvent {
                 if (it.isFocused) interactions.onSelect()
             }
-            .onKeyEvent(interactions::onKeyEvent)
     )
 
 }
