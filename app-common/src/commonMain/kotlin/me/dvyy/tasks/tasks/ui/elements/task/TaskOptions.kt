@@ -2,6 +2,9 @@ package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -53,7 +56,16 @@ fun TaskOptions(
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            HighlightButton(task.highlight, task) { toggleFocused() }
+//            var dragged by remember { mutableStateOf(0f) }
+            HighlightButton(
+                task.highlight, task/*, modifier = Modifier.draggable(rememberDraggableState {
+                dragged += it
+                if(abs(dragged) > 50) {
+                    setTask(task.copy(highlight = task.highlight.offsetBy(dragged.toInt() / 50)))
+                    dragged = 0f
+                }
+            }, orientation = Orientation.Horizontal)*/
+            ) { toggleFocused() }
             TaskDatePicker(initialDate ?: time.today, interactions)
             Spacer(Modifier.weight(1f))
             if (submitAction != null) {
@@ -66,7 +78,11 @@ fun TaskOptions(
                 }
             }
         }
-        AnimatedVisibility(focused == FocusedOption.Highlight) {
+        AnimatedVisibility(
+            focused == FocusedOption.Highlight,
+            enter = expandVertically(tween(150)),
+            exit = shrinkVertically(tween(150))
+        ) {
             HighlightButtons(
                 task,
                 setTask,
@@ -153,14 +169,20 @@ fun LightDarkHighlightToggle(isLight: Boolean, onToggle: () -> Unit) {
 }
 
 @Composable
-fun HighlightButton(highlight: Highlight, task: TaskUiState, setTask: (TaskUiState) -> Unit) {
-    CircleButton(onClick = { setTask(task.copy(highlight = highlight)) }, highlight.color)
+fun HighlightButton(
+    highlight: Highlight,
+    task: TaskUiState,
+    modifier: Modifier = Modifier,
+    setTask: (TaskUiState) -> Unit,
+) {
+    CircleButton(onClick = { setTask(task.copy(highlight = highlight)) }, highlight.color, modifier = modifier)
 }
 
 @Composable
 fun CircleButton(
     onClick: () -> Unit,
     color: Color = Color.Transparent,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit = {},
 ) {
     val ui = LocalUIState.current
@@ -171,7 +193,7 @@ fun CircleButton(
             containerColor = color,
         ),
         onClick = onClick,
-        modifier = Modifier.size(ui.taskOptionSize).focusProperties { canFocus = false },
+        modifier = modifier.size(ui.taskOptionSize).focusProperties { canFocus = false },
         border = border,
     ) { content() }
 }

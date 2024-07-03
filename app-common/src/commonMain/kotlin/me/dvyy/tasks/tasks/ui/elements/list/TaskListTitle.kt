@@ -33,7 +33,7 @@ fun TaskListTitle(
 ) {
     val color =
         if (colored) MaterialTheme.colorScheme.tertiary
-        else MaterialTheme.colorScheme.onPrimaryContainer
+        else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         Modifier.padding(4.dp),
         verticalAlignment = Alignment.Bottom,

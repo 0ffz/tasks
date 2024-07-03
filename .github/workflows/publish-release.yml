@@ -8,12 +8,39 @@ on:
     paths:
       - 'app-desktop'
       - 'app-common'
-    paths-ignore:
-      - '**.md'
-      - 'versions.yml'
 
 jobs:
-  build:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 17
+          cache: gradle
+
+      - name: Decode Keystore
+        id: decode_keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: 'keystore/your_signing_keystore.jks'
+          encodedString: ${{ secrets.KEYSTORE }}
+
+      - name: Run gradle build
+        run: >
+          ./gradlew :app-android:assembleRelease
+          -PandroidKeystoreFile=${{ steps.decode_keystore.outputs.filePath }}
+          -PandroidKeystorePassword=${{ secrets.SIGNING_KEY_PASSWORD }}
+
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-android
+          path: 'app-android/build/outputs/apk/release/*.apk'
+  build-desktop:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -36,7 +63,11 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
 
       - name: Run custom gradle package
-        run: gradle :app-desktop:packageForRelease
+        run: ./gradlew :app-desktop:packageForRelease
+        env:
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
 
       - name: Upload build
         uses: actions/upload-artifact@v2
@@ -45,18 +76,16 @@ jobs:
           path: 'app-desktop/releases/*'
 
       - name: Stop gradle daemon for Windows cache
-        run: gradle --stop
+        run: ./gradlew --stop
         if: ${{ matrix.os == 'windows-latest' }}
   publish-release:
-    needs: [ build ]
+    needs: [ build-desktop, build-android ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Download all artifacts
         uses: actions/download-artifact@v2
@@ -69,8 +98,17 @@ jobs:
           mkdir releases
           mv artifacts/build*/* releases
 
-      - uses: MineInAbyss/publish-action@develop
+      - name: Get version from properties file
+        shell: bash
+        run: |
+          echo "RELEASE_VERSION"=$(grep -w "version" < gradle.properties | cut -d'=' -f2) >> $GITHUB_ENV
+
+      - name: 📦️ Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          run-gradle-build: false
-          release-files: |
-            releases/*
+          token: ${{ github.token }}
+          target_commitish: ${{ github.sha }}
+          # body: ${{ steps.git-cliff.outputs.content }}
+          prerelease: ${{ github.ref == format('refs/heads/{0}', 'develop') }}
+          tag_name: v${{ env.RELEASE_VERSION }}
+          files: releases/*

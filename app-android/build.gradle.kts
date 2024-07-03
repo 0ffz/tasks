@@ -22,6 +22,7 @@ dependencies {
 
 val androidKeystoreFile: String? by project
 val androidKeystorePassword: String? by project
+
 android {
     buildFeatures {
         compose = true

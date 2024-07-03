@@ -13,6 +13,12 @@ data class Highlight(
     val type: Type,
     val isLight: Boolean,
 ) {
+    fun offsetBy(amount: Int) =
+        copy(type = Type.entries[(type.ordinal + amount + Type.entries.size) % Type.entries.size])
+
+    fun next() = offsetBy(1)
+    fun previous() = offsetBy(-1)
+
     object Serializer : KSerializer<Highlight> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Highlight", PrimitiveKind.STRING)
         override fun serialize(encoder: Encoder, value: Highlight) {

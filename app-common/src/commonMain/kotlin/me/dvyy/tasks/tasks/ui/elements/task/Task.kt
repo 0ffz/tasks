@@ -138,7 +138,7 @@ fun TaskSelectedSurface(
     val cornerShape by animateDpAsState(if (visible) fullCornerSize else 0.dp)
     val padding by animateDpAsState(if (visible) 10.dp else 0.dp)
     val highlightColor = highlight.color
-        .copy(alpha = 0.05f)
+        .copy(alpha = 0.15f)
         .takeIf { visible && highlight != Highlight.Unmarked } ?: Color.Transparent
     val animatedHighlight by animateColorAsState(highlightColor)
     Surface(

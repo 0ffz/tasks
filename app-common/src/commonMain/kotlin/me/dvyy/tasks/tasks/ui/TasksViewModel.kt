@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.state.Loadable
 import me.dvyy.tasks.app.ui.state.loadedOrNull
-import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
@@ -184,13 +183,9 @@ class TasksViewModel(
             when {
                 event.isCtrlPressed && event.key == Key.E -> {
                     val shift = if (event.isShiftPressed) -1 else 1
-                    val (type, isLight) = uiState.highlight
                     setUiState(
                         uiState.copy(
-                            highlight = Highlight(
-                                Highlight.Type.entries[(type.ordinal + shift) % Highlight.Type.entries.size],
-                                isLight
-                            )
+                            highlight = uiState.highlight.offsetBy(shift)
                         )
                     )
                 }
