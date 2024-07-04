@@ -1,7 +1,6 @@
 package me.dvyy.tasks.app.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -50,7 +49,6 @@ fun App(
                 ) { paddingValues ->
                     Box(
                         Modifier.padding(paddingValues)
-                            .imePadding()
                             .clickableWithoutRipple { tasksViewModel.selectTask(null) }) {
                         WeekView(scrollBehavior)
                     }

@@ -1,6 +1,5 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,17 +13,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
+import kotlinx.coroutines.flow.update
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
-import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.PreferencesViewModel
-import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.app.ui.*
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -63,8 +60,7 @@ fun WeekView(
 //                if (responsive.appScrollable) Modifier.verticalScroll(scrollState)
 //                else Modifier
             val weekStart by time.weekStart.collectAsState()
-            val restrictHeight =
-                /*if (ui.isSingleColumn) Modifier else*/ Modifier.fillMaxHeight(
+            val restrictHeight = Modifier.fillMaxHeight(
                 when {
                     splitHeight >= splitCutoff.endInclusive -> 1f
                     splitHeight <= splitCutoff.start -> 0f
@@ -98,13 +94,13 @@ fun WeekView(
                     )
                 }
                 val scrollableState = rememberScrollableState { delta ->
-                    prefs.splitHeight.value = (splitHeight + delta / height).coerceIn(0f, 1f)
-                    val value = prefs.splitHeight.value
-                    if (value == 0f || value == 1f) 0f
+                    val newSplitHeight = (splitHeight + delta / height).coerceIn(0f, 1f)
+                    prefs.splitHeight.value = newSplitHeight
+                    if (newSplitHeight == 0f || newSplitHeight == 1f) 0f
                     else delta
                 }
-                val draggableState = rememberDraggableState {
-                    prefs.splitHeight.value = (splitHeight + it / height).coerceIn(0f, 1f)
+                val draggableState = rememberDraggableState { delta ->
+                    prefs.splitHeight.update { original -> (original + delta / height).coerceIn(0f, 1f) }
                 }
                 val handleModifier = if (ui.isSingleColumn) {
                     Modifier.scrollable(
@@ -113,44 +109,32 @@ fun WeekView(
                     )
                 } else Modifier.draggable(draggableState, Orientation.Vertical)
 
-                /*if (!ui.isSingleColumn)*/ Box(
-                Modifier.fillMaxWidth().then(handleModifier),
-            ) {
-                if (splitHeight in splitCutoff) Box(
-                    Modifier.height(ui.dividerHeight),
-                    contentAlignment = Alignment.Center
-                ) {
-                    HorizontalDivider()
-                    Surface(Modifier.height(8.dp).width(220.dp)) {}
-                    Surface(
-                        shape = MaterialTheme.shapes.small,
-                        tonalElevation = 2.dp,
-                        modifier = Modifier.height(8.dp).width(200.dp)
-                    ) { }
+                Box(Modifier.fillMaxWidth().then(handleModifier)) {
+                    if (splitHeight in splitCutoff) DividerPill()
                 }
-            }
-                if (/*!ui.isSingleColumn && */splitHeight < splitCutoff.endInclusive) ProjectListContent(
+                if (splitHeight < splitCutoff.endInclusive) ProjectListContent(
                     reorderInteractions = reorderInteractions,
                     modifier = Modifier.fillMaxHeight() //Fill remaining height
                 )
             }
-//            if (ui.isSingleColumn)
-//                ProjectsListBottomSheet(flexibleSheetState) {
-//                    ProjectListContent(
-//                        reorderInteractions = reorderInteractions,
-//                        modifier = Modifier.fillMaxHeight(0.5f)
-//                    )
-//                }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ProjectsListBottomSheet(content: @Composable () -> Unit) {
-    BottomSheetScaffold(modifier = Modifier.zIndex(100f), sheetContent = {
-        content()
-    }) {
+fun DividerPill() {
+    val ui = LocalUIState.current
+    Box(
+        Modifier.height(ui.dividerHeight).pointerHoverIcon(Cursors.horizontalResize),
+        contentAlignment = Alignment.Center
+    ) {
+        HorizontalDivider()
+        Surface(Modifier.height(8.dp).width(220.dp)) {}
+        Surface(
+            shape = MaterialTheme.shapes.small,
+            tonalElevation = 2.dp,
+            modifier = Modifier.height(8.dp).width(200.dp)
+        ) { }
     }
 }
 
