@@ -1,8 +1,7 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -14,8 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import kotlinx.datetime.DatePeriod
@@ -30,8 +31,10 @@ import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.koinInject
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekView(
+    scrollBehavior: TopAppBarScrollBehavior,
     tasksViewModel: TasksViewModel = viewModel(),
     app: AppState = koinInject(),
     time: TimeViewModel = koinViewModel(),
@@ -41,7 +44,6 @@ fun WeekView(
     val scrollState = rememberScrollState()
     val splitHeight by prefs.splitHeight.collectAsState()
     val splitCutoff = 0.05f..0.95f
-
     Scaffold(
         floatingActionButton = {
             Column {
@@ -57,24 +59,27 @@ fun WeekView(
         ReorderContainer(state = reorderInteractions.draggedState) {
             val responsive = LocalUIState.current
             val columns = responsive.dateColumns
-            val scrollModifier =
-                if (responsive.appScrollable) Modifier.verticalScroll(scrollState)
-                else Modifier
+//            val scrollModifier =
+//                if (responsive.appScrollable) Modifier.verticalScroll(scrollState)
+//                else Modifier
             val weekStart by time.weekStart.collectAsState()
             val restrictHeight =
-                if (ui.isSingleColumn) Modifier else Modifier.fillMaxHeight(
-                    when {
-                        splitHeight >= splitCutoff.endInclusive -> 1f
-                        splitHeight <= splitCutoff.start -> 0f
-                        else -> splitHeight
-                    }
-                )
+                /*if (ui.isSingleColumn) Modifier else*/ Modifier.fillMaxHeight(
+                when {
+                    splitHeight >= splitCutoff.endInclusive -> 1f
+                    splitHeight <= splitCutoff.start -> 0f
+                    else -> splitHeight
+                }
+            )
+            val datesScrollable = if (ui.isSingleColumn)
+                Modifier.nestedScroll(scrollBehavior.nestedScrollConnection).verticalScroll(scrollState)
+            else Modifier
             var height by remember { mutableStateOf(0) }
             Column(Modifier.onGloballyPositioned { height = it.size.height }) {
                 if (splitHeight > splitCutoff.start) NonlazyGrid(
                     columns = columns,
                     itemCount = 7,
-                    modifier = scrollModifier.fillMaxWidth().then(restrictHeight)
+                    modifier = Modifier.fillMaxWidth().then(restrictHeight).then(datesScrollable),
                 ) { dayIndex ->
                     val day = weekStart.plus(DatePeriod(days = dayIndex))
                     val isToday = day == time.today
@@ -92,49 +97,61 @@ fun WeekView(
                         scrollable = !ui.isSingleColumn
                     )
                 }
+                val scrollableState = rememberScrollableState { delta ->
+                    prefs.splitHeight.value = (splitHeight + delta / height).coerceIn(0f, 1f)
+                    val value = prefs.splitHeight.value
+                    if (value == 0f || value == 1f) 0f
+                    else delta
+                }
                 val draggableState = rememberDraggableState {
                     prefs.splitHeight.value = (splitHeight + it / height).coerceIn(0f, 1f)
                 }
-                if (!ui.isSingleColumn) Box(
-                    Modifier.fillMaxWidth().draggable(draggableState, Orientation.Vertical),
+                val handleModifier = if (ui.isSingleColumn) {
+                    Modifier.scrollable(
+                        scrollableState,
+                        Orientation.Vertical,
+                    )
+                } else Modifier.draggable(draggableState, Orientation.Vertical)
+
+                /*if (!ui.isSingleColumn)*/ Box(
+                Modifier.fillMaxWidth().then(handleModifier),
+            ) {
+                if (splitHeight in splitCutoff) Box(
+                    Modifier.height(ui.dividerHeight),
+                    contentAlignment = Alignment.Center
                 ) {
-                    if (splitHeight in splitCutoff) Box(
-                        Modifier.height(15.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        HorizontalDivider()
-                        Surface(Modifier.height(8.dp).width(220.dp)) {}
-                        Surface(
-                            shape = MaterialTheme.shapes.small,
-                            tonalElevation = 2.dp,
-                            modifier = Modifier.height(8.dp).width(200.dp)
-                        ) { }
-                    }
+                    HorizontalDivider()
+                    Surface(Modifier.height(8.dp).width(220.dp)) {}
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        tonalElevation = 2.dp,
+                        modifier = Modifier.height(8.dp).width(200.dp)
+                    ) { }
                 }
-                if (!ui.isSingleColumn && splitHeight < splitCutoff.endInclusive) ProjectListContent(
+            }
+                if (/*!ui.isSingleColumn && */splitHeight < splitCutoff.endInclusive) ProjectListContent(
                     reorderInteractions = reorderInteractions,
                     modifier = Modifier.fillMaxHeight() //Fill remaining height
                 )
             }
-            if (ui.isSingleColumn) ProjectsList {
-                ProjectListContent(
-                    reorderInteractions = reorderInteractions,
-                    modifier = Modifier.fillMaxHeight(0.5f)
-                )
-            }
+//            if (ui.isSingleColumn)
+//                ProjectsListBottomSheet(flexibleSheetState) {
+//                    ProjectListContent(
+//                        reorderInteractions = reorderInteractions,
+//                        modifier = Modifier.fillMaxHeight(0.5f)
+//                    )
+//                }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ProjectsList(content: @Composable () -> Unit) {
-    val ui = LocalUIState.current
-    if (ui.isSingleColumn) BottomSheetScaffold(sheetContent = {
+fun ProjectsListBottomSheet(content: @Composable () -> Unit) {
+    BottomSheetScaffold(modifier = Modifier.zIndex(100f), sheetContent = {
         content()
     }) {
     }
-    else content()
 }
 
 @Composable

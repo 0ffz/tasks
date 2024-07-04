@@ -1,21 +1,20 @@
 package me.dvyy.tasks.app.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import me.dvyy.tasks.app.ui.elements.AppDialogs
 import me.dvyy.tasks.app.ui.elements.AppDrawer
 import me.dvyy.tasks.app.ui.elements.AppTopBar
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.di.*
-import me.dvyy.tasks.tasks.ui.HomeScreen
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.tasks.ui.elements.list.WeekView
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.koinApplication
 
@@ -47,13 +46,13 @@ fun App(
             else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
             AppDrawer {
                 Scaffold(
-                    Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
                     topBar = { topBar(scrollBehavior) },
                 ) { paddingValues ->
                     Box(
                         Modifier.padding(paddingValues)
+                            .imePadding()
                             .clickableWithoutRipple { tasksViewModel.selectTask(null) }) {
-                        HomeScreen()
+                        WeekView(scrollBehavior)
                     }
                 }
                 AppDialogs()

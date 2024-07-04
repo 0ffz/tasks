@@ -19,6 +19,9 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     private val atMostSmall get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Compact
     private val atMostMedium get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Medium
 
+    // Week view
+    val dividerHeight = if (isSingleColumn) 42.dp else 15.dp
+
     // Tasks
     val taskHeight = 36.dp
     val taskCheckboxSize = 36.dp

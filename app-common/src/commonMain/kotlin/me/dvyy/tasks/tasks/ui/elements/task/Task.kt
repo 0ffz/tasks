@@ -236,5 +236,10 @@ fun TaskCheckBox(task: TaskUiState, setTask: (TaskUiState) -> Unit) {
             else -> Icon(Icons.Outlined.RadioButtonUnchecked, contentDescription = "Mark as completed")
         }
     }
+//    Checkbox(
+//        checked = task.completed,
+//        onCheckedChange = { setTask(task.copy(completed = it)) },
+//        modifier = Modifier.size(ui.taskCheckboxSize)
+//    )
 }
 
