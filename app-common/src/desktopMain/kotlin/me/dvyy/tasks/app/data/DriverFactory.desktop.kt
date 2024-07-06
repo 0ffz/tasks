@@ -4,15 +4,24 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import ca.gosyer.appdirs.AppDirs
 import me.dvyy.tasks.db.Database
-import kotlin.io.path.*
+import java.util.*
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createDirectories
+import kotlin.io.path.div
+
+private const val versionPragma = "user_version"
 
 actual class DriverFactory {
     actual fun createDriver(): SqlDriver {
         val dirs = AppDirs("tasks", "dvyy")
         val dataPath = Path(dirs.getUserDataDir())
         dataPath.createDirectories()
-        val driver: SqlDriver = JdbcSqliteDriver("jdbc:sqlite:${(dataPath / "tasks.db").absolutePathString()}")
-        Database.Schema.create(driver)
+        val driver: SqlDriver = JdbcSqliteDriver(
+            url = "jdbc:sqlite:${(dataPath / "tasks.db").absolutePathString()}",
+            properties = Properties(),
+            schema = Database.Schema,
+        )
         return driver
     }
 }

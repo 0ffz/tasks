@@ -13,7 +13,6 @@ data class TaskNetworkModel(
     val text: String? = null,
     val completed: Boolean = true,
     val highlight: Highlight = Highlight.Unmarked,
-    val rank: Long,
 ) : NetworkModel {
     override val entityType: EntityType get() = EntityType.TASK
 }

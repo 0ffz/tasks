@@ -2,10 +2,7 @@ package me.dvyy.tasks.app.data
 
 import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
-import me.dvyy.tasks.db.Database
-import me.dvyy.tasks.db.Message
-import me.dvyy.tasks.db.Task
-import me.dvyy.tasks.db.TaskList
+import me.dvyy.tasks.db.*
 import me.dvyy.tasks.model.database.Adapters
 
 expect class DriverFactory {
@@ -29,6 +26,10 @@ fun createDatabase(driverFactory: DriverFactory): Database {
         ),
         taskListAdapter = TaskList.Adapter(
             uuidAdapter = Adapters.BytesToListId,
+        ),
+        rankAdapter = Rank.Adapter(
+            uuidAdapter = Adapters.BytesToUuid,
+            parentAdapter = Adapters.BytesToUuid,
         ),
     )
 }

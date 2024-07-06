@@ -1,0 +1,26 @@
+CREATE TABLE task_dg_tmp
+(
+    uuid BLOB NOT NULL PRIMARY KEY,
+    text TEXT,
+    highlight TEXT NOT NULL,
+    completed INTEGER NOT NULL,
+    list BLOB NOT NULL
+);
+
+INSERT INTO task_dg_tmp(uuid, text, highlight, completed, list)
+SELECT uuid, text, highlight, completed, list
+FROM task;
+
+DROP TABLE task;
+
+ALTER TABLE task_dg_tmp RENAME TO task;
+
+CREATE INDEX task_list ON task (list);
+
+
+CREATE TABLE rank (
+  uuid BLOB PRIMARY KEY NOT NULL,
+  parent BLOB NOT NULL,
+  rank TEXT NOT NULL,
+  UNIQUE (parent, rank)
+);

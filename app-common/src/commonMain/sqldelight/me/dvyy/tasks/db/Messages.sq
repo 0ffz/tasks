@@ -14,11 +14,15 @@ CREATE INDEX IF NOT EXISTS message_modified ON message(modified);
 
 selectTasks:
 SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid
-WHERE message.modified <= ? AND type = 'Update';
+WHERE message.modified <= ? AND type = 'Update' AND entityType = 'TASK';
 
 selectLists:
 SELECT * FROM message INNER JOIN taskList ON message.uuid = taskList.uuid
-WHERE message.modified <= ? AND type = 'Update';
+WHERE message.modified <= ? AND type = 'Update' AND entityType = 'LIST';
+
+selectRanks:
+SELECT * FROM message INNER JOIN rank ON message.uuid = rank.uuid
+WHERE message.modified <= ? AND type = 'Update' AND entityType = 'RANK';
 
 selectDeleted:
 SELECT * FROM message

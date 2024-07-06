@@ -1,13 +1,11 @@
 package me.dvyy.tasks.plugins
 
 import kotlinx.datetime.Instant
-import me.dvyy.tasks.db.Message
-import me.dvyy.tasks.db.ServerDatabase
-import me.dvyy.tasks.db.Task
-import me.dvyy.tasks.db.TaskList
+import me.dvyy.tasks.db.*
 import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.model.database.RankFunctions
 import me.dvyy.tasks.model.network.*
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Delete
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Update
@@ -15,28 +13,6 @@ import me.dvyy.tasks.model.network.NetworkMessage.Type.Update
 class ServerDataSource(
     private val database: ServerDatabase,
 ) {
-//    object UserDAO : Table() {
-//        val uuid = uuid("uuid").uniqueIndex()
-//        val username = text("username").uniqueIndex()
-//        override val primaryKey = PrimaryKey(uuid)
-//    }
-//
-//    object MessageDAO : Table() {
-//        val uuid = uuid("uuid").uniqueIndex()
-//        val modified = timestamp("dateModified").index()
-//
-//        //        val created = timestamp("dateCreated")//.defaultExpression(modified)
-//        val data = text("data")//, AppFormats.databaseJson, NetworkModel.serializer())
-//        val user = reference("user", UserDAO.uuid).index()
-//        override val primaryKey = PrimaryKey(uuid)
-//    }
-//
-//    init {
-//        transaction(database) {
-//            SchemaUtils.create(MessageDAO, UserDAO)
-//        }
-//    }
-
     fun resolveMessages(
         changelist: Changelist,
         userSession: UserSession,
@@ -51,15 +27,17 @@ class ServerDataSource(
         val sendToServer = changelist.messages
             .filter { it.modified > (serverUpdates[it.entityId]?.modified ?: return@filter true) }
 
-        insertMessages(changelist.upTo, sendToServer, userSession)
-        return Changelist(changelist.lastSynced, changelist.upTo, sendToClient)
+        //TODO correctly merge new messages with old ones when there are duplicates (avoids sending extra data)
+        val resolvedConflictMessages = insertMessages(changelist.upTo, sendToServer, userSession)
+        return Changelist(changelist.lastSynced, changelist.upTo, sendToClient + resolvedConflictMessages)
     }
 
     private fun insertMessages(
         now: Instant,
         messages: List<NetworkMessage>,
         userSession: UserSession,
-    ) = database.transaction {
+    ) = database.transactionWithResult {
+        val newMessages = mutableListOf<NetworkMessage>()
         val user = userSession.userId
         messages.forEach { message ->
             val uuid = message.entityId
@@ -78,6 +56,7 @@ class ServerDataSource(
                     when (data.entityType) {
                         EntityType.TASK -> database.tasksQueries.delete(TaskId(uuid))
                         EntityType.LIST -> database.listsQueries.delete(ListId(uuid))
+                        EntityType.RANK -> database.rankQueries.delete(uuid)
                     }
                 }
 
@@ -89,11 +68,27 @@ class ServerDataSource(
 
                 is TaskNetworkModel -> {
                     database.tasksQueries.upsert(
-                        Task(TaskId(uuid), data.text, data.highlight, data.completed, data.listId, data.rank, user)
+                        Task(TaskId(uuid), data.text, data.highlight, data.completed, data.listId, user)
                     )
+                }
+
+                is RankNetworkModel -> {
+                    val existing = database.rankQueries.get(data.parent, data.rank).executeAsOneOrNull()
+                    if (existing != null) {
+                        val nextRank = database.rankQueries.nextItem(data.parent, data.rank)
+                            .executeAsOneOrNull()
+                            ?.rank
+                            ?: RankFunctions.lastChar.toString()
+                        val between = RankFunctions.getLexicographicMiddle(data.rank, nextRank)
+                        newMessages.add(NetworkMessage(data.copy(rank = between), uuid, message.modified))
+                        database.rankQueries.upsert(Rank(data.uuid, data.parent, between))
+                    } else {
+                        database.rankQueries.upsert(Rank(data.uuid, data.parent, data.rank))
+                    }
                 }
             }
         }
+        return@transactionWithResult newMessages
     }
 
     private fun getMessages(
@@ -105,7 +100,7 @@ class ServerDataSource(
         buildList {
             addAll(database.messagesQueries.selectTasks(user, lastSync, upTo).executeAsList().map {
                 NetworkMessage(
-                    data = TaskNetworkModel(it.list, it.text, it.completed, it.highlight, it.rank),
+                    data = TaskNetworkModel(it.list, it.text, it.completed, it.highlight),
                     it.uuid, it.modified,
                 )
             })
@@ -113,6 +108,13 @@ class ServerDataSource(
             addAll(database.messagesQueries.selectLists(user, lastSync, upTo).executeAsList().map {
                 NetworkMessage(
                     data = TaskListNetworkModel(it.title, it.isProject, it.rank),
+                    it.uuid, it.modified,
+                )
+            })
+
+            addAll(database.messagesQueries.selectRanks(user, lastSync, upTo).executeAsList().map {
+                NetworkMessage(
+                    data = RankNetworkModel(it.uuid, it.parent, it.rank),
                     it.uuid, it.modified,
                 )
             })

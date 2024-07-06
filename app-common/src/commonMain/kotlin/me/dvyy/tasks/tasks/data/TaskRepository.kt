@@ -2,6 +2,7 @@ package me.dvyy.tasks.tasks.data
 
 import kotlinx.coroutines.withContext
 import me.dvyy.tasks.db.Task
+import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Delete
@@ -37,13 +38,12 @@ class TaskRepository(
     }
 
     suspend fun move(taskId: TaskId, listId: ListId) = withContext(dbContext) {
-        localStore.moveTask(taskId, listId)
+        localStore.moveTaskToList(taskId, listId)
         messages.saveMessage(Update, taskId)
     }
 
-    suspend fun reorder(from: TaskId, to: TaskId) = withContext(dbContext) {
-        localStore.swapRank(from, to)
-        messages.saveMessage(Update, from)
-        messages.saveMessage(Update, to)
+    suspend fun moveTaskTo(taskId: TaskId, destId: TaskId) = withContext(dbContext) {
+        localStore.reorderTask(taskId, destId)
+        messages.saveMessage(Update, taskId.uuid, EntityType.RANK)
     }
 }

@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS rank (
+  uuid UUID PRIMARY KEY NOT NULL,
+  parent UUID,
+  rank TEXT NOT NULL,
+  UNIQUE (parent, rank)
+);
+
+upsert:
+INSERT INTO rank VALUES ?
+ON CONFLICT(uuid) DO UPDATE SET rank = excluded.rank, parent = excluded.parent;
+
+delete:
+DELETE FROM rank WHERE uuid = ?;
+
+nextItem:
+SELECT * FROM rank
+WHERE parent = ? AND rank > ?
+ORDER BY rank LIMIT 1;
+
+get:
+SELECT * FROM rank WHERE parent = ? AND rank = ?;

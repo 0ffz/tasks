@@ -1,5 +1,5 @@
 package me.dvyy.tasks.model
 
 enum class EntityType {
-    LIST, TASK
+    LIST, TASK, RANK
 }

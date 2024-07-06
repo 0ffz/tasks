@@ -4,12 +4,11 @@ import me.dvyy.tasks.model.ListId;
 import me.dvyy.tasks.model.TaskId;
 
 CREATE TABLE IF NOT EXISTS task (
-  uuid BLOB AS TaskId PRIMARY KEY NOT NULL,
+  uuid BLOB AS TaskId NOT NULL PRIMARY KEY,
   text TEXT,
   highlight TEXT AS Highlight NOT NULL,
   completed INTEGER AS Boolean NOT NULL,
-  list BLOB AS ListId NOT NULL,
-  rank INTEGER NOT NULL
+  list BLOB AS ListId NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS task_list ON task(list);
@@ -21,10 +20,16 @@ upsert:
 INSERT OR REPLACE INTO task
 VALUES ?;
 
+forListWithoutRank:
+SELECT task.uuid FROM task
+LEFT JOIN rank ON task.uuid = rank.uuid
+WHERE rank IS NULL AND list = ?;
+
 forList:
-SELECT * FROM task
+SELECT task.* FROM task
+JOIN rank ON task.uuid = rank.uuid
 WHERE list = ?
-ORDER BY rank, uuid;
+ORDER BY rank.rank;
 
 get:
 SELECT * FROM task
@@ -33,21 +38,6 @@ WHERE uuid = ?;
 delete:
 DELETE FROM task
 WHERE uuid = ?;
-
-lastRank:
-SELECT rank FROM task
-WHERE list = ?
-ORDER BY rank DESC
-LIMIT 1;
-
-shiftRanksDown:
-UPDATE task SET rank = rank + 1
-WHERE list = ? AND rank >= ?;
-
-isRankAvailable:
-SELECT 1 FROM task
-WHERE list = ? AND rank = ?;
-
 
 -- taskAfter:
 -- WITH original AS (SELECT rank, list FROM task WHERE uuid = ?)

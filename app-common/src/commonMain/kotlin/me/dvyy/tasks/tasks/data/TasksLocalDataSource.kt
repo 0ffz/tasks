@@ -7,12 +7,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import me.dvyy.tasks.db.Database
+import me.dvyy.tasks.db.Rank
 import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.db.TaskList
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.model.database.RankFunctions
 
 class TasksLocalDataSource(
     val database: Database,
@@ -39,6 +41,12 @@ class TasksLocalDataSource(
 
 
     fun observeListTasks(listId: ListId): Flow<List<Task>> {
+        val unranked = database.tasksQueries.forListWithoutRank(listId).executeAsList()
+        if (unranked.isNotEmpty()) database.tasksQueries.transaction {
+            unranked.forEach {
+                upsertRank(Rank(uuid = it.uuid, parent = listId.uuid, getRankAfterLast(listId)))
+            }
+        }
         return database.tasksQueries.forList(listId).asFlow()
             .mapToList(Dispatchers.Default)
     }
@@ -78,29 +86,6 @@ class TasksLocalDataSource(
         database.tasksQueries.delete(taskId)
     }
 
-    fun swapRank(from: TaskId, to: TaskId) {
-        if (from == to) return
-        database.tasksQueries.transaction {
-            val fromTask = database.tasksQueries.get(from).executeAsOne()
-            val toTask = database.tasksQueries.get(to).executeAsOne()
-
-            val prevSlotFree =
-                database.tasksQueries.isRankAvailable(toTask.list, toTask.rank - 1).executeAsOneOrNull() == null
-
-            if (prevSlotFree) {
-                database.tasksQueries.upsert(fromTask.copy(rank = toTask.rank - 1, list = toTask.list))
-                return@transaction
-            }
-
-            if (fromTask.list != toTask.list) {
-                database.tasksQueries.shiftRanksDown(toTask.list, toTask.rank)
-                database.tasksQueries.upsert(fromTask.copy(rank = toTask.rank, list = toTask.list))
-            } else {
-                database.tasksQueries.upsert(fromTask.copy(rank = toTask.rank))
-                database.tasksQueries.upsert(toTask.copy(rank = fromTask.rank))
-            }
-        }
-    }
 
     fun setListProperties(listId: ListId, props: TaskListProperties) {
         database.listsQueries.transaction {
@@ -121,26 +106,98 @@ class TasksLocalDataSource(
     }
 
     fun createTask(listId: ListId): Task {
-        val rank = getNextRank(listId)
+        val rank = getRankAfterLast(listId)
         val task = Task(
             uuid = TaskId.new(),
             list = listId,
             completed = false,
             text = "",
             highlight = Highlight.Unmarked,
-            rank = rank,
         )
         upsertTask(task)
         return task
     }
 
-    fun moveTask(taskId: TaskId, listId: ListId) {
-        database.tasksQueries.transaction {
-            val task = getTask(taskId) ?: return@transaction
-            val rank = getNextRank(listId)
-            upsertTask(task.copy(list = listId, rank = rank))
+    // Rank functions
+
+    fun getLastRankOrMiddle(listId: ListId) =
+        (database.rankQueries.lastRank(listId.uuid).executeAsOneOrNull() ?: RankFunctions.middleChar.toString())
+
+    fun getRankAfterLast(listId: ListId): String {
+        val lastRank = getLastRankOrMiddle(listId)
+        return RankFunctions.getRankAfter(lastRank)
+    }
+
+    fun getRankAfter(listId: ListId, rank: String): String {
+        val lastRank = getLastRankOrMiddle(listId)
+        return RankFunctions.getRankAfter(lastRank)
+    }
+
+    fun upsertRank(rank: Rank) {
+        database.rankQueries.upsert(rank)
+    }
+
+    fun getRankFor(task: TaskId): String? {
+        return database.rankQueries.getRank(task.uuid).executeAsOneOrNull()
+    }
+
+    fun reorderTask(taskId: TaskId, destId: TaskId) = database.transaction {
+        val task = getTask(taskId) ?: return@transaction
+        val dest = getTask(destId) ?: return@transaction
+
+        if (task.list != dest.list) moveTaskToList(taskId, dest.list)
+        val taskRank = getRankFor(taskId) ?: RankFunctions.firstChar.toString()
+        val destRank = getRankFor(destId) ?: RankFunctions.lastChar.toString()
+
+        if (taskRank == destRank) return@transaction
+
+        if (taskRank < destRank) {
+            moveTaskAfter(dest.list, taskId, destRank)
+        } else {
+            moveTaskBefore(dest.list, taskId, destRank)
         }
     }
 
-    fun getNextRank(listId: ListId) = (database.tasksQueries.lastRank(listId).executeAsOneOrNull() ?: 0) + 1
+    fun moveTaskToList(taskId: TaskId, listId: ListId) {
+        database.tasksQueries.transaction {
+            val task = getTask(taskId) ?: return@transaction
+            val rank = getRankAfterLast(listId)
+            upsertTask(task.copy(list = listId))
+            upsertRank(Rank(taskId.uuid, listId.uuid, rank))
+        }
+    }
+
+    fun moveTaskBefore(
+        list: ListId,
+        task: TaskId,
+        destRank: String,
+    ) {
+        val before = database.rankQueries.getRankBefore(list.uuid, destRank)
+            .executeAsOneOrNull()
+            ?: RankFunctions.firstChar.toString()
+
+        moveTaskBetween(list, task, before, destRank)
+    }
+
+    fun moveTaskAfter(
+        list: ListId,
+        task: TaskId,
+        destRank: String,
+    ) {
+        val after = database.rankQueries.getRankAfter(list.uuid, destRank)
+            .executeAsOneOrNull()
+            ?: RankFunctions.lastChar.toString()
+
+        moveTaskBetween(list, task, destRank, after)
+    }
+
+    fun moveTaskBetween(
+        list: ListId,
+        task: TaskId,
+        firstRank: String,
+        secondRank: String,
+    ) {
+        val newRank = RankFunctions.getLexicographicMiddle(firstRank, secondRank)
+        database.rankQueries.upsert(Rank(task.uuid, list.uuid, newRank))
+    }
 }

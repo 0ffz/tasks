@@ -1,19 +1,18 @@
 package me.dvyy.tasks.sync.data
 
 import app.cash.sqldelight.coroutines.asFlow
+import com.benasher44.uuid.Uuid
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import me.dvyy.tasks.db.Database
+import me.dvyy.tasks.db.Rank
 import me.dvyy.tasks.db.Task
 import me.dvyy.tasks.db.TaskList
 import me.dvyy.tasks.model.EntityId
 import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
-import me.dvyy.tasks.model.network.Deleted
-import me.dvyy.tasks.model.network.NetworkMessage
-import me.dvyy.tasks.model.network.TaskListNetworkModel
-import me.dvyy.tasks.model.network.TaskNetworkModel
+import me.dvyy.tasks.model.network.*
 
 class MessagesDataSource(
     val db: Database,
@@ -28,6 +27,10 @@ class MessagesDataSource(
             db.listsQueries.selectAllUUIDs().executeAsList().forEach {
                 saveMessage(NetworkMessage.Type.Update, it, now)
             }
+
+            db.rankQueries.selectAllUUIDs().executeAsList().forEach {
+                saveMessage(NetworkMessage.Type.Update, it, EntityType.RANK, now)
+            }
         }
     }
 
@@ -35,7 +38,7 @@ class MessagesDataSource(
         buildList {
             addAll(db.messagesQueries.selectTasks(upTo).executeAsList().map {
                 NetworkMessage(
-                    data = TaskNetworkModel(it.list, it.text, it.completed, it.highlight, it.rank),
+                    data = TaskNetworkModel(it.list, it.text, it.completed, it.highlight),
                     entityId = it.uuid,
                     modified = it.modified,
                 )
@@ -43,6 +46,13 @@ class MessagesDataSource(
             addAll(db.messagesQueries.selectLists(upTo).executeAsList().map {
                 NetworkMessage(
                     data = TaskListNetworkModel(it.title, it.isProject, it.rank),
+                    entityId = it.uuid,
+                    modified = it.modified,
+                )
+            })
+            addAll(db.messagesQueries.selectRanks(upTo).executeAsList().map {
+                NetworkMessage(
+                    data = RankNetworkModel(it.uuid, it.parent, it.rank),
                     entityId = it.uuid,
                     modified = it.modified,
                 )
@@ -64,6 +74,7 @@ class MessagesDataSource(
                 is Deleted -> when (data.entityType) {
                     EntityType.TASK -> db.tasksQueries.delete(TaskId(uuid))
                     EntityType.LIST -> db.listsQueries.delete(ListId(uuid))
+                    EntityType.RANK -> db.rankQueries.delete(uuid)
                 }
 
                 is TaskListNetworkModel -> db.listsQueries.insert(
@@ -82,6 +93,13 @@ class MessagesDataSource(
                         highlight = data.highlight,
                         completed = data.completed,
                         list = data.listId,
+                    )
+                )
+
+                is RankNetworkModel -> db.rankQueries.upsert(
+                    Rank(
+                        uuid = uuid,
+                        parent = data.parent,
                         rank = data.rank,
                     )
                 )
@@ -96,6 +114,13 @@ class MessagesDataSource(
         uuid: EntityId,
         timestamp: Instant = Clock.System.now(),
     ) = db.messagesQueries.insert(uuid.uuid, timestamp, messageType, uuid.type)
+
+    fun saveMessage(
+        messageType: NetworkMessage.Type,
+        uuid: Uuid,
+        entityType: EntityType,
+        timestamp: Instant = Clock.System.now(),
+    ) = db.messagesQueries.insert(uuid, timestamp, messageType, entityType)
 
     fun observeLastUpdated() = db.messagesQueries.lastUpdate().asFlow()
 }

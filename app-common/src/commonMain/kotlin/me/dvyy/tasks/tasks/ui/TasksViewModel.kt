@@ -82,7 +82,7 @@ class TasksViewModel(
         onDragEnterItem = { targetTask, dragged ->
             selectTask(null)
             viewModelScope.launch {
-                taskRepo.reorder(from = dragged.data, to = targetTask)
+                taskRepo.moveTaskTo(taskId = dragged.data, destId = targetTask)
             }
         },
         onDragEnterColumn = { targetList, dragged ->
