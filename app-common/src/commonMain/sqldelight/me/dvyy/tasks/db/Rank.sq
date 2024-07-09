@@ -7,6 +7,13 @@ CREATE TABLE IF NOT EXISTS rank (
   UNIQUE (parent, rank)
 );
 
+CREATE TRIGGER IF NOT EXISTS save_message_for_rank
+AFTER INSERT ON rank
+BEGIN
+    INSERT OR REPLACE INTO message(uuid, modified, type, entityType)
+    VALUES (new.uuid, (strftime('%s','now') || substr(strftime('%f','now'),4)), 'Update', 'RANK');
+END;
+
 selectAllUUIDs:
 SELECT uuid FROM rank;
 

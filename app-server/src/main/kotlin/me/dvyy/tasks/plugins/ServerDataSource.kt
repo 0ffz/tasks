@@ -9,6 +9,7 @@ import me.dvyy.tasks.model.database.RankFunctions
 import me.dvyy.tasks.model.network.*
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Delete
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Update
+import java.util.*
 
 class ServerDataSource(
     private val database: ServerDatabase,
@@ -74,6 +75,11 @@ class ServerDataSource(
 
                 is RankNetworkModel -> {
                     val existing = database.rankQueries.get(data.parent, data.rank).executeAsOneOrNull()
+
+                    @Suppress("KotlinConstantConditions") // Kotlin compiler doesn't realize Uuid is a typealias for UUID on jvm because network model comes from multiplatform
+                    if (existing?.rank == data.rank && existing.uuid == (data.uuid as UUID))
+                        return@forEach
+
                     if (existing != null) {
                         val nextRank = database.rankQueries.nextItem(data.parent, data.rank)
                             .executeAsOneOrNull()

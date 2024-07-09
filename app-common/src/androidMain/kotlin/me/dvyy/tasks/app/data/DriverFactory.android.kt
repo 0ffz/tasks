@@ -7,6 +7,8 @@ import me.dvyy.tasks.db.Database
 
 actual class DriverFactory(private val context: Context) {
     actual fun createDriver(): SqlDriver {
-        return AndroidSqliteDriver(Database.Schema, context, "tasks.db")
+        val driver = AndroidSqliteDriver(Database.Schema, context, "tasks.db")
+        Database.Schema.create(driver)
+        return driver
     }
 }

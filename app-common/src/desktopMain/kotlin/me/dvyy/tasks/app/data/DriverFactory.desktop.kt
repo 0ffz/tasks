@@ -22,6 +22,7 @@ actual class DriverFactory {
             properties = Properties(),
             schema = Database.Schema,
         )
+        Database.Schema.create(driver)
         return driver
     }
 }
