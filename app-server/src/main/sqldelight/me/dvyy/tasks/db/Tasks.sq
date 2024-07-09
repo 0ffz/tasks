@@ -1,0 +1,9 @@
+upsert:
+INSERT INTO task VALUES ? ON CONFLICT(uuid, userId) DO UPDATE
+SET text = excluded.text,
+    highlight = excluded.highlight,
+    completed = excluded.completed,
+    list = excluded.list;
+
+delete:
+DELETE FROM task WHERE uuid = ?;

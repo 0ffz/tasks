@@ -1,7 +1,11 @@
 package me.dvyy.tasks.plugins
 
 import kotlinx.datetime.Instant
-import me.dvyy.tasks.db.*
+import me.dvyy.tasks.db.ServerDatabase
+import me.dvyy.tasks.db.migrations.Message
+import me.dvyy.tasks.db.migrations.Rank
+import me.dvyy.tasks.db.migrations.Task
+import me.dvyy.tasks.db.migrations.TaskList
 import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId

@@ -1,21 +1,3 @@
-import kotlin.Boolean;
-import me.dvyy.tasks.model.ListId;
-import kotlinx.datetime.Instant;
-import me.dvyy.tasks.model.network.NetworkMessage;
-import me.dvyy.tasks.model.EntityType;
-
-CREATE TABLE IF NOT EXISTS message (
-  uuid UUID NOT NULL,
-  modified INT8 AS Instant NOT NULL,
-  inserted INT8 AS Instant NOT NULL,
-  type TEXT AS NetworkMessage.Type NOT NULL,
-  entityType TEXT AS EntityType NOT NULL,
-  userId INTEGER NOT NULL REFERENCES userEntity (id) ON DELETE CASCADE,
-  PRIMARY KEY (uuid, userId)
-);
-
-CREATE INDEX IF NOT EXISTS message_user ON message (userId);
-
 selectTasks:
 SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid
 WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update' AND entityType = 'TASk';

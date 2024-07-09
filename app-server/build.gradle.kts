@@ -72,9 +72,11 @@ jib {
 sqldelight {
     databases {
         create("ServerDatabase") {
+            deriveSchemaFromMigrations.set(true)
+            migrationOutputDirectory = file("$buildDir/generated/migrations")
+            migrationOutputFileFormat = ".sql" // Defaults to .sql
             packageName.set("me.dvyy.tasks.db")
             dialect("app.cash.sqldelight:postgresql-dialect:2.0.2")
-            srcDirs("src/sqldelight")
         }
     }
 }
