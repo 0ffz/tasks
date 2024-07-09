@@ -2,10 +2,12 @@ package me.dvyy.tasks.auth.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -17,7 +19,7 @@ import me.dvyy.tasks.di.koinViewModel
 @Composable
 fun AuthDialog(
     dialogs: DialogViewModel = koinViewModel(),
-    auth: AuthViewModel = koinViewModel()
+    auth: AuthViewModel = koinViewModel(),
 ) {
     val scope = rememberCoroutineScope()
     var error by remember { mutableStateOf(false) }
@@ -92,6 +94,7 @@ fun AuthDialog(
         },
         dismissButton = {
             TextButton(onClick = { dismiss() }) { Text("Dismiss") }
-        }
+        },
+        modifier = Modifier.imePadding()
     )
 }
