@@ -16,7 +16,7 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  build-android:
+  build-server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
