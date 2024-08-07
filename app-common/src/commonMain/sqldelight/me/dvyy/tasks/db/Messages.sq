@@ -3,11 +3,12 @@ import kotlinx.datetime.Instant;
 import me.dvyy.tasks.model.EntityType;
 import me.dvyy.tasks.model.network.NetworkMessage;
 
-CREATE TABLE IF NOT EXISTS  message (
-  uuid BLOB AS Uuid PRIMARY KEY NOT NULL,
+CREATE TABLE IF NOT EXISTS message (
+  uuid BLOB AS Uuid NOT NULL,
   modified INTEGER AS Instant NOT NULL,
   type TEXT AS NetworkMessage.Type NOT NULL,
-  entityType TEXT AS EntityType NOT NULL
+  entityType TEXT AS EntityType NOT NULL,
+  PRIMARY KEY (uuid, entityType)
 );
 
 CREATE INDEX IF NOT EXISTS message_modified ON message(modified);

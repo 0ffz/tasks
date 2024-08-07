@@ -76,7 +76,7 @@ sqldelight {
             migrationOutputDirectory = file("$buildDir/generated/migrations")
             migrationOutputFileFormat = ".sql" // Defaults to .sql
             packageName.set("me.dvyy.tasks.db")
-            dialect("app.cash.sqldelight:postgresql-dialect:2.0.2")
+            dialect(libs.sqldelight.postgresql.dialect)
         }
     }
 }

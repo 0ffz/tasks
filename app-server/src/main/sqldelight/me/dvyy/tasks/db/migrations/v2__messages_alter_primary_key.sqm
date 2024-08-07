@@ -1,0 +1,6 @@
+ALTER TABLE message
+DROP CONSTRAINT message_pkey;
+
+ALTER TABLE message
+ADD PRIMARY KEY (uuid, userId, entityType);
+

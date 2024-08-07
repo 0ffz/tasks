@@ -24,7 +24,7 @@ class SyncViewModel(
                 .debounce(3.seconds)
                 .collectLatest {
                     println(it)
-                    sync()
+                    runCatching { sync() }.onFailure { it.printStackTrace() }
                 }
         }
     }

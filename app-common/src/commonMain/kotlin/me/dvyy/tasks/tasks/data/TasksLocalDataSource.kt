@@ -115,6 +115,7 @@ class TasksLocalDataSource(
             highlight = Highlight.Unmarked,
         )
         upsertTask(task)
+        upsertRank(rank = Rank(task.uuid.uuid, listId.uuid, rank))
         return task
     }
 

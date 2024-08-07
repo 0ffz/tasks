@@ -113,14 +113,24 @@ class MessagesDataSource(
         messageType: NetworkMessage.Type,
         uuid: EntityId,
         timestamp: Instant = Clock.System.now(),
-    ) = db.messagesQueries.insert(uuid.uuid, timestamp, messageType, uuid.type)
+    ) = db.messagesQueries.insert(
+        uuid = uuid.uuid,
+        modified = timestamp,
+        type = messageType,
+        entityType = uuid.type
+    )
 
     fun saveMessage(
         messageType: NetworkMessage.Type,
         uuid: Uuid,
         entityType: EntityType,
         timestamp: Instant = Clock.System.now(),
-    ) = db.messagesQueries.insert(uuid, timestamp, messageType, entityType)
+    ) = db.messagesQueries.insert(
+        uuid = uuid,
+        modified = timestamp,
+        type = messageType,
+        entityType = entityType
+    )
 
     fun observeLastUpdated() = db.messagesQueries.lastUpdate().asFlow()
 }

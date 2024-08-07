@@ -10,11 +10,10 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 
-private const val versionPragma = "user_version"
-
 actual class DriverFactory {
     actual fun createDriver(): SqlDriver {
-        val dirs = AppDirs("tasks", "dvyy")
+        val dirs = AppDirs(Environment.customAppDir ?: "tasks", "dvyy")
+
         val dataPath = Path(dirs.getUserDataDir())
         dataPath.createDirectories()
         val driver: SqlDriver = JdbcSqliteDriver(

@@ -1,6 +1,6 @@
 selectTasks:
 SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid
-WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update' AND entityType = 'TASk';
+WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update' AND entityType = 'TASK';
 
 selectLists:
 SELECT * FROM message INNER JOIN taskList ON message.uuid = taskList.uuid
@@ -16,7 +16,7 @@ WHERE message.userId = ? AND message.inserted > ? AND inserted <= ? AND type = '
 
 insertMessage:
 INSERT INTO message VALUES ?
-ON CONFLICT(uuid, userId) DO UPDATE
+ON CONFLICT(uuid, userId, entityType) DO UPDATE
     SET modified = excluded.modified,
         inserted = excluded.inserted,
         type = excluded.type,

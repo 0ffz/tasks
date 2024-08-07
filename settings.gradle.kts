@@ -6,6 +6,7 @@ pluginManagement {
         google()
         maven("https://maven.hq.hydraulic.software")
         maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
         mavenLocal()
     }
 }
