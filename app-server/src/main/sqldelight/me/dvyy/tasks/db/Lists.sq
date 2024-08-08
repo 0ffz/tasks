@@ -5,4 +5,4 @@ SET isProject = excluded.isProject,
     rank = excluded.rank;
 
 delete:
-DELETE FROM taskList WHERE uuid = ?;
+DELETE FROM taskList WHERE userId = ? AND uuid = ?;

@@ -1,14 +1,14 @@
 upsert:
 INSERT INTO rank VALUES ?
-ON CONFLICT(uuid) DO UPDATE SET rank = excluded.rank, parent = excluded.parent;
+ON CONFLICT(uuid, userId) DO UPDATE SET rank = excluded.rank, parent = excluded.parent;
 
 delete:
-DELETE FROM rank WHERE uuid = ?;
+DELETE FROM rank WHERE userId = ? AND uuid = ?;
 
 nextItem:
 SELECT * FROM rank
-WHERE parent = ? AND rank > ?
+WHERE userId = ? AND parent = ? AND rank > ?
 ORDER BY rank LIMIT 1;
 
 get:
-SELECT * FROM rank WHERE parent = ? AND rank = ?;
+SELECT * FROM rank WHERE userId = ? AND parent = ? AND rank = ?;

@@ -6,4 +6,4 @@ SET text = excluded.text,
     list = excluded.list;
 
 delete:
-DELETE FROM task WHERE uuid = ?;
+DELETE FROM task WHERE userId = ? AND uuid = ?;

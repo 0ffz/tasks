@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS rank (
   uuid UUID PRIMARY KEY NOT NULL,
   parent UUID,
   rank TEXT NOT NULL,
-  UNIQUE (parent, rank)
+  userId INTEGER NOT NULL REFERENCES userEntity (id) ON DELETE CASCADE,
+  UNIQUE (parent, rank, userId)
 );
 
 CREATE TABLE IF NOT EXISTS task (
