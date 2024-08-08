@@ -2,14 +2,11 @@ package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.PlatformSpecifics
@@ -43,16 +40,13 @@ fun ReorderableTask(
                 contentAlignment = Alignment.CenterStart,
                 modifier = Modifier.padding(horizontal = ui.horizontalTaskTextPadding)
             ) {
-                TaskHighlight(task.text, task.highlight)
-                TaskTextPadding {
-                    Text(
-                        task.text,
-                        Modifier.height(ui.taskHeight),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = task.highlight.color.getBestTextColor()
-                    )
-                }
+                TaskHighlight(task.text, task.highlight, task.completed)
+                TaskTextField(
+                    task,
+                    selected = false,
+                    setTask = {},
+                    interactions
+                )
             }
         },
         onDragEnter = { reorderInteractions.onDragEnterItem(key, it) },

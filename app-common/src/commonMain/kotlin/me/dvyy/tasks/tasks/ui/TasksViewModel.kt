@@ -195,7 +195,7 @@ class TasksViewModel(
                 }
 
                 event.key == Key.Enter -> {
-                    if (!event.isShiftPressed) setUiState(uiState.copy(text = "${uiState.text}\n"))
+                    if (!event.isShiftPressed) selectNextTaskOrNew()
                 }
 
                 else -> return false

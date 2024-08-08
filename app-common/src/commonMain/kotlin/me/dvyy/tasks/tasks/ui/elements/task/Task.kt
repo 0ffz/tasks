@@ -22,6 +22,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInput
@@ -80,15 +81,14 @@ fun Task(
             selected,
             task.highlight,
         ) {
-            val alpha by animateFloatAsState(if (task.completed) 0.3f else 1f)
-            Column(Modifier.alpha(alpha)) {
+            Column {
                 Box(
                     modifier = Modifier.padding(horizontal = ui.horizontalTaskTextPadding),
 //                    contentAlignment = Alignment.CenterStart,
                 ) {
                     Row(verticalAlignment = Alignment.Top) {
                         Box(Modifier.weight(1f, true), contentAlignment = Alignment.CenterStart) {
-                            if (!selected) TaskHighlight(task.text, task.highlight)
+                            if (!selected) TaskHighlight(task.text, task.highlight, task.completed)
                             TaskTextField(task, selected, setTask, interactions, focusRequested, Modifier)
                         }
                         val responsive = LocalUIState.current
@@ -114,13 +114,19 @@ fun Task(
 }
 
 @Composable
-fun TaskHighlight(text: String, highlight: Highlight) {
+fun Color.fade(alpha: Float): Color {
+    val background = MaterialTheme.colorScheme.background
+    return background.copy(alpha = 1f - alpha).compositeOver(this)
+}
+
+@Composable
+fun TaskHighlight(text: String, highlight: Highlight, completed: Boolean = false) {
     val ui = LocalUIState.current
-    val adjustedHighlight by animateColorAsState(highlight.color)
+    val adjustedHighlight by animateColorAsState(highlight.color.fade(if (completed) 0.3f else 1f))
     Surface(
         color = adjustedHighlight,
         shape = MaterialTheme.shapes.extraLarge,
-        modifier = Modifier.height(ui.taskHighlightHeight)
+        modifier = Modifier.height(ui.taskHighlightHeight),
     ) {
         TaskTextPadding {
             Text(text, Modifier.alpha(0f))
@@ -170,7 +176,10 @@ fun TaskTextField(
     modifier: Modifier = Modifier,
 ) {
     val textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
-    val textColor by animateColorAsState(if (selected) MaterialTheme.colorScheme.onSurface else task.highlight.color.getBestTextColor())
+    val textColor by animateColorAsState(
+        if (selected) MaterialTheme.colorScheme.onSurface
+        else task.highlight.color.getBestTextColor().fade(if (task.completed) 0.3f else 1f)
+    )
     val textStyle = MaterialTheme.typography.bodyLarge.copy(
         color = textColor,
         textDecoration = textDecoration,
@@ -182,7 +191,7 @@ fun TaskTextField(
             focusRequester.requestFocus()
         }
     }
-    var selection by remember { mutableStateOf(TextRange.Zero) }
+    var selection by remember { mutableStateOf(TextRange(task.text.length)) }
     if (!selected) TaskTextPadding {
         Text(
             text = task.text,
@@ -245,7 +254,6 @@ fun TaskTextField(
                 true
             }
     )
-
 }
 
 @Composable

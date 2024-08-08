@@ -23,6 +23,7 @@ import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListTitle
 import me.dvyy.tasks.tasks.ui.elements.task.TaskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.TaskOptions
+import me.dvyy.tasks.tasks.ui.elements.task.TaskSelectedSurface
 import me.dvyy.tasks.tasks.ui.elements.task.TaskTextField
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.koin.compose.KoinContext
@@ -81,27 +82,32 @@ fun QuickAdd(
                             key = listId
                         )
                     }
-                    Box(
-                        modifier = Modifier.height(ui.taskHeight),
-                        contentAlignment = Alignment.CenterStart,
+                    TaskSelectedSurface(
+                        visible = true,
+                        task.highlight,
                     ) {
-                        TaskHighlight(task.text, task.highlight)
-                        TaskTextField(
+                        Box(
+                            modifier = Modifier.height(ui.taskHeight),
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            TaskHighlight(task.text, task.highlight)
+                            TaskTextField(
+                                task = task,
+                                selected = true,
+                                focusRequested = true,
+                                setTask = { task = it },
+                                interactions = interactions,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                        TaskOptions(
                             task = task,
-                            selected = true,
-                            focusRequested = true,
                             setTask = { task = it },
+                            initialDate = selectedDate,
                             interactions = interactions,
-                            modifier = Modifier.fillMaxWidth()
+                            submitAction = { saveTask() }
                         )
                     }
-                    TaskOptions(
-                        task = task,
-                        setTask = { task = it },
-                        initialDate = selectedDate,
-                        interactions = interactions,
-                        submitAction = { saveTask() }
-                    )
                 }
             }
         }
