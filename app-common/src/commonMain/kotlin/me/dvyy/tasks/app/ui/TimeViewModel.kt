@@ -24,17 +24,22 @@ class TimeViewModel : ViewModel() {
         }
     }
 
-    private val _weekStart =
-        MutableStateFlow(today.value.minus(today.value.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY))
+    private val _weekStart = MutableStateFlow(weekStartForToday())
     val weekStart = _weekStart.asStateFlow()
 
-    fun nextWeek() {
+    fun goToNextWeek() {
         _weekStart.update { it.plus(1, DateTimeUnit.WEEK) }
     }
 
-    fun previousWeek() {
+    fun goToPreviousWeek() {
         _weekStart.update { it.minus(1, DateTimeUnit.WEEK) }
     }
 
+    fun goToThisWeek() {
+        _weekStart.update { weekStartForToday() }
+    }
+
     private fun getToday() = Clock.System.now().toLocalDateTime(timezone).date
+
+    fun weekStartForToday() = today.value.minus(today.value.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY)
 }

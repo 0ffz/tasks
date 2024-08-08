@@ -12,10 +12,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CropSquare
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Minimize
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -101,6 +98,7 @@ fun DesktopTopBar(
                     Box(Modifier.padding(4.dp)) {
                         AppTopBarActions()
                     }
+                    VerticalDivider(Modifier.padding(8.dp))
                     WindowButton(Icons.Rounded.Minimize) {
                         viewModel.minimize()
                     }
