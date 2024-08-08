@@ -48,7 +48,7 @@ fun QuickAdd(
             var selectedDate: LocalDate? by remember { mutableStateOf(null) }
             val listId =
                 if (selectedDate != null) ListId.forDate(selectedDate!!)
-                else projects.firstOrNull() ?: ListId.forDate(time.today)
+                else projects.firstOrNull() ?: ListId.forDate(time.today.value)
 
             fun saveTask() {
                 tasks.createTask(task, listId)

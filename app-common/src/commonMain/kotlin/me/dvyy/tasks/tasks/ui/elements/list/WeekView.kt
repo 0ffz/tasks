@@ -71,6 +71,7 @@ fun WeekView(
                 Modifier.nestedScroll(scrollBehavior.nestedScrollConnection).verticalScroll(scrollState)
             else Modifier
             var height by remember { mutableStateOf(0) }
+            val today by time.today.collectAsState()
             Column(Modifier.onGloballyPositioned { height = it.size.height }) {
                 if (splitHeight > splitCutoff.start) NonlazyGrid(
                     columns = columns,
@@ -78,7 +79,7 @@ fun WeekView(
                     modifier = Modifier.fillMaxWidth().then(restrictHeight).then(datesScrollable),
                 ) { dayIndex ->
                     val day = weekStart.plus(DatePeriod(days = dayIndex))
-                    val isToday = day == time.today
+                    val isToday = day == today
                     val listId = ListId.forDate(day)
                     val properties by tasksViewModel.getListProperties(listId).collectAsState()
                     val tasks by tasksViewModel.tasksFor(listId).collectAsState()

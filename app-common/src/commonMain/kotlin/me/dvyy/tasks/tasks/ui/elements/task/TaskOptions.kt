@@ -66,7 +66,8 @@ fun TaskOptions(
                 }
             }, orientation = Orientation.Horizontal)*/
             ) { toggleFocused() }
-            TaskDatePicker(initialDate ?: time.today, interactions)
+            val today by time.today.collectAsState()
+            TaskDatePicker(initialDate ?: today, interactions)
             Spacer(Modifier.weight(1f))
             if (submitAction != null) {
                 FilledIconButton(onClick = submitAction) {
