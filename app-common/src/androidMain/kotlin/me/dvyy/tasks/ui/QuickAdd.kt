@@ -14,12 +14,10 @@ import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.rememberAppUIState
-import me.dvyy.tasks.app.ui.state.loaded
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListTitle
@@ -48,9 +46,11 @@ fun QuickAdd(
                     )
                 )
             }
-            var selectedDate by remember { mutableStateOf(time.today) }
-            val listId = ListId.forDate(selectedDate)
-            val coroutineScope = rememberCoroutineScope()
+            val projects by tasks.projects.collectAsState()
+            var selectedDate: LocalDate? by remember { mutableStateOf(null) }
+            val listId =
+                if (selectedDate != null) ListId.forDate(selectedDate!!)
+                else projects.firstOrNull() ?: ListId.forDate(time.today)
 
             fun saveTask() {
                 tasks.createTask(task, listId)
@@ -71,9 +71,10 @@ fun QuickAdd(
             }
             Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(8.dp)) {
+                    val listProps by tasks.getListProperties(listId).collectAsState()
                     Box {
                         TaskListTitle(
-                            props = TaskListProperties(date = selectedDate).loaded(),
+                            props = listProps,
                             colored = false,
                             loading = false,
                             showDivider = false,
