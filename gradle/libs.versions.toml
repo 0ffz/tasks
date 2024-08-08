@@ -16,12 +16,15 @@ compose-plugin = "1.6.10"
 composeDnd = "0.2.0"
 exposed = "0.51.1"
 h2 = "2.2.224"
+hikaricp = "5.1.0"
+jdbcDriver = "2.0.2"
 jib = "3.4.3"
 junit = "4.13.2"
 koin = "3.6.0-wasm-alpha2"
 kotlin = "2.0.0"
 kotlinMultiplatformAppdirs = "1.2.0"
 coroutines = "1.8.0"
+kotest = "5.9.1"
 kotlinResult = "2.0.0"
 kotlinxDatetime = "0.6.0"
 kotlinxSerialization = "1.7.0"
@@ -33,6 +36,7 @@ foundationAndroid = "1.6.8"
 material3WindowSizeClassMultiplatform = "0.5.0"
 multiplatformSettings = "1.1.1"
 postgresql = "42.7.3"
+postgresqlVersion = "1.20.1"
 uuid = "0.8.4"
 navigationCompose = "2.7.0-alpha03"
 slf4j = "2.0.9"
@@ -51,6 +55,7 @@ exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "e
 exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
 exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -82,6 +87,9 @@ ktor-server-content-negotiation-jvm = { module = "io.ktor:ktor-server-content-ne
 ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor-eap" }
@@ -98,6 +106,7 @@ multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 primitive-adapters = { module = "app.cash.sqldelight:primitive-adapters", version.ref = "sqlDelight" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "postgresqlVersion" }
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 slf4j = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -105,6 +114,7 @@ sqldelight-web-worker-driver = { module = "app.cash.sqldelight:web-worker-driver
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 sqldelight-postgresql-dialect = { module = "app.cash.sqldelight:postgresql-dialect", version.ref = "sqlDelight" }
+sqldelight-jdbc-driver = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqlDelight" }
 androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "startupRuntime" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 

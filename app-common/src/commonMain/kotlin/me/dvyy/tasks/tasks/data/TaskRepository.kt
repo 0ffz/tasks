@@ -1,7 +1,7 @@
 package me.dvyy.tasks.tasks.data
 
 import kotlinx.coroutines.withContext
-import me.dvyy.tasks.db.Task
+import me.dvyy.tasks.db.client.Task
 import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId

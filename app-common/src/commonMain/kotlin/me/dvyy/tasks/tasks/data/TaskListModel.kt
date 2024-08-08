@@ -1,6 +1,6 @@
 package me.dvyy.tasks.tasks.data
 
-import me.dvyy.tasks.db.Task
+import me.dvyy.tasks.db.client.Task
 import me.dvyy.tasks.model.TaskListProperties
 
 data class TaskListModel(

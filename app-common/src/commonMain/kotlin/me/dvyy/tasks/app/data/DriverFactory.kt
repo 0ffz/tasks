@@ -2,15 +2,20 @@ package me.dvyy.tasks.app.data
 
 import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
-import me.dvyy.tasks.db.*
+import me.dvyy.tasks.db.client.*
 import me.dvyy.tasks.model.database.Adapters
 
 expect class DriverFactory {
     fun createDriver(): SqlDriver
 }
 
-fun createDatabase(driverFactory: DriverFactory): Database {
+
+fun createClientDatabase(driverFactory: DriverFactory): Database {
     val driver = driverFactory.createDriver()
+    return createClientDatabase(driver)
+}
+
+fun createClientDatabase(driver: SqlDriver): Database {
     return Database(
         driver = driver,
         messageAdapter = Message.Adapter(

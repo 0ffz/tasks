@@ -3,7 +3,7 @@ package me.dvyy.tasks.app.data
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import ca.gosyer.appdirs.AppDirs
-import me.dvyy.tasks.db.Database
+import me.dvyy.tasks.db.client.Database
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -21,7 +21,6 @@ actual class DriverFactory {
             properties = Properties(),
             schema = Database.Schema,
         )
-        Database.Schema.create(driver)
         return driver
     }
 }

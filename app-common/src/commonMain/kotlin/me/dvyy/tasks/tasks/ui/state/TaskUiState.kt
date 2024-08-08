@@ -1,7 +1,7 @@
 package me.dvyy.tasks.tasks.ui.state
 
 import androidx.compose.runtime.Stable
-import me.dvyy.tasks.db.Task
+import me.dvyy.tasks.db.client.Task
 import me.dvyy.tasks.model.Highlight
 
 @Stable

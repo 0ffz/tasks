@@ -6,24 +6,30 @@ import app.cash.sqldelight.driver.jdbc.JdbcDriver
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import me.dvyy.tasks.db.ServerDatabase
 import me.dvyy.tasks.db.migrations.Message
 import me.dvyy.tasks.db.migrations.Task
 import me.dvyy.tasks.db.migrations.TaskList
+import me.dvyy.tasks.db.server.ServerDatabase
 import me.dvyy.tasks.model.database.Adapters
 import javax.sql.DataSource
 
-fun createDataSource(jdbcUrl: String): HikariDataSource {
+fun createDataSource(
+    jdbcUrl: String,
+    username: String? = null,
+    password: String? = null,
+): HikariDataSource {
     val hikariConfig = HikariConfig()
     // See https://jdbc.postgresql.org/documentation/use/
     hikariConfig.jdbcUrl = jdbcUrl
     hikariConfig.driverClassName = "org.postgresql.Driver"
-//    hikariConfig.username = "dbusername"
-//    hikariConfig.password = "dbpassword"
+    if (username != null && password != null) {
+        hikariConfig.username = username
+        hikariConfig.password = password
+    }
     return HikariDataSource(hikariConfig)
 }
 
-fun createDatabase(dataSource: DataSource): ServerDatabase {
+fun createServerDatabase(dataSource: DataSource): ServerDatabase {
     val driver = dataSource.asJdbcDriver()
     val version = driver.getVersion()
     val schemaVersion = ServerDatabase.Schema.version
@@ -69,7 +75,18 @@ private fun JdbcDriver.setVersion(version: Long) {
     execute(
         null, """
         SET my.version TO $version;
-        ALTER DATABASE tasks set my.version from current;
+        ALTER DATABASE ${getDbName()} set my.version from current;
         """.trimIndent(), 0, null
     ).value
+}
+
+private fun JdbcDriver.getDbName(): String {
+    val mapper = { cursor: SqlCursor ->
+        app.cash.sqldelight.db.QueryResult.Value(if (cursor.next().value) cursor.getString(0) else null)
+    }
+    return executeQuery(
+        null, """
+        SELECT current_database();
+        """.trimIndent(), mapper, 0, null
+    ).value ?: ""
 }

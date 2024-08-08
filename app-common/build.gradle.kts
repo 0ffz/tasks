@@ -134,14 +134,8 @@ dependencies {
 sqldelight {
     databases {
         create("Database") {
-            packageName.set("me.dvyy.tasks.db")
+            packageName.set("me.dvyy.tasks.db.client")
             srcDirs("src/commonMain/sqldelight")
-        }
-        create("ServerDatabase") {
-            packageName.set("me.dvyy.tasks.db")
-//            dialect("app.cash.sqldelight:postgres-dialect:2.0.2")
-            dialect("app.cash.sqldelight:postgresql-dialect:2.0.2")
-            srcDirs("src/commonMain/sqldelight-server")
         }
     }
 }

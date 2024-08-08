@@ -2,7 +2,7 @@ package me.dvyy.tasks.tasks.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import me.dvyy.tasks.db.Task
+import me.dvyy.tasks.db.client.Task
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Update

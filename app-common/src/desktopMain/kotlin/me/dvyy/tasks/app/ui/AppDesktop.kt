@@ -12,9 +12,9 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import me.dvyy.tasks.app.data.DriverFactory
 import me.dvyy.tasks.app.data.TopbarViewModel
-import me.dvyy.tasks.app.data.createDatabase
+import me.dvyy.tasks.app.data.createClientDatabase
 import me.dvyy.tasks.app.ui.topbar.DesktopTopBar
-import me.dvyy.tasks.db.Database
+import me.dvyy.tasks.db.client.Database
 import me.dvyy.tasks.di.koinViewModel
 import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.getKoin
@@ -56,7 +56,7 @@ fun ApplicationScope.AppDesktop() = KoinIsolatedContext(createAppKoinApplication
     ) {
         getKoin().loadModules(remember {
             listOf(module {
-                single<Database> { createDatabase(DriverFactory()) }
+                single<Database> { createClientDatabase(DriverFactory()) }
                 single {
                     TopbarViewModel(
                         windowState = windowState,

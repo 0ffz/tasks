@@ -2,7 +2,7 @@ package me.dvyy.tasks
 
 import android.app.Application
 import me.dvyy.tasks.app.data.DriverFactory
-import me.dvyy.tasks.app.data.createDatabase
+import me.dvyy.tasks.app.data.createClientDatabase
 import me.dvyy.tasks.app.ui.createAppKoinApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -18,7 +18,7 @@ class MainApplication : Application(), KoinComponent {
             androidContext(this@MainApplication)
             modules(
                 module {
-                    single { createDatabase(DriverFactory(applicationContext)) }
+                    single { createClientDatabase(DriverFactory(applicationContext)) }
                 }
             )
         })

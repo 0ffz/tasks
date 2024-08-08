@@ -6,10 +6,10 @@ import app.cash.sqldelight.coroutines.mapToOneOrDefault
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import me.dvyy.tasks.db.Database
-import me.dvyy.tasks.db.Rank
-import me.dvyy.tasks.db.Task
-import me.dvyy.tasks.db.TaskList
+import me.dvyy.tasks.db.client.Database
+import me.dvyy.tasks.db.client.Rank
+import me.dvyy.tasks.db.client.Task
+import me.dvyy.tasks.db.client.TaskList
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId

@@ -42,8 +42,8 @@ dependencies {
     implementation(libs.ktor.server.config.yaml)
 
     implementation(libs.postgresql)
-    implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("app.cash.sqldelight:jdbc-driver:2.0.2")
+    implementation(libs.hikaricp)
+    implementation(libs.sqldelight.jdbc.driver)
     implementation(libs.koin.core)
 
 }
@@ -75,7 +75,7 @@ sqldelight {
             deriveSchemaFromMigrations.set(true)
             migrationOutputDirectory = file("$buildDir/generated/migrations")
             migrationOutputFileFormat = ".sql" // Defaults to .sql
-            packageName.set("me.dvyy.tasks.db")
+            packageName.set("me.dvyy.tasks.db.server")
             dialect(libs.sqldelight.postgresql.dialect)
         }
     }
