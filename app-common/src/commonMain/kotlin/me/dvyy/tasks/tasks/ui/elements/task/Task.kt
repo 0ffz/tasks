@@ -138,6 +138,7 @@ fun TaskHighlight(text: String, highlight: Highlight, completed: Boolean = false
 fun TaskSelectedSurface(
     visible: Boolean,
     highlight: Highlight,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     val defaultColor = CardDefaults.elevatedCardColors().containerColor
@@ -150,7 +151,7 @@ fun TaskSelectedSurface(
         .takeIf { visible && highlight != Highlight.Unmarked } ?: Color.Transparent
     val animatedHighlight by animateColorAsState(highlightColor)
     Surface(
-        modifier = Modifier.padding(vertical = padding),
+        modifier = modifier.padding(vertical = padding),
         shape = RoundedCornerShape(cornerShape),
         color = defaultColor,
         tonalElevation = elevation.dp,

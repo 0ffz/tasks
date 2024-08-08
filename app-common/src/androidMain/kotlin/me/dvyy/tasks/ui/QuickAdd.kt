@@ -3,8 +3,6 @@ package me.dvyy.tasks.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +19,6 @@ import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListTitle
-import me.dvyy.tasks.tasks.ui.elements.task.TaskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.TaskOptions
 import me.dvyy.tasks.tasks.ui.elements.task.TaskSelectedSurface
 import me.dvyy.tasks.tasks.ui.elements.task.TaskTextField
@@ -70,7 +67,11 @@ fun QuickAdd(
 
                 }
             }
-            Surface(shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
+            TaskSelectedSurface(
+                visible = true,
+                task.highlight,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Column(Modifier.padding(8.dp)) {
                     val listProps by tasks.getListProperties(listId).collectAsState()
                     Box {
@@ -82,32 +83,26 @@ fun QuickAdd(
                             key = listId
                         )
                     }
-                    TaskSelectedSurface(
-                        visible = true,
-                        task.highlight,
+                    Box(
+                        modifier = Modifier.height(ui.taskHeight),
+                        contentAlignment = Alignment.CenterStart,
                     ) {
-                        Box(
-                            modifier = Modifier.height(ui.taskHeight),
-                            contentAlignment = Alignment.CenterStart,
-                        ) {
-                            TaskHighlight(task.text, task.highlight)
-                            TaskTextField(
-                                task = task,
-                                selected = true,
-                                focusRequested = true,
-                                setTask = { task = it },
-                                interactions = interactions,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        TaskOptions(
+                        TaskTextField(
                             task = task,
+                            selected = true,
+                            focusRequested = true,
                             setTask = { task = it },
-                            initialDate = selectedDate,
                             interactions = interactions,
-                            submitAction = { saveTask() }
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
+                    TaskOptions(
+                        task = task,
+                        setTask = { task = it },
+                        initialDate = selectedDate,
+                        interactions = interactions,
+                        submitAction = { saveTask() }
+                    )
                 }
             }
         }
