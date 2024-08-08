@@ -28,10 +28,7 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.content.negotiation.jvm)
 
-    implementation(libs.exposed.core)
-    implementation(libs.exposed.jdbc)
-    implementation(libs.exposed.kotlin.datetime)
-    implementation(libs.exposed.json)
+    implementation(libs.kotlinx.datetime)
 
     implementation(libs.h2)
     implementation(libs.ktor.server.auth.jvm)

@@ -6,6 +6,7 @@ import app.cash.sqldelight.driver.jdbc.JdbcDriver
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.ktor.util.logging.*
 import me.dvyy.tasks.db.migrations.Message
 import me.dvyy.tasks.db.migrations.Task
 import me.dvyy.tasks.db.migrations.TaskList
@@ -29,16 +30,22 @@ fun createDataSource(
     return HikariDataSource(hikariConfig)
 }
 
+internal val LOGGER = KtorSimpleLogger("Tasks")
+
 fun createServerDatabase(dataSource: DataSource): ServerDatabase {
     val driver = dataSource.asJdbcDriver()
     val version = driver.getVersion()
     val schemaVersion = ServerDatabase.Schema.version
     if (version == 0L) {
+        LOGGER.info("Creating fresh database schema...")
         ServerDatabase.Schema.create(driver).value
         driver.setVersion(schemaVersion)
     } else if (version < schemaVersion) {
+        LOGGER.info("Migrating database from version $version to $schemaVersion...")
         ServerDatabase.Schema.migrate(driver, version, schemaVersion).value
         driver.setVersion(schemaVersion)
+    } else {
+        LOGGER.info("Database up to date.")
     }
 
     return ServerDatabase(
