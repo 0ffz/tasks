@@ -45,7 +45,10 @@ fun WeekView(
         floatingActionButton = {
             Column {
                 if (splitHeight !in splitCutoff) {
-                    FloatingActionButton(onClick = { prefs.splitHeight.value = 0.5f }) {
+                    SmallFloatingActionButton(
+                        onClick = { prefs.splitHeight.value = 0.5f },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    ) {
                         Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
                     }
                 }
