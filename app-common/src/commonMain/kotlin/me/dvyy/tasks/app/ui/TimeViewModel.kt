@@ -15,6 +15,8 @@ class TimeViewModel : ViewModel() {
     private val _today = MutableStateFlow(getToday())
     val today = _today.asStateFlow()
 
+    fun getDayOfWeek() = today.value.dayOfWeek.ordinal
+
     init {
         viewModelScope.launch {
             while (true) {
@@ -41,5 +43,5 @@ class TimeViewModel : ViewModel() {
 
     private fun getToday() = Clock.System.now().toLocalDateTime(timezone).date
 
-    fun weekStartForToday() = today.value.minus(today.value.dayOfWeek.ordinal.toLong(), DateTimeUnit.DAY)
+    fun weekStartForToday() = today.value.minus(getDayOfWeek().toLong(), DateTimeUnit.DAY)
 }

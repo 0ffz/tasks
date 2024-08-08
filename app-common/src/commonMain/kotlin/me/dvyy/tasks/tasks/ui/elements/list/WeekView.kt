@@ -15,9 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
@@ -27,6 +31,7 @@ import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.koinInject
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +91,7 @@ fun WeekView(
                     val listId = ListId.forDate(day)
                     val properties by tasksViewModel.getListProperties(listId).collectAsState()
                     val tasks by tasksViewModel.tasksFor(listId).collectAsState()
+                    var scrollToPosition by remember { mutableStateOf(0F) }
                     TaskList(
                         listId = listId,
                         tasks = tasks,
@@ -94,8 +100,17 @@ fun WeekView(
                         viewModel = tasksViewModel,
                         reorderInteractions = reorderInteractions,
                         interactions = tasksViewModel.listInteractionsFor(listId),
-                        scrollable = !ui.isSingleColumn
+                        scrollable = !ui.isSingleColumn,
+                        modifier = Modifier.onGloballyPositioned { coords ->
+                            scrollToPosition = coords.positionInRoot().y
+                        }
                     )
+                    LaunchedEffect(Unit) {
+                        if (isToday && columns == 1) snapshotFlow { scrollToPosition }
+                            .drop(1)
+                            .take(1)
+                            .collectLatest { scrollState.scrollTo(scrollToPosition.roundToInt()) }
+                    }
                 }
                 val scrollableState = rememberScrollableState { delta ->
                     val newSplitHeight = (splitHeight + delta / height).coerceIn(0f, 1f)
