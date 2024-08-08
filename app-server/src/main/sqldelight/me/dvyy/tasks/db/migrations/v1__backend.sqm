@@ -35,11 +35,12 @@ CREATE TABLE IF NOT EXISTS taskList (
 CREATE INDEX IF NOT EXISTS taskList_user ON taskList (userId);
 
 CREATE TABLE IF NOT EXISTS rank (
-  uuid UUID PRIMARY KEY NOT NULL,
+  uuid UUID NOT NULL,
   parent UUID,
   rank TEXT NOT NULL,
   userId INTEGER NOT NULL REFERENCES userEntity (id) ON DELETE CASCADE,
-  UNIQUE (parent, rank, userId)
+  UNIQUE (parent, rank, userId),
+  PRIMARY KEY (uuid, userId)
 );
 
 CREATE TABLE IF NOT EXISTS task (
