@@ -23,8 +23,10 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -180,6 +182,7 @@ fun TaskTextField(
             focusRequester.requestFocus()
         }
     }
+    var selection by remember { mutableStateOf(TextRange.Zero) }
     if (!selected) TaskTextPadding {
         Text(
             text = task.text,
@@ -189,10 +192,13 @@ fun TaskTextField(
             overflow = TextOverflow.Ellipsis
         )
     } else BasicTextField(
-        value = task.text,
+        value = TextFieldValue(task.text, selection),
         readOnly = task.completed,
         singleLine = !selected,
-        onValueChange = { setTask(task.copy(text = it)) },
+        onValueChange = {
+            setTask(task.copy(text = it.text))
+            selection = it.selection
+        },
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
         textStyle = textStyle,
         keyboardActions = interactions.keyboardActions,
@@ -207,6 +213,36 @@ fun TaskTextField(
             .focusRequester(focusRequester)
             .onFocusEvent {
                 if (it.isFocused) interactions.onSelect()
+            }
+            .fillMaxWidth()
+            .onPreviewKeyEvent {
+                // Handle some multiline features that aren't correctly supported by BasicTextField
+                when {
+                    it.isCtrlPressed -> {
+                        selection = when (it.key) {
+                            Key.Home -> TextRange.Zero
+                            Key.MoveEnd -> TextRange(task.text.length)
+                            else -> return@onPreviewKeyEvent false
+                        }
+                    }
+
+                    it.isShiftPressed -> {
+                        if (it.key == Key.Enter) {
+                            setTask(
+                                task.copy(
+                                    text = task.text.substring(
+                                        0,
+                                        selection.start
+                                    ) + "\n" + task.text.substring(selection.end)
+                                )
+                            )
+                            selection = TextRange(selection.start + 1)
+                        }
+                    }
+
+                    else -> return@onPreviewKeyEvent false
+                }
+                true
             }
     )
 
