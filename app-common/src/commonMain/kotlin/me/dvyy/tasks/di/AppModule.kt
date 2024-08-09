@@ -3,7 +3,6 @@ package me.dvyy.tasks.di
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.russhwolf.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.DialogViewModel
@@ -31,7 +30,7 @@ import org.koin.dsl.module
 fun appModule() = module {
     singleOf(::AppState)
     single { Dispatchers.Default }
-    singleOf(::Settings)
+    singleOf(::AppSettings)
 }
 
 fun authModule() = module {

@@ -10,14 +10,14 @@ import me.dvyy.tasks.db.client.Database
 import me.dvyy.tasks.db.client.Rank
 import me.dvyy.tasks.db.client.Task
 import me.dvyy.tasks.db.client.TaskList
-import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.model.TaskId
-import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.model.*
 import me.dvyy.tasks.model.database.RankFunctions
+import me.dvyy.tasks.model.network.NetworkMessage
+import me.dvyy.tasks.sync.data.MessagesDataSource
 
 class TasksLocalDataSource(
     val database: Database,
+    val messages: MessagesDataSource,
 ) {
     fun createList(listId: ListId, list: TaskListModel) {
         database.listsQueries.transaction {
@@ -136,6 +136,7 @@ class TasksLocalDataSource(
 
     fun upsertRank(rank: Rank) {
         database.rankQueries.upsert(rank)
+        messages.saveMessage(NetworkMessage.Type.Update, rank.uuid, EntityType.RANK)
     }
 
     fun getRankFor(task: TaskId): String? {
@@ -199,6 +200,6 @@ class TasksLocalDataSource(
         secondRank: String,
     ) {
         val newRank = RankFunctions.getLexicographicMiddle(firstRank, secondRank)
-        database.rankQueries.upsert(Rank(task.uuid, list.uuid, newRank))
+        upsertRank(Rank(task.uuid, list.uuid, newRank))
     }
 }

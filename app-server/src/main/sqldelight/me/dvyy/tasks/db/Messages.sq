@@ -1,14 +1,14 @@
 selectTasks:
-SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid
-WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update' AND entityType = 'TASK';
+SELECT * FROM message INNER JOIN task ON message.uuid = task.uuid AND entityType = 'TASK'
+WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update';
 
 selectLists:
-SELECT * FROM message INNER JOIN taskList ON message.uuid = taskList.uuid
-WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update' AND entityType = 'LIST';
+SELECT * FROM message INNER JOIN taskList ON message.uuid = taskList.uuid AND entityType = 'LIST'
+WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update';
 
 selectRanks:
-SELECT * FROM message INNER JOIN rank ON message.uuid = rank.uuid
-WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update' AND entityType = 'RANK';
+SELECT * FROM message INNER JOIN rank ON message.uuid = rank.uuid AND entityType = 'RANK'
+WHERE message.userId = ? AND message.inserted > ? AND message.inserted <= ? AND type = 'Update';
 
 selectDeleted:
 SELECT * FROM message
