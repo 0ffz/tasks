@@ -143,21 +143,28 @@ class TasksLocalDataSource(
         return database.rankQueries.getRank(task.uuid).executeAsOneOrNull()
     }
 
-    fun reorderTask(taskId: TaskId, destId: TaskId) = database.transaction {
-        val task = getTask(taskId) ?: return@transaction
-        val dest = getTask(destId) ?: return@transaction
+    /**
+     * Moves [taskId] to [destId]'s list and places it before or after [destId] depending on the rank.
+     *
+     * @return Whether task changed lists after the reorder.
+     */
+    fun reorderTask(taskId: TaskId, destId: TaskId): Boolean = database.transactionWithResult {
+        val task = getTask(taskId) ?: return@transactionWithResult false
+        val dest = getTask(destId) ?: return@transactionWithResult false
+        val changedLists = task.list != dest.list
 
-        if (task.list != dest.list) moveTaskToList(taskId, dest.list)
+        if (changedLists) moveTaskToList(taskId, dest.list)
         val taskRank = getRankFor(taskId) ?: RankFunctions.firstChar.toString()
         val destRank = getRankFor(destId) ?: RankFunctions.lastChar.toString()
 
-        if (taskRank == destRank) return@transaction
+        if (taskRank == destRank) return@transactionWithResult changedLists
 
         if (taskRank < destRank) {
             moveTaskAfter(dest.list, taskId, destRank)
         } else {
             moveTaskBefore(dest.list, taskId, destRank)
         }
+        changedLists
     }
 
     fun moveTaskToList(taskId: TaskId, listId: ListId) {

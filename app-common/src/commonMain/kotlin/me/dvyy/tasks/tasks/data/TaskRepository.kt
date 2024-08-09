@@ -43,7 +43,8 @@ class TaskRepository(
     }
 
     suspend fun moveTaskTo(taskId: TaskId, destId: TaskId) = withContext(dbContext) {
-        localStore.reorderTask(taskId, destId)
+        val changedLists = localStore.reorderTask(taskId, destId)
         messages.saveMessage(Update, taskId.uuid, EntityType.RANK)
+        if (changedLists) messages.saveMessage(Update, taskId)
     }
 }
