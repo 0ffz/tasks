@@ -22,8 +22,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextRange
@@ -35,6 +33,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.core.ui.fade
+import me.dvyy.tasks.core.ui.getBestTextColor
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.model.Highlight
@@ -53,10 +53,8 @@ fun Task(
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
     val selectedState by rememberUpdatedState(selected)
-//    val selected by viewModel.selectedTask.map { it == task }.collectAsState()
     LaunchedEffect(task) {
         snapshotFlow { selectedState }
-//                .distinctUntilChanged()
             .drop(1)
             .filter { !it } // Listen to deselect
             .collect {
@@ -114,15 +112,9 @@ fun Task(
 }
 
 @Composable
-fun Color.fade(alpha: Float): Color {
-    val background = MaterialTheme.colorScheme.background
-    return background.copy(alpha = 1f - alpha).compositeOver(this)
-}
-
-@Composable
 fun TaskHighlight(text: String, highlight: Highlight, completed: Boolean = false) {
     val ui = LocalUIState.current
-    val adjustedHighlight by animateColorAsState(highlight.color.fade(if (completed) 0.3f else 1f))
+    val adjustedHighlight by animateColorAsState(highlight.color.fade(if (completed) ui.completedFade else 1f))
     Surface(
         color = adjustedHighlight,
         shape = MaterialTheme.shapes.extraLarge,
@@ -165,8 +157,6 @@ fun TaskSelectedSurface(
     }
 }
 
-fun Color.getBestTextColor() = if (luminance() > 0.36f) Color.Black else Color.White
-
 @Composable
 fun TaskTextField(
     task: TaskUiState,
@@ -178,8 +168,9 @@ fun TaskTextField(
 ) {
     val textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.onSurface
-        else task.highlight.color.getBestTextColor().fade(if (task.completed) 0.3f else 1f)
+        (if (selected) MaterialTheme.colorScheme.onSurface
+        else task.highlight.color.getBestTextColor())
+            .fade(if (task.completed) 0.3f else 1f)
     )
     val textStyle = MaterialTheme.typography.bodyLarge.copy(
         color = textColor,
@@ -236,8 +227,8 @@ fun TaskTextField(
                         }
                     }
 
-                    it.isShiftPressed -> {
-                        if (it.key == Key.Enter) {
+                    it.isShiftPressed -> when (it.key) {
+                        Key.Enter -> {
                             setTask(
                                 task.copy(
                                     text = task.text.substring(
@@ -248,6 +239,8 @@ fun TaskTextField(
                             )
                             selection = TextRange(selection.start + 1)
                         }
+
+                        else -> return@onPreviewKeyEvent false
                     }
 
                     else -> return@onPreviewKeyEvent false
@@ -273,7 +266,9 @@ fun TaskCheckBox(task: TaskUiState, setTask: (TaskUiState) -> Unit) {
     val ui = LocalUIState.current
     IconButton(
         onClick = { setTask(task.copy(completed = !task.completed)) },
-        colors = IconButtonDefaults.iconButtonColors(),
+        colors = IconButtonDefaults.iconButtonColors().let {
+            it.copy(contentColor = it.contentColor.fade(if (task.completed) ui.completedFade else 1f))
+        },
         modifier = Modifier.size(ui.taskCheckboxSize)
     ) {
         when {

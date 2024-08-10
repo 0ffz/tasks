@@ -34,6 +34,10 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     // Task lists
     val taskListWidth = 300.dp
 
+    // Colors
+    val completedFade = 0.3f
+
+
     // App
     val isSingleColumn get() = atMostMedium
     val appScrollable get() = isSingleColumn
