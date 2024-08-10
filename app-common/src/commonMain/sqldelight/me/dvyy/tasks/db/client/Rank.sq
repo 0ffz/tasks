@@ -44,3 +44,8 @@ lastRank:
 SELECT rank FROM rank
 WHERE parent = ?
 ORDER BY rank DESC LIMIT 1;
+
+firstRank:
+SELECT rank FROM rank
+WHERE parent = ?
+ORDER BY rank LIMIT 1;

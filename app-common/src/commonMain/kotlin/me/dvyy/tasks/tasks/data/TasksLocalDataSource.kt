@@ -105,8 +105,8 @@ class TasksLocalDataSource(
         database.tasksQueries.upsert(task)
     }
 
-    fun createTask(listId: ListId): Task {
-        val rank = getRankAfterLast(listId)
+    fun createTask(listId: ListId, atEndOfList: Boolean): Task {
+        val rank = if (atEndOfList) getRankAfterLast(listId) else getRankBeforeFirst(listId)
         val task = Task(
             uuid = TaskId.new(),
             list = listId,
@@ -124,9 +124,17 @@ class TasksLocalDataSource(
     fun getLastRankOrMiddle(listId: ListId) =
         (database.rankQueries.lastRank(listId.uuid).executeAsOneOrNull() ?: RankFunctions.middleChar.toString())
 
+    fun getFirstRankOrMiddle(listId: ListId) =
+        (database.rankQueries.firstRank(listId.uuid).executeAsOneOrNull() ?: RankFunctions.middleChar.toString())
+
     fun getRankAfterLast(listId: ListId): String {
         val lastRank = getLastRankOrMiddle(listId)
         return RankFunctions.getRankAfter(lastRank)
+    }
+
+    fun getRankBeforeFirst(listId: ListId): String {
+        val firstRank = getFirstRankOrMiddle(listId)
+        return RankFunctions.getRankBefore(firstRank)
     }
 
     fun getRankAfter(listId: ListId, rank: String): String {

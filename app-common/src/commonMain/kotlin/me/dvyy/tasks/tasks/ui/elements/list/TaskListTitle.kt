@@ -5,10 +5,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.state.Loadable
 import me.dvyy.tasks.app.ui.state.loadedOrNull
+import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.CachedUpdate
@@ -34,8 +34,9 @@ fun TaskListTitle(
     val color =
         if (colored) MaterialTheme.colorScheme.tertiary
         else MaterialTheme.colorScheme.onSurfaceVariant
+    val colorFaded = color.fade(alpha = 0.6f)
     Row(
-        Modifier.padding(4.dp),
+        Modifier.padding(start = 4.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
         val loadedProps = props.loadedOrNull() ?: return
@@ -55,7 +56,7 @@ fun TaskListTitle(
                     style = MaterialTheme.typography.headlineSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Clip,
-                    color = color.copy(alpha = 0.6f)
+                    color = colorFaded
                 )
             } else {
                 BasicTextField(
@@ -68,6 +69,15 @@ fun TaskListTitle(
                         color = color,
                     ),
                     maxLines = 1,
+                )
+            }
+            IconButton(onClick = {
+                interactions?.createNewTask?.invoke(false)
+            }, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Add task to top",
+                    tint = colorFaded,
                 )
             }
         }

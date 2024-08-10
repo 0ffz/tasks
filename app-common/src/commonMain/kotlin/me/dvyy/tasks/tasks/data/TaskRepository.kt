@@ -18,8 +18,8 @@ class TaskRepository(
 ) {
     private val dbContext = AppDispatchers.db
 
-    suspend fun create(list: ListId): Task = withContext(dbContext) {
-        localStore.createTask(list)
+    suspend fun create(list: ListId, atEndOfList: Boolean): Task = withContext(dbContext) {
+        localStore.createTask(list, atEndOfList)
         // Don't save a message until the task is modified
     }
 

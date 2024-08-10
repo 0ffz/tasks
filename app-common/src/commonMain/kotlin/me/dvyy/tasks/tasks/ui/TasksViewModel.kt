@@ -97,7 +97,9 @@ class TasksViewModel(
     }
 
     fun listInteractionsFor(list: ListId) = TaskListInteractions(
-        createNewTask = { viewModelScope.launch { selectTask(taskRepo.create(list).uuid, focus = true) } },
+        createNewTask = { atEnd ->
+            viewModelScope.launch { selectTask(taskRepo.create(list, atEnd).uuid, focus = true) }
+        },
         onPropertiesChanged = { props ->
             viewModelScope.launch { listRepo.update(list, props) }
         },
@@ -131,8 +133,8 @@ class TasksViewModel(
         }
     }
 
-    fun createTask(task: TaskUiState, listId: ListId) = viewModelScope.launch {
-        val id = taskRepo.create(listId).uuid
+    fun createTask(task: TaskUiState, listId: ListId, atEndOfList: Boolean = true) = viewModelScope.launch {
+        val id = taskRepo.create(listId, atEndOfList).uuid
         onTaskChanged(id, task)
     }
 
@@ -153,7 +155,7 @@ class TasksViewModel(
                 selectTask(nextTask, focus = true)
             } else if (uiState.text.isNotEmpty()) {
                 viewModelScope.launch {
-                    selectTask(taskRepo.create(listId).uuid, focus = true)
+                    selectTask(taskRepo.create(listId, atEndOfList = true).uuid, focus = true)
                 }
             }
         }

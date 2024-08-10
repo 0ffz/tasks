@@ -104,7 +104,7 @@ fun TaskList(
                 Column(Modifier.clickableWithoutRipple {
                     val lastTask = tasks.lastOrNull()
                     if (lastTask == null || lastTask.state.text.isNotEmpty())
-                        interactions.createNewTask()
+                        interactions.createNewTask(true)
                     else viewModel.selectTask(lastTask.uuid, focus = true)
                 }) {
                     Spacer(modifier = Modifier.height(ui.taskHeight))
