@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.state.Loadable
 import me.dvyy.tasks.app.ui.state.loadedOrNull
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
@@ -180,14 +181,26 @@ class TasksViewModel(
                 }
                 return false
             }
+            fun color(index: Int) =
+                setUiState(uiState.copy(highlight = Highlight(Highlight.Type.entries[index], !event.isShiftPressed)))
             when {
-                event.isCtrlPressed && event.key == Key.E -> {
-                    val shift = if (event.isShiftPressed) -1 else 1
-                    setUiState(
-                        uiState.copy(
-                            highlight = uiState.highlight.offsetBy(shift)
-                        )
-                    )
+                event.isCtrlPressed -> {
+                    when (event.key) {
+                        Key.E -> {
+                            val shift = if (event.isShiftPressed) -1 else 1
+                            setUiState(uiState.copy(highlight = uiState.highlight.offsetBy(shift)))
+                        }
+
+                        Key.One -> color(1)
+                        Key.Two -> color(2)
+                        Key.Three -> color(3)
+                        Key.Four -> color(4)
+                        Key.Five -> color(5)
+                        Key.Six -> color(6)
+                        Key.Seven -> color(7)
+                        Key.Zero -> color(0)
+                        else -> return false
+                    }
                 }
 
                 event.key == Key.Escape -> {
