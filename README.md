@@ -10,6 +10,15 @@ A WIP app for managing tasks using a calendar-like week view.
 - The backend is built on [ktor](https://ktor.io/) and uses [Exposed](https://github.com/JetBrains/Exposed) for database
   access.
 
+## Screenshots
+
+<div align="center">
+
+<img src=assets/tasks-destop.png height="500" />
+<img src=assets/tasks-android.png height="500" />
+
+</div>
+
 ## License
 
 Copyright (C) 2024 Danielle Voznyy
