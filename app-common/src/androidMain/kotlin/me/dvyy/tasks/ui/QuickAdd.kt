@@ -51,7 +51,7 @@ fun QuickAdd(
                 else projects.firstOrNull() ?: ListId.forDate(time.today.value)
 
             fun saveTask() {
-                tasks.createTask(task, listId)
+                tasks.createTask(task, listId, atEndOfList = false)
                 scheduleSync()
                 exit()
             }
