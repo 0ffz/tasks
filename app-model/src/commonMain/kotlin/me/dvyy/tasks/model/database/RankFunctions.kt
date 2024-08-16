@@ -1,7 +1,7 @@
 package me.dvyy.tasks.model.database
 
 object RankFunctions {
-    val firstChar = '0' - 1
+    val firstChar = 'a'
     val lastChar = 'z' + 1
     val middleChar = charBetweenOrNull(firstChar, lastChar)!!
 
