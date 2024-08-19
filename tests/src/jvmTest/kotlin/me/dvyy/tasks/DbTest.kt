@@ -1,11 +1,14 @@
 package me.dvyy.tasks
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import kotlinx.datetime.Clock
 import me.dvyy.tasks.app.data.createClientDatabase
 import me.dvyy.tasks.database.createDataSource
 import me.dvyy.tasks.database.createServerDatabase
 import me.dvyy.tasks.db.client.Database
 import me.dvyy.tasks.db.server.ServerDatabase
+import me.dvyy.tasks.plugins.ServerDataSource
+import me.dvyy.tasks.plugins.UserSession
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
@@ -34,4 +37,8 @@ abstract class DbTest {
     fun afterAll() {
         postgres.stop()
     }
+
+    val userSession by lazy { UserSession("test", ServerDataSource(serverDb).getOrCreateUserId("test")) }
+
+    fun now() = Clock.System.now()
 }

@@ -13,5 +13,9 @@ data class RankNetworkModel(
     val parent: @Contextual Uuid,
     val rank: String,
 ) : NetworkModel {
+    init {
+        require(rank.all { it in 'a'..'z' }) { "Rank must only contain characters a-z" }
+    }
+
     override val entityType: EntityType get() = EntityType.RANK
 }
