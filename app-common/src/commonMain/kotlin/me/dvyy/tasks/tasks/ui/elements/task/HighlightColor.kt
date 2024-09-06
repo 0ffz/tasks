@@ -28,8 +28,8 @@ data class SerializableColorScheme(
         return if (highlight.isLight) when (highlight.type) {
             Type.Unmarked -> Color.Transparent
             Type.Red -> Color(lightInts[0])
-            Type.Green -> Color(lightInts[1])
-            Type.Yellow -> Color(lightInts[2])
+            Type.Yellow -> Color(lightInts[1])
+            Type.Green -> Color(lightInts[2])
             Type.Blue -> Color(lightInts[3])
             Type.Magenta -> Color(lightInts[4])
             Type.Cyan -> Color(lightInts[5])
@@ -38,8 +38,8 @@ data class SerializableColorScheme(
         else when (highlight.type) {
             Type.Unmarked -> Color.Transparent
             Type.Red -> Color(darkInts[0])
-            Type.Green -> Color(darkInts[1])
-            Type.Yellow -> Color(darkInts[2])
+            Type.Yellow -> Color(darkInts[1])
+            Type.Green -> Color(darkInts[2])
             Type.Blue -> Color(darkInts[3])
             Type.Magenta -> Color(darkInts[4])
             Type.Cyan -> Color(darkInts[5])
