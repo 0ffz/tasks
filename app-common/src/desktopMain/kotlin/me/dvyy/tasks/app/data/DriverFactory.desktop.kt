@@ -1,8 +1,10 @@
 package me.dvyy.tasks.app.data
 
+import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import ca.gosyer.appdirs.AppDirs
+import me.dvyy.tasks.db.client.Database
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -18,7 +20,7 @@ actual class DriverFactory {
         val driver: SqlDriver = JdbcSqliteDriver(
             url = "jdbc:sqlite:${(dataPath / "tasks.db").absolutePathString()}",
             properties = Properties(),
-//            schema = Database.Schema,
+            schema = Database.Schema.synchronous(),
         )
         return driver
     }
