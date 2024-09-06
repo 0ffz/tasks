@@ -16,10 +16,7 @@ import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.sync.data.MessagesDataSource
 import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.sync.ui.SyncViewModel
-import me.dvyy.tasks.tasks.data.SyncAPI
-import me.dvyy.tasks.tasks.data.TaskListRepository
-import me.dvyy.tasks.tasks.data.TaskRepository
-import me.dvyy.tasks.tasks.data.TasksLocalDataSource
+import me.dvyy.tasks.tasks.data.*
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.currentKoinScope
 import org.koin.core.definition.Definition
@@ -44,6 +41,7 @@ fun repositoriesModule() = module {
     singleOf(::TasksLocalDataSource)
     singleOf(::TaskRepository)
     singleOf(::TaskListRepository)
+    singleOf(::BulkAddRepository)
 }
 
 
@@ -56,7 +54,7 @@ fun syncModule() = module {
 
 fun viewModelsModule() = module {
     viewModel { TimeViewModel() }
-    viewModel { TasksViewModel(get(), get()) }
+    viewModel { TasksViewModel(get(), get(), get()) }
     viewModel { AuthViewModel(get()) }
     viewModel { DialogViewModel() }
     viewModel { PreferencesViewModel(get()) }

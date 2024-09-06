@@ -58,6 +58,12 @@ fun AppDrawer(
                         selected = false,
                         onClick = { dialogs.show(AppDialog.Theme) }
                     )
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Outlined.UploadFile, contentDescription = "Bulk add") },
+                        label = { Text(text = "Bulk add") },
+                        selected = false,
+                        onClick = { dialogs.show(AppDialog.BulkAdd) }
+                    )
                     Spacer(Modifier.weight(1f))
                     if (login !is LoginState.Success) {
                         NavigationDrawerItem(

@@ -1,11 +1,10 @@
-package me.dvyy.tasks.app.ui.elements
+package me.dvyy.tasks.app.ui.dialogs
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import me.dvyy.tasks.app.ui.AppDialog
 import me.dvyy.tasks.app.ui.DialogViewModel
-import me.dvyy.tasks.app.ui.ThemeDialog
 import me.dvyy.tasks.auth.ui.AuthDialog
 import me.dvyy.tasks.di.koinViewModel
 
@@ -17,5 +16,6 @@ fun AppDialogs(app: DialogViewModel = koinViewModel()) {
         null -> {}
         AppDialog.Auth -> AuthDialog()
         AppDialog.Theme -> ThemeDialog()
+        AppDialog.BulkAdd -> BulkAddDialog()
     }
 }

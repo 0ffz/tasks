@@ -6,7 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import me.dvyy.tasks.app.ui.elements.AppDialogs
+import me.dvyy.tasks.app.ui.dialogs.AppDialogs
 import me.dvyy.tasks.app.ui.elements.AppDrawer
 import me.dvyy.tasks.app.ui.elements.AppTopBar
 import me.dvyy.tasks.app.ui.theme.AppTheme

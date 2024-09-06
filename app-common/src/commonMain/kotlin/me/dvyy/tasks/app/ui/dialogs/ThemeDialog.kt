@@ -1,4 +1,4 @@
-package me.dvyy.tasks.app.ui
+package me.dvyy.tasks.app.ui.dialogs
 
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.AlertDialog
@@ -8,6 +8,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.update
+import me.dvyy.tasks.app.ui.DialogViewModel
+import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.di.koinViewModel
 
 @Composable
