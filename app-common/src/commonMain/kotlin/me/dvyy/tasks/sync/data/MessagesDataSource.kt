@@ -18,7 +18,7 @@ class MessagesDataSource(
     val db: Database,
 ) {
     /** Fills the message table with all entities, as if they were update [now] */
-    fun createMessagesForAllEntities(now: Instant) {
+    suspend fun createMessagesForAllEntities(now: Instant) {
         db.transaction {
             db.tasksQueries.selectAllUUIDs().executeAsList().forEach {
                 saveMessage(NetworkMessage.Type.Update, it, now)
@@ -34,7 +34,7 @@ class MessagesDataSource(
         }
     }
 
-    fun getChanges(upTo: Instant): List<NetworkMessage> = db.transactionWithResult {
+    suspend fun getChanges(upTo: Instant): List<NetworkMessage> = db.transactionWithResult {
         buildList {
             addAll(db.messagesQueries.selectTasks(upTo).executeAsList().map {
                 NetworkMessage(
@@ -67,7 +67,7 @@ class MessagesDataSource(
         }
     }
 
-    fun applyMessages(messages: List<NetworkMessage>) = db.transaction {
+    suspend fun applyMessages(messages: List<NetworkMessage>) = db.transaction {
         messages.forEach { message ->
             val uuid = message.entityId
             when (val data = message.data) {
@@ -107,9 +107,9 @@ class MessagesDataSource(
         }
     }
 
-    fun clear(now: Instant) = db.messagesQueries.clear(now)
+    suspend fun clear(now: Instant) = db.messagesQueries.clear(now)
 
-    fun saveMessage(
+    suspend fun saveMessage(
         messageType: NetworkMessage.Type,
         uuid: EntityId,
         timestamp: Instant = Clock.System.now(),
@@ -120,7 +120,7 @@ class MessagesDataSource(
         entityType = uuid.type
     )
 
-    fun saveMessage(
+    suspend fun saveMessage(
         messageType: NetworkMessage.Type,
         uuid: Uuid,
         entityType: EntityType,

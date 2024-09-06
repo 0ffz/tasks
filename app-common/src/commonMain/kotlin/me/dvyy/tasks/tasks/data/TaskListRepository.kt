@@ -28,7 +28,7 @@ class TaskListRepository(
     fun observeProjects() =
         localStore.observeProjects()
 
-    fun observeTasksFor(key: ListId): Flow<List<Task>> = localStore.observeListTasks(key)
+    suspend fun observeTasksFor(key: ListId): Flow<List<Task>> = localStore.observeListTasks(key)
 
     fun observeProperties(key: ListId): Flow<TaskListProperties> = localStore.observeListProperties(key)
 }

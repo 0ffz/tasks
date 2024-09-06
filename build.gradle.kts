@@ -8,11 +8,14 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.jib) apply false
+    id("com.github.ben-manes.versions") version "0.41.0"
+    id("nl.littlerobots.version-catalog-update") version "0.8.4"
 }
 
 allprojects {
     repositories {
         google()
+//        mavenLocal()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")

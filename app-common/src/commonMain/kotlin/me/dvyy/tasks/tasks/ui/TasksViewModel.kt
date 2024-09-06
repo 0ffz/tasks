@@ -57,7 +57,7 @@ class TasksViewModel(
 
     fun tasksFor(listId: ListId): StateFlow<Loadable<List<TaskWithIDState>>> =
         listTaskObservers.getOrPut(listId) {
-            listRepo.observeTasksFor(listId)
+            flow { emitAll(listRepo.observeTasksFor(listId)) }
                 .map { list ->
                     Loadable.Loaded(list.map { model ->
                         TaskWithIDState(

@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -39,10 +39,10 @@ kotlin {
         }
     }
 
-
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(libs.sqldelight.runtime)
                 implementation(project(":app-model"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
@@ -68,7 +68,7 @@ kotlin {
                 implementation(libs.lifecycle.viewmodel.compose)
                 implementation(libs.koin.compose)
                 implementation(libs.kotlin.result)
-                implementation(libs.primitive.adapters)
+                implementation(libs.sqldelight.primitive.adapters)
                 implementation(libs.coroutines.extensions)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
@@ -103,7 +103,8 @@ kotlin {
         val wasmJsMain by getting {
             dependencies {
                 //TODO waiting for wasmJs driver
-//                implementation(libs.sqldelight.web.worker.driver)
+                implementation(libs.sqldelight.web.worker.driver.wasm)
+                implementation(devNpm("copy-webpack-plugin", "9.1.0"))
             }
         }
     }
@@ -136,6 +137,7 @@ sqldelight {
         create("Database") {
             packageName.set("me.dvyy.tasks.db.client")
             srcDirs("src/commonMain/sqldelight")
+            generateAsync.set(true)
         }
     }
 }

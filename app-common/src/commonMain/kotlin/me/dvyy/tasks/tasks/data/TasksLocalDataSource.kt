@@ -1,5 +1,7 @@
 package me.dvyy.tasks.tasks.data
 
+import app.cash.sqldelight.async.coroutines.awaitAsList
+import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrDefault
@@ -19,9 +21,9 @@ class TasksLocalDataSource(
     val database: Database,
     val messages: MessagesDataSource,
 ) {
-    fun createList(listId: ListId, list: TaskListModel) {
+    suspend fun createList(listId: ListId, list: TaskListModel) {
         database.listsQueries.transaction {
-            val lastRank = database.listsQueries.lastRank().executeAsOneOrNull() ?: 0
+            val lastRank = database.listsQueries.lastRank().awaitAsOneOrNull() ?: 0
             database.listsQueries.insert(
                 TaskList(
                     uuid = listId,
@@ -40,15 +42,14 @@ class TasksLocalDataSource(
     }
 
 
-    fun observeListTasks(listId: ListId): Flow<List<Task>> {
-        val unranked = database.tasksQueries.forListWithoutRank(listId).executeAsList()
+    suspend fun observeListTasks(listId: ListId): Flow<List<Task>> {
+        val unranked = database.tasksQueries.forListWithoutRank(listId).awaitAsList()
         if (unranked.isNotEmpty()) database.tasksQueries.transaction {
             unranked.forEach {
                 upsertRank(Rank(uuid = it.uuid, parent = listId.uuid, getRankAfterLast(listId)))
             }
         }
-        return database.tasksQueries.forList(listId).asFlow()
-            .mapToList(Dispatchers.Default)
+        return database.tasksQueries.forList(listId).asFlow().mapToList(Dispatchers.Default)
     }
 
 
@@ -74,22 +75,22 @@ class TasksLocalDataSource(
         return database.listsQueries.getProjects().asFlow().mapToList(Dispatchers.Default)
     }
 
-    fun deleteList(listId: ListId) {
+    suspend fun deleteList(listId: ListId) {
         database.listsQueries.delete(listId)
     }
 
-    fun getTask(taskId: TaskId): Task? {
-        return database.tasksQueries.get(taskId).executeAsOneOrNull()
+    suspend fun getTask(taskId: TaskId): Task? {
+        return database.tasksQueries.get(taskId).awaitAsOneOrNull()
     }
 
-    fun deleteTask(taskId: TaskId) {
+    suspend fun deleteTask(taskId: TaskId) {
         database.tasksQueries.delete(taskId)
     }
 
 
-    fun setListProperties(listId: ListId, props: TaskListProperties) {
+    suspend fun setListProperties(listId: ListId, props: TaskListProperties) {
         database.listsQueries.transaction {
-            val list = database.listsQueries.get(listId).executeAsOneOrNull()
+            val list = database.listsQueries.get(listId).awaitAsOneOrNull()
             database.listsQueries.insert(
                 TaskList(
                     uuid = listId,
@@ -101,11 +102,11 @@ class TasksLocalDataSource(
         }
     }
 
-    fun upsertTask(task: Task) {
+    suspend fun upsertTask(task: Task) {
         database.tasksQueries.upsert(task)
     }
 
-    fun createTask(listId: ListId, atEndOfList: Boolean): Task {
+    suspend fun createTask(listId: ListId, atEndOfList: Boolean): Task {
         val rank = if (atEndOfList) getRankAfterLast(listId) else getRankBeforeFirst(listId)
         val task = Task(
             uuid = TaskId.new(),
@@ -121,34 +122,34 @@ class TasksLocalDataSource(
 
     // Rank functions
 
-    fun getLastRankOrMiddle(listId: ListId) =
-        (database.rankQueries.lastRank(listId.uuid).executeAsOneOrNull() ?: RankFunctions.middleChar.toString())
+    suspend fun getLastRankOrMiddle(listId: ListId) =
+        (database.rankQueries.lastRank(listId.uuid).awaitAsOneOrNull() ?: RankFunctions.middleChar.toString())
 
-    fun getFirstRankOrMiddle(listId: ListId) =
-        (database.rankQueries.firstRank(listId.uuid).executeAsOneOrNull() ?: RankFunctions.middleChar.toString())
+    suspend fun getFirstRankOrMiddle(listId: ListId) =
+        (database.rankQueries.firstRank(listId.uuid).awaitAsOneOrNull() ?: RankFunctions.middleChar.toString())
 
-    fun getRankAfterLast(listId: ListId): String {
+    suspend fun getRankAfterLast(listId: ListId): String {
         val lastRank = getLastRankOrMiddle(listId)
         return RankFunctions.getRankAfter(lastRank)
     }
 
-    fun getRankBeforeFirst(listId: ListId): String {
+    suspend fun getRankBeforeFirst(listId: ListId): String {
         val firstRank = getFirstRankOrMiddle(listId)
         return RankFunctions.getRankBefore(firstRank)
     }
 
-    fun getRankAfter(listId: ListId, rank: String): String {
+    suspend fun getRankAfter(listId: ListId, rank: String): String {
         val lastRank = getLastRankOrMiddle(listId)
         return RankFunctions.getRankAfter(lastRank)
     }
 
-    fun upsertRank(rank: Rank) {
+    suspend fun upsertRank(rank: Rank) {
         database.rankQueries.upsert(rank)
         messages.saveMessage(NetworkMessage.Type.Update, rank.uuid, EntityType.RANK)
     }
 
-    fun getRankFor(task: TaskId): String? {
-        return database.rankQueries.getRank(task.uuid).executeAsOneOrNull()
+    suspend fun getRankFor(task: TaskId): String? {
+        return database.rankQueries.getRank(task.uuid).awaitAsOneOrNull()
     }
 
     /**
@@ -156,7 +157,7 @@ class TasksLocalDataSource(
      *
      * @return Whether task changed lists after the reorder.
      */
-    fun reorderTask(taskId: TaskId, destId: TaskId): Boolean = database.transactionWithResult {
+    suspend fun reorderTask(taskId: TaskId, destId: TaskId): Boolean = database.transactionWithResult {
         val task = getTask(taskId) ?: return@transactionWithResult false
         val dest = getTask(destId) ?: return@transactionWithResult false
         val changedLists = task.list != dest.list
@@ -175,7 +176,7 @@ class TasksLocalDataSource(
         changedLists
     }
 
-    fun moveTaskToList(taskId: TaskId, listId: ListId) {
+    suspend fun moveTaskToList(taskId: TaskId, listId: ListId) {
         database.tasksQueries.transaction {
             val task = getTask(taskId) ?: return@transaction
             val rank = getRankAfterLast(listId)
@@ -184,31 +185,31 @@ class TasksLocalDataSource(
         }
     }
 
-    fun moveTaskBefore(
+    suspend fun moveTaskBefore(
         list: ListId,
         task: TaskId,
         destRank: String,
     ) {
         val before = database.rankQueries.getRankBefore(list.uuid, destRank)
-            .executeAsOneOrNull()
+            .awaitAsOneOrNull()
             ?: RankFunctions.firstChar.toString()
 
         moveTaskBetween(list, task, before, destRank)
     }
 
-    fun moveTaskAfter(
+    suspend fun moveTaskAfter(
         list: ListId,
         task: TaskId,
         destRank: String,
     ) {
         val after = database.rankQueries.getRankAfter(list.uuid, destRank)
-            .executeAsOneOrNull()
+            .awaitAsOneOrNull()
             ?: RankFunctions.lastChar.toString()
 
         moveTaskBetween(list, task, destRank, after)
     }
 
-    fun moveTaskBetween(
+    suspend fun moveTaskBetween(
         list: ListId,
         task: TaskId,
         firstRank: String,
