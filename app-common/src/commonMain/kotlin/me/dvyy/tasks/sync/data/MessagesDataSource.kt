@@ -1,5 +1,6 @@
 package me.dvyy.tasks.sync.data
 
+import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.coroutines.asFlow
 import com.benasher44.uuid.Uuid
 import kotlinx.datetime.Clock
@@ -20,15 +21,15 @@ class MessagesDataSource(
     /** Fills the message table with all entities, as if they were update [now] */
     suspend fun createMessagesForAllEntities(now: Instant) {
         db.transaction {
-            db.tasksQueries.selectAllUUIDs().executeAsList().forEach {
+            db.tasksQueries.selectAllUUIDs().awaitAsList().forEach {
                 saveMessage(NetworkMessage.Type.Update, it, now)
             }
 
-            db.listsQueries.selectAllUUIDs().executeAsList().forEach {
+            db.listsQueries.selectAllUUIDs().awaitAsList().forEach {
                 saveMessage(NetworkMessage.Type.Update, it, now)
             }
 
-            db.rankQueries.selectAllUUIDs().executeAsList().forEach {
+            db.rankQueries.selectAllUUIDs().awaitAsList().forEach {
                 saveMessage(NetworkMessage.Type.Update, it, EntityType.RANK, now)
             }
         }
@@ -36,28 +37,28 @@ class MessagesDataSource(
 
     suspend fun getChanges(upTo: Instant): List<NetworkMessage> = db.transactionWithResult {
         buildList {
-            addAll(db.messagesQueries.selectTasks(upTo).executeAsList().map {
+            addAll(db.messagesQueries.selectTasks(upTo).awaitAsList().map {
                 NetworkMessage(
                     data = TaskNetworkModel(it.list, it.text, it.completed, it.highlight),
                     entityId = it.uuid,
                     modified = it.modified,
                 )
             })
-            addAll(db.messagesQueries.selectLists(upTo).executeAsList().map {
+            addAll(db.messagesQueries.selectLists(upTo).awaitAsList().map {
                 NetworkMessage(
                     data = TaskListNetworkModel(it.title, it.isProject, it.rank),
                     entityId = it.uuid,
                     modified = it.modified,
                 )
             })
-            addAll(db.messagesQueries.selectRanks(upTo).executeAsList().map {
+            addAll(db.messagesQueries.selectRanks(upTo).awaitAsList().map {
                 NetworkMessage(
                     data = RankNetworkModel(it.uuid, it.parent, it.rank),
                     entityId = it.uuid,
                     modified = it.modified,
                 )
             })
-            addAll(db.messagesQueries.selectDeleted(upTo).executeAsList().map {
+            addAll(db.messagesQueries.selectDeleted(upTo).awaitAsList().map {
                 NetworkMessage(
                     data = Deleted(it.entityType),
                     entityId = it.uuid,

@@ -34,8 +34,9 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material3)
-                implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.2"))//libs.versions.sqlDelight.get()))
-                implementation(npm("sql.js", "1.8.0"))
+//                implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.2"))//libs.versions.sqlDelight.get()))
+//                implementation(npm("sql.js", "1.11.0"))
+                implementation(npm("@sqlite.org/sqlite-wasm", "3.46.1-build3"))
             }
         }
     }

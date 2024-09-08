@@ -1,5 +1,6 @@
 package me.dvyy.tasks
 
+import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import kotlinx.datetime.Clock
 import me.dvyy.tasks.app.data.createClientDatabase
@@ -29,7 +30,7 @@ abstract class DbTest {
     @BeforeAll
     fun beforeAll() {
         postgres.start();
-        _clientDb = createClientDatabase(JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY, Properties(), Database.Schema))
+        _clientDb = createClientDatabase(JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY, Properties(), Database.Schema.synchronous()))
         _serverDb = createServerDatabase(createDataSource(postgres.getJdbcUrl(), postgres.username, postgres.password))
     }
 
