@@ -42,6 +42,9 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val isSingleColumn get() = atMostMedium
     val appScrollable get() = isSingleColumn
     val smallTopBar get() = !isSingleColumn
+
+    val sideBarWidth = 48.dp
+    val sideBarPadding = 4.dp
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
