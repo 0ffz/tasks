@@ -25,6 +25,8 @@ import me.dvyy.tasks.core.ui.modifiers.NoRippleInteractionSource
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.sync.ui.SyncStatusIcon
 import me.dvyy.tasks.sync.ui.SyncViewModel
+import me.dvyy.tasks.tree.ui.FileList
+import me.dvyy.tasks.tree.ui.FileStructure
 import org.koin.compose.koinInject
 
 @Composable
@@ -63,6 +65,18 @@ fun AppDrawer(
                         label = { Text(text = "Bulk add") },
                         selected = false,
                         onClick = { dialogs.show(AppDialog.BulkAdd) }
+                    )
+                    FileList(
+                        listOf(
+                            FileStructure.File("file1"),
+                            FileStructure.Folder(
+                                "folder1", listOf(
+                                    FileStructure.File("file2"),
+                                    FileStructure.File("file3"),
+                                )
+                            ),
+                            FileStructure.File("file4"),
+                        )
                     )
                     Spacer(Modifier.weight(1f))
                     if (login !is LoginState.Success) {

@@ -3,6 +3,7 @@
 build
 target
 out
+node_modules
 */out/production/
 .kotlin
 local.properties
