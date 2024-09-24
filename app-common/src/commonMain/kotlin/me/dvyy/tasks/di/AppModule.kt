@@ -13,6 +13,7 @@ import me.dvyy.tasks.auth.data.AuthAPI
 import me.dvyy.tasks.auth.data.AuthRepository
 import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.ui.AuthViewModel
+import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.sync.data.MessagesDataSource
 import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.sync.ui.SyncViewModel
@@ -58,6 +59,7 @@ fun viewModelsModule() = module {
     viewModel { AuthViewModel(get()) }
     viewModel { DialogViewModel() }
     viewModel { PreferencesViewModel(get()) }
+    viewModel { LayoutViewModel() }
 }
 
 @Composable

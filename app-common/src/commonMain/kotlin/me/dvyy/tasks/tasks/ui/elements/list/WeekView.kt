@@ -10,21 +10,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Splitscreen
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.take
@@ -33,10 +30,7 @@ import kotlinx.datetime.plus
 import me.dvyy.tasks.app.ui.*
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.di.koinViewModel
-import me.dvyy.tasks.layout.ui.ViewStructure
-import me.dvyy.tasks.layout.ui.Views
 import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.koinInject
 import kotlin.math.roundToInt
@@ -50,115 +44,84 @@ fun WeekView(
     app: AppState = koinInject(),
     time: TimeViewModel = koinViewModel(),
     prefs: PreferencesViewModel = koinViewModel(),
+    showProjects: Boolean = true,
 ) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
-    val splitHeight by prefs.splitHeight.collectAsState()
-    val splitCutoff = 0.05f..0.95f
+//    val splitHeight by prefs.splitHeight.collectAsState()
+//    val splitCutoff = 0.05f..0.95f
     Scaffold(
-        floatingActionButton = {
-            Column {
-                if (splitHeight !in splitCutoff) {
-                    SmallFloatingActionButton(
-                        onClick = { prefs.splitHeight.value = 0.5f },
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    ) {
-                        Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
-                    }
-                }
-            }
-        },
+//        floatingActionButton = {
+//            Column {
+//                if (splitHeight !in splitCutoff) {
+//                    SmallFloatingActionButton(
+//                        onClick = { prefs.splitHeight.value = 0.5f },
+//                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+//                    ) {
+//                        Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
+//                    }
+//                }
+//            }
+//        },
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         val reorderInteractions = tasksViewModel.reorderInteractions()
-        ReorderContainer(state = reorderInteractions.draggedState) {
             val responsive = LocalUIState.current
             val columns = responsive.dateColumns
-//            val scrollModifier =
-//                if (responsive.appScrollable) Modifier.verticalScroll(scrollState)
-//                else Modifier
             val weekStart by time.weekStart.collectAsState()
-//            val restrictHeight = Modifier.fillMaxHeight(
-//                when {
-//                    splitHeight >= splitCutoff.endInclusive -> 1f
-//                    splitHeight <= splitCutoff.start -> 0f
-//                    else -> splitHeight
-//                }
-//            )
             val datesScrollable = if (ui.isSingleColumn)
-                Modifier.nestedScroll(scrollBehavior.nestedScrollConnection).verticalScroll(scrollState)
+                Modifier/*.nestedScroll(scrollBehavior.nestedScrollConnection)*/.verticalScroll(scrollState)
             else Modifier
-            var height by remember { mutableStateOf(0) }
             val today by time.today.collectAsState()
-            Column(Modifier.onGloballyPositioned { height = it.size.height }) {
-                Views(
-                    ViewStructure.Split(
-                        first = ViewStructure.Single {
-                            /*if (splitHeight > splitCutoff.start)*/ NonlazyGrid(
-                            columns = columns,
-                            itemCount = 7,
-                            modifier = Modifier.fillMaxWidth()/*.then(restrictHeight)*/.then(datesScrollable),
-                        ) { dayIndex ->
-                            val day = weekStart.plus(DatePeriod(days = dayIndex))
-                            val isToday = day == today
-                            val listId = ListId.forDate(day)
-                            val properties by tasksViewModel.getListProperties(listId).collectAsState()
-                            val tasks by tasksViewModel.tasksFor(listId).collectAsState()
-                            var scrollToPosition by remember { mutableStateOf(0F) }
-                            TaskList(
-                                listId = listId,
-                                tasks = tasks,
-                                properties = properties,
-                                colored = isToday,
-                                viewModel = tasksViewModel,
-                                reorderInteractions = reorderInteractions,
-                                interactions = tasksViewModel.listInteractionsFor(listId),
-                                scrollable = !ui.isSingleColumn,
-                                modifier = Modifier.onGloballyPositioned { coords ->
-                                    scrollToPosition = coords.positionInRoot().y
-                                }
-                            )
-                            LaunchedEffect(Unit) {
-                                if (isToday && columns == 1) snapshotFlow { scrollToPosition }
-                                    .drop(1)
-                                    .take(1)
-                                    .collectLatest { scrollState.scrollTo(scrollToPosition.roundToInt()) }
-                            }
-                        }
-                        },
-                        second = ViewStructure.Tabbed(
-                            tabs = listOf(ViewStructure.Tab("Projects", ViewStructure.Single {
-                                /*if (splitHeight < splitCutoff.endInclusive)*/
-                                ProjectListContent(
-                                    reorderInteractions = reorderInteractions,
-                                    modifier = Modifier.fillMaxHeight() //Fill remaining height
-                                )
-                            })),
-                            selected = 0,
-                        ),
-                        orientation = Orientation.Vertical,
-                    )
+//            Views(
+//                ViewStructure.Split(
+//                    first = ViewStructure.Single {
+            /*if (splitHeight > splitCutoff.start)*/
+            NonlazyGrid(
+                columns = columns,
+                itemCount = 7,
+                modifier = Modifier.fillMaxWidth()/*.then(restrictHeight)*/.then(datesScrollable),
+            ) { dayIndex ->
+                val day = weekStart.plus(DatePeriod(days = dayIndex))
+                val isToday = day == today
+                val listId = ListId.forDate(day)
+                val properties by tasksViewModel.getListProperties(listId).collectAsState()
+                val tasks by tasksViewModel.tasksFor(listId).collectAsState()
+                var scrollToPosition by remember { mutableStateOf(0F) }
+                TaskList(
+                    listId = listId,
+                    tasks = tasks,
+                    properties = properties,
+                    colored = isToday,
+                    viewModel = tasksViewModel,
+                    reorderInteractions = reorderInteractions,
+                    interactions = tasksViewModel.listInteractionsFor(listId),
+                    scrollable = !ui.isSingleColumn,
+                    modifier = Modifier.onGloballyPositioned { coords ->
+                        scrollToPosition = coords.positionInRoot().y
+                    }
                 )
-//                val scrollableState = rememberScrollableState { delta ->
-//                    val newSplitHeight = (splitHeight + delta / height).coerceIn(0f, 1f)
-//                    prefs.splitHeight.value = newSplitHeight
-//                    if (newSplitHeight == 0f || newSplitHeight == 1f) 0f
-//                    else delta
-//                }
-//                val draggableState = rememberDraggableState { delta ->
-//                    prefs.splitHeight.update { original -> (original + delta / height).coerceIn(0f, 1f) }
-//                }
-//                val handleModifier = if (ui.isSingleColumn) {
-//                    Modifier.scrollable(
-//                        scrollableState,
-//                        Orientation.Vertical,
-//                    )
-//                } else Modifier.draggable(draggableState, Orientation.Vertical)
-//
-//                Box(Modifier.fillMaxWidth().then(handleModifier)) {
-//                    if (splitHeight in splitCutoff) DividerPill()
-//                }
+                LaunchedEffect(Unit) {
+                    if (isToday && columns == 1) snapshotFlow { scrollToPosition }
+                        .drop(1)
+                        .take(1)
+                        .collectLatest { scrollState.scrollTo(scrollToPosition.roundToInt()) }
+                }
             }
-        }
+//                    second = ViewStructure.Tabbed(
+//                        name = "Projects",
+//                        tabs = listOf(ViewStructure.Tab("All", ViewStructure.Single {
+//                            /*if (splitHeight < splitCutoff.endInclusive)*/
+//                            ProjectListContent(
+//                                reorderInteractions = reorderInteractions,
+//                                modifier = Modifier.fillMaxHeight() //Fill remaining height
+//                            )
+//                        })),
+//                        selected = 0,
+//                    ),
+//                    secondEnabled = showProjects,
+//                    orientation = Orientation.Vertical,
+//                )
+//        }
     }
 }
 
@@ -186,10 +149,11 @@ fun Divider(
     val hover = MaterialTheme.colorScheme.primary
     var color by remember { mutableStateOf(surface) }
     val icon = if (ver) Cursors.horizontalResize else Cursors.verticalResize
-    Box(modifier
-        .thenOptional(applyHoverCursor) { pointerHoverIcon(icon) }
-        .onHoverIfAvailable(onEnter = { color = hover }, onExit = { color = surface })
-        .then(clickable),
+    Box(
+        modifier
+            .thenOptional(applyHoverCursor) { pointerHoverIcon(icon) }
+            .onHoverIfAvailable(onEnter = { color = hover }, onExit = { color = surface })
+            .then(clickable),
     ) {
         if (toggleable) Box(Modifier.align(Alignment.TopEnd)) {
             val rotation by animateFloatAsState(if (expanded) 180f else 0f)
@@ -229,10 +193,10 @@ fun DividerPill(orientation: Orientation = Orientation.Vertical) {
 
 @Composable
 fun ProjectListContent(
-    reorderInteractions: TaskReorderInteractions,
     modifier: Modifier = Modifier,
     tasksViewModel: TasksViewModel = viewModel(),
 ) {
+    val reorderInteractions = tasksViewModel.reorderInteractions()
     val ui = LocalUIState.current
     val projects by tasksViewModel.projects.collectAsState()
     LazyRow(modifier) {

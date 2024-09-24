@@ -2,15 +2,15 @@ package me.dvyy.tasks.layout.ui
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,12 +18,16 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.tasks.ui.elements.list.Divider
+import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Views(structure: ViewStructure) {
+    val ui = LocalUIState.current
+
     when (structure) {
         is ViewStructure.Scrollable -> {
             val scrollState = rememberScrollState()
@@ -55,12 +59,15 @@ fun Views(structure: ViewStructure) {
         }
 
         is ViewStructure.Split -> {
+            val hor = structure.orientation == Orientation.Horizontal
             var size by remember { mutableStateOf(0) }
             var splitPercent by remember { mutableStateOf(0.5f) }
             var dividerCoordinates by remember { mutableStateOf<Offset?>(null) }//mutableStateOf<LayoutCoordinates?>(null) }
+
+            val splitPercentCoerced =/* if (!structure.secondEnabled) 0.5f else*/ splitPercent.coerceIn(0.05f, 0.95f)
 //            var dividerSize by remember { mutableStateOf(IntSize.Zero) }
             Box(Modifier.onGloballyPositioned {
-                size = if (structure.orientation == Orientation.Vertical) it.size.height else it.size.width
+                size = if (hor) it.size.width else it.size.height
             }) {
 
                 val scrollableState = rememberScrollableState { delta ->
@@ -72,17 +79,17 @@ fun Views(structure: ViewStructure) {
                 val draggableState = rememberDraggableState { delta ->
                     splitPercent = (splitPercent + delta / size).coerceIn(0f, 1f)
                 }
-                val handleModifier = /*if (ui.isSingleColumn) {
-                        Modifier.scrollable(
-                            scrollableState,
-                            Orientation.Vertical,
-                        )
-                    } else */Modifier.draggable(draggableState, structure.orientation)
+                val handleModifier = //if (ui.isSingleColumn) {
+                    Modifier
+                        .scrollable(scrollableState, structure.orientation)
+                        .draggable(draggableState, structure.orientation)
+//                    } else Modifier
 
                 ColumnOrRow(structure.orientation) {
                     if (structure.firstEnabled) Box(
-                        (if (structure.orientation == Orientation.Vertical) Modifier.height(size.dp * splitPercent)
-                        else Modifier.width(size.dp * splitPercent))
+                        (if (structure.orientation == Orientation.Vertical)
+                            Modifier.thenOptional(structure.secondEnabled) { height(size.dp * splitPercentCoerced)}
+                        else Modifier.thenOptional(structure.secondEnabled) { width(size.dp * splitPercentCoerced) })
                             .onGloballyPositioned { offset ->
                                 //if(offset.positionInParent() != Offset.Zero) dividerCoordinates = offset
                                 dividerCoordinates = offset.positionInParent() +
@@ -96,20 +103,15 @@ fun Views(structure: ViewStructure) {
                         Views(structure.first)
                     }
 
-                    if (structure.firstEnabled) Box(
-                        Modifier.then(handleModifier)
-//                        .onSizeChanged { dividerSize = it }
-                    ) {
+                    if (structure.firstEnabled && structure.secondEnabled)
                         Spacer(Modifier.size(1.dp))
-//                        Divider(structure.orientation)
-                    }
-                    Views(structure.second)
+
+                    if (structure.secondEnabled) Views(structure.second)
                 }
                 val offset = dividerCoordinates ?: return@Box
                 val padding = 9.dp
-                println(offset)
 
-                Box(
+                if (structure.firstEnabled && structure.secondEnabled) Box(
                     Modifier
                         .run {
                             if (structure.orientation == Orientation.Horizontal) width(padding).fillMaxHeight()
@@ -124,19 +126,33 @@ fun Views(structure: ViewStructure) {
             }
         }
 
-        is ViewStructure.Single -> structure.content()
+        is ViewStructure.Single -> Box(Modifier.fillMaxSize()) { structure.content() }
         is ViewStructure.Tabbed -> {
             Column {
-                Surface(Modifier.fillMaxWidth(), tonalElevation = 0.dp) {
-                    Row {
+                Surface(Modifier.fillMaxWidth(), tonalElevation = 1.dp) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        structure.name?.let {
+                            Box(Modifier.padding(6.dp)) {
+                                Text(it, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                            }
+                        }
                         structure.tabs.forEachIndexed { index, tab ->
-                            Surface(
-                                Modifier.clickable {/* structure.selected = index */ },
-                                tonalElevation = if (index == structure.selected) 0.dp else 0.dp
-                            ) {
-                                Box(Modifier.padding(horizontal = 4.dp, vertical = 6.dp)) {
-                                    Text(tab.name, style = MaterialTheme.typography.labelLarge)
+                            Box(Modifier.width(IntrinsicSize.Min)) {
+                                Surface(
+                                    Modifier.clickable {/* structure.selected = index */ },
+                                    tonalElevation = if (index == structure.selected) 0.dp else 0.dp
+                                ) {
+                                    Box(Modifier.padding(6.dp)) {
+                                        Text(tab.name, style = MaterialTheme.typography.labelLarge)
+                                    }
                                 }
+                                if (index == structure.selected) Surface(
+                                    modifier = Modifier.fillMaxWidth().height(2.dp).align(Alignment.BottomCenter),
+                                    color = MaterialTheme.colorScheme.primary,
+                                ) { }
                             }
                         }
                     }
@@ -144,6 +160,10 @@ fun Views(structure: ViewStructure) {
                 HorizontalDivider(Modifier.alpha(0.6f))
                 structure.tabs.getOrNull(structure.selected)?.content?.let { Views(it) }
             }
+        }
+
+        ViewStructure.Empty -> {
+            Box(Modifier.fillMaxSize())
         }
     }
 }

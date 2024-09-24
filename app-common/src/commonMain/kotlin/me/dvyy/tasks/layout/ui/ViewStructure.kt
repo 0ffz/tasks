@@ -15,6 +15,7 @@ sealed interface ViewStructure {
         val split: Float = 0.5f,
         val orientation: Orientation,
         val firstEnabled: Boolean = true,
+        val secondEnabled: Boolean = true,
     ) : ViewStructure
 
     data class Single(val content: @Composable () -> Unit) : ViewStructure
@@ -22,7 +23,10 @@ sealed interface ViewStructure {
     data class Tabbed(
         val tabs: List<Tab>,
         val selected: Int,
+        val name: String? = null,
     ) : ViewStructure
 
     data class Tab(val name: String, val content: ViewStructure)
+
+    data object Empty : ViewStructure
 }
