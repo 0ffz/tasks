@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.tasks.ui.SyncState
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @Composable

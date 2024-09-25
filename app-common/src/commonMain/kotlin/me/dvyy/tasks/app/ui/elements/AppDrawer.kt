@@ -20,12 +20,12 @@ import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppDrawer(

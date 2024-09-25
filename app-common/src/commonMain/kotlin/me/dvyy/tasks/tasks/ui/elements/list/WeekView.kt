@@ -36,12 +36,12 @@ import me.dvyy.tasks.app.ui.Cursors
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.utils.Loadable
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
 
 

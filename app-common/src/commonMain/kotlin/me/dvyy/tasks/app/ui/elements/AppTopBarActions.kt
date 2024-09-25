@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
-import me.dvyy.tasks.di.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppTopBarActions(time: TimeViewModel = koinViewModel()) = Row {

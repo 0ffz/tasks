@@ -13,7 +13,6 @@ import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.rememberAppUIState
 import me.dvyy.tasks.app.ui.theme.AppTheme
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TaskInteractions
@@ -24,6 +23,7 @@ import me.dvyy.tasks.tasks.ui.elements.task.TaskSelectedSurface
 import me.dvyy.tasks.tasks.ui.elements.task.TaskTextField
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.koin.compose.KoinContext
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun QuickAdd(

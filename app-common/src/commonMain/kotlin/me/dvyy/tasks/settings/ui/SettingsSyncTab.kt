@@ -19,9 +19,9 @@ import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.auth.ui.LoginState
 import me.dvyy.tasks.core.ui.components.LeadingIcon
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.sync.ui.SyncStatusIcon
 import me.dvyy.tasks.sync.ui.SyncViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsSyncTab(

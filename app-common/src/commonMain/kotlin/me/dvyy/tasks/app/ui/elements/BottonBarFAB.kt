@@ -10,9 +10,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.*
 import kotlinx.coroutines.flow.update
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun BottonBarFAB(

@@ -1,8 +1,5 @@
 package me.dvyy.tasks.di
 
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
@@ -19,10 +16,8 @@ import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.data.*
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import org.koin.compose.currentKoinScope
-import org.koin.core.definition.Definition
-import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 fun appModule() = module {
@@ -50,23 +45,14 @@ fun syncModule() = module {
     singleOf(::MessagesDataSource)
     singleOf(::SyncAPI)
     singleOf(::SyncRepository)
-    viewModel { SyncViewModel(get()) }
+    viewModelOf(::SyncViewModel)
 }
 
 fun viewModelsModule() = module {
-    viewModel { TimeViewModel() }
-    viewModel { TasksViewModel(get(), get(), get()) }
-    viewModel { AuthViewModel(get()) }
-    viewModel { DialogViewModel() }
-    viewModel { PreferencesViewModel(get()) }
-    viewModel { LayoutViewModel() }
+    viewModelOf(::TimeViewModel)
+    viewModelOf(::TasksViewModel)
+    viewModelOf(::AuthViewModel)
+    viewModelOf(::DialogViewModel)
+    viewModelOf(::PreferencesViewModel)
+    viewModelOf(::LayoutViewModel)
 }
-
-@Composable
-inline fun <reified T : ViewModel> koinViewModel(): T {
-    val scope = currentKoinScope()
-    return viewModel { scope.get<T>() }
-}
-
-
-expect inline fun <reified VM : ViewModel> Module.viewModel(crossinline factory: Definition<VM>)

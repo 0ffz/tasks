@@ -68,6 +68,7 @@ kotlin {
 //                implementation(libs.lifecycle.viewmodel)
                 implementation(libs.lifecycle.viewmodel.compose)
                 implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
                 implementation(libs.kotlin.result)
                 implementation(libs.sqldelight.primitive.adapters)
                 implementation(libs.coroutines.extensions)

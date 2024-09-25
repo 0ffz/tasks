@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
 import me.dvyy.tasks.tasks.ui.elements.list.Project
@@ -26,6 +25,7 @@ import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
 import me.dvyy.tasks.utils.loadedOrNull
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppFileTree(

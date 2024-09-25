@@ -29,8 +29,8 @@ import me.dvyy.tasks.app.data.TopbarViewModel
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.AppTopBarTitle
-import me.dvyy.tasks.di.koinViewModel
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun WindowButton(icon: ImageVector, onClick: () -> Unit) {

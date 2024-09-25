@@ -7,7 +7,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import me.dvyy.tasks.app.ui.dialogs.AppScreen
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
-import me.dvyy.tasks.di.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsButton(

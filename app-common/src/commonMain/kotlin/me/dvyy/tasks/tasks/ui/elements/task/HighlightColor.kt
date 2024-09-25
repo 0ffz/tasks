@@ -7,9 +7,9 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import me.dvyy.tasks.app.ui.PreferencesViewModel
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.Highlight.Type
+import org.koin.compose.viewmodel.koinViewModel
 
 @Serializable
 data class SerializableColorScheme(

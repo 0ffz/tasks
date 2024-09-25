@@ -18,9 +18,9 @@ import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.settings.ui.SettingsScreen
 import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
+import org.koin.compose.viewmodel.koinViewModel
 
 sealed interface AppScreen {
     data object Settings : AppScreen

@@ -16,11 +16,11 @@ import me.dvyy.tasks.app.data.TopbarViewModel
 import me.dvyy.tasks.app.data.createClientDatabase
 import me.dvyy.tasks.app.ui.topbar.DesktopTopBar
 import me.dvyy.tasks.db.client.Database
-import me.dvyy.tasks.di.koinViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -17,10 +17,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun FileList(

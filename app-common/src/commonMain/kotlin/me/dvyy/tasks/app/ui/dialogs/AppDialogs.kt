@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import me.dvyy.tasks.auth.ui.AuthDialog
-import me.dvyy.tasks.di.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 sealed interface AppDialog {
     data object Auth : AppDialog

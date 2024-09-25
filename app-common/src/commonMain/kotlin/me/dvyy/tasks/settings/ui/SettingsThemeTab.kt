@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.theme.Fonts
-import me.dvyy.tasks.di.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsThemeTab(

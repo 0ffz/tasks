@@ -14,8 +14,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.theme.Fonts
-import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsBulkAddTab(

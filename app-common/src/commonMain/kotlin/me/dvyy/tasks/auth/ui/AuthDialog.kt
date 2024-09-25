@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.data.AuthResult
 import me.dvyy.tasks.auth.ui.LoginState.Error
-import me.dvyy.tasks.di.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AuthDialog(
