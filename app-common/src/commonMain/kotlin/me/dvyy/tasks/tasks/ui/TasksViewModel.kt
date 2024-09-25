@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -78,18 +77,14 @@ class TasksViewModel(
     }
 
 
-    private val reorderState = ReorderState<TaskId>()
-
     fun reorderInteractions() = TaskReorderInteractions(
-        draggedState = reorderState,
         onDragEnterItem = { targetTask, dragged ->
             selectTask(null)
             viewModelScope.launch {
-                taskRepo.moveTaskTo(taskId = dragged.data, destId = targetTask)
+                taskRepo.moveTaskTo(taskId = dragged, destId = targetTask)
             }
         },
-        onDragEnterColumn = { targetList, dragged ->
-            val id = dragged.data
+        onDragEnterColumn = { targetList, id ->
             viewModelScope.launch { taskRepo.move(id, targetList) }
         }
     )

@@ -1,6 +1,3 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -25,19 +22,19 @@ kotlin {
         }
     }
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser {
-            commonWebpackConfig {
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
-                        add(project.projectDir.path)
-                    }
-                }
-            }
-        }
-    }
+//    @OptIn(ExperimentalWasmDsl::class)
+//    wasmJs {
+//        browser {
+//            commonWebpackConfig {
+//                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+//                    static = (static ?: mutableListOf()).apply {
+//                        // Serve sources to debug inside browser
+//                        add(project.projectDir.path)
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     sourceSets {
         val commonMain by getting {
@@ -49,7 +46,7 @@ kotlin {
                 implementation(compose.preview)
                 implementation(compose.material3)
                 implementation(compose.materialIconsExtended)
-                implementation(libs.compose.dnd)
+                implementation(compose.ui)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.serialization.cbor)
@@ -96,19 +93,20 @@ kotlin {
                 api(libs.androidx.appcompat)
                 api(libs.androidx.core.ktx)
                 implementation(libs.ktor.client.okhttp)
+                implementation(libs.androidx.ui)
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.sqldelight.android.driver)
                 implementation(libs.koin.android)
             }
         }
 
-        val wasmJsMain by getting {
-            dependencies {
-                //TODO waiting for wasmJs driver
-                implementation(libs.sqldelight.web.worker.driver.wasm)
-                implementation(devNpm("copy-webpack-plugin", "9.1.0"))
-            }
-        }
+//        val wasmJsMain by getting {
+//            dependencies {
+//                //TODO waiting for wasmJs driver
+//                implementation(libs.sqldelight.web.worker.driver.wasm)
+//                implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+//            }
+//        }
     }
 }
 

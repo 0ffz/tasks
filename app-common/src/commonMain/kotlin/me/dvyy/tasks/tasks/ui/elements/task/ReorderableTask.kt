@@ -1,21 +1,25 @@
 package me.dvyy.tasks.tasks.ui.elements.task
 
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
-import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.core.ui.PlatformSpecifics
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
+import me.dvyy.tasks.core.ui.dataOrNull
+import me.dvyy.tasks.core.ui.detectPlatformDrag
+import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReorderableTask(
     key: TaskId,
@@ -26,30 +30,27 @@ fun ReorderableTask(
     selected: Boolean,
     focusRequested: Boolean = false,
 ) {
-    ReorderableItem(
-        state = reorderInteractions.draggedState,
-        key = key,
-        enabled = true,
-        data = key,
-        dragAfterLongPress = PlatformSpecifics.preferLongPressDrag,
-        zIndex = 1f,
-        dropAnimationSpec = tween(0),
-        draggableContent = {
-            val ui = LocalUIState.current
-            Box(
-                contentAlignment = Alignment.CenterStart,
-                modifier = Modifier.padding(horizontal = ui.horizontalTaskTextPadding)
-            ) {
-                TaskHighlight(task.text, task.highlight, task.completed)
-                TaskTextField(
-                    task,
-                    selected = false,
-                    setTask = {},
-                    interactions
-                )
+    Box(
+        Modifier.platformDragAndDropSource {
+            detectPlatformDrag {
+                startTransfer(MultiplatformDragAndDropData(key, it))
             }
-        },
-        onDragEnter = { reorderInteractions.onDragEnterItem(key, it) },
+        }.dragAndDropTarget(
+            shouldStartDragAndDrop = { true },
+            target = remember {
+                object : DragAndDropTarget {
+                    override fun onDrop(event: DragAndDropEvent): Boolean {
+                        return true
+                    }
+
+                    override fun onEntered(event: DragAndDropEvent) {
+                        val draggedKey = event.dataOrNull<TaskId>()
+                        println("Dragged $draggedKey")
+                        if (key != draggedKey) reorderInteractions.onDragEnterItem(key, draggedKey ?: return)
+                    }
+                }
+            },
+        )
     ) {
         Task(task, setTask, selected, interactions, focusRequested = focusRequested)
     }

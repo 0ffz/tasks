@@ -30,13 +30,14 @@ fun TaskListTitle(
     loading: Boolean = false,
     showDivider: Boolean = true,
     key: ListId,
+    modifier: Modifier = Modifier,
 ) {
     val color =
         if (colored) MaterialTheme.colorScheme.tertiary
         else MaterialTheme.colorScheme.onSurfaceVariant
     val colorFaded = color.fade(alpha = 0.6f)
     Row(
-        Modifier.padding(start = 4.dp, top = 4.dp, bottom = 4.dp),
+        modifier.padding(start = 4.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
         val loadedProps = props.loadedOrNull() ?: return

@@ -1,19 +1,23 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
-import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -22,7 +26,7 @@ import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.loadedOrNull
 
-@OptIn(ExperimentalDndApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskList(
     listId: ListId,
@@ -36,10 +40,23 @@ fun TaskList(
     scrollable: Boolean = false,
 ) {
     val ui = LocalUIState.current
+    val listDropTarget = Modifier.dragAndDropTarget(
+        shouldStartDragAndDrop = { true },
+        target = remember {
+            object : DragAndDropTarget {
+                override fun onDrop(event: DragAndDropEvent): Boolean {
+                    return true
+                }
+
+                override fun onEntered(event: DragAndDropEvent) {
+                    reorderInteractions.onDragEnterColumn(listId, event.dataOrNull<TaskId>() ?: return)
+                }
+            }
+        }
+    )
 
     Column(
-        modifier/*.animateContentSize()*/
-            .padding(start = 6.dp, end = 6.dp, top = 6.dp).fillMaxWidth()
+        modifier.padding(top = 6.dp).fillMaxWidth()
     ) {
         val isLoading = tasks is Loadable.Loading
         TaskListTitle(
@@ -56,16 +73,10 @@ fun TaskList(
             else Modifier
 
         Column(
-            modifier = Modifier.padding(vertical = 8.dp)
-                .dropTarget(
-                    key = listId,
-                    state = reorderInteractions.draggedState.dndState,
-                    dropAnimationEnabled = false,
-                    onDragEnter = { reorderInteractions.onDragEnterColumn(listId, it) },
-                )
+            modifier = Modifier
         ) {
             val selectedTask by viewModel.selectedTask.collectAsState()
-            Column(scrollModifier) {
+            Column(scrollModifier.padding(horizontal = 6.dp)) {
                 tasks.forEachIndexed { index, task ->
                     key(task.uuid) {
                         val selected = selectedTask?.taskId == task.uuid
@@ -106,16 +117,12 @@ fun TaskList(
                     if (lastTask == null || lastTask.state.text.isNotEmpty())
                         interactions.createNewTask(true)
                     else viewModel.selectTask(lastTask.uuid, focus = true)
-                }) {
+                }.then(listDropTarget)) {
                     Spacer(modifier = Modifier.height(ui.taskHeight))
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 }
             }
-//            val fullHeight = !ui.isSingleColumn
-//            if (fullHeight) Box(Modifier.fillMaxSize().clickableWithoutRipple {
-//                if (tasks.lastOrNull()?.state?.text?.isEmpty() != true)
-//                    interactions.createNewTask()
-//            })
+            Box(Modifier.fillMaxSize().then(listDropTarget))
         }
     }
 }

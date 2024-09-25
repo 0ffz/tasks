@@ -9,7 +9,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import me.dvyy.tasks.app.ui.dialogs.AppDialogs
 import me.dvyy.tasks.app.ui.dialogs.AppScreens
 import me.dvyy.tasks.app.ui.elements.AppDrawer
@@ -62,22 +61,19 @@ fun App(
                         if (ui.isSingleColumn) BottonBarFAB()
                     },
                 ) { paddingValues ->
-                    val reorderInteractions = tasksViewModel.reorderInteractions()
-                    ReorderContainer(state = reorderInteractions.draggedState) {
-                        Box(
-                            Modifier
-                                .padding(paddingValues)
-                                .clickableWithoutRipple { tasksViewModel.selectTask(null) }
-                        ) {
-                            if (ui.isSingleColumn) {
-                                val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Empty)
+                    Box(
+                        Modifier
+                            .padding(paddingValues)
+                            .clickableWithoutRipple { tasksViewModel.selectTask(null) }
+                    ) {
+                        if (ui.isSingleColumn) {
+                            val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Empty)
+                            Layout(structure)
+                        } else {
+                            val structure by layoutViewModel.desktopLayout.collectAsState(LayoutStructure.Empty)
+                            Row {
+                                LeftNavigationRail()
                                 Layout(structure)
-                            } else {
-                                val structure by layoutViewModel.desktopLayout.collectAsState(LayoutStructure.Empty)
-                                Row {
-                                    LeftNavigationRail()
-                                    Layout(structure)
-                                }
                             }
                         }
                     }

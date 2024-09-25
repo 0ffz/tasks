@@ -2,6 +2,7 @@ package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -19,6 +20,7 @@ import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Task(
     task: TaskUiState,

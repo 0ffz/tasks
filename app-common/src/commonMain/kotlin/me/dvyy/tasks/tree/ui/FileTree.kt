@@ -2,6 +2,7 @@ package me.dvyy.tasks.tree.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
+import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
+import me.dvyy.tasks.core.ui.detectPlatformDrag
+import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
@@ -34,6 +38,7 @@ fun FileList(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FileEntry(
     file: FileStructure,
@@ -48,12 +53,18 @@ fun FileEntry(
                     layout.activeContentView.update { LayoutStructure.Single { file.opensLayout() } }
                     file.onClick()
                 }
+
                 else -> {}
             }
         }
     }
     Box(
         modifier = clickable.fillMaxWidth()
+            .platformDragAndDropSource {
+                detectPlatformDrag {
+                    startTransfer(MultiplatformDragAndDropData("text", it))
+                }
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
