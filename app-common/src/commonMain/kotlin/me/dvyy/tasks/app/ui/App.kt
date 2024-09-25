@@ -173,6 +173,8 @@ private fun Screens(
 @Composable
 fun AppScreens(app: DialogViewModel = koinViewModel()) {
     val ui = LocalUIState.current
+    val screenState by app.screen.collectAsState()
+    screenState ?: return
 
     if (ui.isSingleColumn) Surface {
         Box(Modifier.systemBarsPadding()) {

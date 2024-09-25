@@ -13,6 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,6 +23,7 @@ import me.dvyy.tasks.app.ui.AppDialog
 import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
+import me.dvyy.tasks.app.ui.theme.Fonts
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.auth.ui.LoginState
 import me.dvyy.tasks.di.koinViewModel
@@ -147,7 +151,8 @@ fun ThemeSettings(
             theme,
             onValueChange = { theme = it },
             minLines = 8,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = LocalTextStyle.current.copy(fontFamily = Fonts.monospaced()),
         )
 
         TextButton(onClick = {
@@ -164,12 +169,17 @@ fun BulkAddSettings(
 ) {
     var text by remember { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Enter tasks, one per line, use ^ for date, ! for highlight, : for text, ex\n !1 ^2024-12-31 :Do something important!")
+        Text(buildAnnotatedString {
+            append("Enter tasks, one per line, use ^ for date, ! for highlight, : for text, ex")
+            appendLine()
+            withStyle(SpanStyle(fontFamily = Fonts.monospaced())) { append("!1 ^2024-12-31 :Do something important!") }
+        })
         OutlinedTextField(
             text,
             onValueChange = { text = it },
             minLines = 8,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = LocalTextStyle.current.copy(fontFamily = Fonts.monospaced()),
         )
 
         TextButton(onClick = {
