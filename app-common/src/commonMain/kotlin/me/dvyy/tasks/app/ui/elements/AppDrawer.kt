@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ fun AppDrawer(
             ModalDrawerSheet {
                 Scaffold(
                     Modifier.padding(16.dp),
+                    containerColor = Color.Transparent,
                     bottomBar = {
                         HorizontalDivider()
                         Row {

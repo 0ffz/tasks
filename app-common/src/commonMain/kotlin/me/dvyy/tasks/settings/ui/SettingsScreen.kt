@@ -53,7 +53,8 @@ fun SettingsScreen() {
         drawerState = drawerState,
         drawerContent = {
             PermanentDrawerSheet(
-                drawerContainerColor = MaterialTheme.colorScheme.surfaceDim,
+                drawerContainerColor = MaterialTheme.colorScheme.surface,
+                drawerTonalElevation = 0.5.dp
             ) {
                 SettingsTab.tabs.forEach { tab ->
                     NavigationDrawerItem(

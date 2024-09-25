@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,7 +20,7 @@ fun TaskSelectedSurface(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val defaultColor = CardDefaults.elevatedCardColors().containerColor
+//    val defaultColor = CardDefaults.elevatedCardColors().
     val elevation by animateFloatAsState(if (visible) 1f else 0f)
     val fullCornerSize = 20.dp
     val cornerShape by animateDpAsState(if (visible) fullCornerSize else 0.dp)
@@ -33,7 +32,7 @@ fun TaskSelectedSurface(
     Surface(
         modifier = modifier.padding(vertical = padding),
         shape = RoundedCornerShape(cornerShape),
-        color = defaultColor,
+//        color = defaultColor,
         tonalElevation = elevation.dp,
     ) {
         Surface(
