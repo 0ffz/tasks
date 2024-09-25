@@ -14,11 +14,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.update
+import me.dvyy.tasks.di.koinViewModel
+import me.dvyy.tasks.layout.ui.LayoutStructure
+import me.dvyy.tasks.layout.ui.LayoutViewModel
 
 @Composable
-fun FileList(files: List<FileStructure>) {
-    Column {
+fun FileList(
+    files: List<FileStructure>,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier) {
         files.forEach {
             FileEntry(it)
         }
@@ -26,27 +34,40 @@ fun FileList(files: List<FileStructure>) {
 }
 
 @Composable
-fun FileEntry(file: FileStructure) = Column {
+fun FileEntry(
+    file: FileStructure,
+    layout: LayoutViewModel = koinViewModel(),
+) = Column {
     var open by remember { mutableStateOf(false) }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable { open = !open }
-            .padding(4.dp)
-    ) {
-        when (file) {
-            is FileStructure.File -> {
-                Icon(Icons.Rounded.FilePresent, "File")
-                Spacer(Modifier.width(4.dp))
-                Text(file.name)
+    Box(
+        modifier = Modifier.clickable {
+            when (file) {
+                is FileStructure.Folder -> open = !open
+                is FileStructure.File -> {
+                    layout.activeContentView.update { LayoutStructure.Single { file.opensLayout() } }
+                }
             }
+        }.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(4.dp)
+        ) {
+            when (file) {
+                is FileStructure.File -> {
+                    Icon(file.icon ?: Icons.Rounded.FilePresent, "File")
+                    Spacer(Modifier.width(4.dp))
+                    Text(file.name)
+                }
 
-            is FileStructure.Folder -> {
-                Icon(Icons.Rounded.Folder, "Folder")
-                Spacer(Modifier.width(4.dp))
-                Text(file.name)
-                Spacer(Modifier.weight(1f))
-                val rotation by animateFloatAsState(if (open) 180f else 0f)
-                Icon(Icons.Rounded.ArrowDropDown, "Toggle", modifier = Modifier.rotate(rotation))
+                is FileStructure.Folder -> {
+                    Icon(Icons.Rounded.Folder, "Folder")
+                    Spacer(Modifier.width(4.dp))
+                    Text(file.name)
+                    Spacer(Modifier.weight(1f))
+                    val rotation by animateFloatAsState(if (open) 180f else 0f)
+                    Icon(Icons.Rounded.ArrowDropDown, "Toggle", modifier = Modifier.rotate(rotation))
+                }
             }
         }
     }
@@ -64,6 +85,8 @@ sealed interface FileStructure {
 
     data class File(
         override val name: String,
+        val icon: ImageVector? = null,
+        val opensLayout: @Composable () -> Unit,
     ) : FileStructure
 
     data class Folder(

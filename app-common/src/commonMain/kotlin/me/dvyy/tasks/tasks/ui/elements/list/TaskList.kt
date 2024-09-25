@@ -12,8 +12,6 @@ import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.state.Loadable
-import me.dvyy.tasks.app.ui.state.loadedOrNull
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
@@ -21,6 +19,8 @@ import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
+import me.dvyy.tasks.utils.Loadable
+import me.dvyy.tasks.utils.loadedOrNull
 
 @OptIn(ExperimentalDndApi::class)
 @Composable

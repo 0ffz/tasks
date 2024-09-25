@@ -5,8 +5,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -34,7 +38,9 @@ import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.utils.Loadable
 import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
@@ -44,23 +50,26 @@ fun WeekView(
     tasksViewModel: TasksViewModel = viewModel(),
     app: AppState = koinInject(),
     time: TimeViewModel = koinViewModel(),
+    startAtToday: Boolean = false,
+    takeDays: Int = 7,
 ) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
+        snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }
+    ) {
         val reorderInteractions = tasksViewModel.reorderInteractions()
-        val responsive = LocalUIState.current
-        val columns = responsive.dateColumns
-        val weekStart by time.weekStart.collectAsState()
+        val ui = LocalUIState.current
+        val columns = if (ui.isSingleColumn) 1 else takeDays
+        val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
         val datesScrollable = if (ui.isSingleColumn)
             Modifier/*.nestedScroll(scrollBehavior.nestedScrollConnection)*/.verticalScroll(scrollState)
         else Modifier
         val today by time.today.collectAsState()
         NonlazyGrid(
             columns = columns,
-            itemCount = 7,
-            modifier = Modifier.fillMaxWidth().then(datesScrollable),
+            itemCount = takeDays,
+            modifier = Modifier.fillMaxSize().then(datesScrollable),
         ) { dayIndex ->
             val day = weekStart.plus(DatePeriod(days = dayIndex))
             val isToday = day == today
@@ -158,35 +167,71 @@ fun DividerPill(orientation: Orientation = Orientation.Vertical) {
 }
 
 @Composable
-fun ProjectListContent(
-    modifier: Modifier = Modifier,
+fun Project(
+    key: ListId,
+    properties: Loadable<TaskListProperties>,
     tasksViewModel: TasksViewModel = viewModel(),
+    scrollable: Boolean = true,
+    modifier: Modifier = Modifier,
 ) {
+    val tasks by tasksViewModel.tasksFor(key).collectAsState()
     val reorderInteractions = tasksViewModel.reorderInteractions()
     val ui = LocalUIState.current
+
+    TaskList(
+        listId = key,
+        tasks = tasks,
+        properties = properties,
+        viewModel = tasksViewModel,
+        reorderInteractions = reorderInteractions,
+        interactions = tasksViewModel.listInteractionsFor(key),
+        modifier = modifier,
+        scrollable = scrollable
+    )
+}
+
+@Composable
+private fun <T> ProjectLayout(
+    modifier: Modifier = Modifier,
+    staggered: Boolean,
+    items: List<T>,
+    itemContent: @Composable (T) -> Unit,
+) {
+    val ui = LocalUIState.current
+    when {
+        staggered -> LazyVerticalStaggeredGrid(
+            modifier = modifier,
+            columns = StaggeredGridCells.Adaptive(ui.taskListWidth)
+        ) {
+            items(items) { itemContent(it) }
+        }
+
+        else -> LazyVerticalGrid(
+            modifier = modifier,
+            columns = GridCells.Adaptive(ui.taskListWidth)
+        ) {
+            items(items) { itemContent(it) }
+        }
+    }
+}
+
+@Composable
+fun AllProjectsView(
+    modifier: Modifier = Modifier,
+    tasksViewModel: TasksViewModel = viewModel(),
+    staggered: Boolean,
+) {
+    val ui = LocalUIState.current
     val projects by tasksViewModel.projects.collectAsState()
-    LazyRow(modifier) {
-        items(projects) { key ->
-            val tasks by tasksViewModel.tasksFor(key).collectAsState()
-            val properties by tasksViewModel.getListProperties(key).collectAsState()
-            TaskList(
-                listId = key,
-                tasks = tasks,
-                properties = properties,
-                viewModel = tasksViewModel,
-                reorderInteractions = reorderInteractions,
-                interactions = tasksViewModel.listInteractionsFor(key),
-                modifier = Modifier.width(ui.taskListWidth),
-                scrollable = true
-            )
-        }
-        item {
-            FilledTonalButton(
-                modifier = Modifier.width(ui.taskListWidth),
-                onClick = { tasksViewModel.createProject() },
-            ) {
-                Text("New project")
-            }
-        }
+    ProjectLayout(modifier, staggered, projects) { key ->
+        val properties by tasksViewModel.getListProperties(key).collectAsState()
+        Project(
+            tasksViewModel = tasksViewModel,
+            key = key,
+            properties = properties,
+            modifier = Modifier.width(ui.taskListWidth),
+            scrollable = false
+        )
+//        Spacer(Modifier.height(32.dp))
     }
 }

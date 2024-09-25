@@ -22,15 +22,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.core.ui.components.ColumnOrRow
 import me.dvyy.tasks.tasks.ui.elements.list.Divider
 import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
 
 @Composable
-fun Views(structure: ViewStructure) {
+fun Layout(structure: LayoutStructure) {
     val ui = LocalUIState.current
 
     when (structure) {
-        is ViewStructure.Scrollable -> {
+        is LayoutStructure.Scrollable -> {
             val scrollState = rememberScrollState()
             val hor = structure.orientation == Orientation.Horizontal
             val scrollModifier =
@@ -53,13 +54,13 @@ fun Views(structure: ViewStructure) {
                         enter = if (hor) expandHorizontally() else expandVertically(),
                         exit = if (hor) shrinkHorizontally() else shrinkVertically()
                     ) {
-                        Views(it)
+                        Layout(it)
                     }
                 }
             }
         }
 
-        is ViewStructure.Split -> {
+        is LayoutStructure.Split -> {
             val hor = structure.orientation == Orientation.Horizontal
             var size by remember { mutableStateOf(0) }
             var splitPercent by remember { mutableStateOf(0.5f) }
@@ -86,13 +87,13 @@ fun Views(structure: ViewStructure) {
                                         else Offset(offset.size.width.toFloat(), 0f)
                             }
                     ) {
-                        Views(structure.first)
+                        Layout(structure.first)
                     }
 
 //                    if (structure.firstEnabled && structure.secondEnabled)
 //                        Spacer(Modifier.size(1.dp))
 
-                    if (structure.secondEnabled) Views(structure.second)
+                    if (structure.secondEnabled) Layout(structure.second)
                 }
 //                return
                 val offset = dividerCoordinates ?: return@Box
@@ -129,8 +130,8 @@ fun Views(structure: ViewStructure) {
             }
         }
 
-        is ViewStructure.Single -> Box(Modifier.fillMaxSize()) { structure.content() }
-        is ViewStructure.Tabbed -> {
+        is LayoutStructure.Single -> Box(Modifier.fillMaxSize()) { structure.content() }
+        is LayoutStructure.Tabbed -> {
             Column {
                 Surface(Modifier.fillMaxWidth(), tonalElevation = 1.dp) {
                     Row(
@@ -164,11 +165,11 @@ fun Views(structure: ViewStructure) {
                     }
                 }
                 HorizontalDivider(Modifier.alpha(0.6f))
-                structure.tabs.getOrNull(structure.selected)?.content?.let { Views(it) }
+                structure.tabs.getOrNull(structure.selected)?.content?.let { Layout(it) }
             }
         }
 
-        ViewStructure.Empty -> {
+        LayoutStructure.Empty -> {
             Box(Modifier.fillMaxSize())
         }
     }

@@ -9,8 +9,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.SettingsButton
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.di.koinViewModel
 
 @Composable

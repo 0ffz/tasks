@@ -1,4 +1,4 @@
-package me.dvyy.tasks.app.ui.state
+package me.dvyy.tasks.utils
 
 import androidx.compose.runtime.Immutable
 
@@ -14,6 +14,6 @@ sealed interface Loadable<T> {
 
 }
 
-inline fun <T> Loadable<T>.loadedOrNull() = (this as? Loadable.Loaded<T>)?.data
+fun <T> Loadable<T>.loadedOrNull() = (this as? Loadable.Loaded<T>)?.data
 
-inline fun <T> T.loaded() = Loadable.Loaded(this)
+fun <T> T.loaded() = Loadable.Loaded(this)

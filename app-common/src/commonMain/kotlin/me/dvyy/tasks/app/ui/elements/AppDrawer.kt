@@ -15,12 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.app.ui.*
+import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.ui.AuthViewModel
+import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.di.koinViewModel
+import me.dvyy.tasks.layout.ui.Layout
+import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
-import me.dvyy.tasks.layout.ui.ViewStructure
-import me.dvyy.tasks.layout.ui.Views
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import org.koin.compose.koinInject
 
@@ -45,13 +48,13 @@ fun AppDrawer(
                     bottomBar = {
                         HorizontalDivider()
                         Row {
-                            val buttons by layout.viewButtons.collectAsState()
+                            val buttons by layout.layoutButtonLocations.collectAsState()
                             val selected by layout.leftSidebar.collectAsState()
                             buttons.left.forEach { button ->
                                 val isSelected = button.structure == selected
-                                ViewButton(button, isSelected) {
+                                LayoutToggleButton(button, isSelected) {
                                     layout.leftSidebar.update {
-                                        if (isSelected) ViewStructure.Empty
+                                        if (isSelected) LayoutStructure.Empty
                                         else button.structure
                                     }
                                 }
@@ -62,7 +65,7 @@ fun AppDrawer(
                     }
                 ) {
                     Box(Modifier.padding(it)) {
-                        Views(layout.leftSidebar.collectAsState().value)
+                        Layout(layout.leftSidebar.collectAsState().value)
                     }
                 }
             }

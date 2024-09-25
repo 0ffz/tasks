@@ -10,8 +10,6 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import me.dvyy.tasks.app.ui.state.Loadable
-import me.dvyy.tasks.app.ui.state.loadedOrNull
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
@@ -22,7 +20,9 @@ import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
 import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
+import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.WhileUiSubscribed
+import me.dvyy.tasks.utils.loadedOrNull
 
 sealed interface SyncState {
     data object InProgress : SyncState

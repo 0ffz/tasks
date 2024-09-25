@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.auth.data.AuthAPI
 import me.dvyy.tasks.auth.data.AuthRepository

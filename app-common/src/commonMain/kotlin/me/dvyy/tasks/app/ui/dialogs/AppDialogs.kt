@@ -3,10 +3,12 @@ package me.dvyy.tasks.app.ui.dialogs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import me.dvyy.tasks.app.ui.AppDialog
-import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.auth.ui.AuthDialog
 import me.dvyy.tasks.di.koinViewModel
+
+sealed interface AppDialog {
+    data object Auth : AppDialog
+}
 
 @Composable
 fun AppDialogs(app: DialogViewModel = koinViewModel()) {

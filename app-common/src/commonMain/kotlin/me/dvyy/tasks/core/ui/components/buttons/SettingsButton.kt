@@ -1,10 +1,12 @@
-package me.dvyy.tasks.app.ui
+package me.dvyy.tasks.core.ui.components.buttons
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import me.dvyy.tasks.app.ui.dialogs.AppScreen
+import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.di.koinViewModel
 
 @Composable
