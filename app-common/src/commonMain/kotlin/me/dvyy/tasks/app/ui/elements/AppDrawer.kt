@@ -2,6 +2,7 @@ package me.dvyy.tasks.app.ui.elements
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
@@ -14,10 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.app.ui.DialogViewModel
-import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.ViewButton
+import me.dvyy.tasks.app.ui.*
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.layout.ui.LayoutViewModel
@@ -58,6 +56,8 @@ fun AppDrawer(
                                     }
                                 }
                             }
+                            Spacer(Modifier.weight(1f))
+                            SettingsButton()
                         }
                     }
                 ) {

@@ -142,18 +142,21 @@ fun Views(structure: ViewStructure) {
                                 Text(it, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                             }
                         }
+                        Spacer(Modifier.width(4.dp))
                         structure.tabs.forEachIndexed { index, tab ->
-                            Box(Modifier.width(IntrinsicSize.Min)) {
-                                Surface(
-                                    Modifier.clickable {/* structure.selected = index */ },
-                                    tonalElevation = if (index == structure.selected) 0.dp else 0.dp
-                                ) {
-                                    Box(Modifier.padding(6.dp)) {
-                                        Text(tab.name, style = MaterialTheme.typography.labelLarge)
-                                    }
+                            Box(Modifier.clickable {  }.width(IntrinsicSize.Max)) {
+                                Box(Modifier.padding(6.dp)) {
+                                    Text(
+                                        tab.name,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        maxLines = 1,
+                                    )
                                 }
                                 if (index == structure.selected) Surface(
-                                    modifier = Modifier.fillMaxWidth().height(2.dp).align(Alignment.BottomCenter),
+                                    modifier = Modifier
+                                        .height(2.dp)
+                                        .fillMaxWidth()
+                                        .align(Alignment.BottomCenter),
                                     color = MaterialTheme.colorScheme.primary,
                                 ) { }
                             }

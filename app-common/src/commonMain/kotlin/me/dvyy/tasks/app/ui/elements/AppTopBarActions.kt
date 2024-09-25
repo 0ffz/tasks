@@ -8,12 +8,14 @@ import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.SettingsButton
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.di.koinViewModel
 
 @Composable
 fun AppTopBarActions(time: TimeViewModel = koinViewModel()) = Row {
+    val ui = LocalUIState.current
     IconButton(onClick = { time.goToThisWeek() }) {
         Icon(Icons.Outlined.Today, contentDescription = "Today")
     }
@@ -23,5 +25,5 @@ fun AppTopBarActions(time: TimeViewModel = koinViewModel()) = Row {
     IconButton(onClick = { time.goToNextWeek() }) {
         Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = "Next")
     }
-    SettingsButton()
+    if (!ui.isSingleColumn) SettingsButton()
 }

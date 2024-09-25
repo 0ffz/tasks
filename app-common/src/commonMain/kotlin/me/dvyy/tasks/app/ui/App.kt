@@ -1,9 +1,12 @@
 package me.dvyy.tasks.app.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ViewList
+import androidx.compose.material.icons.outlined.HorizontalSplit
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material3.*
@@ -58,7 +61,7 @@ object AppViewButtons {
                     ViewStructure.Single {
                         ProjectListContent(modifier = Modifier.fillMaxHeight())
                     }
-                )
+                ),
             ),
             selected = 0,
         ),
@@ -102,23 +105,21 @@ fun App(
     extras: @Composable () -> Unit = { },
 ) {
     AppTheme {
-        val responsive = rememberAppUIState()
+        val ui = rememberAppUIState()
         val tasksViewModel = koinViewModel<TasksViewModel>()
         val layoutViewModel = koinViewModel<LayoutViewModel>()
         CompositionLocalProvider(
-            LocalUIState provides responsive,
+            LocalUIState provides ui,
         ) {
-            val scrollBehavior = if (responsive.isSingleColumn)
+            val scrollBehavior = if (ui.isSingleColumn)
                 TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
             else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
             AppDrawer {
                 Scaffold(
                     topBar = { topBar(scrollBehavior) },
-                    bottomBar = {
-                        Box(Modifier.navigationBarsPadding()) {
-                            if (responsive.isSingleColumn) BottomNavigationBar()
-                        }
-                    }
+                    floatingActionButton = {
+                        if (ui.isSingleColumn) BottonBarFAB()
+                    },
                 ) { paddingValues ->
                     val reorderInteractions = tasksViewModel.reorderInteractions()
                     ReorderContainer(state = reorderInteractions.draggedState) {
@@ -131,7 +132,7 @@ fun App(
                                         ViewStructure.Single { WeekView() }
                                     }
                                 }
-                                if (responsive.isSingleColumn) {
+                                if (ui.isSingleColumn) {
                                     val structure by layoutViewModel.mobileLayout.collectAsState(ViewStructure.Empty)
                                     Views(structure)
                                 } else {
@@ -153,7 +154,7 @@ fun App(
 
 @Composable
 private fun Screens(
-    app: DialogViewModel = koinViewModel()
+    app: DialogViewModel = koinViewModel(),
 ) {
     val screenState by app.screen.collectAsState()
     val screen = screenState ?: return
@@ -203,26 +204,55 @@ fun AppScreens(app: DialogViewModel = koinViewModel()) {
 
 
 @Composable
-fun BottomNavigationBar(
+fun BottonBarFAB(
     layout: LayoutViewModel = koinViewModel(),
 ) {
-    val ui = LocalUIState.current
-    Surface(
-        Modifier.height(ui.sideBarWidth).fillMaxWidth(),
-        tonalElevation = 2.dp,
-    ) {
-        val buttons by layout.viewButtons.collectAsState()
-        val selected by layout.bottomBar.collectAsState()
-        buttons.bottom.forEach { button ->
-            val isSelected = button.structure == selected
-            ViewButton(button, isSelected) {
-                layout.bottomBar.update {
-                    if (isSelected) ViewStructure.Empty
-                    else button.structure
+    var expanded by remember { mutableStateOf(false) }
+    Column {
+        AnimatedVisibility(expanded) {
+            val buttons by layout.viewButtons.collectAsState()
+            buttons.bottom.forEach { button ->
+                val selected by layout.bottomBar.collectAsState()
+                val isSelected = button.structure == selected
+                val color by animateColorAsState(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer)
+
+                SmallFloatingActionButton(
+                    onClick = {
+                        layout.bottomBar.update {
+                            if (isSelected) ViewStructure.Empty
+                            else button.structure
+                        }
+                    },
+                    containerColor = color
+                ) {
+                    Icon(button.icon, button.displayName)
                 }
             }
         }
+        SmallFloatingActionButton(
+            onClick = { expanded = !expanded },
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+        ) {
+            Icon(Icons.Outlined.HorizontalSplit, "View")
+        }
     }
+//    val ui = LocalUIState.current
+//    Surface(
+//        Modifier.height(ui.sideBarWidth).fillMaxWidth(),
+//        tonalElevation = 2.dp,
+//    ) {
+//        val buttons by layout.viewButtons.collectAsState()
+//        val selected by layout.bottomBar.collectAsState()
+//        buttons.bottom.forEach { button ->
+//            val isSelected = button.structure == selected
+//            ViewButton(button, isSelected) {
+//                layout.bottomBar.update {
+//                    if (isSelected) ViewStructure.Empty
+//                    else button.structure
+//                }
+//            }
+//        }
+//    }
 }
 
 @Composable
