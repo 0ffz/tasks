@@ -1,13 +1,14 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 
 class LayoutViewModel : ViewModel() {
-    val leftSidebar = MutableStateFlow<LayoutStructure>(LayoutStructure.Empty)
+    val leftSidebar = MutableStateFlow<LayoutStructure>(LayoutButtons.fileTree.structure)
     val rightSidebar = MutableStateFlow<LayoutStructure>(LayoutStructure.Empty)
     val bottomBar = MutableStateFlow<LayoutStructure>(LayoutStructure.Empty)
     val mainView = MutableStateFlow<LayoutStructure>(LayoutStructure.Empty)
@@ -37,6 +38,7 @@ class LayoutViewModel : ViewModel() {
             first = LayoutStructure.Split(
                 first = left,
                 second = main,
+                split = SplitAmount.Fixed(200.dp),
                 orientation = Orientation.Horizontal,
                 firstEnabled = left != LayoutStructure.Empty,
             ),

@@ -32,17 +32,6 @@ configurations.all {
     }
 }
 
-compose.desktop {
-    application {
-        mainClass = "MainKt"
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "jetsnak-mpp"
-            packageVersion = "1.0.0"
-        }
-    }
-}
-
 // ==== Packaging ====
 
 val appName = "Tasks"

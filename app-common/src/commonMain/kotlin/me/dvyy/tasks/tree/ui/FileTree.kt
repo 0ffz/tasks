@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
 
 @Composable
 fun FileList(
@@ -39,15 +40,20 @@ fun FileEntry(
     layout: LayoutViewModel = koinViewModel(),
 ) = Column {
     var open by remember { mutableStateOf(false) }
-    Box(
-        modifier = Modifier.clickable {
+    val clickable = Modifier.thenOptional(file !is FileStructure.Element) {
+        clickable {
             when (file) {
                 is FileStructure.Folder -> open = !open
                 is FileStructure.File -> {
                     layout.activeContentView.update { LayoutStructure.Single { file.opensLayout() } }
+                    file.onClick()
                 }
+                else -> {}
             }
-        }.fillMaxWidth()
+        }
+    }
+    Box(
+        modifier = clickable.fillMaxWidth()
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -68,6 +74,8 @@ fun FileEntry(
                     val rotation by animateFloatAsState(if (open) 180f else 0f)
                     Icon(Icons.Rounded.ArrowDropDown, "Toggle", modifier = Modifier.rotate(rotation))
                 }
+
+                is FileStructure.Element -> file.content()
             }
         }
     }
@@ -83,10 +91,16 @@ fun FileEntry(
 sealed interface FileStructure {
     val name: String
 
+    data class Element(
+        override val name: String = "Unnamed",
+        val content: @Composable () -> Unit,
+    ) : FileStructure
+
     data class File(
         override val name: String,
         val icon: ImageVector? = null,
         val opensLayout: @Composable () -> Unit,
+        val onClick: () -> Unit = {},
     ) : FileStructure
 
     data class Folder(

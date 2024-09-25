@@ -63,11 +63,11 @@ fun Layout(structure: LayoutStructure) {
         is LayoutStructure.Split -> {
             val hor = structure.orientation == Orientation.Horizontal
             var size by remember { mutableStateOf(0) }
-            var splitPercent by remember { mutableStateOf(0.5f) }
+            var splitPercent by remember { mutableStateOf(structure.split) }
             var dividerCoordinates by remember { mutableStateOf<Offset?>(null) }//mutableStateOf<LayoutCoordinates?>(null) }
             val density = LocalDensity.current
 
-            val splitPercentCoerced =/* if (!structure.secondEnabled) 0.5f else*/ splitPercent.coerceIn(0.05f, 0.95f)
+//            val splitPercentCoerced =/* if (!structure.secondEnabled) 0.5f else*/ splitPercent.coerceIn(0.05f, 0.95f)
             Box(Modifier.onGloballyPositioned {
                 size = if (hor) it.size.width else it.size.height
             }) {
@@ -75,9 +75,14 @@ fun Layout(structure: LayoutStructure) {
                 ColumnOrRow(structure.orientation) {
                     if (structure.firstEnabled) Box(
                         (with(density) {
+                            val splitSize = when (val split = splitPercent) {
+                                is SplitAmount.Percent -> size.toDp() * split.value
+                                is SplitAmount.Fixed -> split.value
+                            }
+
                             if (structure.orientation == Orientation.Vertical)
-                                Modifier.thenOptional(structure.secondEnabled) { height(size.toDp() * splitPercentCoerced) }
-                            else Modifier.thenOptional(structure.secondEnabled) { width(size.toDp() * splitPercentCoerced) }
+                                Modifier.thenOptional(structure.secondEnabled) { height(splitSize) }
+                            else Modifier.thenOptional(structure.secondEnabled) { width(splitSize) }
                         })
                             .onGloballyPositioned { offset ->
                                 //if(offset.positionInParent() != Offset.Zero) dividerCoordinates = offset
@@ -100,13 +105,23 @@ fun Layout(structure: LayoutStructure) {
                 val padding = if (ui.isSingleColumn) 17.dp else 9.dp
 
                 val scrollableState = rememberScrollableState { delta ->
-                    val newSplitHeight = (splitPercent + delta / size).coerceIn(0f, 1f)
-                    splitPercent = newSplitHeight
-                    if (newSplitHeight == 0f || newSplitHeight == 1f) 0f
-                    else delta
+                    val split = splitPercent
+
+                    if (split is SplitAmount.Fixed) splitPercent =
+                        SplitAmount.Fixed(split.value + with(density) { delta.toDp() })
+                    else if (split is SplitAmount.Percent) splitPercent =
+                        SplitAmount.Percent((split.value + delta / size).coerceIn(0f, 1f))
+//                    splitPercent = newSplitHeight
+//                    if (newSplitHeight == 0f || newSplitHeight == 1f) 0f
+                    /*else*/ delta
                 }
                 val draggableState = rememberDraggableState { delta ->
-                    splitPercent = (splitPercent + delta / size).coerceIn(0f, 1f)
+                    val split = splitPercent
+                    if (split is SplitAmount.Fixed) splitPercent =
+                        SplitAmount.Fixed(split.value + with(density) { delta.toDp() })
+                    else if (split is SplitAmount.Percent) splitPercent =
+                        SplitAmount.Percent((split.value + delta / size).coerceIn(0f, 1f))
+//                    splitPercent = (splitPercent + delta / size).coerceIn(0f, 1f)
                 }
 
                 val handleModifier = Modifier
@@ -145,7 +160,7 @@ fun Layout(structure: LayoutStructure) {
                         }
                         Spacer(Modifier.width(4.dp))
                         structure.tabs.forEachIndexed { index, tab ->
-                            Box(Modifier.clickable {  }.width(IntrinsicSize.Max)) {
+                            Box(Modifier.clickable { }.width(IntrinsicSize.Max)) {
                                 Box(Modifier.padding(6.dp)) {
                                     Text(
                                         tab.name,
