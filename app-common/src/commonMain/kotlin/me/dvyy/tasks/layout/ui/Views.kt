@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.LocalUIState
@@ -63,12 +64,39 @@ fun Views(structure: ViewStructure) {
             var size by remember { mutableStateOf(0) }
             var splitPercent by remember { mutableStateOf(0.5f) }
             var dividerCoordinates by remember { mutableStateOf<Offset?>(null) }//mutableStateOf<LayoutCoordinates?>(null) }
+            val density = LocalDensity.current
 
             val splitPercentCoerced =/* if (!structure.secondEnabled) 0.5f else*/ splitPercent.coerceIn(0.05f, 0.95f)
-//            var dividerSize by remember { mutableStateOf(IntSize.Zero) }
             Box(Modifier.onGloballyPositioned {
                 size = if (hor) it.size.width else it.size.height
             }) {
+
+                ColumnOrRow(structure.orientation) {
+                    if (structure.firstEnabled) Box(
+                        (with(density) {
+                            if (structure.orientation == Orientation.Vertical)
+                                Modifier.thenOptional(structure.secondEnabled) { height(size.toDp() * splitPercentCoerced) }
+                            else Modifier.thenOptional(structure.secondEnabled) { width(size.toDp() * splitPercentCoerced) }
+                        })
+                            .onGloballyPositioned { offset ->
+                                //if(offset.positionInParent() != Offset.Zero) dividerCoordinates = offset
+                                dividerCoordinates = offset.positionInParent() +
+                                        if (structure.orientation == Orientation.Vertical)
+                                            Offset(0f, offset.size.height.toFloat())
+                                        else Offset(offset.size.width.toFloat(), 0f)
+                            }
+                    ) {
+                        Views(structure.first)
+                    }
+
+//                    if (structure.firstEnabled && structure.secondEnabled)
+//                        Spacer(Modifier.size(1.dp))
+
+                    if (structure.secondEnabled) Views(structure.second)
+                }
+//                return
+                val offset = dividerCoordinates ?: return@Box
+                val padding = if (ui.isSingleColumn) 17.dp else 9.dp
 
                 val scrollableState = rememberScrollableState { delta ->
                     val newSplitHeight = (splitPercent + delta / size).coerceIn(0f, 1f)
@@ -79,49 +107,24 @@ fun Views(structure: ViewStructure) {
                 val draggableState = rememberDraggableState { delta ->
                     splitPercent = (splitPercent + delta / size).coerceIn(0f, 1f)
                 }
-                val handleModifier = //if (ui.isSingleColumn) {
-                    Modifier
-                        .scrollable(scrollableState, structure.orientation)
-                        .draggable(draggableState, structure.orientation)
-//                    } else Modifier
 
-                ColumnOrRow(structure.orientation) {
-                    if (structure.firstEnabled) Box(
-                        (if (structure.orientation == Orientation.Vertical)
-                            Modifier.thenOptional(structure.secondEnabled) { height(size.dp * splitPercentCoerced)}
-                        else Modifier.thenOptional(structure.secondEnabled) { width(size.dp * splitPercentCoerced) })
-                            .onGloballyPositioned { offset ->
-                                //if(offset.positionInParent() != Offset.Zero) dividerCoordinates = offset
-                                dividerCoordinates = offset.positionInParent() +
-                                        if (structure.orientation == Orientation.Vertical) Offset(
-                                            0f,
-                                            offset.size.height.toFloat()
-                                        )
-                                        else Offset(offset.size.width.toFloat(), 0f)
+                val handleModifier = Modifier
+                    .scrollable(scrollableState, structure.orientation)
+                    .draggable(draggableState, structure.orientation)
+
+                if (structure.firstEnabled && structure.secondEnabled) with(density) {
+                    Box(
+                        Modifier
+                            .run {
+                                if (structure.orientation == Orientation.Horizontal) width(padding).fillMaxHeight()
+                                else height(padding).fillMaxWidth()
                             }
+                            .offset(offset.x.toDp() - padding / 2, offset.y.toDp() - padding / 2)
+                            .then(handleModifier),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Views(structure.first)
+                        Divider(structure.orientation, modifier = Modifier.fillMaxSize())
                     }
-
-                    if (structure.firstEnabled && structure.secondEnabled)
-                        Spacer(Modifier.size(1.dp))
-
-                    if (structure.secondEnabled) Views(structure.second)
-                }
-                val offset = dividerCoordinates ?: return@Box
-                val padding = 9.dp
-
-                if (structure.firstEnabled && structure.secondEnabled) Box(
-                    Modifier
-                        .run {
-                            if (structure.orientation == Orientation.Horizontal) width(padding).fillMaxHeight()
-                            else height(padding).fillMaxWidth()
-                        }
-                        .offset(offset.x.dp - padding / 2, offset.y.dp - padding / 2)
-                        .then(handleModifier),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Divider(structure.orientation, modifier = Modifier.fillMaxSize())
                 }
             }
         }

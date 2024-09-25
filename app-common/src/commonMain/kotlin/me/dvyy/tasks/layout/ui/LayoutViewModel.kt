@@ -24,7 +24,15 @@ class LayoutViewModel : ViewModel() {
         }
     }
 
-    val structure = combine(leftSidebar, rightSidebar, bottomBar, mainView) { left, right, bottom, main ->
+    val mobileLayout = combine(mainView, bottomBar) { main, bottom ->
+        ViewStructure.Split(
+            first = main,
+            second = bottom,
+            orientation = Orientation.Vertical,
+            secondEnabled = bottom != ViewStructure.Empty,
+        )
+    }
+    val desktopLayout = combine(leftSidebar, rightSidebar, bottomBar, mainView) { left, right, bottom, main ->
         ViewStructure.Split(
 //            first = ViewStructure.Split(
             first = ViewStructure.Split(

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import me.dvyy.tasks.app.ui.SettingsButton
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.di.koinViewModel
 
@@ -22,4 +23,5 @@ fun AppTopBarActions(time: TimeViewModel = koinViewModel()) = Row {
     IconButton(onClick = { time.goToNextWeek() }) {
         Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = "Next")
     }
+    SettingsButton()
 }

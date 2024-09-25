@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextOverflow
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.di.koinViewModel
 
@@ -24,6 +25,8 @@ fun AppTopBarTitle(
         } ${weekStart.year}",
 //        style = MaterialTheme.typography.headlineSmall.copy(fontSize = fontSize),
         fontWeight = FontWeight.Medium,
-        color = color
+        color = color,
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1,
     )
 }

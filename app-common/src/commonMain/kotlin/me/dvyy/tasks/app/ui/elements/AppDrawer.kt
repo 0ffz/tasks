@@ -1,12 +1,10 @@
 package me.dvyy.tasks.app.ui.elements
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Login
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,19 +12,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.app.ui.AppDialog
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.DialogViewModel
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.ViewButton
 import me.dvyy.tasks.auth.ui.AuthViewModel
-import me.dvyy.tasks.auth.ui.LoginState
-import me.dvyy.tasks.core.ui.modifiers.NoRippleInteractionSource
 import me.dvyy.tasks.di.koinViewModel
-import me.dvyy.tasks.sync.ui.SyncStatusIcon
+import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.layout.ui.ViewStructure
+import me.dvyy.tasks.layout.ui.Views
 import me.dvyy.tasks.sync.ui.SyncViewModel
-import me.dvyy.tasks.tree.ui.FileList
-import me.dvyy.tasks.tree.ui.FileStructure
 import org.koin.compose.koinInject
 
 @Composable
@@ -35,6 +32,7 @@ fun AppDrawer(
     auth: AuthViewModel = koinViewModel(),
     sync: SyncViewModel = koinViewModel(),
     dialogs: DialogViewModel = koinViewModel(),
+    layout: LayoutViewModel = koinViewModel(),
     content: @Composable () -> Unit,
 ) {
     val ui = LocalUIState.current
@@ -44,82 +42,28 @@ fun AppDrawer(
         drawerState = app.drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Column(Modifier.padding(16.dp)) {
-                    Text("Tasks", modifier = Modifier.padding(16.dp))
-                    val loginState by auth.loginState.collectAsState()
-                    val login = loginState // Smart casts
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Outlined.Settings, contentDescription = "Settings") },
-                        label = { Text(text = "Settings") },
-                        selected = false,
-                        onClick = { /*TODO*/ }
-                    )
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Outlined.Palette, contentDescription = "Theme") },
-                        label = { Text(text = "Theme") },
-                        selected = false,
-                        onClick = { dialogs.show(AppDialog.Theme) }
-                    )
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Outlined.UploadFile, contentDescription = "Bulk add") },
-                        label = { Text(text = "Bulk add") },
-                        selected = false,
-                        onClick = { dialogs.show(AppDialog.BulkAdd) }
-                    )
-                    FileList(
-                        listOf(
-                            FileStructure.File("file1"),
-                            FileStructure.Folder(
-                                "folder1", listOf(
-                                    FileStructure.File("file2"),
-                                    FileStructure.File("file3"),
-                                )
-                            ),
-                            FileStructure.File("file4"),
-                        )
-                    )
-                    Spacer(Modifier.weight(1f))
-                    if (login !is LoginState.Success) {
-                        NavigationDrawerItem(
-                            icon = { Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Switch account") },
-                            label = { Text(text = "Login") },
-                            selected = false,
-                            onClick = { dialogs.show(AppDialog.Auth) }
-                        )
-                    } else {
-                        NavigationDrawerItem(
-                            icon = { SyncStatusIcon() },
-                            label = { Text(text = "Sync") },
-                            selected = false,
-                            onClick = { sync.sync() },
-                        )
-                        NavigationDrawerItem(
-                            icon = { Icon(Icons.Outlined.CloudDownload, contentDescription = "Pull all") },
-                            label = { Text(text = "Pull all") },
-                            selected = false,
-                            onClick = { sync.forcePull() },
-                        )
-                        NavigationDrawerItem(
-                            icon = { Icon(Icons.Outlined.CloudUpload, contentDescription = "Push all") },
-                            label = { Text(text = "Push all") },
-                            selected = false,
-                            onClick = { sync.fullSync() },
-                        )
-                        NavigationDrawerItem(
-                            icon = { Icon(Icons.Outlined.AccountCircle, contentDescription = "Account") },
-                            label = { Text(text = "${login.username}@${login.serverURL}") },
-                            selected = false,
-                            onClick = { },
-                            interactionSource = NoRippleInteractionSource()
-                        )
-                        NavigationDrawerItem(
-                            icon = { Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = "Account") },
-                            label = { Text(text = "Logout") },
-                            selected = false,
-                            onClick = { auth.logout() }
-                        )
+                Scaffold(
+                    Modifier.padding(16.dp),
+                    bottomBar = {
+                        HorizontalDivider()
+                        Row {
+                            val buttons by layout.viewButtons.collectAsState()
+                            val selected by layout.leftSidebar.collectAsState()
+                            buttons.left.forEach { button ->
+                                val isSelected = button.structure == selected
+                                ViewButton(button, isSelected) {
+                                    layout.leftSidebar.update {
+                                        if (isSelected) ViewStructure.Empty
+                                        else button.structure
+                                    }
+                                }
+                            }
+                        }
                     }
-
+                ) {
+                    Box(Modifier.padding(it)) {
+                        Views(layout.leftSidebar.collectAsState().value)
+                    }
                 }
             }
         },

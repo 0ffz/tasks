@@ -15,7 +15,5 @@ fun AppDialogs(app: DialogViewModel = koinViewModel()) {
     when (dialog) {
         null -> {}
         AppDialog.Auth -> AuthDialog()
-        AppDialog.Theme -> ThemeDialog()
-        AppDialog.BulkAdd -> BulkAddDialog()
     }
 }

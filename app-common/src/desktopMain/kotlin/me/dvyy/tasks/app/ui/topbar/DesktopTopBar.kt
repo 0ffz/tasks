@@ -77,15 +77,8 @@ fun DesktopTopBar(
                 ) {
                     AppDrawerButton()
 
-//                    AnimatedVisibility(showBackButton/*, enter = fadeIn(animationSpec = tween(300, 300))*/) {
-//                        WindowButton(Icons.AutoMirrored.Rounded.ArrowBack) {
-//                            onBackButtonClicked()
-//                        }
-//                        Spacer(Modifier.width(5.dp))
-//                    }
                     AnimatedVisibility(showTitle) {
                         Row {
-//                            Spacer(Modifier.width(8.dp))
                             AppTitle()
                             AppTopBarTitle(color = MaterialTheme.colorScheme.primary)
                         }
@@ -117,16 +110,12 @@ fun DesktopTopBar(
 @Composable
 fun AppTitle() {
     Row {
-//        Icon(
-//            Icons.Rounded.Checklist,
-//            contentDescription = "Tasks",
-//            tint = MaterialTheme.colorScheme.primary
-//        )
         Spacer(Modifier.width(4.dp))
         Text(
             "Tasks — ",
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
         )
     }
 }

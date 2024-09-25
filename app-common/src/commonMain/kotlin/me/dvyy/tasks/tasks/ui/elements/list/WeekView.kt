@@ -27,7 +27,10 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.take
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
-import me.dvyy.tasks.app.ui.*
+import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.app.ui.Cursors
+import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.di.koinViewModel
 import me.dvyy.tasks.model.ListId
@@ -36,92 +39,55 @@ import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekView(
-    scrollBehavior: TopAppBarScrollBehavior,
     tasksViewModel: TasksViewModel = viewModel(),
     app: AppState = koinInject(),
     time: TimeViewModel = koinViewModel(),
-    prefs: PreferencesViewModel = koinViewModel(),
-    showProjects: Boolean = true,
 ) {
     val ui = LocalUIState.current
     val scrollState = rememberScrollState()
-//    val splitHeight by prefs.splitHeight.collectAsState()
-//    val splitCutoff = 0.05f..0.95f
     Scaffold(
-//        floatingActionButton = {
-//            Column {
-//                if (splitHeight !in splitCutoff) {
-//                    SmallFloatingActionButton(
-//                        onClick = { prefs.splitHeight.value = 0.5f },
-//                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-//                    ) {
-//                        Icon(Icons.Outlined.Splitscreen, contentDescription = "Open week view")
-//                    }
-//                }
-//            }
-//        },
         snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         val reorderInteractions = tasksViewModel.reorderInteractions()
-            val responsive = LocalUIState.current
-            val columns = responsive.dateColumns
-            val weekStart by time.weekStart.collectAsState()
-            val datesScrollable = if (ui.isSingleColumn)
-                Modifier/*.nestedScroll(scrollBehavior.nestedScrollConnection)*/.verticalScroll(scrollState)
-            else Modifier
-            val today by time.today.collectAsState()
-//            Views(
-//                ViewStructure.Split(
-//                    first = ViewStructure.Single {
-            /*if (splitHeight > splitCutoff.start)*/
-            NonlazyGrid(
-                columns = columns,
-                itemCount = 7,
-                modifier = Modifier.fillMaxWidth()/*.then(restrictHeight)*/.then(datesScrollable),
-            ) { dayIndex ->
-                val day = weekStart.plus(DatePeriod(days = dayIndex))
-                val isToday = day == today
-                val listId = ListId.forDate(day)
-                val properties by tasksViewModel.getListProperties(listId).collectAsState()
-                val tasks by tasksViewModel.tasksFor(listId).collectAsState()
-                var scrollToPosition by remember { mutableStateOf(0F) }
-                TaskList(
-                    listId = listId,
-                    tasks = tasks,
-                    properties = properties,
-                    colored = isToday,
-                    viewModel = tasksViewModel,
-                    reorderInteractions = reorderInteractions,
-                    interactions = tasksViewModel.listInteractionsFor(listId),
-                    scrollable = !ui.isSingleColumn,
-                    modifier = Modifier.onGloballyPositioned { coords ->
-                        scrollToPosition = coords.positionInRoot().y
-                    }
-                )
-                LaunchedEffect(Unit) {
-                    if (isToday && columns == 1) snapshotFlow { scrollToPosition }
-                        .drop(1)
-                        .take(1)
-                        .collectLatest { scrollState.scrollTo(scrollToPosition.roundToInt()) }
+        val responsive = LocalUIState.current
+        val columns = responsive.dateColumns
+        val weekStart by time.weekStart.collectAsState()
+        val datesScrollable = if (ui.isSingleColumn)
+            Modifier/*.nestedScroll(scrollBehavior.nestedScrollConnection)*/.verticalScroll(scrollState)
+        else Modifier
+        val today by time.today.collectAsState()
+        NonlazyGrid(
+            columns = columns,
+            itemCount = 7,
+            modifier = Modifier.fillMaxWidth().then(datesScrollable),
+        ) { dayIndex ->
+            val day = weekStart.plus(DatePeriod(days = dayIndex))
+            val isToday = day == today
+            val listId = ListId.forDate(day)
+            val properties by tasksViewModel.getListProperties(listId).collectAsState()
+            val tasks by tasksViewModel.tasksFor(listId).collectAsState()
+            var scrollToPosition by remember { mutableStateOf(0F) }
+            TaskList(
+                listId = listId,
+                tasks = tasks,
+                properties = properties,
+                colored = isToday,
+                viewModel = tasksViewModel,
+                reorderInteractions = reorderInteractions,
+                interactions = tasksViewModel.listInteractionsFor(listId),
+                scrollable = !ui.isSingleColumn,
+                modifier = Modifier.onGloballyPositioned { coords ->
+                    scrollToPosition = coords.positionInRoot().y
                 }
+            )
+            LaunchedEffect(Unit) {
+                if (isToday && columns == 1) snapshotFlow { scrollToPosition }
+                    .drop(1)
+                    .take(1)
+                    .collectLatest { scrollState.scrollTo(scrollToPosition.roundToInt()) }
             }
-//                    second = ViewStructure.Tabbed(
-//                        name = "Projects",
-//                        tabs = listOf(ViewStructure.Tab("All", ViewStructure.Single {
-//                            /*if (splitHeight < splitCutoff.endInclusive)*/
-//                            ProjectListContent(
-//                                reorderInteractions = reorderInteractions,
-//                                modifier = Modifier.fillMaxHeight() //Fill remaining height
-//                            )
-//                        })),
-//                        selected = 0,
-//                    ),
-//                    secondEnabled = showProjects,
-//                    orientation = Orientation.Vertical,
-//                )
-//        }
+        }
     }
 }
 
@@ -215,25 +181,12 @@ fun ProjectListContent(
             )
         }
         item {
-//            Column(modifier = Modifier.width(ui.taskListWidth)) {
-//                TaskListTitle(
-//                    TaskListProperties(displayName = "").loaded(),
-//                    false,
-//                    TaskListInteractions(
-//                        onPropertiesChanged = { }
-//                    ),
-//                )
-//            }
-//            Box(
-//                contentAlignment = Alignment.Center,
-//            ) {
             FilledTonalButton(
                 modifier = Modifier.width(ui.taskListWidth),
                 onClick = { tasksViewModel.createProject() },
             ) {
                 Text("New project")
             }
-//            }
         }
     }
 }
