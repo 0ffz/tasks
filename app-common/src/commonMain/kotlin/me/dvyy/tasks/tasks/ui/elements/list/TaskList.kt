@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.dataOrNull
+import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
@@ -41,7 +42,7 @@ fun TaskList(
 ) {
     val ui = LocalUIState.current
     val listDropTarget = Modifier.dragAndDropTarget(
-        shouldStartDragAndDrop = { true },
+        shouldStartDragAndDrop = { it.isOfType<TaskId>() },
         target = remember {
             object : DragAndDropTarget {
                 override fun onDrop(event: DragAndDropEvent): Boolean {

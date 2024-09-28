@@ -33,3 +33,7 @@ actual fun Modifier.platformDragAndDropSource(block: suspend DragAndDropSourceSc
 actual inline fun <reified T> DragAndDropEvent.dataOrNull(): T? {
     return toAndroidDragEvent().localState as? T
 }
+
+actual inline fun <reified T> DragAndDropEvent.isOfType(): Boolean {
+    return toAndroidDragEvent().localState is T
+}

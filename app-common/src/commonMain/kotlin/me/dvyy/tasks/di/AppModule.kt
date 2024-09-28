@@ -1,6 +1,7 @@
 package me.dvyy.tasks.di
 
 import kotlinx.coroutines.Dispatchers
+import me.dvyy.tasks.app.data.LocalPreferencesRepository
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
@@ -24,6 +25,7 @@ fun appModule() = module {
     singleOf(::AppState)
     single { Dispatchers.Default }
     singleOf(::AppSettings)
+    singleOf(::LocalPreferencesRepository)
 }
 
 fun authModule() = module {

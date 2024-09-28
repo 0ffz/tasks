@@ -24,3 +24,5 @@ expect fun Modifier.platformDragAndDropSource(
 ): Modifier
 
 expect inline fun <reified T> DragAndDropEvent.dataOrNull(): T?
+
+expect inline fun <reified T> DragAndDropEvent.isOfType(): Boolean

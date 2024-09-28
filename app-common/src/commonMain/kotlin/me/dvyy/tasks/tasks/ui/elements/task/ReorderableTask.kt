@@ -9,10 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
-import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
-import me.dvyy.tasks.core.ui.dataOrNull
-import me.dvyy.tasks.core.ui.detectPlatformDrag
-import me.dvyy.tasks.core.ui.platformDragAndDropSource
+import me.dvyy.tasks.core.ui.*
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -36,8 +33,8 @@ fun ReorderableTask(
                 startTransfer(MultiplatformDragAndDropData(key, it))
             }
         }.dragAndDropTarget(
-            shouldStartDragAndDrop = { true },
-            target = remember {
+            shouldStartDragAndDrop = { it.isOfType<TaskId>() },
+            target = remember(key) {
                 object : DragAndDropTarget {
                     override fun onDrop(event: DragAndDropEvent): Boolean {
                         return true
@@ -45,7 +42,6 @@ fun ReorderableTask(
 
                     override fun onEntered(event: DragAndDropEvent) {
                         val draggedKey = event.dataOrNull<TaskId>()
-                        println("Dragged $draggedKey")
                         if (key != draggedKey) reorderInteractions.onDragEnterItem(key, draggedKey ?: return)
                     }
                 }

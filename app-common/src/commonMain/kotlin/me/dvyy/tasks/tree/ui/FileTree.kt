@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.FilePresent
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -15,9 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
 import me.dvyy.tasks.core.ui.detectPlatformDrag
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
@@ -50,7 +47,7 @@ fun FileEntry(
             when (file) {
                 is FileStructure.Folder -> open = !open
                 is FileStructure.File -> {
-                    layout.activeContentView.update { LayoutStructure.Single { file.opensLayout() } }
+                    layout.openInActiveView(file)
                     file.onClick()
                 }
 
@@ -61,8 +58,9 @@ fun FileEntry(
     Box(
         modifier = clickable.fillMaxWidth()
             .platformDragAndDropSource {
-                detectPlatformDrag {
-                    startTransfer(MultiplatformDragAndDropData("text", it))
+                detectPlatformDrag { offset ->
+                    startTransfer(MultiplatformDragAndDropData(file, offset))
+                    if (file is FileStructure.File) file.onStartDrag()
                 }
             }
     ) {
@@ -72,9 +70,7 @@ fun FileEntry(
         ) {
             when (file) {
                 is FileStructure.File -> {
-                    Icon(file.icon ?: Icons.Rounded.FilePresent, "File")
-                    Spacer(Modifier.width(4.dp))
-                    Text(file.name)
+                    file.opensLayout.tabLabel()
                 }
 
                 is FileStructure.Folder -> {
@@ -100,22 +96,18 @@ fun FileEntry(
 }
 
 sealed interface FileStructure {
-    val name: String
-
     data class Element(
-        override val name: String = "Unnamed",
         val content: @Composable () -> Unit,
     ) : FileStructure
 
     data class File(
-        override val name: String,
-        val icon: ImageVector? = null,
-        val opensLayout: @Composable () -> Unit,
+        val opensLayout: LayoutStructure.Single,
         val onClick: () -> Unit = {},
+        val onStartDrag: () -> Unit = {},
     ) : FileStructure
 
     data class Folder(
-        override val name: String,
+        val name: String,
         val children: List<FileStructure>,
     ) : FileStructure
 }

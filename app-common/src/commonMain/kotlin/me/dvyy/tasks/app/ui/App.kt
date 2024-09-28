@@ -68,12 +68,21 @@ fun App(
                     ) {
                         if (ui.isSingleColumn) {
                             val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Empty)
-                            Layout(structure)
+                            Row {
+                                Layout(structure, onLayoutUpdate = { new ->
+                                    val main = (new as LayoutStructure.Split).first
+                                    layoutViewModel.setMainView(main)
+                                })
+                            }
                         } else {
                             val structure by layoutViewModel.desktopLayout.collectAsState(LayoutStructure.Empty)
                             Row {
                                 LeftNavigationRail()
-                                Layout(structure)
+                                Layout(structure, onLayoutUpdate = {
+                                    val main = ((it as? LayoutStructure.Split)?.first as? LayoutStructure.Split)?.second
+                                    println(main)
+                                    if (main != null) layoutViewModel.setMainView(main)
+                                })
                             }
                         }
                     }
@@ -85,3 +94,14 @@ fun App(
         extras()
     }
 }
+
+//fun a() {
+//    Split(
+//        first = Single(content = androidx.compose.runtime.internal.ComposableLambdaImpl@5583f943),
+//        second = Single(content = androidx.compose.runtime.internal.ComposableLambdaImpl@3 dcec520),
+//        split = Percent(value = 0.5),
+//        orientation = Vertical,
+//        firstEnabled = true,
+//        secondEnabled = true
+//    )
+//}

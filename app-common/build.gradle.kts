@@ -9,12 +9,14 @@ plugins {
 
 composeCompiler {
     stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
-    enableStrongSkippingMode = true
 }
 
 kotlin {
     applyDefaultHierarchyTemplate()
     androidTarget()
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xexpect-actual-classes")
+    }
 
     jvm("desktop") {
         compilations.all {

@@ -27,10 +27,4 @@ fun AppTopBar(scrollBehavior: TopAppBarScrollBehavior) {
         modifier = modifier,
         scrollBehavior = scrollBehavior,
     )
-//    TopAppBar(
-//        title = { Text("Tasks") },
-//        actions = {
-//            AppDrawerIconButton()
-//        }
-//    )
 }

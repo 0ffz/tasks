@@ -1,33 +1,26 @@
 package me.dvyy.tasks.layout.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
-import me.dvyy.tasks.tasks.ui.elements.list.Project
-import me.dvyy.tasks.tasks.ui.elements.list.WeekView
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
-import me.dvyy.tasks.utils.loadedOrNull
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun AppFileTree(
     tasks: TasksViewModel = koinViewModel(),
@@ -43,26 +36,17 @@ fun AppFileTree(
     }
     Text("Calendar", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
+    fun file(layout: LayoutStructure.Single) = FileStructure.File(
+        opensLayout = layout,
+        onClick = ::closeDrawer,
+        onStartDrag = ::closeDrawer,
+    )
+
     FileList(
         listOf(
-            FileStructure.File(
-                "Week view",
-                opensLayout = { WeekView() },
-                onClick = ::closeDrawer,
-                icon = AppIcons.CalendarViewWeek
-            ),
-            FileStructure.File(
-                "3-day view",
-                opensLayout = { WeekView(startAtToday = true, takeDays = 3) },
-                onClick = ::closeDrawer,
-                icon = AppIcons.CalendarViewDay
-            ),
-            FileStructure.File(
-                "Today",
-                opensLayout = { WeekView(startAtToday = true, takeDays = 1) },
-                onClick = ::closeDrawer,
-                icon = AppIcons.CalendarToday
-            ),
+            file(LayoutStructure.Single.WeekView()),
+            file(LayoutStructure.Single.WeekView(startAtToday = true, takeDays = 3)),
+            file(LayoutStructure.Single.WeekView(startAtToday = true, takeDays = 1)),
         )
     )
 
@@ -72,46 +56,14 @@ fun AppFileTree(
 
     FileList(
         buildList {
-            add(
-                FileStructure.File(
-                    "Staggered",
-                    opensLayout = { AllProjectsView(staggered = true) },
-                    onClick = ::closeDrawer,
-                    icon = AppIcons.Dashboard
-                )
-            )
-            add(
-                FileStructure.File(
-                    "Grid",
-                    opensLayout = { AllProjectsView(staggered = false) },
-                    onClick = ::closeDrawer,
-                    icon = AppIcons.GridView
-                )
-            )
+            add(file(LayoutStructure.Single.Projects(staggered = true)))
+            add(file(LayoutStructure.Single.Projects(staggered = false)))
             add(FileStructure.Element { HorizontalDivider() })
 
             val projects by tasks.projects.collectAsState()
 
             projects.forEach { key ->
-                val propLoadable by tasks.getListProperties(key).collectAsState()
-                val props = propLoadable.loadedOrNull() ?: return
-                val icon = when (props.displayName) {
-                    "Inbox" -> AppIcons.Inbox
-                    else -> AppIcons.Description
-                }
-                add(
-                    FileStructure.File(
-                        props.displayName ?: "Unnamed",
-                        icon = icon,
-                        onClick = ::closeDrawer,
-                        opensLayout = {
-                            Project(
-                                key = key,
-                                properties = propLoadable
-                            )
-                        },
-                    )
-                )
+                add(file(LayoutStructure.Single.Project(key)))
             }
         }
     )
@@ -120,19 +72,5 @@ fun AppFileTree(
         onClick = { tasks.createProject() },
     ) {
         Text("Create project")
-    }
-
-    Surface(Modifier.fillMaxWidth().dragAndDropTarget(
-        shouldStartDragAndDrop = { event -> true },
-        target = remember {
-            object: DragAndDropTarget {
-                override fun onDrop(event: DragAndDropEvent): Boolean {
-                    println(event.dataOrNull<String>())
-                    return true
-                }
-            }
-        }
-    )) {
-        Text("Drop target!")
     }
 }

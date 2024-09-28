@@ -6,18 +6,25 @@ import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.*
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTransferAction
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draganddrop.DragAndDropTransferable
 import androidx.compose.ui.geometry.Offset
-import kotlinx.serialization.serializer
-import me.dvyy.tasks.model.serializers.AppFormats
-import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection
+
+@PublishedApi
+internal var transferObject: Any? = null
+
+@PublishedApi
+internal const val TASKS_DND_MARKER = "|tasksData|"
 
 @OptIn(ExperimentalComposeUiApi::class)
 actual inline fun <reified T> MultiplatformDragAndDropData(data: T, offset: Offset): DragAndDropTransferData {
+    transferObject = data //TODO make this a bit safer, we might not use the data result right away
     return DragAndDropTransferData(
         transferable = DragAndDropTransferable(
-            StringSelection(AppFormats.json.encodeToString(serializer<T>(), data)),
+            StringSelection(TASKS_DND_MARKER),
         ),
         supportedActions = listOf(
             DragAndDropTransferAction.Copy,
@@ -43,6 +50,17 @@ actual fun Modifier.platformDragAndDropSource(block: suspend DragAndDropSourceSc
 
 @OptIn(ExperimentalComposeUiApi::class)
 actual inline fun <reified T> DragAndDropEvent.dataOrNull(): T? {
-    val string =  awtTransferable.getTransferData(DataFlavor.stringFlavor) as String
-    return runCatching { AppFormats.json.decodeFromString(serializer<T>(), string) }.getOrNull()
+    return transferObject as? T
+//    val prefix = "tasksData|${typeOf<T>()}|"
+//    val string = awtTransferable.getTransferData(DataFlavor.stringFlavor) as String
+//    val removed = string.removePrefix(prefix).also { if (string == it) return null }
+//    return runCatching { AppFormats.json.decodeFromString(serializer<T>(), removed) }.getOrNull()
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+actual inline fun <reified T> DragAndDropEvent.isOfType(): Boolean {
+    return transferObject is T
+//    val prefix = "tasksData|${typeOf<T>()}|"
+//    val string = awtTransferable.getTransferData(DataFlavor.stringFlavor) as String
+//    return string.startsWith(prefix)
 }

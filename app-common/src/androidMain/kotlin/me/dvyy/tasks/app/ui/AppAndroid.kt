@@ -17,7 +17,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun AppAndroid() = KoinContext {
     Box(Modifier.imePadding()) {
-        App {
+        App(topBar = {}) {
             TaskDeselectHandler()
         }
     }
