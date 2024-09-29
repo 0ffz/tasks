@@ -72,6 +72,14 @@ sealed interface LayoutStructure {
         @Composable
         fun content()
 
+        data class RichTextView(val file: String) : Single {
+            override val icon get() = AppIcons.Description
+            override val text get() = "Rich text"
+
+            @Composable
+            override fun content() {
+            }
+        }
         @Serializable
         data class WeekView(
             val startAtToday: Boolean = false,

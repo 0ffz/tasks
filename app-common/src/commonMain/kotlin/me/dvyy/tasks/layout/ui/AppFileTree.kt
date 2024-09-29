@@ -66,6 +66,8 @@ fun AppFileTree(
             projects.forEach { key ->
                 add(file(LayoutStructure.Single.Project(key)))
             }
+
+            add(file(LayoutStructure.Single.RichTextView("test")))
         }
     )
 

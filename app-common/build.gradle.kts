@@ -73,7 +73,6 @@ kotlin {
                 implementation(libs.coroutines.extensions)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
-                implementation("sh.calvin.reorderable:reorderable:2.3.3")
             }
         }
         val jvmMain by creating {

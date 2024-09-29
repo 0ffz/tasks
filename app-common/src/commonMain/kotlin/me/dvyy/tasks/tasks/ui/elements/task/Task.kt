@@ -2,13 +2,13 @@ package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.flow.drop
@@ -20,7 +20,6 @@ import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Task(
     task: TaskUiState,
@@ -29,6 +28,9 @@ fun Task(
     interactions: TaskInteractions,
     focusRequested: Boolean = false,
     date: LocalDate? = null,
+    forceShowCheckbox: Boolean = false,
+    overrideCheckboxIcon: ImageVector? = null,
+    overrideCheckboxCompletedIcon: ImageVector? = null,
 ) {
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
@@ -67,12 +69,17 @@ fun Task(
                     Row(verticalAlignment = Alignment.Top) {
                         Box(Modifier.weight(1f, true), contentAlignment = Alignment.CenterStart) {
                             if (!selected) TaskHighlight(task.text, task.highlight, task.completed)
-                            TaskTextField(task, selected, setTask, interactions, focusRequested, Modifier)
+                            TaskTextField(task, selected, setTask, interactions, focusRequested)
                         }
                         val responsive = LocalUIState.current
 
-                        if (responsive.alwaysShowCheckbox || isHovered || selected)
-                            TaskCheckBox(task, setTask)
+                        if (forceShowCheckbox || responsive.alwaysShowCheckbox || isHovered || selected)
+                            TaskCheckBox(
+                                task,
+                                setTask,
+                                icon = overrideCheckboxIcon,
+                                completedIcon = overrideCheckboxCompletedIcon
+                            )
                     }
                 }
                 AnimatedVisibility(

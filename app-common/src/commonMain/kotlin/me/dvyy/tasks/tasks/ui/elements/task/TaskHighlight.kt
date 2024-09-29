@@ -14,12 +14,17 @@ import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.Highlight
 
 @Composable
-fun TaskHighlight(text: String, highlight: Highlight, completed: Boolean = false) {
+fun TaskHighlight(
+    text: String,
+    highlight: Highlight,
+    completed: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     val adjustedHighlight by animateColorAsState(highlight.color.fade(if (completed) UI.tasks.completedFade else 1f))
     Surface(
         color = adjustedHighlight,
         shape = MaterialTheme.shapes.extraLarge,
-        modifier = Modifier.height(UI.taskHighlightHeight),
+        modifier = modifier.height(UI.taskHighlightHeight),
     ) {
         TaskTextPadding {
             Text(text, Modifier.alpha(0f))
