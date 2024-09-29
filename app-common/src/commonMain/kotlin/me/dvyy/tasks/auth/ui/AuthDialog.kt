@@ -9,8 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.data.AuthResult
 import me.dvyy.tasks.auth.ui.LoginState.Error
@@ -37,7 +37,7 @@ fun AuthDialog(
         icon = { Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Login icon") },
         title = { Text("Login") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(UI.padding.sm)) {
                 Text("Please login to the sync server.")
                 TextField(
                     serverUrl,

@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.components.ResponsiveNavigationDrawer
 
 sealed interface SettingsTab {
@@ -54,7 +55,7 @@ fun SettingsScreen() {
         drawerContent = {
             PermanentDrawerSheet(
                 drawerContainerColor = MaterialTheme.colorScheme.surface,
-                drawerTonalElevation = 0.5.dp
+                drawerTonalElevation = UI.elevation.lv1,
             ) {
                 SettingsTab.tabs.forEach { tab ->
                     NavigationDrawerItem(
@@ -69,7 +70,7 @@ fun SettingsScreen() {
         }
     ) {
         val ui = LocalUIState.current
-        if (ui.isSingleColumn) {
+        if (ui.isSmall) {
             val scope = rememberCoroutineScope()
             IconButton(onClick = { scope.launch { drawerState.open() } }) {
                 Icon(Icons.Outlined.Menu, contentDescription = "Open menu")
@@ -77,7 +78,7 @@ fun SettingsScreen() {
         }
 
         Column(Modifier.padding(32.dp).verticalScroll(rememberScrollState())) {
-            if (ui.isSingleColumn) Spacer(Modifier.height(32.dp))
+            if (ui.isSmall) Spacer(Modifier.height(32.dp))
             Text(screen.title, style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(16.dp))
             when (screen) {

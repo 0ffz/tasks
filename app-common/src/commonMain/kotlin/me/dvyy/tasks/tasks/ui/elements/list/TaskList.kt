@@ -119,11 +119,12 @@ fun TaskList(
                         interactions.createNewTask(true)
                     else viewModel.selectTask(lastTask.uuid, focus = true)
                 }.then(listDropTarget)) {
-                    Spacer(modifier = Modifier.height(ui.taskHeight))
+                    Spacer(modifier = Modifier.height(ui.tasks.height))
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 }
             }
-            Box(Modifier.fillMaxSize().then(listDropTarget))
+            if(scrollable && !ui.isSmall)
+                Box(Modifier.fillMaxSize().then(listDropTarget))
         }
     }
 }

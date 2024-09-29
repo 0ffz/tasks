@@ -7,10 +7,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction.Companion.Done
-import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.rememberAppUIState
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.model.Highlight
@@ -72,7 +72,7 @@ fun QuickAdd(
                 task.highlight,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(Modifier.padding(8.dp)) {
+                Column(Modifier.padding(UI.padding.md)) {
                     val listProps by tasks.getListProperties(listId).collectAsState()
                     Box {
                         TaskListTitle(
@@ -84,7 +84,7 @@ fun QuickAdd(
                         )
                     }
                     Box(
-                        modifier = Modifier.height(ui.taskHeight),
+                        modifier = Modifier.height(ui.tasks.height),
                         contentAlignment = Alignment.CenterStart,
                     ) {
                         TaskTextField(

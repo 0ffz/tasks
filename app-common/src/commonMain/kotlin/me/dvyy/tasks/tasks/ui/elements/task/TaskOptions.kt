@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
@@ -32,7 +33,6 @@ sealed interface FocusedOption {
     data object Highlight : FocusedOption
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskOptions(
     task: TaskUiState,
@@ -48,13 +48,12 @@ fun TaskOptions(
         focused = if (focused == FocusedOption.Highlight) FocusedOption.None else FocusedOption.Highlight
     }
     Column(
-        Modifier.padding(horizontal = ui.horizontalTaskTextPadding, vertical = 4.dp),
-//        verticalArrangement = Arrangement.spacedBy(4.dp)
+        Modifier.padding(horizontal = ui.horizontalTaskTextPadding, vertical = UI.padding.sm),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(UI.padding.md)
         ) {
 //            var dragged by remember { mutableStateOf(0f) }
             HighlightButton(
@@ -74,7 +73,7 @@ fun TaskOptions(
                     Icon(Icons.Outlined.Done, contentDescription = "Submit")
                 }
             } else {
-                IconButton(onClick = { interactions.onDelete() }, modifier = Modifier.size(ui.taskCheckboxSize)) {
+                IconButton(onClick = { interactions.onDelete() }, modifier = Modifier.size(ui.tasks.checkboxSize)) {
                     Icon(Icons.Outlined.Delete, contentDescription = "Delete")
                 }
             }
@@ -88,7 +87,7 @@ fun TaskOptions(
                 task,
                 setTask,
                 ::toggleFocused,
-                Modifier.height(ui.taskCheckboxSize).fillMaxWidth().horizontalScroll(rememberScrollState())
+                Modifier.height(ui.tasks.checkboxSize).fillMaxWidth().horizontalScroll(rememberScrollState())
             )
         }
     }
@@ -103,7 +102,7 @@ fun HighlightButtons(
 ) = Column {
     HorizontalDivider(Modifier.fillMaxWidth())
 //    var isLight by remember { mutableStateOf(task.highlight.isLight) }
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)) {
 //        LightDarkHighlightToggle(isLight, onToggle = {
 //            isLight = !isLight
 //            setTask(task.copy(highlight = task.highlight.copy(isLight = isLight)))
@@ -112,7 +111,7 @@ fun HighlightButtons(
             HighlightButton(Highlight(it, true), task) { setTask(it); toggleFocused() }
         }
     }
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)) {
 
         Highlight.Type.entries.forEach {
             HighlightButton(Highlight(it, false), task) { setTask(it); toggleFocused() }
@@ -158,7 +157,7 @@ fun TaskDatePicker(initialDate: LocalDate, interactions: TaskInteractions, time:
 @Composable
 fun LightDarkHighlightToggle(isLight: Boolean, onToggle: () -> Unit) {
     val ui = LocalUIState.current
-    IconButton(onClick = { onToggle() }, modifier = Modifier.size(ui.taskOptionSize)) {
+    IconButton(onClick = { onToggle() }, modifier = Modifier.size(ui.tasks.propertyButtonSize)) {
         Crossfade(isLight) {
             if (it) {
                 Icon(Icons.Outlined.LightMode, contentDescription = "Light")
@@ -194,7 +193,7 @@ fun CircleButton(
             containerColor = color,
         ),
         onClick = onClick,
-        modifier = modifier.size(ui.taskOptionSize).focusProperties { canFocus = false },
+        modifier = modifier.size(ui.tasks.propertyButtonSize).focusProperties { canFocus = false },
         border = border,
     ) { content() }
 }

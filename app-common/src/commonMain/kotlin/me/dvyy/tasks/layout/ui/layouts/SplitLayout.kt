@@ -20,7 +20,7 @@ import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.SplitAmount
 import me.dvyy.tasks.tasks.ui.elements.list.Divider
-import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
+import me.dvyy.tasks.tasks.ui.elements.list.optional
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Duration.Companion.seconds
 
@@ -56,8 +56,8 @@ fun SplitLayout(
                     }
 
                     if (structure.orientation == Orientation.Vertical)
-                        Modifier.thenOptional(structure.secondEnabled) { height(splitSize) }
-                    else Modifier.thenOptional(structure.secondEnabled) { width(splitSize) }
+                        Modifier.optional(structure.secondEnabled) { height(splitSize) }
+                    else Modifier.optional(structure.secondEnabled) { width(splitSize) }
                 })
                     .onGloballyPositioned { offset ->
                         //if(offset.positionInParent() != Offset.Zero) dividerCoordinates = offset
@@ -94,7 +94,7 @@ fun SplitLayout(
         }
 
         val offset = dividerCoordinates ?: return@Box
-        val padding = if (ui.isSingleColumn) 17.dp else 9.dp
+        val padding = if (ui.isSmall) 17.dp else 9.dp
 
         val scrollableState = rememberScrollableState { delta ->
             val split = splitAmount

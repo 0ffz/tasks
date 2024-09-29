@@ -48,7 +48,7 @@ fun Task(
                 onEnter = { isHovered = true },
                 onExit = { isHovered = false }
             )
-            .heightIn(min = ui.taskHeight)
+            .heightIn(min = ui.tasks.height)
             .focusProperties { canFocus = false }
             .clickableWithoutRipple {
                 interactions.onSelect()

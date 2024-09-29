@@ -9,19 +9,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 @Composable
 fun TaskCheckBox(task: TaskUiState, setTask: (TaskUiState) -> Unit) {
-    val ui = LocalUIState.current
     IconButton(
         onClick = { setTask(task.copy(completed = !task.completed)) },
         colors = IconButtonDefaults.iconButtonColors().let {
-            it.copy(contentColor = it.contentColor.fade(if (task.completed) ui.completedFade else 1f))
+            it.copy(contentColor = it.contentColor.fade(if (task.completed) UI.tasks.completedFade else 1f))
         },
-        modifier = Modifier.size(ui.taskCheckboxSize)
+        modifier = Modifier.size(UI.tasks.checkboxSize)
     ) {
         when {
             task.completed -> Icon(Icons.Outlined.TaskAlt, contentDescription = "Completed")

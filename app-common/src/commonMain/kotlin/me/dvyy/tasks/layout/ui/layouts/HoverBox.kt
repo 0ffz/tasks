@@ -14,7 +14,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.layout.ui.LayoutStructure
-import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
+import me.dvyy.tasks.tasks.ui.elements.list.optional
 import me.dvyy.tasks.tree.ui.FileStructure
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -53,7 +53,7 @@ fun HoverBox(
 
     Box(modifier
         .fillMaxSize()
-        .thenOptional(dragTargetVisible) { background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)) }
+        .optional(dragTargetVisible) { background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)) }
     ) {
         Box(hoverableModifier.align(Alignment.Center).then(hoverable))
     }

@@ -40,7 +40,7 @@ fun AppDrawer(
     val ui = LocalUIState.current
     ModalNavigationDrawer(
         // Prevent swipe to open on desktop, but allow swipe to close.
-        gesturesEnabled = ui.isSingleColumn || app.drawerState.isOpen,
+        gesturesEnabled = ui.isSmall || app.drawerState.isOpen,
         drawerState = app.drawerState,
         drawerContent = {
             ModalDrawerSheet {

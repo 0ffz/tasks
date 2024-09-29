@@ -14,13 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.unit.dp
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
 import me.dvyy.tasks.core.ui.detectPlatformDrag
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
-import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
+import me.dvyy.tasks.tasks.ui.elements.list.optional
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -42,7 +42,7 @@ fun FileEntry(
     layout: LayoutViewModel = koinViewModel(),
 ) = Column {
     var open by remember { mutableStateOf(false) }
-    val clickable = Modifier.thenOptional(file !is FileStructure.Element) {
+    val clickable = Modifier.optional(file !is FileStructure.Element) {
         clickable {
             when (file) {
                 is FileStructure.Folder -> open = !open
@@ -66,16 +66,16 @@ fun FileEntry(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier.padding(UI.padding.sm)
         ) {
             when (file) {
                 is FileStructure.File -> {
-                    file.opensLayout.tabLabel()
+                    file.opensLayout.tabLabel(selected = false)
                 }
 
                 is FileStructure.Folder -> {
                     Icon(Icons.Rounded.Folder, "Folder")
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(UI.padding.sm))
                     Text(file.name)
                     Spacer(Modifier.weight(1f))
                     val rotation by animateFloatAsState(if (open) 180f else 0f)
@@ -88,7 +88,7 @@ fun FileEntry(
     }
     if (file is FileStructure.Folder) {
         AnimatedVisibility(visible = open) {
-            Box(Modifier.padding(start = 16.dp)) {
+            Box(Modifier.padding(start = UI.padding.xl)) {
                 FileList(file.children)
             }
         }

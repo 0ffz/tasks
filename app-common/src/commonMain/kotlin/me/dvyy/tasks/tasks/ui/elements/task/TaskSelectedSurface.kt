@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.model.Highlight
 
 @Composable
@@ -25,7 +26,7 @@ fun TaskSelectedSurface(
     val color =  MaterialTheme.colorScheme.surface.copy(alpha = alpha)
     val fullCornerSize = 20.dp
     val cornerShape by animateDpAsState(if (visible) fullCornerSize else 0.dp)
-    val padding by animateDpAsState(if (visible) 10.dp else 0.dp)
+    val padding by animateDpAsState(if (visible) UI.padding.lg else 0.dp)
     val highlightColor = highlight.color
         .copy(alpha = 0.15f)
         .takeIf { visible && highlight != Highlight.Unmarked } ?: Color.Transparent
@@ -34,7 +35,7 @@ fun TaskSelectedSurface(
         modifier = modifier.padding(vertical = padding),
         shape = RoundedCornerShape(cornerShape),
         color = color,
-        tonalElevation = 1.dp,
+        tonalElevation = UI.elevation.lv1,
     ) {
         Surface(
             color = animatedHighlight,

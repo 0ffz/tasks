@@ -13,7 +13,7 @@ fun ResponsiveNavigationDrawer(
     content: @Composable () -> Unit,
 ) {
     val ui = LocalUIState.current
-    if (ui.isSingleColumn) {
+    if (ui.isSmall) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = { drawerContent() }

@@ -8,13 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.dvyy.tasks.app.ui.dialogs.AppDialogs
 import me.dvyy.tasks.app.ui.dialogs.AppScreens
 import me.dvyy.tasks.app.ui.elements.AppDrawer
 import me.dvyy.tasks.app.ui.elements.AppTopBar
-import me.dvyy.tasks.app.ui.elements.BottonBarFAB
 import me.dvyy.tasks.app.ui.elements.LeftNavigationRail
+import me.dvyy.tasks.app.ui.elements.PlatformSpecificTopBarActions
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.di.*
@@ -51,22 +52,19 @@ fun App(
         CompositionLocalProvider(
             LocalUIState provides ui,
         ) {
-            val scrollBehavior = if (ui.isSingleColumn)
+            val scrollBehavior = if (ui.isSmall)
                 TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
             else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
             AppDrawer {
                 Scaffold(
                     topBar = { topBar(scrollBehavior) },
-                    floatingActionButton = {
-                        if (ui.isSingleColumn) BottonBarFAB()
-                    },
                 ) { paddingValues ->
                     Box(
                         Modifier
                             .padding(paddingValues)
                             .clickableWithoutRipple { tasksViewModel.selectTask(null) }
                     ) {
-                        if (ui.isSingleColumn) {
+                        if (ui.isSmall) {
                             val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Empty)
                             Row {
                                 Layout(structure, onLayoutUpdate = { new ->
@@ -84,6 +82,12 @@ fun App(
                                     if (main != null) layoutViewModel.setMainView(main)
                                 })
                             }
+                        }
+                        Surface(
+                            Modifier.align(Alignment.TopEnd),
+                            tonalElevation = ui.elevation.lv1,
+                        ) {
+                            PlatformSpecificTopBarActions()
                         }
                     }
                 }

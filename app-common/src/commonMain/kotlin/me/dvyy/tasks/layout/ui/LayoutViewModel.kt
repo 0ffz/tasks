@@ -32,7 +32,7 @@ class LayoutViewModel(
 //            .getOrDefault(default)
 //    }
 
-    val leftSidebar = prefs.serializable<LayoutStructure>(viewModelScope, "leftSidebar", LayoutButtons.fileTree.structure)
+    val leftSidebar = prefs.serializable<LayoutStructure.Single>(viewModelScope, "leftSidebar", LayoutButtons.fileTree.structure)
     val rightSidebar = prefs.serializable<LayoutStructure>(viewModelScope, "rightSidebar", LayoutStructure.Empty)
     val bottomBar = prefs.serializable<LayoutStructure>(viewModelScope, "bottomBar", LayoutStructure.Empty)
     private val _mainView = prefs.serializable<LayoutStructure>(viewModelScope, "mainView", LayoutStructure.Empty)
@@ -41,6 +41,24 @@ class LayoutViewModel(
         .map(viewModelScope) { it.takeIf { it != LayoutStructure.Empty } ?: LayoutStructure.Tabbed(listOf(), 0) }
 
     val layoutButtonLocations = MutableStateFlow(LayoutButtonLocations())
+    val topRightLayout = mainView.map(viewModelScope) {
+        var top = it
+        while(top is LayoutStructure.Split) {
+            top = if(top.orientation == Orientation.Vertical) top.first else top.second
+        }
+        top
+    }
+
+    fun findTopRow(layout: LayoutStructure): List<LayoutStructure> = when(layout) {
+        is LayoutStructure.Split -> {
+            if(layout.orientation == Orientation.Horizontal) {
+                listOf(layout.first) + findTopRow(layout.second)
+            } else {
+                findTopRow(layout.first)
+            }
+        }
+        else -> listOf(layout)
+    }
 
     private val _activeLayout = MutableStateFlow<LayoutStructure?>(null)
 
@@ -51,15 +69,11 @@ class LayoutViewModel(
     private val openFilesChannel = Channel<FileStructure.File>()
     val openFilesFlow = openFilesChannel.receiveAsFlow()
 
-    fun serialize(layout: LayoutStructure) {
-
-    }
-
     init {
         layoutButtonLocations.update {
             LayoutButtonLocations(
                 left = listOf(LayoutButtons.fileTree),
-                bottom = listOf(LayoutButtons.projects),
+//                bottom = listOf(LayoutButtons.projects),
             )
         }
     }
@@ -90,7 +104,10 @@ class LayoutViewModel(
     val desktopLayout = combine(leftSidebar, rightSidebar, bottomBar, mainView) { left, right, bottom, main ->
         LayoutStructure.Split(
             first = LayoutStructure.Split(
-                first = left,
+                first = LayoutStructure.Tabbed(
+                    listOf(left),
+                    fullWidth = true
+                ),
                 second = main,
                 split = SplitAmount.Fixed(200.dp),
                 orientation = Orientation.Horizontal,
@@ -103,4 +120,8 @@ class LayoutViewModel(
             secondEnabled = bottom != LayoutStructure.Empty,
         )
     }
+
+    val topRow = desktopLayout
+        .map { findTopRow(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 }

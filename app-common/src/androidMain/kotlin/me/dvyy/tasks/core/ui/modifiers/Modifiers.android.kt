@@ -6,3 +6,5 @@ actual fun Modifier.onHoverIfAvailable(
     onEnter: () -> Unit,
     onExit: () -> Unit
 ): Modifier = this
+
+actual fun Modifier.onMiddleMouseClick(onClick: () -> Unit): Modifier = this

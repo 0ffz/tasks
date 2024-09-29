@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.settings.ui.SettingsScreen
-import me.dvyy.tasks.tasks.ui.elements.list.thenOptional
+import me.dvyy.tasks.tasks.ui.elements.list.optional
 import org.koin.compose.viewmodel.koinViewModel
 
 sealed interface AppScreen {
@@ -32,7 +32,7 @@ fun AppScreens(app: DialogViewModel = koinViewModel()) {
     val screenState by app.screen.collectAsState()
     screenState ?: return
 
-    if (ui.isSingleColumn) Surface {
+    if (ui.isSmall) Surface {
         Box(Modifier.systemBarsPadding()) {
             Screens()
         }
@@ -42,11 +42,11 @@ fun AppScreens(app: DialogViewModel = koinViewModel()) {
     ) {
         Box(Modifier.fillMaxSize().clickableWithoutRipple { app.screen.update { null } })
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            val padding = if (ui.isSingleColumn) 0.dp else 32.dp
+            val padding = if (ui.isSmall) 0.dp else 32.dp
             Surface(
                 Modifier
                     .widthIn(max = 1600.dp)
-                    .thenOptional(!ui.isSingleColumn) { heightIn(max = 1200.dp) }
+                    .optional(!ui.isSmall) { heightIn(max = 1200.dp) }
                     .fillMaxSize().padding(padding),
                 shape = MaterialTheme.shapes.medium,
                 shadowElevation = 1.dp

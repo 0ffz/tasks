@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -16,6 +17,8 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import me.dvyy.tasks.app.AppIcons
+import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.elements.WeekViewActions
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
@@ -64,8 +67,8 @@ sealed interface LayoutStructure {
         val text get() = "Untitled"
 
         @Composable
-        fun tabLabel() = LeadingIcon(icon, text) {
-            Text(text, maxLines = 1)
+        fun tabLabel(selected: Boolean) = LeadingIcon(icon, text) {
+            Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
 
         @Composable
@@ -90,6 +93,14 @@ sealed interface LayoutStructure {
                     else -> "Today"
                 }
 
+            @Composable
+            override fun tabLabel(selected: Boolean) {
+                val ui = LocalUIState.current
+                super.tabLabel(selected)
+                if(ui.isSmall && selected) {
+                    WeekViewActions()
+                }
+            }
             @Composable
             override fun content() {
                 me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
@@ -134,7 +145,7 @@ sealed interface LayoutStructure {
             val key: ListId,
         ) : Single {
             @Composable
-            override fun tabLabel() {
+            override fun tabLabel(selected: Boolean) {
                 val tasks: TasksViewModel = koinViewModel()
                 val propsLoadable by tasks.getListProperties(key).collectAsState()
                 val props = propsLoadable.loadedOrNull() ?: run {
@@ -164,6 +175,7 @@ sealed interface LayoutStructure {
         val tabs: List<Single>,
         val selected: Int = 0,
         val name: String? = null,
+        val fullWidth: Boolean = false,
     ) : LayoutStructure {
         fun withTab(tab: Single, select: Boolean = true): Tabbed {
             return Tabbed(tabs + tab, if (select) tabs.size else selected)
@@ -174,7 +186,11 @@ sealed interface LayoutStructure {
 //    data class Tab(val name: String, val content: LayoutStructure.Single)
 
     @Serializable
-    data object Empty : LayoutStructure
+    data object Empty : Single {
+        @Composable
+        override fun content() {
+        }
+    }
 
     fun tabIfNecessary(tabName: String): Tabbed {
         return when (this) {

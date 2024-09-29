@@ -8,13 +8,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowDecoration
 import androidx.compose.ui.window.rememberWindowState
 import me.dvyy.app_common.generated.resources.Res
 import me.dvyy.app_common.generated.resources.icon
 import me.dvyy.tasks.app.data.DriverFactory
 import me.dvyy.tasks.app.data.TopbarViewModel
 import me.dvyy.tasks.app.data.createClientDatabase
-import me.dvyy.tasks.app.ui.topbar.DesktopTopBar
 import me.dvyy.tasks.db.client.Database
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinIsolatedContext
@@ -32,11 +32,11 @@ fun ApplicationScope.AppDesktop() = KoinIsolatedContext(createAppKoinApplication
     val prefs = koinInject<PreferencesViewModel>()
     val density by prefs.density.collectAsState()
     Window(
+        onCloseRequest = ::exitApplication,
         state = windowState,
         title = "Tasks",
         icon = icon,
-        onCloseRequest = ::exitApplication,
-        undecorated = true,
+        decoration = WindowDecoration.Undecorated(),
         resizable = resizable,
         onKeyEvent = {
             if (it.type == KeyEventType.KeyUp) return@Window false
@@ -73,7 +73,7 @@ fun ApplicationScope.AppDesktop() = KoinIsolatedContext(createAppKoinApplication
         CompositionLocalProvider(LocalDensity provides Density(density)) {
             App(
                 topBar = {
-                    DesktopTopBar()
+//                    DesktopTopBar()
                     val isFloating by koinViewModel<TopbarViewModel>().floatingWindowSize.collectAsState()
                     LaunchedEffect(isFloating) {
                         resizable = isFloating == null

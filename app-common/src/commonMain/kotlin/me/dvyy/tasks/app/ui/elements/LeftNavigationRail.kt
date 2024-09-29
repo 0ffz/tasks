@@ -6,9 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
-import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -17,13 +17,11 @@ import org.koin.compose.viewmodel.koinViewModel
 fun LeftNavigationRail(
     layout: LayoutViewModel = koinViewModel(),
 ) {
-    val ui = LocalUIState.current
-
     Surface(
-        Modifier.fillMaxHeight().width(ui.sideBarWidth),
-        tonalElevation = 2.dp,
+        Modifier.fillMaxHeight().width(UI.sideBarWidth),
+        tonalElevation = UI.elevation.lv1,
     ) {
-        Column(Modifier.padding(ui.sideBarPadding).fillMaxHeight()) {
+        Column(Modifier.padding(UI.sideBarPadding).fillMaxHeight()) {
             val buttons by layout.layoutButtonLocations.collectAsState()
             val selected by layout.leftSidebar.collectAsState()
             buttons.left.forEach { button ->
@@ -46,6 +44,7 @@ fun LeftNavigationRail(
                     }
                 }
             }
+            SettingsButton()
         }
     }
 }

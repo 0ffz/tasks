@@ -6,3 +6,8 @@ expect fun Modifier.onHoverIfAvailable(
     onEnter: () -> Unit,
     onExit: () -> Unit
 ): Modifier
+
+
+expect fun Modifier.onMiddleMouseClick(
+    onClick: () -> Unit
+): Modifier
