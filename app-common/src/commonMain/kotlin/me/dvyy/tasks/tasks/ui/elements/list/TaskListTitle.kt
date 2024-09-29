@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
@@ -37,7 +38,7 @@ fun TaskListTitle(
         else MaterialTheme.colorScheme.onSurfaceVariant
     val colorFaded = color.fade(alpha = 0.6f)
     Row(
-        modifier.padding(start = 4.dp, top = 4.dp, bottom = 4.dp),
+        modifier.padding(start = UI.padding.md, top = UI.padding.sm, bottom = UI.padding.sm, end = UI.padding.sm),
         verticalAlignment = Alignment.Bottom,
     ) {
         val loadedProps = props.loadedOrNull() ?: return

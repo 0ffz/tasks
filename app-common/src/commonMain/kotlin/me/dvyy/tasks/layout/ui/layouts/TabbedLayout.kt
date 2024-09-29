@@ -1,6 +1,7 @@
 package me.dvyy.tasks.layout.ui.layouts
 
 //import androidx.compose.foundation.PointerMatcher
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.horizontalScroll
@@ -12,12 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.util.fastMap
 import kotlinx.coroutines.flow.collectLatest
 import me.dvyy.tasks.app.AppIcons
@@ -68,7 +71,10 @@ fun FixedEndLayout(
         }
     }
 }
-
+@Composable
+fun TintedHorizontalDivider() {
+    HorizontalDivider(Modifier.alpha(0.6f))
+}
 @Composable
 fun TabbedLayout(
     structure: LayoutStructure.Tabbed,
@@ -112,7 +118,7 @@ fun TabbedLayout(
                 }
             }
 
-            HorizontalDivider(Modifier.alpha(0.6f))
+            TintedHorizontalDivider()
 
             structure.tabs.getOrNull(structure.selected)?.let {
                 Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(new) })
@@ -147,6 +153,8 @@ private fun Tabs(
     val ui = LocalUIState.current
     val active by layoutViewModel.activeLayout.collectAsState()
     val isActive = structure == active
+    val minTabWidth = 150.dp
+    val maxTabWidth = 200.dp
 
     fun onTabbedUpdate(structure: LayoutStructure) {
         onLayoutUpdate(structure)
@@ -194,8 +202,9 @@ private fun Tabs(
                         onTabbedUpdate(structure.copy(selected = index))
                     }.onMiddleMouseClick {
                         closeTab(index)
-                    }//.width(IntrinsicSize.Max)
-                        .widthIn(max = min(200.dp, this@BoxWithConstraints.maxWidth / structure.tabs.size))
+                    }
+                        .widthIn(max = (this@BoxWithConstraints.maxWidth / structure.tabs.size)
+                            .coerceIn(minTabWidth, maxTabWidth))
                 ) {
                     FixedEndLayout(
                         Modifier.padding(ui.tabPadding).height(ui.tabHeight),
@@ -229,4 +238,15 @@ private fun Tabs(
             }
         }
     }
+
+    if(maxWidth < minTabWidth * structure.tabs.size) Box(Modifier.width(UI.size.lg).fillMaxHeight().background(
+        brush = Brush.horizontalGradient(
+            colors = listOf(Color.Transparent, MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1))
+        )
+    ).align(Alignment.CenterEnd))
+}
+
+@Composable
+private fun Tab() {
+
 }
