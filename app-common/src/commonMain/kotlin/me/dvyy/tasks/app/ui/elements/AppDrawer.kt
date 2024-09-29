@@ -14,7 +14,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
@@ -51,14 +50,14 @@ fun AppDrawer(
                         HorizontalDivider()
                         Row {
                             val buttons by layout.layoutButtonLocations.collectAsState()
-                            val selected by layout.leftSidebar.collectAsState()
+                            val selected by layout.mobileLeftSidebar.collectAsState()
                             buttons.left.forEach { button ->
                                 val isSelected = button.structure == selected
                                 LayoutToggleButton(button, isSelected) {
-                                    layout.leftSidebar.update {
+                                    layout.setLeftSidebar(
                                         if (isSelected) LayoutStructure.Empty
                                         else button.structure
-                                    }
+                                    )
                                 }
                             }
                             Spacer(Modifier.weight(1f))
@@ -67,7 +66,7 @@ fun AppDrawer(
                     }
                 ) {
                     Box(Modifier.padding(it)) {
-                        Layout(layout.leftSidebar.collectAsState().value)
+                        Layout(layout.mobileLeftSidebar.collectAsState().value)
                     }
                 }
             }

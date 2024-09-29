@@ -4,10 +4,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
@@ -22,7 +22,7 @@ import me.dvyy.tasks.tree.ui.FileStructure
 fun HoverBox(
     modifier: Modifier = Modifier,
     onDropped: (LayoutStructure.Single) -> Unit = {},
-    hoverableModifier: Modifier = Modifier.fillMaxSize(),
+    hoverableModifier: BoxScope.() -> Modifier,
 ) {
     var dragTargetVisible by remember { mutableStateOf(false) }
 
@@ -55,6 +55,6 @@ fun HoverBox(
         .fillMaxSize()
         .optional(dragTargetVisible) { background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)) }
     ) {
-        Box(hoverableModifier.align(Alignment.Center).then(hoverable))
+        Box(hoverableModifier().then(hoverable))
     }
 }

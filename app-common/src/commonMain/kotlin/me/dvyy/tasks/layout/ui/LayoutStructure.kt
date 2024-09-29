@@ -17,8 +17,6 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import me.dvyy.tasks.app.AppIcons
-import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.elements.WeekViewActions
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
@@ -94,14 +92,6 @@ sealed interface LayoutStructure {
                 }
 
             @Composable
-            override fun tabLabel(selected: Boolean) {
-                val ui = LocalUIState.current
-                super.tabLabel(selected)
-                if(ui.isSmall && selected) {
-                    WeekViewActions()
-                }
-            }
-            @Composable
             override fun content() {
                 me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
             }
@@ -121,19 +111,23 @@ sealed interface LayoutStructure {
         @Serializable
         data class Projects(
             val staggered: Boolean = false,
+            val horizontal: Boolean = false,
         ) : Single {
-            override val icon get() = when (staggered) {
-                true -> AppIcons.Dashboard
-                false -> AppIcons.GridView
+            override val icon get() = when  {
+                horizontal -> AppIcons.HorizontalSplit
+                staggered -> AppIcons.Dashboard
+                else -> AppIcons.GridView
             }
-            override val text get() = when (staggered) {
-                true -> "Staggered"
-                false -> "Grid"
+            override val text get() = when {
+                horizontal -> "Horizontal"
+                staggered -> "Staggered"
+                else -> "Grid"
             }
 
             @Composable
             override fun content() {
                 AllProjectsView(
+                    horizontal = horizontal,
                     staggered = staggered,
                     modifier = if (staggered) Modifier.fillMaxHeight() else Modifier
                 )
@@ -176,6 +170,7 @@ sealed interface LayoutStructure {
         val selected: Int = 0,
         val name: String? = null,
         val fullWidth: Boolean = false,
+        val selectable: Boolean = true,
     ) : LayoutStructure {
         fun withTab(tab: Single, select: Boolean = true): Tabbed {
             return Tabbed(tabs + tab, if (select) tabs.size else selected)

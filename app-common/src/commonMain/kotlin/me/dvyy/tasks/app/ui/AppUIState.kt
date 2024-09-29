@@ -89,7 +89,7 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
 
     val sideBarWidth = size.xxl
     val bottomBarHeight = size.xxl
-    val sideBarPadding = padding.md
+    val sideBarPadding = padding.sm
 
 }
 

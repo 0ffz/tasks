@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,12 +23,14 @@ import kotlinx.coroutines.flow.collectLatest
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.app.ui.elements.AppDrawerIconButton
 import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
 import me.dvyy.tasks.core.ui.modifiers.onMiddleMouseClick
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.tasks.ui.elements.list.optional
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -69,6 +68,7 @@ fun FixedEndLayout(
         }
     }
 }
+
 @Composable
 fun TabbedLayout(
     structure: LayoutStructure.Tabbed,
@@ -77,47 +77,60 @@ fun TabbedLayout(
 ) {
     val topRight by layoutViewModel.topRightLayout.collectAsState()
     val topRow by layoutViewModel.topRow.collectAsState()
+    val topLeft by layoutViewModel.topLeftLayout.collectAsState()
 
-    Box(Modifier.fillMaxSize().pointerInput(structure) {
-        awaitPointerEventScope {
-            while (true) {
-                awaitFirstDown(pass = PointerEventPass.Initial)
-                println("Pressed!")
-                layoutViewModel.setActiveLayout(structure)
+    val selectable = Modifier.optional(structure.selectable) {
+        pointerInput(structure) {
+            awaitPointerEventScope {
+                while (true) {
+                    awaitFirstDown(pass = PointerEventPass.Initial)
+                    println("Pressed!")
+                    layoutViewModel.setActiveLayout(structure)
+                }
             }
         }
-    }) {
+    }
+
+    Box(Modifier.fillMaxSize().then(selectable)) {
         Column {
-            if (structure in topRow)
-                PlatformTopBarContainer {
-                    if (topRight != structure)
-                        Tabs(structure, onLayoutUpdate, layoutViewModel)
-                    else FixedEndLayout(
-                        modifier = Modifier.height(UI.tabHeight),
-                        end = {
-                            Surface(tonalElevation = UI.elevation.lv1) {
-                                AppTopBarActions()
+            Surface(Modifier.fillMaxWidth(), tonalElevation = UI.elevation.lv1) {
+                Row(modifier = Modifier.height(UI.tabHeight)) {
+                    if (topLeft == structure && UI.isSmall) {
+                        AppDrawerIconButton()
+                    }
+                    if (structure in topRow)
+                        PlatformTopBarContainer {
+                            if (topRight != structure)
+                                Tabs(structure, onLayoutUpdate, layoutViewModel)
+                            else FixedEndLayout(end = { AppTopBarActions() }) {
+                                Row {
+                                    Tabs(structure, onLayoutUpdate, layoutViewModel)
+                                }
                             }
                         }
-                    ) {
-                        Row {
-                            Tabs(structure, onLayoutUpdate, layoutViewModel)
-                        }
-                    }
-//                Row(
-//                    Modifier.height(UI.tabHeight),
-//                    horizontalArrangement = Arrangement.End,
-//                ) {
-//                    Spacer(Modifier.weight(1f))
-//                    AppTopBarActions()
-//                }
+                    else Tabs(structure, onLayoutUpdate, layoutViewModel)
                 }
-            else Tabs(structure, onLayoutUpdate, layoutViewModel)
+            }
 
             HorizontalDivider(Modifier.alpha(0.6f))
 
             structure.tabs.getOrNull(structure.selected)?.let {
                 Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(new) })
+            } ?: run {
+                Column(
+                    Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        "No tab is open",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    TextButton(onClick = { onLayoutUpdate(structure.withTab(LayoutStructure.Single.WeekView())) }) {
+                        Text("Open week view")
+                    }
+                }
             }
         }
         DropTarget(structure, onLayoutUpdate)
@@ -145,29 +158,29 @@ private fun Tabs(
         }
     }
 
-    Surface(Modifier.fillMaxWidth(), tonalElevation = UI.elevation.lv1) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .height(UI.tabHeight)
-        ) {
-            fun closeTab(index: Int) {
-                if (structure.tabs.size == 1) {
-                    onTabbedUpdate(LayoutStructure.Empty)
-                } else onTabbedUpdate(
-                    structure.copy(
-                        tabs = structure.tabs.toMutableList().apply { removeAt(index) },
-                        selected = (structure.selected - 1).coerceAtLeast(0)
-                    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .horizontalScroll(rememberScrollState())
+            .height(UI.tabHeight)
+    ) {
+        fun closeTab(index: Int) {
+            if (structure.tabs.size == 1) {
+                onTabbedUpdate(LayoutStructure.Empty)
+            } else onTabbedUpdate(
+                structure.copy(
+                    tabs = structure.tabs.toMutableList().apply { removeAt(index) },
+                    selected = (structure.selected - 1).coerceAtLeast(0)
                 )
+            )
+        }
+        structure.name?.let {
+            Box(Modifier.padding(UI.padding.sm)) {
+                Text(it, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
             }
-            structure.name?.let {
-                Box(Modifier.padding(UI.padding.sm)) {
-                    Text(it, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                }
-            }
-            Spacer(Modifier.width(UI.padding.sm))
+        }
+        Spacer(Modifier.width(UI.padding.sm))
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) {
             if (structure.fullWidth) {
                 Box(
                     Modifier.padding(ui.tabPadding),
@@ -205,7 +218,7 @@ private fun Tabs(
                             tab.tabLabel(index == structure.selected)
                         }
                     }
-                    if (index == structure.selected && !structure.fullWidth) Surface(
+                    if (index == structure.selected) Surface(
                         modifier = Modifier
                             .height(UI.size.xsm)
                             .fillMaxWidth()

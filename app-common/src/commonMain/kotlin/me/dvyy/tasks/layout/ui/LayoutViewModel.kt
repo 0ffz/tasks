@@ -21,42 +21,48 @@ fun <T, M> StateFlow<T>.map(
 )
 
 class LayoutViewModel(
-    val prefs: LocalPreferencesRepository,
+    prefs: LocalPreferencesRepository,
 ) : ViewModel() {
-//    private fun decodeStructure(
-//        key: String,
-//        default: LayoutStructure = LayoutStructure.Empty,
-//    ): LayoutStructure {
-//        val json = settings.getStringOrNull(key) ?: return default
-//        return runCatching { AppFormats.json.decodeFromString(LayoutStructure.serializer(), json) }
-//            .getOrDefault(default)
-//    }
+    private val _leftSidebar =
+        prefs.serializable<LayoutStructure.Single>(viewModelScope, "leftSidebar", LayoutButtons.fileTree.structure)
+    val leftSidebar = _leftSidebar.asStateFlow()
+    val mobileLeftSidebar = _leftSidebar.map(viewModelScope) {
+        it.takeIf { it != LayoutStructure.Empty } ?: LayoutButtons.fileTree.structure
+    }
 
-    val leftSidebar = prefs.serializable<LayoutStructure.Single>(viewModelScope, "leftSidebar", LayoutButtons.fileTree.structure)
     val rightSidebar = prefs.serializable<LayoutStructure>(viewModelScope, "rightSidebar", LayoutStructure.Empty)
     val bottomBar = prefs.serializable<LayoutStructure>(viewModelScope, "bottomBar", LayoutStructure.Empty)
     private val _mainView = prefs.serializable<LayoutStructure>(viewModelScope, "mainView", LayoutStructure.Empty)
 
-    val mainView = _mainView
-        .map(viewModelScope) { it.takeIf { it != LayoutStructure.Empty } ?: LayoutStructure.Tabbed(listOf(), 0) }
+    val mainView = _mainView.map(viewModelScope) {
+        it.takeIf { it is LayoutStructure.Tabbed || it is LayoutStructure.Split } ?: LayoutStructure.Tabbed(listOf(), 0)
+    }
 
     val layoutButtonLocations = MutableStateFlow(LayoutButtonLocations())
     val topRightLayout = mainView.map(viewModelScope) {
         var top = it
-        while(top is LayoutStructure.Split) {
-            top = if(top.orientation == Orientation.Vertical) top.first else top.second
+        while (top is LayoutStructure.Split) {
+            top = if (top.orientation == Orientation.Vertical) top.first else top.second
+        }
+        top
+    }
+    val topLeftLayout = mainView.map(viewModelScope) {
+        var top = it
+        while (top is LayoutStructure.Split) {
+            top = if (top.orientation == Orientation.Vertical) top.first else top.first
         }
         top
     }
 
-    fun findTopRow(layout: LayoutStructure): List<LayoutStructure> = when(layout) {
+    fun findTopRow(layout: LayoutStructure): List<LayoutStructure> = when (layout) {
         is LayoutStructure.Split -> {
-            if(layout.orientation == Orientation.Horizontal) {
+            if (layout.orientation == Orientation.Horizontal) {
                 listOf(layout.first) + findTopRow(layout.second)
             } else {
                 findTopRow(layout.first)
             }
         }
+
         else -> listOf(layout)
     }
 
@@ -92,6 +98,10 @@ class LayoutViewModel(
         _mainView.update { layout }
     }
 
+    fun setLeftSidebar(layout: LayoutStructure.Single) {
+        _leftSidebar.update { layout }
+    }
+
     val mobileLayout = combine(mainView, bottomBar) { main, bottom ->
         LayoutStructure.Split(
             first = main,
@@ -106,7 +116,8 @@ class LayoutViewModel(
             first = LayoutStructure.Split(
                 first = LayoutStructure.Tabbed(
                     listOf(left),
-                    fullWidth = true
+                    fullWidth = true,
+                    selectable = false,
                 ),
                 second = main,
                 split = SplitAmount.Fixed(200.dp),

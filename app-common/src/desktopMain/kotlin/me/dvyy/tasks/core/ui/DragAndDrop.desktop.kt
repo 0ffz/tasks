@@ -59,6 +59,7 @@ actual inline fun <reified T> DragAndDropEvent.dataOrNull(): T? {
 
 @OptIn(ExperimentalComposeUiApi::class)
 actual inline fun <reified T> DragAndDropEvent.isOfType(): Boolean {
+    this.action
     return transferObject is T
 //    val prefix = "tasksData|${typeOf<T>()}|"
 //    val string = awtTransferable.getTransferData(DataFlavor.stringFlavor) as String

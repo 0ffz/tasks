@@ -1,9 +1,11 @@
 package me.dvyy.tasks.app.ui.elements
 
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.outlined.ChecklistRtl
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
 
@@ -26,5 +28,15 @@ fun AppTopBar(scrollBehavior: TopAppBarScrollBehavior) {
         },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
+    )
+}
+
+@Composable
+fun AppIcon(modifier: Modifier = Modifier) {
+    Icon(
+        AppIcons.ChecklistRtl,
+        contentDescription = "App Icon",
+        modifier = modifier,
+        tint = MaterialTheme.colorScheme.primary,
     )
 }

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.tasks.ui.SyncState
+import java.net.ConnectException
 import kotlin.time.Duration.Companion.seconds
 
 class SyncViewModel(
@@ -24,7 +25,10 @@ class SyncViewModel(
                 .debounce(3.seconds)
                 .collectLatest {
                     println(it)
-                    runCatching { sync() }.onFailure { it.printStackTrace() }
+                    runCatching { sync() }.onFailure {
+                        if(it is ConnectException) println(it.message)
+                        else it.printStackTrace()
+                    }
                 }
         }
     }
@@ -36,7 +40,6 @@ class SyncViewModel(
             run()
         }.onFailure {
             _syncState.update { SyncState.Error }
-            it.printStackTrace()
         }.onSuccess {
             _syncState.update { SyncState.Success }
         }

@@ -58,6 +58,7 @@ fun AppFileTree(
         buildList {
             add(file(LayoutStructure.Single.Projects(staggered = true)))
             add(file(LayoutStructure.Single.Projects(staggered = false)))
+            add(file(LayoutStructure.Single.Projects(horizontal = true)))
             add(FileStructure.Element { HorizontalDivider() })
 
             val projects by tasks.projects.collectAsState()
