@@ -1,12 +1,9 @@
 package me.dvyy.tasks.layout.ui.layouts
 
 //import androidx.compose.foundation.PointerMatcher
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,7 +26,10 @@ import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.elements.AppDrawerIconButton
 import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
+import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
+import me.dvyy.tasks.core.ui.detectPlatformDrag
 import me.dvyy.tasks.core.ui.modifiers.onMiddleMouseClick
+import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
@@ -71,10 +71,12 @@ fun FixedEndLayout(
         }
     }
 }
+
 @Composable
 fun TintedHorizontalDivider() {
     HorizontalDivider(Modifier.alpha(0.6f))
 }
+
 @Composable
 fun TabbedLayout(
     structure: LayoutStructure.Tabbed,
@@ -120,30 +122,33 @@ fun TabbedLayout(
 
             TintedHorizontalDivider()
 
-            structure.tabs.getOrNull(structure.selected)?.let {
-                Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(new) })
-            } ?: run {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        "No tab is open",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    TextButton(onClick = { onLayoutUpdate(structure.withTab(LayoutStructure.Single.WeekView())) }) {
-                        Text("Open week view")
+            Box {
+                structure.tabs.getOrNull(structure.selected)?.let {
+                    Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(new) })
+                } ?: run {
+                    Column(
+                        Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            "No tab is open",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        TextButton(onClick = { onLayoutUpdate(structure.withTab(LayoutStructure.Single.WeekView())) }) {
+                            Text("Open week view")
+                        }
                     }
                 }
+                DropTarget(structure, onLayoutUpdate)
             }
         }
-        DropTarget(structure, onLayoutUpdate)
     }
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Tabs(
     structure: LayoutStructure.Tabbed,
@@ -169,6 +174,7 @@ private fun Tabs(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
+            .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
             .height(UI.tabHeight)
     ) {
@@ -202,9 +208,15 @@ private fun Tabs(
                         onTabbedUpdate(structure.copy(selected = index))
                     }.onMiddleMouseClick {
                         closeTab(index)
+                    }.widthIn(
+                        max = (this@BoxWithConstraints.maxWidth / structure.tabs.size)
+                            .coerceIn(minTabWidth, maxTabWidth)
+                    ).platformDragAndDropSource {
+                        detectPlatformDrag {
+                            closeTab(index) //TODO this causes issues because of compose BOM bug
+                            startTransfer(MultiplatformDragAndDropData(tab, it))
+                        }
                     }
-                        .widthIn(max = (this@BoxWithConstraints.maxWidth / structure.tabs.size)
-                            .coerceIn(minTabWidth, maxTabWidth))
                 ) {
                     FixedEndLayout(
                         Modifier.padding(ui.tabPadding).height(ui.tabHeight),
@@ -234,16 +246,26 @@ private fun Tabs(
                             .align(Alignment.BottomCenter),
                         color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
                     ) { }
+                    HoverBox(
+                        Modifier.fillMaxSize(),
+                        onDropped = { new -> onTabbedUpdate(structure.withTab(new, atIndex = index)) }
+                    )
                 }
             }
         }
+        HoverBox(
+            Modifier.fillMaxSize().weight(1f),
+            onDropped = { new -> onTabbedUpdate(structure.withTab(new)) }
+        )
     }
 
-    if(maxWidth < minTabWidth * structure.tabs.size) Box(Modifier.width(UI.size.lg).fillMaxHeight().background(
-        brush = Brush.horizontalGradient(
-            colors = listOf(Color.Transparent, MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1))
-        )
-    ).align(Alignment.CenterEnd))
+    if (maxWidth < minTabWidth * structure.tabs.size) Box(
+        Modifier.width(UI.size.lg).fillMaxHeight().background(
+            brush = Brush.horizontalGradient(
+                colors = listOf(Color.Transparent, MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1))
+            )
+        ).align(Alignment.CenterEnd)
+    )
 }
 
 @Composable

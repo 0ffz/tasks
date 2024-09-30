@@ -196,8 +196,14 @@ sealed interface LayoutStructure {
         val fullWidth: Boolean = false,
         val selectable: Boolean = true,
     ) : LayoutStructure {
-        fun withTab(tab: Single, select: Boolean = true): Tabbed {
-            return Tabbed(tabs + tab, if (select) tabs.size else selected)
+        fun withTab(
+            tab: Single,
+            select: Boolean = true,
+            atIndex: Int = tabs.size,
+        ): Tabbed {
+            return Tabbed(tabs.toMutableList().apply {
+                add(atIndex, tab)
+            }, if (select) atIndex else selected)
         }
     }
 

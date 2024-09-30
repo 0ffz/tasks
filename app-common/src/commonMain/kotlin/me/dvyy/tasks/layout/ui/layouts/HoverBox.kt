@@ -15,24 +15,22 @@ import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.tasks.ui.elements.list.optional
-import me.dvyy.tasks.tree.ui.FileStructure
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HoverBox(
     modifier: Modifier = Modifier,
     onDropped: (LayoutStructure.Single) -> Unit = {},
-    hoverableModifier: BoxScope.() -> Modifier,
+    hoverableModifier: BoxScope.() -> Modifier = { Modifier.fillMaxSize() },
 ) {
     var dragTargetVisible by remember { mutableStateOf(false) }
 
     val hoverable = Modifier.dragAndDropTarget(
-        shouldStartDragAndDrop = { it.isOfType<FileStructure>() },
+        shouldStartDragAndDrop = { it.isOfType<LayoutStructure.Single>() },
         target = remember(onDropped) {
             object : DragAndDropTarget {
                 override fun onDrop(event: DragAndDropEvent): Boolean {
-                    val file = event.dataOrNull<FileStructure>() ?: return false
-                    val layout = (file as? FileStructure.File)?.opensLayout ?: return false
+                    val layout = event.dataOrNull<LayoutStructure.Single>() ?: return false
                     onDropped(layout)
                     return true
                 }

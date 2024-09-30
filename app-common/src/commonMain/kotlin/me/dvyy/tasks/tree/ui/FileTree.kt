@@ -59,8 +59,10 @@ fun FileEntry(
         modifier = clickable.fillMaxWidth()
             .platformDragAndDropSource {
                 detectPlatformDrag { offset ->
-                    startTransfer(MultiplatformDragAndDropData(file, offset))
-                    if (file is FileStructure.File) file.onStartDrag()
+                    if (file is FileStructure.File) {
+                        startTransfer(MultiplatformDragAndDropData(file.opensLayout, offset))
+                        file.onStartDrag()
+                    }
                 }
             }
     ) {
