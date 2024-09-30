@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import kotlinx.serialization.KSerializer
@@ -65,9 +66,20 @@ sealed interface LayoutStructure {
         val text get() = "Untitled"
 
         @Composable
-        fun tabLabel(selected: Boolean) = LeadingIcon(icon, text) {
-            Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        fun DefaultTabLabel(
+            selected: Boolean,
+            icon: ImageVector?,
+            text: String,
+        ) = LeadingIcon(icon, text) {
+            Text(
+                text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
+
+        @Composable
+        fun tabLabel(selected: Boolean) = DefaultTabLabel(selected, icon, text)
 
         @Composable
         fun content()
@@ -154,13 +166,13 @@ sealed interface LayoutStructure {
                     Text("Loading project...")
                     return
                 }
-                val icon = when (props.displayName) {
-                    "Inbox" -> AppIcons.Inbox
+                val icon = when {
+                    props.displayName?.contains(emojiRegex) == true -> null
+                    props.displayName == "Inbox" -> AppIcons.Inbox
                     else -> AppIcons.Description
                 }
-                LeadingIcon(icon, "Project") {
-                    Text(props.displayName ?: "Untitled")
-                }
+
+                DefaultTabLabel(selected, icon, props.displayName ?: "Untitled")
             }
 
             @Composable
@@ -168,6 +180,10 @@ sealed interface LayoutStructure {
                 val tasks: TasksViewModel = koinViewModel()
                 val propLoadable by tasks.getListProperties(key).collectAsState()
                 Project(key, propLoadable)
+            }
+
+            companion object {
+                val emojiRegex = Regex("^\\p{So}")
             }
         }
     }

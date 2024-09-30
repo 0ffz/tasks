@@ -8,7 +8,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowDecoration
 import androidx.compose.ui.window.rememberWindowState
 import me.dvyy.app_common.generated.resources.Res
 import me.dvyy.app_common.generated.resources.icon
@@ -36,7 +35,7 @@ fun ApplicationScope.AppDesktop() = KoinIsolatedContext(createAppKoinApplication
         state = windowState,
         title = "Tasks",
         icon = icon,
-        decoration = WindowDecoration.Undecorated(),
+        undecorated = true,
         resizable = resizable,
         onKeyEvent = {
             if (it.type == KeyEventType.KeyUp) return@Window false

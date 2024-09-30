@@ -19,18 +19,20 @@ import me.dvyy.tasks.app.ui.topbar.WindowButton
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-actual fun PlatformSpecificTopBarActions() = Row(Modifier.height(UI.tabHeight)) {
-    val viewModel: TopbarViewModel = koinViewModel()
+actual fun PlatformSpecificTopBarActions() = PlatformTopBarContainer {
+    Row(Modifier.height(UI.tabHeight)) {
+        val viewModel: TopbarViewModel = koinViewModel()
 
-    VerticalDivider(Modifier.padding(UI.padding.md))
-    WindowButton(Icons.Rounded.Minimize) {
-        viewModel.minimize()
-    }
-    WindowButton(Icons.Rounded.CropSquare) {
-        viewModel.toggleMaximized()
-    }
-    WindowButton(Icons.Rounded.Close) {
-        viewModel.closeWindow()
+        VerticalDivider(Modifier.padding(UI.padding.md))
+        WindowButton(Icons.Rounded.Minimize) {
+            viewModel.minimize()
+        }
+        WindowButton(Icons.Rounded.CropSquare) {
+            viewModel.toggleMaximized()
+        }
+        WindowButton(Icons.Rounded.Close) {
+            viewModel.closeWindow()
+        }
     }
 }
 

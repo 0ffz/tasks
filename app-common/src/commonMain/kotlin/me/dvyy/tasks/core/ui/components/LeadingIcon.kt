@@ -11,10 +11,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LeadingIcon(icon: ImageVector, contentDescription: String, content: @Composable (() -> Unit)) =
+fun LeadingIcon(icon: ImageVector?, contentDescription: String, content: @Composable (() -> Unit)) =
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = contentDescription)
-        Spacer(Modifier.width(8.dp))
+        if(icon != null) {
+            Icon(icon, contentDescription = contentDescription)
+            Spacer(Modifier.width(8.dp))
+        }
         content()
     }
 
