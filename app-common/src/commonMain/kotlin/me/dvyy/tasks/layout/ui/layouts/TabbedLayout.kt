@@ -32,6 +32,7 @@ import me.dvyy.tasks.core.ui.modifiers.onMiddleMouseClick
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
+import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.optional
 import org.koin.compose.viewmodel.koinViewModel
@@ -200,7 +201,7 @@ private fun Tabs(
                     Modifier.padding(ui.tabPadding),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    structure.tabs.firstOrNull()?.tabLabel(false)
+                    structure.tabs.firstOrNull()?.tabLabel(Location.TabList)
                 }
             } else structure.tabs.forEachIndexed { index, tab ->
                 Box(
@@ -236,7 +237,7 @@ private fun Tabs(
                         }
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            tab.tabLabel(index == structure.selected)
+                            tab.tabLabel(if(index == structure.selected) Location.Selected else Location.TabList)
                         }
                     }
                     if (index == structure.selected) Surface(

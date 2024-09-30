@@ -19,6 +19,7 @@ import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
 import me.dvyy.tasks.core.ui.detectPlatformDrag
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.LayoutStructure
+import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.optional
 import org.koin.compose.viewmodel.koinViewModel
@@ -72,7 +73,7 @@ fun FileEntry(
         ) {
             when (file) {
                 is FileStructure.File -> {
-                    file.opensLayout.tabLabel(selected = false)
+                    file.opensLayout.tabLabel(Location.Sidebar)
                 }
 
                 is FileStructure.Folder -> {

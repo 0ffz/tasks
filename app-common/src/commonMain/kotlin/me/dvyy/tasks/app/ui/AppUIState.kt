@@ -42,7 +42,7 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     inner class Sizes {
         val xsm: Dp = 2.dp
         val sm: Dp = 4.dp
-        val md: Dp = 16.dp
+        val md: Dp = 20.dp
         val lg: Dp = 32.dp
         val xl: Dp = 40.dp
         val xxl: Dp = 48.dp

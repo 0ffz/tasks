@@ -1,13 +1,19 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
@@ -18,6 +24,9 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import me.dvyy.tasks.app.AppIcons
+import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.app.ui.dialogs.AppDialog
+import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
@@ -65,9 +74,12 @@ sealed interface LayoutStructure {
         val icon get() = Icons.Outlined.QuestionMark
         val text get() = "Untitled"
 
+        enum class Location {
+            Selected, TabList, Sidebar
+        }
+
         @Composable
         fun DefaultTabLabel(
-            selected: Boolean,
             icon: ImageVector?,
             text: String,
         ) = LeadingIcon(icon, text) {
@@ -79,7 +91,7 @@ sealed interface LayoutStructure {
         }
 
         @Composable
-        fun tabLabel(selected: Boolean) = DefaultTabLabel(selected, icon, text)
+        fun tabLabel(selected: Location) = DefaultTabLabel(icon, text)
 
         @Composable
         fun content()
@@ -92,6 +104,7 @@ sealed interface LayoutStructure {
             override fun content() {
             }
         }
+
         @Serializable
         data class WeekView(
             val startAtToday: Boolean = false,
@@ -133,16 +146,18 @@ sealed interface LayoutStructure {
             val staggered: Boolean = false,
             val horizontal: Boolean = false,
         ) : Single {
-            override val icon get() = when  {
-                horizontal -> AppIcons.HorizontalSplit
-                staggered -> AppIcons.Dashboard
-                else -> AppIcons.GridView
-            }
-            override val text get() = when {
-                horizontal -> "Horizontal"
-                staggered -> "Staggered"
-                else -> "Grid"
-            }
+            override val icon
+                get() = when {
+                    horizontal -> AppIcons.HorizontalSplit
+                    staggered -> AppIcons.Dashboard
+                    else -> AppIcons.GridView
+                }
+            override val text
+                get() = when {
+                    horizontal -> "Horizontal"
+                    staggered -> "Staggered"
+                    else -> "Grid"
+                }
 
             @Composable
             override fun content() {
@@ -159,8 +174,9 @@ sealed interface LayoutStructure {
             val key: ListId,
         ) : Single {
             @Composable
-            override fun tabLabel(selected: Boolean) {
+            override fun tabLabel(location: Location) {
                 val tasks: TasksViewModel = koinViewModel()
+                val dialogs: DialogViewModel = koinViewModel()
                 val propsLoadable by tasks.getListProperties(key).collectAsState()
                 val props = propsLoadable.loadedOrNull() ?: run {
                     Text("Loading project...")
@@ -172,14 +188,27 @@ sealed interface LayoutStructure {
                     else -> AppIcons.Description
                 }
 
-                DefaultTabLabel(selected, icon, props.displayName ?: "Untitled")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    DefaultTabLabel(icon, props.displayName ?: "Untitled")
+                    if (location == Location.Sidebar) {
+                        Spacer(Modifier.weight(1f))
+                        IconButton(
+                            onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
+                            modifier = Modifier.size(UI.size.md)
+                        ) {
+                            Icon(AppIcons.Close, "Delete project", tint = MaterialTheme.colorScheme.outline)
+                        }
+                    }
+                }
             }
 
             @Composable
             override fun content() {
                 val tasks: TasksViewModel = koinViewModel()
                 val propLoadable by tasks.getListProperties(key).collectAsState()
-                Project(key, propLoadable)
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    Project(key, propLoadable, scrollable = false)
+                }
             }
 
             companion object {

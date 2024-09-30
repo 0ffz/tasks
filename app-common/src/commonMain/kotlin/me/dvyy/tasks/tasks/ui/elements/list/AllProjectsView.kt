@@ -45,7 +45,7 @@ fun AllProjectsView(
             key = key,
             properties = properties,
             modifier = Modifier.width(ui.taskListWidth),
-            scrollable = false
+            scrollable = horizontal,
         )
     }
 }

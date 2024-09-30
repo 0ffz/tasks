@@ -84,7 +84,7 @@ fun TaskListTitle(
             }
         }
     }
-    if (showDivider) Box {
+    if (showDivider) Box(Modifier.padding(horizontal = UI.padding.md)) {
         val isLoading = loading || props is Loadable.Loading
 
         if (!isLoading) HorizontalDivider(

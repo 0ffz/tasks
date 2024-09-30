@@ -93,6 +93,10 @@ class TasksViewModel(
         listRepo.create(ListId.newProject(), TaskListProperties(displayName = name))
     }
 
+    fun deleteProject(key: ListId) = viewModelScope.launch {
+        listRepo.delete(key)
+    }
+
     fun listInteractionsFor(list: ListId) = TaskListInteractions(
         createNewTask = { atEnd ->
             viewModelScope.launch { selectTask(taskRepo.create(list, atEnd).uuid, focus = true) }
