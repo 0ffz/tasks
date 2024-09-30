@@ -108,26 +108,25 @@ fun TaskList(
                                 value = task.state,
                                 onValueChanged = { viewModel.onTaskChanged(task.uuid, it) }
                             ) { cachedTask, setTask ->
-                                val isGroupToggle = index == 0 && cachedTask.text.isGroupToggle()
-                                LaunchedEffect(cachedTask) {
-                                    if (isGroupToggle) isGroupHidden = cachedTask.completed
-                                }
                                 val focusManager = LocalFocusManager.current
                                 val keyboardOpen by keyboardAsState()
+                                val isGroupToggle = index == 0 && cachedTask.text.isGroupToggle()
+
+//                                LaunchedEffect(cachedTask) {
+//                                    if (isGroupToggle) isGroupHidden = cachedTask.completed
+//                                }
+
                                 LaunchedEffect(keyboardOpen) {
                                     if (!keyboardOpen) {
-//                                    viewModel.selectTask(null)
                                         focusManager.clearFocus()
                                     }
                                 }
-                                val taskInteractions =
-                                    remember(cachedTask) {
-                                        viewModel.interactionsFor(task.uuid, listId, cachedTask, setTask)
-                                    }
 
-                                AnimatedVisibility(
-                                    isGroupToggle || !isGroupHidden
-                                ) {
+                                val taskInteractions = remember(cachedTask) {
+                                    viewModel.interactionsFor(task.uuid, listId, cachedTask, setTask)
+                                }
+
+                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
                                     Column {
                                         ReorderableTask(key = task.uuid, reorderInteractions = reorderInteractions) {
                                             Task(
@@ -145,14 +144,12 @@ fun TaskList(
                                     }
                                 }
 
-                                if (isGroupToggle) {
-                                    HorizontalDivider(
-                                        thickness = 2.dp,
-                                        color = cachedTask.highlight.color
-                                            .takeIf { it != Color.Transparent }
-                                            ?: MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
+                                if (isGroupToggle) HorizontalDivider(
+                                    thickness = 2.dp,
+                                    color = cachedTask.highlight.color
+                                        .takeIf { it != Color.Transparent }
+                                        ?: MaterialTheme.colorScheme.onSurface
+                                )
                             }
                         }
                     }

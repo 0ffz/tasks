@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.DragAndDropSourceScope
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
@@ -44,6 +45,7 @@ actual suspend fun DragAndDropSourceScope.detectPlatformDrag(onDragStart: (Offse
 }
 
 @OptIn(ExperimentalFoundationApi::class)
+@Composable
 actual fun Modifier.platformDragAndDropSource(block: suspend DragAndDropSourceScope.() -> Unit): Modifier {
     return dragAndDropSource(drawDragDecoration = {}, block)
 }
