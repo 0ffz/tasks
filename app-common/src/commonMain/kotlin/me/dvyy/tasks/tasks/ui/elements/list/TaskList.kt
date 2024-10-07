@@ -96,7 +96,7 @@ fun TaskList(
             }
             Column(scrollModifier.padding(horizontal = 6.dp)) {
                 groupedTasks.forEachIndexed { groupIndex, tasksInGroup ->
-                    var isGroupHidden by remember { mutableStateOf(false) }
+                    var isGroupHidden by remember { mutableStateOf(tasksInGroup.firstOrNull()?.state?.completed == true) }
                     tasksInGroup.forEachIndexed { index, task ->
                         key(task.uuid) {
                             val selected = selectedTask?.taskId == task.uuid
@@ -112,9 +112,9 @@ fun TaskList(
                                 val keyboardOpen by keyboardAsState()
                                 val isGroupToggle = index == 0 && cachedTask.text.isGroupToggle()
 
-//                                LaunchedEffect(cachedTask) {
-//                                    if (isGroupToggle) isGroupHidden = cachedTask.completed
-//                                }
+                                LaunchedEffect(cachedTask) {
+                                    if (isGroupToggle) isGroupHidden = cachedTask.completed
+                                }
 
                                 LaunchedEffect(keyboardOpen) {
                                     if (!keyboardOpen) {
