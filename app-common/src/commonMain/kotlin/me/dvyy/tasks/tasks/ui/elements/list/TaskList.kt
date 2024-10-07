@@ -51,7 +51,7 @@ fun TaskList(
     val ui = LocalUIState.current
     val listDropTarget = Modifier.dragAndDropTarget(
         shouldStartDragAndDrop = { it.isOfType<TaskId>() },
-        target = remember {
+        target = remember(listId) {
             object : DragAndDropTarget {
                 override fun onDrop(event: DragAndDropEvent): Boolean {
                     return true
