@@ -1,6 +1,5 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
@@ -76,81 +75,77 @@ fun TaskList(
             key = listId,
         )
         val tasks = tasks.loadedOrNull() ?: return@Column
+//        println("Loading ${listId.date} with ${tasks.size}")
         val scrollState = rememberScrollState()
         val scrollModifier =
             if (scrollable) Modifier.verticalScroll(scrollState)
             else Modifier
 
-        // Split into two lists based on filter
-//        val (shown, incompleteTasks) = tasks.partition { it.state.completed }
-
         fun String.isGroupToggle() = startsWith("--") || startsWith("==")
-        Column(
-            modifier = Modifier
-        ) {
+        Column {
             val selectedTask by viewModel.selectedTask.collectAsState()
-            val groupedTasks = mutableListOf(mutableListOf<TaskWithIDState>())
-            tasks.forEach { task ->
-                if (task.state.text.isGroupToggle()) groupedTasks.add(mutableListOf(task))
-                else groupedTasks.lastOrNull()?.add(task)
-            }
+//            val groupedTasks = mutableListOf(mutableListOf<TaskWithIDState>())
+//            tasks.forEach { task ->
+//                if (task.state.text.isGroupToggle()) groupedTasks.add(mutableListOf(task))
+//                else groupedTasks.lastOrNull()?.add(task)
+//            }
             Column(scrollModifier.padding(horizontal = 6.dp)) {
-                groupedTasks.forEachIndexed { groupIndex, tasksInGroup ->
-                    var isGroupHidden by remember { mutableStateOf(tasksInGroup.firstOrNull()?.state?.completed == true) }
-                    tasksInGroup.forEachIndexed { index, task ->
-                        key(task.uuid) {
-                            val selected = selectedTask?.taskId == task.uuid
-                            val focusRequested = selected && selectedTask?.requestFocus == true
+//                groupedTasks.forEachIndexed { groupIndex, tasksInGroup ->
+//                    var isGroupHidden by remember { mutableStateOf(tasksInGroup.firstOrNull()?.state?.completed == true) }
+                tasks.forEachIndexed { index, task ->
+                    key(task.uuid) {
+                        val selected = selectedTask?.taskId == task.uuid
+                        val focusRequested = selected && selectedTask?.requestFocus == true
 //                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
-                            // cached task is the SSOT in this context, some things like text updates take too long to update in db
-                            CachedUpdate(
-                                key = task.uuid,
-                                value = task.state,
-                                onValueChanged = { viewModel.onTaskChanged(task.uuid, it) }
-                            ) { cachedTask, setTask ->
-                                val focusManager = LocalFocusManager.current
-                                val keyboardOpen by keyboardAsState()
-                                val isGroupToggle = index == 0 && cachedTask.text.isGroupToggle()
+                        // cached task is the SSOT in this context, some things like text updates take too long to update in db
+                        CachedUpdate(
+                            key = task.uuid,
+                            value = task.state,
+                            onValueChanged = { viewModel.onTaskChanged(task.uuid, it) }
+                        ) { cachedTask, setTask ->
+                            val focusManager = LocalFocusManager.current
+                            val keyboardOpen by keyboardAsState()
+                            val isGroupToggle = index == 0 && cachedTask.text.isGroupToggle()
 
-                                LaunchedEffect(cachedTask) {
-                                    if (isGroupToggle) isGroupHidden = cachedTask.completed
+//                                LaunchedEffect(cachedTask) {
+//                                    if (isGroupToggle) isGroupHidden = cachedTask.completed
+//                                }
+
+                            LaunchedEffect(keyboardOpen) {
+                                if (!keyboardOpen) {
+                                    focusManager.clearFocus()
                                 }
-
-                                LaunchedEffect(keyboardOpen) {
-                                    if (!keyboardOpen) {
-                                        focusManager.clearFocus()
-                                    }
-                                }
-
-                                val taskInteractions = remember(cachedTask) {
-                                    viewModel.interactionsFor(task.uuid, listId, cachedTask, setTask)
-                                }
-
-                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
-                                    Column {
-                                        ReorderableTask(key = task.uuid, reorderInteractions = reorderInteractions) {
-                                            Task(
-                                                cachedTask,
-                                                setTask,
-                                                selected,
-                                                taskInteractions,
-                                                focusRequested = focusRequested,
-                                                forceShowCheckbox = isGroupToggle,
-                                                overrideCheckboxIcon = if (isGroupToggle) AppIcons.ArrowDropDown else null,
-                                                overrideCheckboxCompletedIcon = if (isGroupToggle) AppIcons.ArrowDropUp else null,
-                                            )
-                                        }
-                                        if (!isGroupToggle) HorizontalDivider()
-                                    }
-                                }
-
-                                if (isGroupToggle) HorizontalDivider(
-                                    thickness = 2.dp,
-                                    color = cachedTask.highlight.color
-                                        .takeIf { it != Color.Transparent }
-                                        ?: MaterialTheme.colorScheme.onSurface
-                                )
                             }
+
+                            val taskInteractions = remember(cachedTask) {
+                                viewModel.interactionsFor(task.uuid, listId, cachedTask, setTask)
+                            }
+
+//                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
+                            Column {
+                                ReorderableTask(key = task.uuid, reorderInteractions = reorderInteractions) {
+                                    Task(
+                                        cachedTask,
+                                        setTask,
+                                        selected,
+                                        taskInteractions,
+                                        focusRequested = focusRequested,
+                                        forceShowCheckbox = isGroupToggle,
+                                        overrideCheckboxIcon = if (isGroupToggle) AppIcons.ArrowDropDown else null,
+                                        overrideCheckboxCompletedIcon = if (isGroupToggle) AppIcons.ArrowDropUp else null,
+                                    )
+                                }
+                                if (!isGroupToggle) HorizontalDivider()
+                            }
+//                                }
+
+                            if (isGroupToggle) HorizontalDivider(
+                                thickness = 2.dp,
+                                color = cachedTask.highlight.color
+                                    .takeIf { it != Color.Transparent }
+                                    ?: MaterialTheme.colorScheme.onSurface
+                            )
+//                            }
                         }
                     }
                 }

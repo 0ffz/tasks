@@ -22,6 +22,8 @@ import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.loadedOrNull
+import java.time.format.TextStyle
+import java.util.*
 
 @Composable
 fun TaskListTitle(
@@ -46,7 +48,7 @@ fun TaskListTitle(
             if (props.date != null) {
                 val date = props.date!!
                 Text(
-                    "${date.month.name.lowercase().capitalize()} ${date.dayOfMonth}",
+                    "${date.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()).lowercase().capitalize()} ${date.dayOfMonth}",
                     Modifier.weight(1f, true),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,

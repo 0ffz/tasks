@@ -55,7 +55,7 @@ kotlin {
                 implementation(libs.uuid)
 
                 implementation(libs.ktor.client.core)
-                implementation(libs.ktor.serialization.json.eap)
+                implementation(libs.ktor.serialization.json)
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.client.auth)
                 implementation(libs.multiplatform.settings)
