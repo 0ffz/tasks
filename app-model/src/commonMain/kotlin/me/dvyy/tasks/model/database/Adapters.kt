@@ -1,18 +1,16 @@
 package me.dvyy.tasks.model.database
 
 import app.cash.sqldelight.ColumnAdapter
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.bytes
-import com.benasher44.uuid.uuidOf
 import kotlinx.datetime.Instant
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
+import kotlin.uuid.Uuid
 
 object Adapters {
     val BytesToUuid = object : ColumnAdapter<Uuid, ByteArray> {
-        override fun encode(value: Uuid) = value.bytes
-        override fun decode(databaseValue: ByteArray) = uuidOf(databaseValue)
+        override fun encode(value: Uuid) = value.toByteArray()
+        override fun decode(databaseValue: ByteArray) = Uuid.fromByteArray(databaseValue)
     }
 
     val StringToHighlight = object : ColumnAdapter<Highlight, String> {

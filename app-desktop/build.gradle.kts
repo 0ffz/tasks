@@ -3,26 +3,27 @@ import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
+//    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     id("de.undercouch.download") version "5.3.1"
 }
 
 kotlin {
-    jvm()
-    sourceSets {
-        val jvmMain by getting {
-            dependencies {
-                implementation(libs.slf4j)
-                implementation(libs.koin.core)
-                implementation(project(":app-common"))
-                implementation(project(":app-model"))
-                implementation(compose.desktop.currentOs)
-            }
-        }
-        val jvmTest by getting
-    }
+//    jvm()
+//    sourceSets {
+//        val jvmMain by getting {
+//        }
+//        val jvmTest by getting
+//    }
+}
+dependencies {
+    implementation(libs.slf4j)
+    implementation(libs.koin.core)
+    implementation(project(":app-common"))
+    implementation(project(":app-model"))
+    implementation(compose.desktop.currentOs)
 }
 
 // Conveyor
@@ -163,4 +164,3 @@ tasks {
         }
     }
 }
-

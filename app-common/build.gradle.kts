@@ -16,6 +16,7 @@ kotlin {
     androidTarget()
     compilerOptions {
         freeCompilerArgs.addAll("-Xexpect-actual-classes")
+        optIn.add("kotlin.uuid.ExperimentalUuidApi")
     }
 
     jvm("desktop") {
@@ -52,7 +53,7 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.serialization.cbor)
-                implementation(libs.uuid)
+//                implementation(libs.uuid)
 
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.serialization.json)

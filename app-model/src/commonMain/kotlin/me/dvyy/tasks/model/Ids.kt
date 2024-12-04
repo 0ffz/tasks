@@ -1,11 +1,9 @@
 package me.dvyy.tasks.model
 
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import kotlin.jvm.JvmInline
+import kotlin.uuid.Uuid
 
 @Serializable
 sealed interface EntityId {
@@ -17,8 +15,9 @@ sealed interface EntityId {
 @JvmInline
 value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
     override val type: EntityType get() = EntityType.TASK
+
     companion object {
-        fun new(): TaskId = TaskId(uuid4())
+        fun new(): TaskId = TaskId(Uuid.random())
     }
 }
 
@@ -27,23 +26,23 @@ value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
 value class ListId(override val uuid: @Contextual Uuid) : EntityId {
     override val type: EntityType get() = EntityType.LIST
 
-    val isDate: Boolean get() = uuid.mostSignificantBits == TOP_BITS
+    val isDate: Boolean get() = uuid.toLongs { top, _ -> top == TOP_BITS }
     val date: LocalDate?
-        get() = if (isDate)
-            LocalDate.fromEpochDays(uuid.leastSignificantBits.toInt())
+        get() = if (isDate) LocalDate.fromEpochDays(uuid.toLongs { _, bottom -> bottom.toInt() })
         else null
 
     companion object {
         fun newProject(): ListId {
-            val uuid = uuid4()
+            val uuid = Uuid.random()
             // Avoid clashes with TOP_BITS, that one combination is reserved for date lists
-            val top = if (uuid.mostSignificantBits == TOP_BITS) TOP_BITS + 1 else uuid.mostSignificantBits
-            val bottom = uuid.leastSignificantBits
-            return ListId(Uuid(top, bottom))
+            return uuid.toLongs { top, bottom ->
+                val topFixed = if (top == TOP_BITS) TOP_BITS + 1 else top
+                ListId(Uuid.fromLongs(topFixed, bottom))
+            }
         }
 
         fun forDate(date: LocalDate): ListId =
-            ListId(Uuid(TOP_BITS, date.toEpochDays().toLong() or UUIDv4_VAR))
+            ListId(Uuid.fromLongs(TOP_BITS, date.toEpochDays().toLong() or UUIDv4_VAR))
     }
 }
 

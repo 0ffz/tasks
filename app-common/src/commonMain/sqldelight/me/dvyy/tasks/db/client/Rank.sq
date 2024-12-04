@@ -1,4 +1,4 @@
-import com.benasher44.uuid.Uuid;
+import kotlin.uuid.Uuid;
 
 CREATE TABLE IF NOT EXISTS rank (
   uuid BLOB AS Uuid PRIMARY KEY NOT NULL,

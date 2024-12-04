@@ -1,10 +1,10 @@
 package me.dvyy.tasks.model.network
 
-import com.benasher44.uuid.Uuid
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.dvyy.tasks.model.EntityType
+import kotlin.uuid.Uuid
 
 @Serializable
 @SerialName("rank")

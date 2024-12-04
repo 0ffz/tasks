@@ -1,10 +1,10 @@
 package me.dvyy.tasks.model.serializers
 
-import com.benasher44.uuid.Uuid
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import kotlin.uuid.Uuid
 
 object AppFormats {
     val networkModule = SerializersModule {

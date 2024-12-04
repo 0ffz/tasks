@@ -8,8 +8,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.jib) apply false
-    id("com.github.ben-manes.versions") version "0.41.0"
-    id("nl.littlerobots.version-catalog-update") version "0.8.4"
+    id("com.github.ben-manes.versions") version "0.51.0"
+    id("nl.littlerobots.version-catalog-update") version "0.8.5"
 }
 
 allprojects {
@@ -17,8 +17,6 @@ allprojects {
         google()
         mavenLocal()
         mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
         maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 }

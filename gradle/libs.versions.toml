@@ -10,21 +10,21 @@ androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.6.1"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
-compose = "1.7.0"
+compose = "1.7.1"
 exposed = "0.55.0"
 h2 = "2.2.224"
 hikaricp = "5.1.0"
 jib = "3.4.3"
 junit = "4.13.2"
 koin = "4.0.0"
-kotlin = "2.0.21"
+kotlin = "2.1.0"
 kotlinMultiplatformAppdirs = "1.2.0"
 coroutines = "1.9.0"
 kotest = "5.9.1"
 kotlinResult = "2.0.0"
 kotlinxDatetime = "0.6.1"
 kotlinxSerialization = "1.7.3"
-ktor = "3.0.0"
+ktor = "3.0.2"
 lifecycleViewmodelCompose = "2.8.0"
 logback = "1.5.9"
 foundationAndroid = "1.7.4"
@@ -32,7 +32,6 @@ material3WindowSizeClassMultiplatform = "0.5.0"
 multiplatformSettings = "1.2.0"
 postgresql = "42.7.4"
 postgresqlVersion = "1.20.1"
-uuid = "0.8.4"
 navigationCompose = "2.7.0-alpha03"
 slf4j = "2.0.9"
 sqlDelight = "2.1.0-SNAPSHOT"
@@ -100,7 +99,6 @@ multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "postgresqlVersion" }
-uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 slf4j = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 sqldelight-web-worker-driver = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
@@ -125,3 +123,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+graalvm-nativeimage = "org.graalvm.buildtools.native:0.10.3"

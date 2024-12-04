@@ -1,13 +1,13 @@
 package me.dvyy.tasks.model.serializers
 
-import com.benasher44.uuid.Uuid
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.LongArraySerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlin.uuid.Uuid
 
-fun LongArray.toUuid() = Uuid(this[0], this[1])
+fun LongArray.toUuid() = Uuid.fromLongs(this[0], this[1])
 
 object UuidSerializer : KSerializer<Uuid> {
     val surrogate = LongArraySerializer()
@@ -20,6 +20,6 @@ object UuidSerializer : KSerializer<Uuid> {
     }
 
     override fun serialize(encoder: Encoder, value: Uuid) {
-        encoder.encodeSerializableValue(surrogate, longArrayOf(value.mostSignificantBits, value.leastSignificantBits))
+        encoder.encodeSerializableValue(surrogate, value.toLongs { t, b -> longArrayOf(t, b)})
     }
 }

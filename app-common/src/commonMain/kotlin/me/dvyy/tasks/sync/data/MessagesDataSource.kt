@@ -2,7 +2,6 @@ package me.dvyy.tasks.sync.data
 
 import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.coroutines.asFlow
-import com.benasher44.uuid.Uuid
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import me.dvyy.tasks.db.client.Database
@@ -14,6 +13,7 @@ import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.network.*
+import kotlin.uuid.Uuid
 
 class MessagesDataSource(
     val db: Database,
