@@ -19,16 +19,22 @@ class SyncViewModel(
 
     init {
         viewModelScope.launch {
+            fun trySync() = runCatching {
+                sync()
+            }.onFailure {
+                if (it is ConnectException) println(it.message)
+                else it.printStackTrace()
+            }
+
+            trySync()
+
             syncRepo.observeLastUpdated()
                 .mapToOneOrNull(Dispatchers.Default)
                 .filter { it != null }
                 .debounce(3.seconds)
                 .collectLatest {
                     println(it)
-                    runCatching { sync() }.onFailure {
-                        if(it is ConnectException) println(it.message)
-                        else it.printStackTrace()
-                    }
+                    trySync()
                 }
         }
     }

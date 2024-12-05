@@ -24,6 +24,7 @@ import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
+import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.KoinAppDeclaration
@@ -54,6 +55,7 @@ fun App(
     CompositionLocalProvider(
         LocalUIState provides ui,
     ) {
+        val sync = koinViewModel<SyncViewModel>() // Ensure sync inits at start
         val scrollBehavior = if (ui.isSmall)
             TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
         else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -102,14 +104,3 @@ fun App(
     }
     extras()
 }
-
-//fun a() {
-//    Split(
-//        first = Single(content = androidx.compose.runtime.internal.ComposableLambdaImpl@5583f943),
-//        second = Single(content = androidx.compose.runtime.internal.ComposableLambdaImpl@3 dcec520),
-//        split = Percent(value = 0.5),
-//        orientation = Vertical,
-//        firstEnabled = true,
-//        secondEnabled = true
-//    )
-//}
