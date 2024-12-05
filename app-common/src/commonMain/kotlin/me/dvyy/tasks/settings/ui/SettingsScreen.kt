@@ -64,6 +64,7 @@ fun SettingsScreen() {
                         icon = { Icon(tab.icon, tab.title) },
                         label = { Text(tab.title) },
                         shape = RectangleShape,
+                        colors = NavigationDrawerItemDefaults.colors(selectedContainerColor = MaterialTheme.colorScheme.primaryContainer)
                     )
                 }
             }

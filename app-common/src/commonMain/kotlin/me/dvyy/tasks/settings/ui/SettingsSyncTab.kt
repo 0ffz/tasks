@@ -71,7 +71,7 @@ fun SettingsSyncTab(
         Text(text = "${login.username}@${login.serverURL}")
     }
 
-    FilledTonalButton(onClick = { auth.logout() }) {
+    FilledTonalButton(onClick = { auth.logout() }, colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)) {
         LeadingIcon(Icons.AutoMirrored.Outlined.Logout, contentDescription = "Account") {
             Text(text = "Logout")
         }

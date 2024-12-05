@@ -1,6 +1,8 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.tree.ui.FileStructure
 
 // The scope used here is the scope that is used for the mapping work
@@ -115,7 +118,12 @@ class LayoutViewModel(
         LayoutStructure.Split(
             first = LayoutStructure.Split(
                 first = LayoutStructure.Tabbed(
-                    listOf(left),
+                    listOf(left.wrap {
+                        androidx.compose.material3.Surface(
+                            tonalElevation = UI.elevation.lv1,
+                            modifier = Modifier.fillMaxSize()
+                        ) { it() }
+                    }),
                     fullWidth = true,
                     selectable = false,
                 ),

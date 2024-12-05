@@ -1,9 +1,7 @@
 package me.dvyy.tasks.core.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.DragAndDropSourceScope
 import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -37,17 +35,9 @@ actual inline fun <reified T> MultiplatformDragAndDropData(data: T, offset: Offs
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-actual suspend fun DragAndDropSourceScope.detectPlatformDrag(onDragStart: (Offset) -> Unit) {
-    detectDragGestures(
-        onDragStart = onDragStart,
-        onDrag = { _, _ -> },
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-actual fun Modifier.platformDragAndDropSource(block: suspend DragAndDropSourceScope.() -> Unit): Modifier {
-    return dragAndDropSource(drawDragDecoration = {}, block)
+actual fun Modifier.platformDragAndDropSource(transferData: (Offset) -> DragAndDropTransferData?): Modifier {
+    return dragAndDropSource(drawDragDecoration = {}, transferData)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

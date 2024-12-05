@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
+import me.dvyy.tasks.app.ui.theme.DarkModePref
+import me.dvyy.tasks.app.ui.theme.DefaultTheme
+import me.dvyy.tasks.app.ui.theme.TaskAppTheme
 import me.dvyy.tasks.model.serializers.AppFormats
 import me.dvyy.tasks.tasks.ui.elements.task.EspressoLibreColorScheme
 import me.dvyy.tasks.tasks.ui.elements.task.SerializableColorScheme
@@ -14,6 +17,13 @@ import me.dvyy.tasks.tasks.ui.elements.task.SerializableColorScheme
 class PreferencesViewModel(
     prefs: LocalPreferencesRepository,
 ) : ViewModel() {
+    val darkMode = prefs.serializable<DarkModePref>(viewModelScope, "darkMode", DarkModePref.AUTO)
+
+    val appTheme = prefs.serializable<TaskAppTheme>(
+        viewModelScope,
+        "appTheme",
+        DefaultTheme()
+    )
 
     val theme = prefs.string(viewModelScope, "theme", "")
 

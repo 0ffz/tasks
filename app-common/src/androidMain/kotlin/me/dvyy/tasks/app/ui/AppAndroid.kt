@@ -1,7 +1,6 @@
 package me.dvyy.tasks.app.ui
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -16,10 +15,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppAndroid() = KoinContext {
-    Box(Modifier.imePadding()) {
-        App(topBar = {}) {
-            TaskDeselectHandler()
-        }
+    App(topBar = {}, contentModifier = Modifier.imePadding()) {
+        TaskDeselectHandler()
     }
 }
 

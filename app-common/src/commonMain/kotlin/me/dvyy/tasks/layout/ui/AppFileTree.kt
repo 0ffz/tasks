@@ -5,8 +5,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,7 +26,7 @@ fun AppFileTree(
     tasks: TasksViewModel = koinViewModel(),
     app: AppState = koinInject(),
 ) = Column(
-    Modifier.padding(8.dp).verticalScroll(rememberScrollState()),
+    Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp).verticalScroll(rememberScrollState()),
     verticalArrangement = Arrangement.spacedBy(8.dp)
 ) {
     val drawer = app.drawerState
@@ -69,8 +69,9 @@ fun AppFileTree(
         }
     )
 
-    TextButton(
+    OutlinedButton(
         onClick = { tasks.createProject() },
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text("Create project")
     }

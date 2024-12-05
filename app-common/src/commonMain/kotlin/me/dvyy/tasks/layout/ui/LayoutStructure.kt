@@ -28,6 +28,8 @@ import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.dialogs.AppDialog
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.core.ui.components.LeadingIcon
+import me.dvyy.tasks.layout.ui.LayoutStructure.Single
+import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
@@ -141,6 +143,9 @@ sealed interface LayoutStructure {
             }
         }
 
+        abstract class Wrap(val wrap: Single): Single by wrap {
+        }
+
         @Serializable
         data class Projects(
             val staggered: Boolean = false,
@@ -187,7 +192,6 @@ sealed interface LayoutStructure {
                     props.displayName == "Inbox" -> AppIcons.Inbox
                     else -> AppIcons.Description
                 }
-
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     DefaultTabLabel(icon, props.displayName ?: "Untitled")
                     if (location == Location.Sidebar) {
@@ -253,5 +257,12 @@ sealed interface LayoutStructure {
             is Single -> Tabbed(listOf(this), 0)
             else -> error("Cannot convert $this to a tabbed layout")
         }
+    }
+}
+
+inline fun Single.wrap(crossinline wrap: @Composable (original: @Composable () -> Unit) -> Unit): Single = object : Wrap(this) {
+    @Composable
+    override fun content() {
+        wrap { super.content() }
     }
 }

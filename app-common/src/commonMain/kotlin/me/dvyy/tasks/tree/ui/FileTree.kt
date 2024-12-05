@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
-import me.dvyy.tasks.core.ui.detectPlatformDrag
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
@@ -59,12 +58,10 @@ fun FileEntry(
     Box(
         modifier = clickable.fillMaxWidth()
             .platformDragAndDropSource {
-                detectPlatformDrag { offset ->
-                    if (file is FileStructure.File) {
-                        startTransfer(MultiplatformDragAndDropData(file.opensLayout, offset))
-                        file.onStartDrag()
-                    }
-                }
+                if (file is FileStructure.File) {
+                    file.onStartDrag()
+                    MultiplatformDragAndDropData(file.opensLayout, it)
+                } else null
             }
     ) {
         Row(

@@ -11,7 +11,7 @@ import kotlinx.serialization.serializer
 import me.dvyy.tasks.model.serializers.AppFormats
 
 class LocalPreferencesRepository(
-    val settings: Settings,
+    val localStore: Settings,
 ) {
     val debounceMillis = 500L
 
@@ -19,14 +19,15 @@ class LocalPreferencesRepository(
         scope: CoroutineScope,
         key: String,
         defaultValue: T,
+// TODO        sync: Boolean = false,
         crossinline read: (Settings, String, T) -> T,
         crossinline write: (Settings, String, T) -> Unit,
     ): MutableStateFlow<T> {
-        val cachedSetting = MutableStateFlow(read(settings, key, defaultValue))
+        val cachedSetting = MutableStateFlow(read(localStore, key, defaultValue))
 
         scope.launch(Dispatchers.Default) {
             cachedSetting.debounce(debounceMillis).collect {
-                write(settings, key, it)
+                write(localStore, key, it)
             }
         }
 

@@ -8,7 +8,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
-import me.dvyy.tasks.core.ui.*
+import androidx.compose.ui.geometry.Offset
+import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
+import me.dvyy.tasks.core.ui.dataOrNull
+import me.dvyy.tasks.core.ui.isOfType
+import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 
@@ -20,12 +24,10 @@ inline fun ReorderableTask(
     reorderInteractions: TaskReorderInteractions,
     content: @Composable () -> Unit,
 ) {
-    val dragAndDropModifier = Modifier
-        .platformDragAndDropSource {
-            detectPlatformDrag {
-                startTransfer(MultiplatformDragAndDropData(key, it))
-            }
-        }.dragAndDropTarget(
+    val dragAndDropModifier = Modifier.platformDragAndDropSource {
+        MultiplatformDragAndDropData(key, Offset.Zero)
+    }
+        .dragAndDropTarget(
             shouldStartDragAndDrop = { it.isOfType<TaskId>() },
             target = remember(key) {
                 object : DragAndDropTarget {

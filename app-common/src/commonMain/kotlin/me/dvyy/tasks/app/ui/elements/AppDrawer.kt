@@ -13,26 +13,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
-import me.dvyy.tasks.auth.ui.AuthViewModel
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
-import me.dvyy.tasks.sync.ui.SyncViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppDrawer(
     app: AppState = koinInject(),
-    auth: AuthViewModel = koinViewModel(),
-    sync: SyncViewModel = koinViewModel(),
-    dialogs: DialogViewModel = koinViewModel(),
     layout: LayoutViewModel = koinViewModel(),
     content: @Composable () -> Unit,
 ) {
@@ -44,11 +38,11 @@ fun AppDrawer(
         drawerContent = {
             ModalDrawerSheet {
                 Scaffold(
-                    Modifier.padding(16.dp),
+                    Modifier.padding(top = UI.padding.sm),
                     containerColor = Color.Transparent,
                     bottomBar = {
                         HorizontalDivider()
-                        Row {
+                        Row(Modifier.padding(UI.padding.sm)) {
                             val buttons by layout.layoutButtonLocations.collectAsState()
                             val selected by layout.mobileLeftSidebar.collectAsState()
                             buttons.left.forEach { button ->

@@ -3,34 +3,18 @@ import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-//    alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     id("de.undercouch.download") version "5.3.1"
 }
 
-kotlin {
-//    jvm()
-//    sourceSets {
-//        val jvmMain by getting {
-//        }
-//        val jvmTest by getting
-//    }
-}
 dependencies {
     implementation(libs.slf4j)
     implementation(libs.koin.core)
     implementation(project(":app-common"))
     implementation(project(":app-model"))
     implementation(compose.desktop.currentOs)
-}
-
-// Conveyor
-configurations.all {
-    attributes {
-        attribute(Attribute.of("ui", String::class.java), "awt")
-    }
 }
 
 // ==== Packaging ====
@@ -46,6 +30,7 @@ val appInstallerName = "$appName-" + when {
 compose.desktop {
     application {
         mainClass = "MainKt"
+        jvmArgs += listOf("-Xmx512M")
         buildTypes.release.proguard {
             configurationFiles.from(
                 project.file("proguard/custom.pro")
@@ -53,7 +38,6 @@ compose.desktop {
             optimize = true
             obfuscate = false
         }
-
         nativeDistributions {
             when {
                 Os.isFamily(Os.FAMILY_MAC) -> targetFormats(TargetFormat.Dmg)
@@ -61,15 +45,7 @@ compose.desktop {
                 else -> targetFormats(TargetFormat.AppImage)
             }
 
-            modules(
-//                "java.instrument",
-//                "java.management",
-//                "java.naming",
-                "java.sql",
-//                "java.security.jgss",
-//                "jdk.httpserver",
-//                "jdk.unsupported"
-            )
+            modules("java.sql")
             packageName = appName
             packageVersion = "${project.version}"
             val strippedVersion = project.version.toString().substringBeforeLast("-")

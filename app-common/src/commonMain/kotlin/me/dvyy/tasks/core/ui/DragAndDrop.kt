@@ -1,7 +1,6 @@
 package me.dvyy.tasks.core.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.DragAndDropSourceScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
@@ -15,14 +14,9 @@ expect inline fun <reified T> MultiplatformDragAndDropData(
 ): DragAndDropTransferData
 
 @OptIn(ExperimentalFoundationApi::class)
-expect suspend fun DragAndDropSourceScope.detectPlatformDrag(
-    onDragStart: (Offset) -> Unit,
-)
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 expect fun Modifier.platformDragAndDropSource(
-    block: suspend DragAndDropSourceScope.() -> Unit,
+    transferData: (Offset) -> DragAndDropTransferData?,
 ): Modifier
 
 expect inline fun <reified T> DragAndDropEvent.dataOrNull(): T?

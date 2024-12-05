@@ -27,7 +27,6 @@ import me.dvyy.tasks.app.ui.elements.AppDrawerIconButton
 import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
 import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
-import me.dvyy.tasks.core.ui.detectPlatformDrag
 import me.dvyy.tasks.core.ui.modifiers.onMiddleMouseClick
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.Layout
@@ -74,8 +73,13 @@ fun FixedEndLayout(
 }
 
 @Composable
-fun TintedHorizontalDivider() {
-    HorizontalDivider(Modifier.alpha(0.6f))
+fun TintedHorizontalDivider(modifier: Modifier = Modifier) {
+    HorizontalDivider(modifier.alpha(0.6f))
+}
+
+@Composable
+fun TintedVerticalDivider(modifier: Modifier = Modifier) {
+    VerticalDivider(modifier.alpha(0.6f))
 }
 
 @Composable
@@ -123,7 +127,7 @@ fun TabbedLayout(
 
             TintedHorizontalDivider()
 
-            Box {
+            Surface() {
                 structure.tabs.getOrNull(structure.selected)?.let {
                     Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(new) })
                 } ?: run {
@@ -213,10 +217,8 @@ private fun Tabs(
                         max = (this@BoxWithConstraints.maxWidth / structure.tabs.size)
                             .coerceIn(minTabWidth, maxTabWidth)
                     ).platformDragAndDropSource {
-                        detectPlatformDrag {
-                            closeTab(index) //TODO this causes issues because of compose BOM bug
-                            startTransfer(MultiplatformDragAndDropData(tab, it))
-                        }
+                        closeTab(index)
+                        MultiplatformDragAndDropData(tab, it)
                     }
                 ) {
                     FixedEndLayout(
@@ -237,7 +239,7 @@ private fun Tabs(
                         }
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            tab.tabLabel(if(index == structure.selected) Location.Selected else Location.TabList)
+                            tab.tabLabel(if (index == structure.selected) Location.Selected else Location.TabList)
                         }
                     }
                     if (index == structure.selected) Surface(
@@ -245,7 +247,7 @@ private fun Tabs(
                             .height(UI.size.xsm)
                             .fillMaxWidth()
                             .align(Alignment.BottomCenter),
-                        color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                        color = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
                     ) { }
                     HoverBox(
                         Modifier.fillMaxSize(),
@@ -267,9 +269,4 @@ private fun Tabs(
             )
         ).align(Alignment.CenterEnd)
     )
-}
-
-@Composable
-private fun Tab() {
-
 }

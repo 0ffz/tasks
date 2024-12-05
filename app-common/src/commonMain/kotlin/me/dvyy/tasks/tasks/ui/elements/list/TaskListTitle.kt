@@ -36,8 +36,8 @@ fun TaskListTitle(
     modifier: Modifier = Modifier,
 ) {
     val color =
-        if (colored) MaterialTheme.colorScheme.tertiary
-        else MaterialTheme.colorScheme.onSurfaceVariant
+        if (colored) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.onSurface
     val colorFaded = color.fade(alpha = 0.6f)
     Row(
         modifier.padding(start = UI.padding.md, top = UI.padding.sm, bottom = UI.padding.sm, end = UI.padding.sm),

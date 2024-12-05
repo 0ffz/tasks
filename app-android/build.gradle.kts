@@ -27,12 +27,12 @@ android {
     buildFeatures {
         compose = true
     }
-    compileSdk = 34
+    compileSdk = 35
     namespace = "me.dvyy"
     defaultConfig {
         applicationId = "me.dvyy"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 35
         versionCode = 1
         versionName = version.toString()
         setProperty("archivesBaseName", "Tasks-$version")
