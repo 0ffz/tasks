@@ -1,5 +1,6 @@
 import de.undercouch.gradle.tasks.download.Download
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -28,9 +29,11 @@ dependencies {
 
 val appName = "Tasks"
 
+val os: OperatingSystem = OperatingSystem.current()
+
 val appInstallerName = "$appName-" + when {
-    Os.isFamily(Os.FAMILY_MAC) -> "macOS"
-    Os.isFamily(Os.FAMILY_WINDOWS) -> "windows"
+    os.isMacOsX -> "macOS"
+    os.isWindows -> "windows"
     else -> "linux"
 }
 
@@ -145,8 +148,8 @@ tasks {
 
 graalvmNative {
     toolchainDetection.set(false)
-    binaries{
-        named("main"){
+    binaries {
+        named("main") {
             mainClass.set("MainKt")
             imageName.set("tasks")
             buildArgs(
@@ -155,16 +158,24 @@ graalvmNative {
                 "--strict-image-heap", // kotlin 2.0 fix
                 "-H:+ReportExceptionStackTraces",
                 "-R:MaxHeapSize=300M",
+                "-H:+AddAllCharsets",
             )
+
+            // Don't open terminal when running exe on Windows
+            if (os.isWindows) buildArgs.addAll(
+                "-H:NativeLinkerOption=/SUBSYSTEM:WINDOWS",
+                "-H:NativeLinkerOption=/ENTRY:mainCRTStartup",
+            )
+            configurationFileDirectories.from("native-image/${os.familyName}")
         }
     }
 
-    agent{
+    agent {
         defaultMode.set("standard")
 
         metadataCopy {
             inputTaskNames.add("run") // Tasks previously executed with the agent attached.
-            outputDirectories.add("src/main/resources/META-INF/native-image")
+            outputDirectories.add("native-image/${os.familyName}")
             mergeWithExisting.set(true)
         }
     }
@@ -172,8 +183,16 @@ graalvmNative {
 
 tasks {
     val copyLibjawt = task<ProcessResources>("copyLibjawt") {
-        val source = "build/compose/binaries/main/app/$appName/lib/runtime/lib/libjawt.so"
-        val target = "build/native/nativeCompile/lib"
+        val source = when {
+            os.isWindows -> "build/compose/binaries/main/app/$appName/runtime/bin/jawt.dll"
+            os.isUnix -> "build/compose/binaries/main/app/$appName/lib/runtime/lib/libjawt.so"
+            else -> return@task
+        }
+        val target = when {
+            os.isWindows -> "build/native/nativeCompile/bin"
+            os.isUnix -> "build/native/nativeCompile/lib"
+            else -> return@task
+        }
         dependsOn("createDistributable")
         from(source)
         into(target)

@@ -1,0 +1,8 @@
+[
+  {
+    "interfaces":["com.sun.jna.platform.win32.Ole32"]
+  },
+  {
+    "interfaces":["com.sun.jna.platform.win32.Shell32"]
+  }
+]
