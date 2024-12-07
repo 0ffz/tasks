@@ -86,7 +86,7 @@ kotlin {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
-                implementation(libs.ktor.client.okhttp)
+                implementation(libs.ktor.client.cio)
                 implementation(libs.sqldelight.sqlite.driver)
             }
         }

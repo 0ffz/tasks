@@ -7,6 +7,11 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     id("de.undercouch.download") version "5.3.1"
+    id("org.graalvm.buildtools.native") version "0.10.4"
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -15,6 +20,8 @@ dependencies {
     implementation(project(":app-common"))
     implementation(project(":app-model"))
     implementation(compose.desktop.currentOs)
+    compileOnly("org.graalvm.nativeimage:library-support:24.1.1")
+
 }
 
 // ==== Packaging ====
@@ -30,13 +37,8 @@ val appInstallerName = "$appName-" + when {
 compose.desktop {
     application {
         mainClass = "MainKt"
-        jvmArgs += listOf("-Xmx512M")
         buildTypes.release.proguard {
-            configurationFiles.from(
-                project.file("proguard/custom.pro")
-            )
-            optimize = true
-            obfuscate = false
+            isEnabled = false
         }
         nativeDistributions {
             when {
@@ -138,5 +140,46 @@ tasks {
             Os.isFamily(Os.FAMILY_MAC) -> dependsOn(dmgRelease)
             else -> dependsOn(executeAppImageBuilder)
         }
+    }
+}
+
+graalvmNative {
+    toolchainDetection.set(false)
+    binaries{
+        named("main"){
+            mainClass.set("MainKt")
+            imageName.set("tasks")
+            buildArgs(
+                "-O3", //TODO swap to Os for prod
+                "-Djava.awt.headless=false",
+                "--strict-image-heap", // kotlin 2.0 fix
+                "-H:+ReportExceptionStackTraces",
+                "-R:MaxHeapSize=300M",
+            )
+        }
+    }
+
+    agent{
+        defaultMode.set("standard")
+
+        metadataCopy {
+            inputTaskNames.add("run") // Tasks previously executed with the agent attached.
+            outputDirectories.add("src/main/resources/META-INF/native-image")
+            mergeWithExisting.set(true)
+        }
+    }
+}
+
+tasks {
+    val copyLibjawt = task<ProcessResources>("copyLibjawt") {
+        val source = "build/compose/binaries/main/app/$appName/lib/runtime/lib/libjawt.so"
+        val target = "build/native/nativeCompile/lib"
+        dependsOn("createDistributable")
+        from(source)
+        into(target)
+    }
+
+    nativeCompile {
+        dependsOn(copyLibjawt)
     }
 }
