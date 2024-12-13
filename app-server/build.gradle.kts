@@ -17,6 +17,12 @@ repositories {
     mavenCentral()
 }
 
+kotlin {
+    compilerOptions {
+        optIn.add("kotlin.uuid.ExperimentalUuidApi")
+    }
+}
+
 dependencies {
     implementation(project(":app-model"))
     implementation(libs.kotlinx.serialization.json)

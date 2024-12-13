@@ -25,6 +25,7 @@ fun Application.configureRouting(
 
             put("/sync") {
                 val changelist = call.receive<Changelist>()
+                println("Got changelist $changelist")
                 val session = call.principal<UserSession>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
                 call.respond<Changelist>(server.resolveMessages(changelist, session))
             }

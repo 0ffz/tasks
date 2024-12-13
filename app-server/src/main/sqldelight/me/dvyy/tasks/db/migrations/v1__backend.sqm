@@ -5,6 +5,7 @@ import me.dvyy.tasks.model.network.NetworkMessage;
 import me.dvyy.tasks.model.EntityType;
 import me.dvyy.tasks.model.Highlight;
 import me.dvyy.tasks.model.TaskId;
+import kotlin.uuid.Uuid;
 
 CREATE TABLE IF NOT EXISTS userEntity (
   id SERIAL PRIMARY KEY,
@@ -12,7 +13,7 @@ CREATE TABLE IF NOT EXISTS userEntity (
 );
 
 CREATE TABLE IF NOT EXISTS message (
-  uuid UUID NOT NULL,
+  uuid UUID AS Uuid NOT NULL,
   modified INT8 AS Instant NOT NULL,
   inserted INT8 AS Instant NOT NULL,
   type TEXT AS NetworkMessage.Type NOT NULL,
@@ -35,8 +36,8 @@ CREATE TABLE IF NOT EXISTS taskList (
 CREATE INDEX IF NOT EXISTS taskList_user ON taskList (userId);
 
 CREATE TABLE IF NOT EXISTS rank (
-  uuid UUID NOT NULL,
-  parent UUID,
+  uuid UUID AS Uuid NOT NULL,
+  parent UUID AS Uuid,
   rank TEXT NOT NULL,
   userId INTEGER NOT NULL REFERENCES userEntity (id) ON DELETE CASCADE,
   UNIQUE (parent, rank, userId),

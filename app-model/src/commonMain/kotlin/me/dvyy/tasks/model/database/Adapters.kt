@@ -5,7 +5,10 @@ import kotlinx.datetime.Instant
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
+import java.util.*
 import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 
 object Adapters {
     val BytesToUuid = object : ColumnAdapter<Uuid, ByteArray> {
@@ -16,6 +19,10 @@ object Adapters {
     val StringToHighlight = object : ColumnAdapter<Highlight, String> {
         override fun encode(value: Highlight): String = Highlight.Serializer.serialize(value)
         override fun decode(databaseValue: String): Highlight = Highlight.Serializer.deserialize(databaseValue)
+    }
+    val KotlinUuid = object : ColumnAdapter<Uuid, UUID> {
+        override fun decode(databaseValue: UUID): Uuid = databaseValue.toKotlinUuid()
+        override fun encode(value: Uuid): UUID = value.toJavaUuid()
     }
 
     class WrappedAdapter<Inner : Any, Outer : Any, S>(
@@ -40,14 +47,14 @@ object Adapters {
         { it.uuid }
     )
 
-    val UuidToTaskId = object : ColumnAdapter<TaskId, Uuid> {
-        override fun decode(databaseValue: Uuid) = TaskId(databaseValue)
-        override fun encode(value: TaskId) = value.uuid
+    val UuidToTaskId = object : ColumnAdapter<TaskId, UUID> {
+        override fun decode(databaseValue: UUID) = TaskId(databaseValue.toKotlinUuid())
+        override fun encode(value: TaskId) = value.uuid.toJavaUuid()
     }
 
-    val UuidToListId = object : ColumnAdapter<ListId, Uuid> {
-        override fun decode(databaseValue: Uuid) = ListId(databaseValue)
-        override fun encode(value: ListId) = value.uuid
+    val UuidToListId = object : ColumnAdapter<ListId, UUID> {
+        override fun decode(databaseValue: UUID) = ListId(databaseValue.toKotlinUuid())
+        override fun encode(value: ListId) = value.uuid.toJavaUuid()
     }
 
     val LongToInstant = object : ColumnAdapter<Instant, Long> {

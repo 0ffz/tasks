@@ -1,8 +1,6 @@
 {
   "resources":{
   "includes":[{
-    "pattern":"composeResources\/.*"
-  },{
     "pattern":"\\QMETA-INF/maven/org.xerial/sqlite-jdbc/pom.properties\\E"
   }, {
     "pattern":"\\QMETA-INF/services/io.ktor.client.HttpClientEngineContainer\\E"
@@ -14,6 +12,8 @@
     "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
   }, {
     "pattern":"\\QMETA-INF/services/java.net.spi.InetAddressResolverProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
   }, {
     "pattern":"\\QMETA-INF/services/java.nio.channels.spi.SelectorProvider\\E"
   }, {
@@ -37,6 +37,8 @@
   }, {
     "pattern":"\\QcomposeResources/me.dvyy.app_common.generated.resources/drawable/icon.png\\E"
   }, {
+    "pattern":"\\QcomposeResources/me.dvyy.app_common.generated.resources/font/JetbrainsMono.ttf\\E"
+  }, {
     "pattern":"\\QcomposeResources/me.dvyy.app_common.generated.resources/font/RobotoFlex.ttf\\E"
   }, {
     "pattern":"\\Qlibskiko-linux-x64.so.sha256\\E"
@@ -44,6 +46,8 @@
     "pattern":"\\Qorg/sqlite/native/Linux/x86_64/libsqlitejdbc.so\\E"
   }, {
     "pattern":"\\Qsimplelogger.properties\\E"
+  }, {
+    "pattern":"composeResources/.*"
   }, {
     "pattern":"java.base:\\Qjava/lang/Boolean.class\\E"
   }, {
@@ -56,6 +60,20 @@
     "pattern":"java.base:\\Qjava/lang/Number.class\\E"
   }, {
     "pattern":"java.base:\\Qjava/lang/reflect/Modifier.class\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/nfkc.nrm\\E"
+  }, {
+    "pattern":"java.datatransfer:\\Qsun/datatransfer/resources/flavormap.properties\\E"
+  }, {
+    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/CopyDrop32x32.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/LinkDrop32x32.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/MoveDrop32x32.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/cursors.properties\\E"
+  }, {
+    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/invalid32x32.gif\\E"
   }, {
     "pattern":"java.xml:\\Qcom/sun/org/apache/xml/internal/serializer/Encodings.properties\\E"
   }, {

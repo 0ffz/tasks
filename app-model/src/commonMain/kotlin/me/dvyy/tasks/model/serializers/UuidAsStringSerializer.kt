@@ -11,7 +11,7 @@ object UuidAsStringSerializer : KSerializer<Uuid> {
     override val descriptor: SerialDescriptor = String.serializer().descriptor
 
     override fun deserialize(decoder: Decoder): Uuid {
-        return Uuid.parseHex(decoder.decodeString())
+        return Uuid.parse(decoder.decodeString())
     }
 
     override fun serialize(encoder: Encoder, value: Uuid) {

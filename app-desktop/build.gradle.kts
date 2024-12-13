@@ -1,5 +1,4 @@
 import de.undercouch.gradle.tasks.download.Download
-import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
@@ -45,8 +44,8 @@ compose.desktop {
         }
         nativeDistributions {
             when {
-                Os.isFamily(Os.FAMILY_MAC) -> targetFormats(TargetFormat.Dmg)
-                Os.isFamily(Os.FAMILY_WINDOWS) -> targetFormats(TargetFormat.Msi)
+                os.isMacOsX -> targetFormats(TargetFormat.Dmg)
+                os.isWindows -> targetFormats(TargetFormat.Msi)
                 else -> targetFormats(TargetFormat.AppImage)
             }
 
@@ -79,13 +78,17 @@ val linuxAppDir = project.file("packaging/appimage/$appName.AppDir")
 val appImageTool = project.file("packaging/deps/appimagetool.AppImage")
 val composePackageDir = "$buildDir/compose/binaries/main-release/${
     when {
-        Os.isFamily(Os.FAMILY_MAC) -> "dmg"
-        Os.isFamily(Os.FAMILY_WINDOWS) -> "msi"
+        os.isMacOsX -> "dmg"
+        os.isWindows -> "msi"
         else -> "app"
     }
 }"
 
 tasks {
+    task("runFix") {
+        dependsOn("run")
+    }
+
     val windowsRelease by registering(Copy::class) {
         dependsOn("packageReleaseDistributionForCurrentOS")
         from(composePackageDir)
@@ -104,12 +107,11 @@ tasks {
 
     // Appimage
     val downloadAppImageBuilder by registering(Download::class) {
+        onlyIf { !appImageTool.exists() }
         src("https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage")
         dest(appImageTool)
         doLast {
-            exec {
-                commandLine("chmod", "+x", appImageTool)
-            }
+            exec { commandLine("chmod", "+x", appImageTool) }
         }
     }
 
@@ -118,9 +120,9 @@ tasks {
     }
 
     val copyBuildToPackaging by registering(Copy::class) {
-        dependsOn("packageReleaseDistributionForCurrentOS")
+        dependsOn(nativeCompile)
         dependsOn(deleteOldAppDirFiles)
-        from("$buildDir/compose/binaries/main-release/app/$appName")
+        from("build/native/nativeCompile/")
         into("$linuxAppDir/usr")
     }
 
@@ -139,8 +141,8 @@ tasks {
     val packageForRelease by registering {
         mkdir(project.file("releases"))
         when {
-            Os.isFamily(Os.FAMILY_WINDOWS) -> dependsOn(windowsRelease)
-            Os.isFamily(Os.FAMILY_MAC) -> dependsOn(dmgRelease)
+            os.isMacOsX -> dependsOn(windowsRelease)
+            os.isWindows -> dependsOn(dmgRelease)
             else -> dependsOn(executeAppImageBuilder)
         }
     }
@@ -153,7 +155,7 @@ graalvmNative {
             mainClass.set("MainKt")
             imageName.set("tasks")
             buildArgs(
-                "-O3", //TODO swap to Os for prod
+                "-Ob", //TODO swap to Os for prod
                 "-Djava.awt.headless=false",
                 "--strict-image-heap", // kotlin 2.0 fix
                 "-H:+ReportExceptionStackTraces",

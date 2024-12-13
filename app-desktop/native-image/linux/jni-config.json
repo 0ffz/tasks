@@ -357,6 +357,10 @@
   "name":"sun.awt.X11.XFramePeer"
 },
 {
+  "name":"sun.awt.X11.XRootWindow",
+  "methods":[{"name":"getXRootWindow","parameterTypes":[] }]
+},
+{
   "name":"sun.awt.X11.XToolkit",
   "fields":[{"name":"modLockIsShiftLock"}, {"name":"numLockMask"}]
 },
@@ -380,6 +384,19 @@
   "name":"sun.awt.image.BufImgSurfaceData$ICMColorData",
   "fields":[{"name":"pData"}],
   "methods":[{"name":"<init>","parameterTypes":["long"] }]
+},
+{
+  "name":"sun.awt.image.ByteComponentRaster",
+  "fields":[{"name":"data"}, {"name":"dataOffsets"}, {"name":"pixelStride"}, {"name":"scanlineStride"}, {"name":"type"}]
+},
+{
+  "name":"sun.awt.image.GifImageDecoder",
+  "fields":[{"name":"outCode"}, {"name":"prefix"}, {"name":"suffix"}],
+  "methods":[{"name":"readBytes","parameterTypes":["byte[]","int","int"] }, {"name":"sendPixels","parameterTypes":["int","int","int","int","byte[]","java.awt.image.ColorModel"] }]
+},
+{
+  "name":"sun.awt.image.ImageRepresentation",
+  "fields":[{"name":"numSrcLUT"}, {"name":"srcLUTtransIndex"}]
 },
 {
   "name":"sun.awt.image.IntegerComponentRaster",

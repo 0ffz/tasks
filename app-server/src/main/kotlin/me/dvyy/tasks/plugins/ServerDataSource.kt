@@ -81,7 +81,7 @@ class ServerDataSource(
                     val existing = database.rankQueries.get(user, data.parent, data.rank).executeAsOneOrNull()
 
                     @Suppress("KotlinConstantConditions") // Kotlin compiler doesn't realize Uuid is a typealias for UUID on jvm because network model comes from multiplatform
-                    if (existing?.rank == data.rank && existing.uuid == (data.uuid as UUID))
+                    if (existing?.rank == data.rank && existing.uuid == (data.uuid))
                         return@forEach
 
                     if (existing != null) {

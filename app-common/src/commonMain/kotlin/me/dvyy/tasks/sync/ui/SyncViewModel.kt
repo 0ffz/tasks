@@ -45,6 +45,7 @@ class SyncViewModel(
         runCatching {
             run()
         }.onFailure {
+            it.printStackTrace()
             _syncState.update { SyncState.Error }
         }.onSuccess {
             _syncState.update { SyncState.Success }

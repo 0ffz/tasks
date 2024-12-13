@@ -8,6 +8,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.util.logging.*
 import me.dvyy.tasks.db.migrations.Message
+import me.dvyy.tasks.db.migrations.Rank
 import me.dvyy.tasks.db.migrations.Task
 import me.dvyy.tasks.db.migrations.TaskList
 import me.dvyy.tasks.db.server.ServerDatabase
@@ -55,6 +56,7 @@ fun createServerDatabase(dataSource: DataSource): ServerDatabase {
             insertedAdapter = Adapters.LongToInstant,
             typeAdapter = EnumColumnAdapter(),
             entityTypeAdapter = EnumColumnAdapter(),
+            uuidAdapter =Adapters.KotlinUuid
         ),
         taskAdapter = Task.Adapter(
             uuidAdapter = Adapters.UuidToTaskId,
@@ -64,6 +66,10 @@ fun createServerDatabase(dataSource: DataSource): ServerDatabase {
         taskListAdapter = TaskList.Adapter(
             uuidAdapter = Adapters.UuidToListId,
         ),
+        rankAdapter = Rank.Adapter(
+            uuidAdapter = Adapters.KotlinUuid,
+            parentAdapter = Adapters.KotlinUuid,
+        )
     )
 }
 
