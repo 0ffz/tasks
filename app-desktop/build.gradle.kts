@@ -20,7 +20,7 @@ dependencies {
     implementation(project(":app-common"))
     implementation(project(":app-model"))
     implementation(compose.desktop.currentOs)
-    compileOnly("org.graalvm.nativeimage:library-support:24.1.1")
+    compileOnly(libs.graalvm.library.support)
 
 }
 
@@ -141,8 +141,8 @@ tasks {
     val packageForRelease by registering {
         mkdir(project.file("releases"))
         when {
-            os.isMacOsX -> dependsOn(windowsRelease)
-            os.isWindows -> dependsOn(dmgRelease)
+            os.isMacOsX -> dependsOn(dmgRelease)
+            os.isWindows -> dependsOn(windowsRelease)
             else -> dependsOn(executeAppImageBuilder)
         }
     }
@@ -155,7 +155,7 @@ graalvmNative {
             mainClass.set("MainKt")
             imageName.set("tasks")
             buildArgs(
-                "-Ob", //TODO swap to Os for prod
+                "-O2",
                 "-Djava.awt.headless=false",
                 "--strict-image-heap", // kotlin 2.0 fix
                 "-H:+ReportExceptionStackTraces",
