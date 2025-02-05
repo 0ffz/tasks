@@ -1,41 +1,33 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import me.dvyy.tasks.app.AppIcons
-import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.app.ui.dialogs.AppDialog
-import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.core.ui.components.LeadingIcon
+import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
 import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
-import me.dvyy.tasks.tasks.ui.elements.list.Project
-import me.dvyy.tasks.utils.loadedOrNull
-import org.koin.compose.viewmodel.koinViewModel
 
 object DpSerializer : KSerializer<Dp> {
     override val descriptor = Float.serializer().descriptor
@@ -128,7 +120,7 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-                me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
+//                me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
             }
         }
 
@@ -143,7 +135,7 @@ sealed interface LayoutStructure {
             }
         }
 
-        abstract class Wrap(val wrap: Single): Single by wrap {
+        abstract class Wrap(val wrap: Single) : Single by wrap {
         }
 
         @Serializable
@@ -176,43 +168,43 @@ sealed interface LayoutStructure {
 
         @Serializable
         data class Project(
-            val key: ListId,
+            val path: @Contextual VaultPath,
         ) : Single {
             @Composable
             override fun tabLabel(location: Location) {
-                val tasks: TasksViewModel = koinViewModel()
-                val dialogs: DialogViewModel = koinViewModel()
-                val propsLoadable by tasks.getListProperties(key).collectAsState()
-                val props = propsLoadable.loadedOrNull() ?: run {
-                    Text("Loading project...")
-                    return
-                }
-                val icon = when {
-                    props.displayName?.contains(emojiRegex) == true -> null
-                    props.displayName == "Inbox" -> AppIcons.Inbox
-                    else -> AppIcons.Description
-                }
+//                val tasks: TasksViewModel = koinViewModel()
+//                val dialogs: DialogViewModel = koinViewModel()
+//                val propsLoadable by tasks.getListProperties(key).collectAsState()
+//                val props = propsLoadable.loadedOrNull() ?: run {
+//                    Text("Loading project...")
+//                    return
+//                }
+//                val icon = when {
+//                    props.displayName?.contains(emojiRegex) == true -> null
+//                    props.displayName == "Inbox" -> AppIcons.Inbox
+//                    else -> AppIcons.Description
+//                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    DefaultTabLabel(icon, props.displayName ?: "Untitled")
+                    DefaultTabLabel(icon, path.pathString /*props.displayName*/ ?: "Untitled")
                     if (location == Location.Sidebar) {
                         Spacer(Modifier.weight(1f))
-                        IconButton(
-                            onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
-                            modifier = Modifier.size(UI.size.md)
-                        ) {
-                            Icon(AppIcons.Close, "Delete project", tint = MaterialTheme.colorScheme.outline)
-                        }
+//                        IconButton(
+//                            onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
+//                            modifier = Modifier.size(UI.size.md)
+//                        ) {
+//                            Icon(AppIcons.Close, "Delete project", tint = MaterialTheme.colorScheme.outline)
+//                        }
                     }
                 }
             }
 
             @Composable
             override fun content() {
-                val tasks: TasksViewModel = koinViewModel()
-                val propLoadable by tasks.getListProperties(key).collectAsState()
-                Column(Modifier.verticalScroll(rememberScrollState())) {
-                    Project(key, propLoadable, scrollable = false)
-                }
+//                val tasks: TasksViewModel = koinViewModel()
+//                val propLoadable by tasks.getListProperties(key).collectAsState()
+//                Column(Modifier.verticalScroll(rememberScrollState())) {
+//                    Project(key, propLoadable, scrollable = false)
+//                }
             }
 
             companion object {
@@ -260,9 +252,10 @@ sealed interface LayoutStructure {
     }
 }
 
-inline fun Single.wrap(crossinline wrap: @Composable (original: @Composable () -> Unit) -> Unit): Single = object : Wrap(this) {
-    @Composable
-    override fun content() {
-        wrap { super.content() }
+inline fun Single.wrap(crossinline wrap: @Composable (original: @Composable () -> Unit) -> Unit): Single =
+    object : Wrap(this) {
+        @Composable
+        override fun content() {
+            wrap { super.content() }
+        }
     }
-}

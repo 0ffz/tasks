@@ -19,24 +19,25 @@ import me.dvyy.tasks.app.ui.elements.LeftNavigationRail
 import me.dvyy.tasks.app.ui.elements.PlatformSpecificTopBarActions
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
+import me.dvyy.tasks.database.vaultModule
 import me.dvyy.tasks.di.*
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.sync.ui.SyncViewModel
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.koinApplication
+import kotlin.io.path.Path
 
 fun createAppKoinApplication(extras: KoinAppDeclaration = {}) = koinApplication {
     extras()
     modules(
         appModule(),
-        repositoriesModule(),
         authModule(),
         syncModule(),
+        vaultModule(Path("vault")),
         viewModelsModule(),
     )
 }
@@ -50,7 +51,7 @@ fun App(
     extras: @Composable () -> Unit = { },
 ) = AppTheme {
     val ui = rememberAppUIState()
-    val tasksViewModel = koinViewModel<TasksViewModel>()
+//    val tasksViewModel = koinViewModel<TasksViewModel>()
     val layoutViewModel = koinViewModel<LayoutViewModel>()
     CompositionLocalProvider(
         LocalUIState provides ui,
@@ -68,7 +69,7 @@ fun App(
                 Box(
                     Modifier
                         .padding(paddingValues)
-                        .clickableWithoutRipple { tasksViewModel.selectTask(null) }
+//                        .clickableWithoutRipple { tasksViewModel.selectTask(null) }
                 ) {
                     if (ui.isSmall) {
                         val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Empty)

@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.auth.ui.AuthDialog
 import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 sealed interface AppDialog {
@@ -37,7 +36,7 @@ fun AppDialogs(app: DialogViewModel = koinViewModel()) {
 fun ConfirmDeleteProjectDialog(
     key: ListId,
     dialogs: DialogViewModel = koinViewModel(),
-    tasks: TasksViewModel = koinViewModel(),
+//    tasks: TasksViewModel = koinViewModel(),
 ) {
     AlertDialog(
         onDismissRequest = { dialogs.dismiss() },
@@ -47,7 +46,7 @@ fun ConfirmDeleteProjectDialog(
         confirmButton = {
             TextButton(onClick = {
                 dialogs.dismiss()
-                tasks.deleteProject(key)
+//                tasks.deleteProject(key)
             }) { Text("Delete") }
         },
         dismissButton = {

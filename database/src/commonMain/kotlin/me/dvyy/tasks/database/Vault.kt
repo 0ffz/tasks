@@ -18,10 +18,10 @@ class Vault(
         indexer.index(path)
     }
 
-    fun fileTree(): Flow<List<String>> {
+    fun fileTree(): Flow<List<VaultPath>> {
         return vault.findAsFlow()
             .project("path")
-            .asList { it["path"] as String }
+            .asList { VaultPath(it["path"] as String) }
     }
 
     fun update(path: VaultPath, modify: (Document) -> Document) {
@@ -32,6 +32,10 @@ class Vault(
     fun queueSave(path: VaultPath) {
         val document = vault.getDocument(path) ?: return
         fileSystem.saveDocument(path, document)
+    }
+
+    fun index() {
+        indexer.indexRoot()
     }
 
     suspend fun deleteDocument(path: VaultPath) = withContext(ioDispatcher) {

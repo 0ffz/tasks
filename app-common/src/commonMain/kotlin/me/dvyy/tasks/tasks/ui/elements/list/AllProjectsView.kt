@@ -27,27 +27,26 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 
 @Composable
 fun AllProjectsView(
     modifier: Modifier = Modifier,
-    tasksViewModel: TasksViewModel = viewModel(),
+//    tasksViewModel: TasksViewModel = viewModel(),
     horizontal: Boolean,
     staggered: Boolean,
 ) {
     val ui = LocalUIState.current
-    val projects by tasksViewModel.projects.collectAsState()
-    ProjectLayout(modifier, horizontal, staggered, projects, { it.uuid }) { key ->
-        val properties by tasksViewModel.getListProperties(key).collectAsState()
-        Project(
-            tasksViewModel = tasksViewModel,
-            key = key,
-            properties = properties,
-            modifier = Modifier.width(ui.taskListWidth),
-            scrollable = horizontal,
-        )
-    }
+//    val projects by tasksViewModel.projects.collectAsState()
+//    ProjectLayout(modifier, horizontal, staggered, projects, { it.uuid }) { key ->
+//        val properties by tasksViewModel.getListProperties(key).collectAsState()
+//        Project(
+//            tasksViewModel = tasksViewModel,
+//            key = key,
+//            properties = properties,
+//            modifier = Modifier.width(ui.taskListWidth),
+//            scrollable = horizontal,
+//        )
+//    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

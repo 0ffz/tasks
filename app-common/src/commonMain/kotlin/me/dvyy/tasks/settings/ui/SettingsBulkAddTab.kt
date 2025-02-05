@@ -14,12 +14,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.theme.Fonts
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsBulkAddTab(
-    tasks: TasksViewModel = koinViewModel(),
+//    tasks: TasksViewModel = koinViewModel(),
 ) {
     var text by remember { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -37,7 +36,7 @@ fun SettingsBulkAddTab(
         )
 
         TextButton(onClick = {
-            tasks.bulkAdd(text.lines())
+//            tasks.bulkAdd(text.lines())
             text = ""
         }) {
             Text("Done")

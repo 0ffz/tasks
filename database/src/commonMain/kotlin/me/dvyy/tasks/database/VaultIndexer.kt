@@ -17,12 +17,14 @@ class VaultIndexer(
         vault.removeAll("path" notWithin seen.map { it.pathString })
     }
 
+
     fun indexDirectory(directory: VaultPath): List<VaultPath> {
         val seenFiles = fs.walkIndexable(directory)
             .map { path ->
                 vault.getHashInfo(path)?.let { existing ->
-                    if (existing.md5hash != fs.hash(path)) index(path)
-                } ?: index(path, fs.inputStream(path))
+                    val hash = fs.hash(path)
+                    if (existing.md5hash != hash) index(path)
+                } ?: index(path)
                 path
             }
             .toList()
@@ -30,11 +32,12 @@ class VaultIndexer(
     }
 
     fun index(path: VaultPath) {
-        index(path, fs.inputStream(path))
+        val hash = fs.hash(path)
+        index(path, fs.inputStream(path), hash)
     }
 
     /** Reads yaml front matter for an input stream and adds properties to [db] */
-    fun index(path: VaultPath, inputStream: InputStream) {
+    fun index(path: VaultPath, inputStream: InputStream, hash: String) {
         val document = documentOf()
 
         // read front matter and content
@@ -62,6 +65,7 @@ class VaultIndexer(
                 document.put(key, value)
             }
         }
+        document.put("md5hash", hash)
         document.put("fileContent", content)
         vault.upsertDocument(path, document)
     }

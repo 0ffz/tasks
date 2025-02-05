@@ -6,7 +6,7 @@ import java.security.MessageDigest
 import kotlin.io.path.*
 
 class VaultFileSystemDataSource(
-    val root: Path,
+    val vaultRoot: Path,
 ) {
     fun createDocument(path: VaultPath) {
         path.toPath().createParentDirectories().createFile()
@@ -17,7 +17,7 @@ class VaultFileSystemDataSource(
     }
 
     fun VaultPath.toPath(): Path {
-        return root.resolve(pathString)
+        return vaultRoot.resolve(pathString)
     }
 
     fun saveDocument(path: VaultPath, document: Document) {
@@ -27,7 +27,7 @@ class VaultFileSystemDataSource(
     }
 
     fun Path.toVaultPath(): VaultPath {
-        return VaultPath(relativeTo(root).toString())
+        return VaultPath(relativeTo(vaultRoot).toString())
     }
 
     fun walkIndexable(directory: VaultPath): Sequence<VaultPath> = directory.toPath().walk()

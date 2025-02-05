@@ -1,5 +1,6 @@
 package me.dvyy.tasks.sync.ui
 
+import SyncState
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -16,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
-import me.dvyy.tasks.tasks.ui.SyncState
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Duration.Companion.seconds
 

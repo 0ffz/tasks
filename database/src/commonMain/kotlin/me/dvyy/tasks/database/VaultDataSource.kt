@@ -1,8 +1,11 @@
 package me.dvyy.tasks.database
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import me.dvyy.tasks.database.model.HashInfo
 import me.dvyy.tasks.database.model.HashInfo.Companion.toHashInfo
@@ -13,6 +16,9 @@ import org.dizitart.no2.Nitrite
 import org.dizitart.no2.collection.Document
 import org.dizitart.no2.collection.DocumentCursor
 import org.dizitart.no2.collection.NitriteCollection
+import org.dizitart.no2.collection.UpdateOptions
+import org.dizitart.no2.collection.events.CollectionEventListener
+import org.dizitart.no2.collection.events.EventType
 import org.dizitart.no2.filters.Filter
 import org.dizitart.no2.index.IndexOptions
 import org.dizitart.no2.index.IndexType
@@ -27,14 +33,22 @@ class VaultDataSource(
         createIndex(IndexOptions.indexOptions(IndexType.FULL_TEXT), "fileContent")
     }
 
-    val updatesFlow = MutableStateFlow<NitriteCollection>(filesCollection)
-
-    init {
-        filesCollection.subscribe { updatesFlow.tryEmit(filesCollection) }
-    }
-
-    fun findAsFlow(filter: Filter = Filter.ALL): Flow<DocumentCursor> {
-        return updatesFlow.map { it.find(filter) }
+    fun findAsFlow(filter: Filter = Filter.ALL): Flow<DocumentCursor> = flow {
+        val updates = Channel<Unit>(CONFLATED)
+        updates.trySend(Unit)
+        val listener = CollectionEventListener { event ->
+            if (event.eventType == EventType.Insert || event.eventType == EventType.Update || event.eventType == EventType.Remove) {
+                updates.trySend(Unit)
+            }
+        }
+        filesCollection.subscribe(listener)
+        try {
+            for (update in updates) {
+                emit(filesCollection.find(filter))
+            }
+        } finally {
+            filesCollection.unsubscribe(listener)
+        }
     }
 
     fun removeDocument(path: VaultPath) {
@@ -42,9 +56,9 @@ class VaultDataSource(
     }
 
     fun upsertDocument(path: VaultPath, document: Document) {
-        filesCollection.update(document.apply {
+        filesCollection.update("path" eq path.pathString, document.apply {
             put("path", path.pathString)
-        }, true)
+        }, UpdateOptions.updateOptions(true))
     }
 
     fun removeAll(filter: Filter) {

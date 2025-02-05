@@ -1,5 +1,6 @@
 package me.dvyy.tasks.database
 
+import kotlinx.coroutines.Dispatchers
 import org.dizitart.kno2.nitrite
 import org.dizitart.kno2.serialization.KotlinXSerializationMapper
 import org.dizitart.no2.Nitrite
@@ -23,7 +24,10 @@ fun vaultModule(
             loadModule { setOf(KotlinXSerializationMapper()) }
         }
     }
+
     singleOf(::VaultDataSource)
     singleOf(::VaultIndexer)
     singleOf(::VaultFileWatcher)
+    single { VaultFileSystemDataSource(rootPath) }
+    single { Vault(get(), get(), get(), Dispatchers.IO) }
 }

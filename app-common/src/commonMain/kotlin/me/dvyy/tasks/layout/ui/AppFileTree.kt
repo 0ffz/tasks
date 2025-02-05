@@ -10,12 +10,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.app.ui.VaultViewModel
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
 import org.koin.compose.koinInject
@@ -23,7 +25,8 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppFileTree(
-    tasks: TasksViewModel = koinViewModel(),
+    vault: VaultViewModel = koinViewModel(),
+//    tasks: TasksViewModel = koinViewModel(),
     app: AppState = koinInject(),
 ) = Column(
     Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp).verticalScroll(rememberScrollState()),
@@ -61,7 +64,8 @@ fun AppFileTree(
             add(file(LayoutStructure.Single.Projects(horizontal = true)))
             add(FileStructure.Element { HorizontalDivider() })
 
-            val projects by tasks.projects.collectAsState()
+            val projects by vault.fileTree.collectAsState()
+//            val projects by tasks.projects.collectAsState()
 
             projects.forEach { key ->
                 add(file(LayoutStructure.Single.Project(key)))
@@ -70,9 +74,15 @@ fun AppFileTree(
     )
 
     OutlinedButton(
-        onClick = { tasks.createProject() },
+        onClick = { /*tasks.createProject()*/ },
         modifier = Modifier.fillMaxWidth(),
     ) {
         Text("Create project")
+    }
+    OutlinedButton(
+        onClick = { vault.vault.index() },
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text("Reindex")
     }
 }

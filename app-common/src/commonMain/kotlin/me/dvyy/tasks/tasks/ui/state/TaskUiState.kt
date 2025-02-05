@@ -1,7 +1,6 @@
 package me.dvyy.tasks.tasks.ui.state
 
 import androidx.compose.runtime.Stable
-import me.dvyy.tasks.db.client.Task
 import me.dvyy.tasks.model.Highlight
 
 @Stable
@@ -11,10 +10,10 @@ data class TaskUiState(
     val highlight: Highlight,
 ) {
     companion object {
-        fun fromModel(model: Task) = TaskUiState(
-            text = model.text ?: "",
-            completed = model.completed,
-            highlight = model.highlight,
-        )
+//        fun fromModel(model: Task) = TaskUiState(
+//            text = model.text ?: "",
+//            completed = model.completed,
+//            highlight = model.highlight,
+//        )
     }
 }

@@ -11,10 +11,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import me.dvyy.app_common.generated.resources.Res
 import me.dvyy.app_common.generated.resources.icon
-import me.dvyy.tasks.app.data.DriverFactory
 import me.dvyy.tasks.app.data.TopbarViewModel
-import me.dvyy.tasks.app.data.createClientDatabase
-import me.dvyy.tasks.db.client.Database
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.getKoin
@@ -59,7 +56,7 @@ fun ApplicationScope.AppDesktop() = KoinIsolatedContext(createAppKoinApplication
     ) {
         getKoin().loadModules(remember {
             listOf(module {
-                single<Database> { createClientDatabase(DriverFactory()) }
+//                single<Database> { createClientDatabase(DriverFactory()) }
                 single {
                     TopbarViewModel(
                         windowState = windowState,
