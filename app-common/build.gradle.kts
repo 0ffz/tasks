@@ -4,11 +4,6 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.sqldelight)
-}
-
-composeCompiler {
-    stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
 }
 
 kotlin {
@@ -25,25 +20,11 @@ kotlin {
         }
     }
 
-//    @OptIn(ExperimentalWasmDsl::class)
-//    wasmJs {
-//        browser {
-//            commonWebpackConfig {
-//                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-//                    static = (static ?: mutableListOf()).apply {
-//                        // Serve sources to debug inside browser
-//                        add(project.projectDir.path)
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.sqldelight.runtime)
                 implementation(project(":app-model"))
+                implementation(project(":database"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.preview)
@@ -70,8 +51,6 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.kotlin.result)
-                implementation(libs.sqldelight.primitive.adapters)
-                implementation(libs.coroutines.extensions)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
             }
@@ -87,7 +66,6 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.cio)
-                implementation(libs.sqldelight.sqlite.driver)
             }
         }
         val androidMain by getting {
@@ -98,7 +76,6 @@ kotlin {
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.ui)
                 implementation(libs.androidx.activity.compose)
-                implementation(libs.sqldelight.android.driver)
                 implementation(libs.koin.android)
             }
         }
@@ -113,6 +90,9 @@ kotlin {
     }
 }
 
+composeCompiler {
+    stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
+}
 
 android {
     namespace = "me.dvyy"
@@ -126,18 +106,5 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-dependencies {
-    implementation(libs.androidx.foundation.android)
-}
-
-sqldelight {
-    databases {
-        create("Database") {
-            packageName.set("me.dvyy.tasks.db.client")
-            srcDirs("src/commonMain/sqldelight")
-            generateAsync.set(true)
-        }
     }
 }

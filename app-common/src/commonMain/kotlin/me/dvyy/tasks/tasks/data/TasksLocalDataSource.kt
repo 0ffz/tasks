@@ -8,6 +8,8 @@ import app.cash.sqldelight.coroutines.mapToOneOrDefault
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import me.dvyy.tasks.database.Vault
+import me.dvyy.tasks.database.VaultDataSource
 import me.dvyy.tasks.db.client.Database
 import me.dvyy.tasks.db.client.Rank
 import me.dvyy.tasks.db.client.Task
@@ -18,7 +20,7 @@ import me.dvyy.tasks.model.network.NetworkMessage
 import me.dvyy.tasks.sync.data.MessagesDataSource
 
 class TasksLocalDataSource(
-    val database: Database,
+    val vault: Vault,
     val messages: MessagesDataSource,
 ) {
     suspend fun createList(listId: ListId, list: TaskListModel) {
@@ -177,6 +179,7 @@ class TasksLocalDataSource(
     }
 
     suspend fun moveTaskToList(taskId: TaskId, listId: ListId) {
+        vault.createDocument()
         database.tasksQueries.transaction {
             val task = getTask(taskId) ?: return@transaction
             val rank = getRankAfterLast(listId)

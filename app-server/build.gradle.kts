@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.jib)
-    alias(libs.plugins.sqldelight)
 }
 
 application {
@@ -45,7 +44,6 @@ dependencies {
 
     implementation(libs.postgresql)
     implementation(libs.hikaricp)
-    implementation(libs.sqldelight.jdbc.driver)
     implementation(libs.koin.core)
 
 }
@@ -68,17 +66,5 @@ jib {
 //            "-XX:MaxGCPauseMillis=100",
 //            "-XX:+UseStringDeduplication"
 //        )
-    }
-}
-
-sqldelight {
-    databases {
-        create("ServerDatabase") {
-            deriveSchemaFromMigrations.set(true)
-            migrationOutputDirectory = file("$buildDir/generated/migrations")
-            migrationOutputFileFormat = ".sql" // Defaults to .sql
-            packageName.set("me.dvyy.tasks.db.server")
-            dialect(libs.sqldelight.postgresql.dialect)
-        }
     }
 }

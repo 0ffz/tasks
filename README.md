@@ -14,8 +14,8 @@ A WIP app for managing tasks using a calendar-like week view.
 
 <div align="center">
 
-<img src=assets/tasks-destop.png height="500" />
-<img src=assets/tasks-android.png height="500" />
+<img src=.assets/tasks-destop.png height="500" />
+<img src=.assets/tasks-android.png height="500" />
 
 </div>
 

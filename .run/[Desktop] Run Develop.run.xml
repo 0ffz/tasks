@@ -15,7 +15,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value=":app-desktop:run" />
+          <option value=":targets:desktop:run" />
         </list>
       </option>
       <option name="vmOptions" />

@@ -24,9 +24,7 @@ kotlin {
             dependencies {
                 implementation(project(":app-model"))
                 implementation(project(":app-common"))
-                implementation(project(":app-server"))
                 implementation(libs.junit)
-                implementation(libs.sqldelight.sqlite.driver)
                 implementation(libs.postgresql)
                 implementation(libs.hikaricp)
                 implementation(libs.testcontainers.postgresql)
