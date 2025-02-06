@@ -38,15 +38,18 @@ class VaultIndexer(
     /** Reads yaml front matter for an input stream and adds properties to [db] */
     fun index(path: VaultPath, inputStream: InputStream, hash: String) {
         // read front matter and content
-        var frontMatter = ""
+        var frontMatter: String? = null
         val content = inputStream.bufferedReader().useLines { lines ->
             val acc = StringBuilder()
+            var hasFrontMatter: Boolean? = null
             for (line in lines) {
-                if (line == "---") {
-                    if (frontMatter.isEmpty()) {
-                        frontMatter = acc.toString()
-                        acc.clear()
-                    }
+                if(hasFrontMatter == null) {
+                    hasFrontMatter = line == "---"
+                    continue
+                }
+                if (line == "---" && hasFrontMatter && frontMatter == null) {
+                    frontMatter = acc.toString()
+                    acc.clear()
                 } else {
                     acc.appendLine(line)
                 }
@@ -56,7 +59,7 @@ class VaultIndexer(
 
         // convert front matter and content to document
         //TODO decode yaml lists and objects correctly
-        val frontMatterDoc = DocumentHelpers.decodeFromYaml(frontMatter)
+        val frontMatterDoc = frontMatter?.let { DocumentHelpers.decodeFromYaml(it) } ?: documentOf()
         val document = documentOf(
             "md5hash" to hash,
             "frontMatter" to frontMatterDoc,

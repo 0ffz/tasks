@@ -8,9 +8,11 @@ import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
 import org.dizitart.kno2.filters.eq
 import org.dizitart.no2.collection.Document
+import kotlin.io.path.walk
 
 class Vault(
     private val vault: VaultDataSource,
+    private val vaultPaths: VaultPaths,
     private val fileSystem: VaultFileSystemDataSource,
     private val indexer: VaultIndexer,
     private val ioDispatcher: CoroutineDispatcher,

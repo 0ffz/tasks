@@ -67,8 +67,8 @@ fun AppFileTree(
             val projects by vault.fileTree.collectAsState()
 //            val projects by tasks.projects.collectAsState()
 
-            projects.forEach { key ->
-                add(file(LayoutStructure.Single.Project(key)))
+            projects.forEach { entry ->
+                add(entry)
             }
         }
     )

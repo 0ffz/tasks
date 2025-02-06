@@ -29,5 +29,5 @@ fun vaultModule(
     singleOf(::VaultIndexer)
     singleOf(::VaultFileWatcher)
     single { VaultFileSystemDataSource(rootPath) }
-    single { Vault(get(), get(), get(), Dispatchers.IO) }
+    single { Vault(get(), get(), get(), get(), Dispatchers.IO) }
 }

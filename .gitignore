@@ -24,3 +24,5 @@ wix*
 truckconfig.json
 
 *.db
+
+vault

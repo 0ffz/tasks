@@ -189,7 +189,7 @@ sealed interface LayoutStructure {
 //                    else -> AppIcons.Description
 //                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    DefaultTabLabel(icon, path.pathString /*props.displayName*/ ?: "Untitled")
+                    DefaultTabLabel(icon, path.pathString.takeLastWhile { it != '/' })
                     if (location == Location.Sidebar) {
                         Spacer(Modifier.weight(1f))
 //                        IconButton(
