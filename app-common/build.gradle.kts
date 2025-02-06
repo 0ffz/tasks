@@ -53,6 +53,9 @@ kotlin {
                 implementation(libs.kotlin.result)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
+//                implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc10"))
+                implementation("com.mikepenz:multiplatform-markdown-renderer:0.30.0")
+                implementation("com.mikepenz:multiplatform-markdown-renderer-m3:0.30.0")
 
                 implementation(libs.nitrite.core)
             }
