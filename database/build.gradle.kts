@@ -18,6 +18,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.serialization.cbor)
+                implementation(libs.kotlinx.serialization.kaml)
                 implementation(libs.nitrite.core)
                 implementation(libs.nitrite.mvstore)
                 implementation(libs.koin.core)

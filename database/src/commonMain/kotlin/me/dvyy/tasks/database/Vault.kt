@@ -2,9 +2,11 @@ package me.dvyy.tasks.database
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
+import org.dizitart.kno2.filters.eq
 import org.dizitart.no2.collection.Document
 
 class Vault(
@@ -22,6 +24,10 @@ class Vault(
         return vault.findAsFlow()
             .project("path")
             .asList { VaultPath(it["path"] as String) }
+    }
+
+    fun observeDocument(path: VaultPath): Flow<Document?> {
+        return vault.findAsFlow("path" eq path.pathString).map { it.singleOrNull() }
     }
 
     fun update(path: VaultPath, modify: (Document) -> Document) {

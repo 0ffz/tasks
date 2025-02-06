@@ -1,33 +1,37 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import me.dvyy.tasks.app.AppIcons
+import me.dvyy.tasks.app.ui.VaultViewModel
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
-import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
+import org.dizitart.no2.collection.Document
+import org.koin.compose.viewmodel.koinViewModel
 
 object DpSerializer : KSerializer<Dp> {
     override val descriptor = Float.serializer().descriptor
@@ -168,7 +172,7 @@ sealed interface LayoutStructure {
 
         @Serializable
         data class Project(
-            val path: @Contextual VaultPath,
+            val path: VaultPath,
         ) : Single {
             @Composable
             override fun tabLabel(location: Location) {
@@ -200,11 +204,23 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
+                val vault = koinViewModel<VaultViewModel>()
+                val document by vault.observeDocument(path).collectAsState()
+                val frontMatter = document?.get("frontMatter") as? Document ?: return
 //                val tasks: TasksViewModel = koinViewModel()
 //                val propLoadable by tasks.getListProperties(key).collectAsState()
-//                Column(Modifier.verticalScroll(rememberScrollState())) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    frontMatter.forEach {
+                        Row {
+                            Text(it.first)
+                            Text(it.second.toString())
+                        }
+                    }
+                    document?.get("fileContent")?.let {
+                        Text(it.toString())
+                    }
 //                    Project(key, propLoadable, scrollable = false)
-//                }
+                }
             }
 
             companion object {

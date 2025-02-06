@@ -53,6 +53,8 @@ kotlin {
                 implementation(libs.kotlin.result)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
+
+                implementation(libs.nitrite.core)
             }
         }
         val jvmMain by creating {

@@ -1,12 +1,12 @@
 package me.dvyy.tasks.database
 
+import me.dvyy.tasks.database.helpers.DocumentHelpers
 import org.dizitart.kno2.documentOf
 import org.dizitart.kno2.filters.notWithin
 import org.dizitart.no2.Nitrite
 import java.io.InputStream
 
 class VaultIndexer(
-    paths: VaultPaths,
     val vault: VaultDataSource,
     val fs: VaultFileSystemDataSource,
     val db: Nitrite,
@@ -16,7 +16,6 @@ class VaultIndexer(
         val seen = indexDirectory(VaultPath.root)
         vault.removeAll("path" notWithin seen.map { it.pathString })
     }
-
 
     fun indexDirectory(directory: VaultPath): List<VaultPath> {
         val seenFiles = fs.walkIndexable(directory)
@@ -38,8 +37,6 @@ class VaultIndexer(
 
     /** Reads yaml front matter for an input stream and adds properties to [db] */
     fun index(path: VaultPath, inputStream: InputStream, hash: String) {
-        val document = documentOf()
-
         // read front matter and content
         var frontMatter = ""
         val content = inputStream.bufferedReader().useLines { lines ->
@@ -59,14 +56,12 @@ class VaultIndexer(
 
         // convert front matter and content to document
         //TODO decode yaml lists and objects correctly
-        frontMatter.lineSequence().forEach { line ->
-            runCatching {
-                val (key, value) = line.split(": ", limit = 2)
-                document.put(key, value)
-            }
-        }
-        document.put("md5hash", hash)
-        document.put("fileContent", content)
+        val frontMatterDoc = DocumentHelpers.decodeFromYaml(frontMatter)
+        val document = documentOf(
+            "md5hash" to hash,
+            "frontMatter" to frontMatterDoc,
+            "fileContent" to content
+        )
         vault.upsertDocument(path, document)
     }
 
