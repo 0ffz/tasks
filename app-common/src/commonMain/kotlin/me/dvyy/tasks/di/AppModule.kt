@@ -1,5 +1,6 @@
 package me.dvyy.tasks.di
 
+import TasksViewModel
 import kotlinx.coroutines.Dispatchers
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
 import me.dvyy.tasks.app.ui.AppState
@@ -15,6 +16,7 @@ import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.data.SyncAPI
+import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -33,12 +35,12 @@ fun authModule() = module {
     singleOf(::AuthRepository)
 }
 
-//fun repositoriesModule() = module {
-//    singleOf(::TasksLocalDataSource)
+fun repositoriesModule() = module {
+    singleOf(::TasksLocalDataSource)
 //    singleOf(::TaskRepository)
 //    singleOf(::TaskListRepository)
 //    singleOf(::BulkAddRepository)
-//}
+}
 
 
 fun syncModule() = module {
@@ -51,7 +53,7 @@ fun syncModule() = module {
 fun viewModelsModule() = module {
     viewModelOf(::TimeViewModel)
     viewModelOf(::VaultViewModel)
-//    viewModelOf(::TasksViewModel)
+    viewModelOf(::TasksViewModel)
     viewModelOf(::AuthViewModel)
     viewModelOf(::DialogViewModel)
     viewModelOf(::PreferencesViewModel)

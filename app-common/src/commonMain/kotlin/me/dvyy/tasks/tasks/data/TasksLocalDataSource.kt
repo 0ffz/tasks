@@ -1,78 +1,83 @@
-//package me.dvyy.tasks.tasks.data
-//
-//import app.cash.sqldelight.async.coroutines.awaitAsList
-//import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
-//import app.cash.sqldelight.coroutines.asFlow
-//import app.cash.sqldelight.coroutines.mapToList
-//import app.cash.sqldelight.coroutines.mapToOneOrDefault
-//import kotlinx.coroutines.Dispatchers
-//import kotlinx.coroutines.flow.Flow
-//import kotlinx.coroutines.flow.map
-//import me.dvyy.tasks.database.Vault
-//import me.dvyy.tasks.database.VaultDataSource
-//import me.dvyy.tasks.db.client.Database
-//import me.dvyy.tasks.db.client.Rank
-//import me.dvyy.tasks.db.client.Task
-//import me.dvyy.tasks.db.client.TaskList
-//import me.dvyy.tasks.model.*
-//import me.dvyy.tasks.model.database.RankFunctions
-//import me.dvyy.tasks.model.network.NetworkMessage
-//import me.dvyy.tasks.sync.data.MessagesDataSource
-//
-//class TasksLocalDataSource(
-//    val vault: Vault,
-////    val messages: MessagesDataSource,
-//) {
+package me.dvyy.tasks.tasks.data
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import me.dvyy.tasks.database.Vault
+import me.dvyy.tasks.database.VaultDataSource
+import me.dvyy.tasks.database.VaultPath
+import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
+import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
+import me.dvyy.tasks.model.*
+import me.dvyy.tasks.model.database.RankFunctions
+import me.dvyy.tasks.model.network.NetworkMessage
+import me.dvyy.tasks.tasks.ui.state.TaskUiState
+import org.dizitart.kno2.filters.elemMatch
+import org.dizitart.kno2.filters.eq
+
+class TasksLocalDataSource(
+    val vault: Vault,
+//    val messages: MessagesDataSource,
+) {
 //    suspend fun createList(listId: ListId, list: TaskListModel) {
-////        database.listsQueries.transaction {
-////            val lastRank = database.listsQueries.lastRank().awaitAsOneOrNull() ?: 0
-////            database.listsQueries.insert(
-////                TaskList(
-////                    uuid = listId,
-////                    isProject = !listId.isDate,
-////                    title = list.properties.displayName,
-////                    rank = lastRank + 1
-////                )
-////            )
-////
-////        }
-////        database.tasksQueries.transaction {
-////            list.tasks.forEach {
-////                database.tasksQueries.upsert(it)
-////            }
-////        }
+//        database.listsQueries.transaction {
+//            val lastRank = database.listsQueries.lastRank().awaitAsOneOrNull() ?: 0
+//            database.listsQueries.insert(
+//                TaskList(
+//                    uuid = listId,
+//                    isProject = !listId.isDate,
+//                    title = list.properties.displayName,
+//                    rank = lastRank + 1
+//                )
+//            )
+//
+//        }
+//        database.tasksQueries.transaction {
+//            list.tasks.forEach {
+//                database.tasksQueries.upsert(it)
+//            }
+//        }
 //    }
-//
-//
-//    suspend fun observeListTasks(listId: ListId): Flow<List<Task>> {
-////        val unranked = database.tasksQueries.forListWithoutRank(listId).awaitAsList()
-////        if (unranked.isNotEmpty()) database.tasksQueries.transaction {
-////            unranked.forEach {
-////                upsertRank(Rank(uuid = it.uuid, parent = listId.uuid, getRankAfterLast(listId)))
-////            }
-////        }
-////        return database.tasksQueries.forList(listId).asFlow().mapToList(Dispatchers.Default)
-//    }
-//
-//
+
+
+    fun observeListTasks(listId: VaultPath): Flow<List<TaskUiState>> {
+        return vault.query("frontMatter.projects" elemMatch ("$" eq listId.pathWithoutExt ))
+            .project("frontMatter.projects", "fileContent", "frontMatter.done").asList {
+            TaskUiState(
+                text = (it["fileContent"] as String),
+                completed = (it.get("frontMatter.done") as String?)?.toBoolean() ?: false,
+                highlight = Highlight.Unmarked,
+            )
+        }
+//        val unranked = database.tasksQueries.forListWithoutRank(listId).awaitAsList()
+//        if (unranked.isNotEmpty()) database.tasksQueries.transaction {
+//            unranked.forEach {
+//                upsertRank(Rank(uuid = it.uuid, parent = listId.uuid, getRankAfterLast(listId)))
+//            }
+//        }
+//        return database.tasksQueries.forList(listId).asFlow().mapToList(Dispatchers.Default)
+    }
+
+
 //    fun observeListProperties(listId: ListId): Flow<TaskListProperties> {
-////        return database.listsQueries.get(listId).asFlow()
-////            .mapToOneOrDefault(
-////                TaskList(
-////                    listId,
-////                    isProject = !listId.isDate,
-////                    title = null,
-////                    rank = 0,
-////                ), Dispatchers.Default
-////            )
-////            .map {
-////                TaskListProperties(
-////                    displayName = it.title,
-////                    date = listId.date,
-////                )
-////            }
+//        return database.listsQueries.get(listId).asFlow()
+//            .mapToOneOrDefault(
+//                TaskList(
+//                    listId,
+//                    isProject = !listId.isDate,
+//                    title = null,
+//                    rank = 0,
+//                ), Dispatchers.Default
+//            )
+//            .map {
+//                TaskListProperties(
+//                    displayName = it.title,
+//                    date = listId.date,
+//                )
+//            }
 //    }
-//
+
 //    fun observeProjects(): Flow<List<ListId>> {
 ////        return database.listsQueries.getProjects().asFlow().mapToList(Dispatchers.Default)
 //    }
@@ -88,22 +93,22 @@
 //    suspend fun deleteTask(taskId: TaskId) {
 ////        database.tasksQueries.delete(taskId)
 //    }
-//
-//
-//    suspend fun setListProperties(listId: ListId, props: TaskListProperties) {
-////        database.listsQueries.transaction {
-////            val list = database.listsQueries.get(listId).awaitAsOneOrNull()
-////            database.listsQueries.insert(
-////                TaskList(
-////                    uuid = listId,
-////                    isProject = !listId.isDate,
-////                    title = props.displayName,
-////                    rank = list?.rank ?: 0
-////                )
-////            )
-////        }
-//    }
-//
+
+
+    suspend fun setListProperties(listId: ListId, props: TaskListProperties) {
+//        database.listsQueries.transaction {
+//            val list = database.listsQueries.get(listId).awaitAsOneOrNull()
+//            database.listsQueries.insert(
+//                TaskList(
+//                    uuid = listId,
+//                    isProject = !listId.isDate,
+//                    title = props.displayName,
+//                    rank = list?.rank ?: 0
+//                )
+//            )
+//        }
+    }
+
 //    suspend fun upsertTask(task: Task) {
 ////        database.tasksQueries.upsert(task)
 //    }
@@ -221,4 +226,4 @@
 //        val newRank = RankFunctions.getLexicographicMiddle(firstRank, secondRank)
 //        upsertRank(Rank(task.uuid, list.uuid, newRank))
 //    }
-//}
+}

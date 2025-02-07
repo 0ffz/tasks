@@ -38,6 +38,7 @@ fun createAppKoinApplication(extras: KoinAppDeclaration = {}) = koinApplication 
         authModule(),
         syncModule(),
         vaultModule(Path("vault")),
+        repositoriesModule(),
         viewModelsModule(),
     )
 }

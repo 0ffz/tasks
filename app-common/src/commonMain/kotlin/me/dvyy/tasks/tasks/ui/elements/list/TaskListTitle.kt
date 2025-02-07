@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.fade
+import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.CachedUpdate
@@ -32,7 +33,7 @@ fun TaskListTitle(
     interactions: TaskListInteractions? = null,
     loading: Boolean = false,
     showDivider: Boolean = true,
-    key: ListId,
+    key: VaultPath,
     modifier: Modifier = Modifier,
 ) {
     val color =

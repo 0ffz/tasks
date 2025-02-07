@@ -8,6 +8,8 @@ import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
 import org.dizitart.kno2.filters.eq
 import org.dizitart.no2.collection.Document
+import org.dizitart.no2.collection.DocumentCursor
+import org.dizitart.no2.filters.Filter
 import kotlin.io.path.walk
 
 class Vault(
@@ -45,6 +47,8 @@ class Vault(
     fun index() {
         indexer.indexRoot()
     }
+
+    fun query(filter: Filter = Filter.ALL): Flow<DocumentCursor> = vault.findAsFlow(filter)
 
     suspend fun deleteDocument(path: VaultPath) = withContext(ioDispatcher) {
         vault.removeDocument(path)

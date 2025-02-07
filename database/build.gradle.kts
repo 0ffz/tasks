@@ -10,6 +10,7 @@ kotlin {
     }
 
     jvm()
+    jvmToolchain(17)
 
     sourceSets {
         val commonMain by getting {

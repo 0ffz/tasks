@@ -12,6 +12,7 @@ import kotlin.io.path.Path
 @Serializable(with = VaultPath.Serializer::class)
 class VaultPath(desiredPath: String) {
     val pathString: String = desiredPath.removePrefix("/")
+    val pathWithoutExt = pathString.removeSuffix(".md")
     init {
         val asPath = Path(pathString)
         require(!asPath.isAbsolute) { "Path must be relative" }

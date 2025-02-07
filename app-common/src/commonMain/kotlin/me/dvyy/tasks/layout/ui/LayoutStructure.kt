@@ -1,5 +1,6 @@
 package me.dvyy.tasks.layout.ui
 
+import TasksViewModel
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -37,7 +38,9 @@ import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
+import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
+import me.dvyy.tasks.utils.loaded
 import org.dizitart.no2.collection.Document
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -235,6 +238,10 @@ sealed interface LayoutStructure {
                             }
                         }
                     }
+                    me.dvyy.tasks.tasks.ui.elements.list.Project(
+                        path = path,
+                        properties = TaskListProperties(displayName = path.pathString).loaded()
+                    )
 //                    HorizontalDivider()
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                         Column(Modifier.sizeIn(maxWidth = 800.dp).fillMaxSize().verticalScroll(rememberScrollState())) {

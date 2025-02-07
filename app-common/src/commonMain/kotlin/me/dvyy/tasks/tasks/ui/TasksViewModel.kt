@@ -1,3 +1,16 @@
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import me.dvyy.tasks.database.VaultPath
+import me.dvyy.tasks.tasks.data.TasksLocalDataSource
+import me.dvyy.tasks.tasks.ui.TaskInteractions
+import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
+import me.dvyy.tasks.tasks.ui.state.TaskUiState
+import me.dvyy.tasks.utils.Loadable
+import me.dvyy.tasks.utils.WhileUiSubscribed
+
 //package me.dvyy.tasks.tasks.ui
 //
 //import androidx.compose.foundation.text.KeyboardActions
@@ -35,11 +48,9 @@ sealed interface SyncState {
 //    val requestFocus: Boolean,
 //)
 //
-//class TasksViewModel(
-//    private val taskRepo: TaskRepository,
-//    private val bulkAddRepo: BulkAddRepository,
-//    private val listRepo: TaskListRepository,
-//) : ViewModel() {
+class TasksViewModel(
+    val taskRepo: TasksLocalDataSource,
+) : ViewModel() {
 //    val selectedTask = MutableStateFlow<SelectedTask?>(null)
 //
 //    val projects = listRepo.observeProjects()
@@ -56,19 +67,10 @@ sealed interface SyncState {
 //    private val listTaskObservers = mutableStateMapOf<ListId, StateFlow<Loadable<List<TaskWithIDState>>>>()
 //    private val listPropertiesObservers = mutableStateMapOf<ListId, StateFlow<Loadable<TaskListProperties>>>()
 //
-//    fun tasksFor(listId: ListId): StateFlow<Loadable<List<TaskWithIDState>>> =
-//        listTaskObservers.getOrPut(listId) {
-//            flow { emitAll(listRepo.observeTasksFor(listId)) }
-//                .map { list ->
-//                    Loadable.Loaded(list.map { model ->
-//                        TaskWithIDState(
-//                            TaskUiState.fromModel(model),
-//                            model.uuid,
-//                        )
-//                    })
-//                }
-//                .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
-//        }
+    fun tasksFor(path: VaultPath): StateFlow<Loadable<List<TaskUiState>>> =
+        taskRepo.observeListTasks(path)
+            .map { Loadable.Loaded(it) }
+            .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
 //
 //    fun getListProperties(key: ListId) = listPropertiesObservers.getOrPut(key) {
 //        listRepo.observeProperties(key)
@@ -106,12 +108,13 @@ sealed interface SyncState {
 //        },
 //    )
 //
-//    fun interactionsFor(
+    fun interactionsFor(
 //        taskId: TaskId,
 //        listId: ListId,
 //        uiState: TaskUiState,
 //        setUiState: (TaskUiState) -> Unit,
-//    ): TaskInteractions =
+    ): TaskInteractions = object : TaskInteractions {
+}
 //        DefaultTaskInteractions(taskId, listId, uiState, setUiState)
 //
 //    private fun taskAfter(listId: ListId, taskId: TaskId): TaskId? {
@@ -230,4 +233,4 @@ sealed interface SyncState {
 //            if (selectedTask.value?.taskId != taskId) selectTask(taskId)
 //        }
 //    }
-//}
+}
