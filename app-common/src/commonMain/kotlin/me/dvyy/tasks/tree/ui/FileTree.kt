@@ -74,8 +74,8 @@ fun FileEntry(
                 }
 
                 is FileStructure.Folder -> {
-                    Icon(Icons.Rounded.Folder, "Folder")
-                    Spacer(Modifier.width(UI.padding.sm))
+//                    Icon(Icons.Rounded.Folder, "Folder")
+//                    Spacer(Modifier.width(UI.padding.sm))
                     Text(file.name)
                     Spacer(Modifier.weight(1f))
                     val rotation by animateFloatAsState(if (open) 180f else 0f)

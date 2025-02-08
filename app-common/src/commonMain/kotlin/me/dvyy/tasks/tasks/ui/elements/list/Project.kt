@@ -20,7 +20,7 @@ fun Project(
     scrollable: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    val tasks by remember { tasksViewModel.tasksFor(path) }.collectAsState()
+    val tasks by remember(path) { tasksViewModel.tasksFor(path) }.collectAsState()
     val reorderInteractions = TaskReorderInteractions() // TODO tasksViewModel.reorderInteractions()
 
     TaskList(

@@ -13,6 +13,8 @@ import kotlin.io.path.Path
 class VaultPath(desiredPath: String) {
     val pathString: String = desiredPath.removePrefix("/")
     val pathWithoutExt = pathString.removeSuffix(".md")
+    val displayName = pathWithoutExt.substringAfterLast("/")
+
     init {
         val asPath = Path(pathString)
         require(!asPath.isAbsolute) { "Path must be relative" }

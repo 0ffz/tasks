@@ -1,17 +1,11 @@
 package me.dvyy.tasks.layout.ui
 
-import TasksViewModel
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -80,7 +74,7 @@ sealed interface LayoutStructure {
 
     @Serializable
     sealed interface Single : LayoutStructure {
-        val icon get() = Icons.Outlined.QuestionMark
+        val icon: ImageVector? get() = null
         val text get() = "Untitled"
 
         enum class Location {
@@ -182,6 +176,30 @@ sealed interface LayoutStructure {
         }
 
         @Serializable
+        data object Empty : Single {
+            override val icon get() = null
+            override val text get() = "Empty"
+
+            @Composable
+            override fun content() {
+                Column(
+                    Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        "No tab is open",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    TextButton(onClick = { /* TODO onLayoutUpdate(structure.withTab(LayoutStructure.Single.WeekView()))*/ }) {
+                        Text("Open week view")
+                    }
+                }
+            }
+        }
+
+        @Serializable
         data class Project(
             val path: VaultPath,
         ) : Single {
@@ -200,7 +218,7 @@ sealed interface LayoutStructure {
 //                    else -> AppIcons.Description
 //                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    DefaultTabLabel(icon, path.pathString.takeLastWhile { it != '/' })
+                    DefaultTabLabel(icon, path.displayName)
                     if (location == Location.Sidebar) {
                         Spacer(Modifier.weight(1f))
 //                        IconButton(
@@ -229,23 +247,28 @@ sealed interface LayoutStructure {
                 )
 //                val tasks: TasksViewModel = koinViewModel()
 //                val propLoadable by tasks.getListProperties(key).collectAsState()
-                val title = path.pathString.takeLastWhile { it != '/' }
+                val title = path.displayName
                 Column {
                     Surface(Modifier.height(UI.tabHeight).fillMaxSize().padding(UI.tabPadding)) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Row {
-                                Text(path.pathString.replace("/", " / "), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface.fade(alpha = 0.6f))
+                                Text(
+                                    path.pathString.replace("/", " / "),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurface.fade(alpha = 0.6f)
+                                )
                             }
                         }
                     }
-                    me.dvyy.tasks.tasks.ui.elements.list.Project(
-                        path = path,
-                        properties = TaskListProperties(displayName = path.pathString).loaded()
-                    )
-//                    HorizontalDivider()
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                         Column(Modifier.sizeIn(maxWidth = 800.dp).fillMaxSize().verticalScroll(rememberScrollState())) {
                             Text(title, style = typography.h1)
+                            HorizontalDivider()
+                            me.dvyy.tasks.tasks.ui.elements.list.Project(
+                                path = path,
+                                scrollable = false,
+                                properties = TaskListProperties(displayName = path.pathString).loaded()
+                            )
                             frontMatter.forEach {
                                 Row {
                                     Text(it.first)
@@ -282,10 +305,18 @@ sealed interface LayoutStructure {
             tab: Single,
             select: Boolean = true,
             atIndex: Int = tabs.size,
+            replace: Boolean = true,
         ): Tabbed {
+            if (replace && atIndex <= tabs.lastIndex) return Tabbed(
+                tabs.toMutableList().apply { set(atIndex, tab) }, if(select) atIndex else selected
+            )
             return Tabbed(tabs.toMutableList().apply {
                 add(atIndex, tab)
             }, if (select) atIndex else selected)
+        }
+
+        fun withNewTab(): Tabbed {
+            return withTab(Single.Empty, replace = false)
         }
     }
 

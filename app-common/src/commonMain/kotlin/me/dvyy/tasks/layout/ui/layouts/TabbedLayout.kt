@@ -4,6 +4,7 @@ package me.dvyy.tasks.layout.ui.layouts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -127,24 +128,11 @@ fun TabbedLayout(
 
             TintedHorizontalDivider()
 
-            Surface() {
+            Surface {
                 structure.tabs.getOrNull(structure.selected)?.let {
                     Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(new) })
                 } ?: run {
-                    Column(
-                        Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "No tab is open",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        TextButton(onClick = { onLayoutUpdate(structure.withTab(LayoutStructure.Single.WeekView())) }) {
-                            Text("Open week view")
-                        }
-                    }
+                        LayoutStructure.Single.Empty.content()
                 }
                 DropTarget(structure, onLayoutUpdate)
             }
@@ -172,7 +160,7 @@ private fun Tabs(
     }
     if (isActive) LaunchedEffect(structure) {
         layoutViewModel.openFilesFlow.collectLatest { (content) ->
-            onTabbedUpdate(structure.withTab(content))
+            onTabbedUpdate(structure.withTab(content, atIndex = structure.selected))
         }
     }
 
@@ -251,14 +239,19 @@ private fun Tabs(
                     ) { }
                     HoverBox(
                         Modifier.fillMaxSize(),
-                        onDropped = { new -> onTabbedUpdate(structure.withTab(new, atIndex = index)) }
+                        onDropped = { new -> onTabbedUpdate(structure.withTab(new, atIndex = index, replace = true)) }
                     )
                 }
             }
         }
+        IconButton(onClick = {
+            onTabbedUpdate(structure.withNewTab())
+        }) {
+            Icon(AppIcons.Add, "Add tab", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         HoverBox(
             Modifier.fillMaxSize().weight(1f),
-            onDropped = { new -> onTabbedUpdate(structure.withTab(new)) }
+            onDropped = { new -> onTabbedUpdate(structure.withTab(new, replace = false)) }
         )
     }
 

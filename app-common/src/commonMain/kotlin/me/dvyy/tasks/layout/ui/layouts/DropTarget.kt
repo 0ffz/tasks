@@ -24,7 +24,7 @@ fun DropTarget(
         Modifier.fillMaxSize(),
         hoverableModifier = { Modifier.align(Alignment.Center).fillMaxSize(0.33f) },
         onDropped = { new ->
-            val tabbed = structure.withTab(new)
+            val tabbed = structure.withTab(new, replace = false)
             update(tabbed, tabbed)
         })
 
