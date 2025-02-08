@@ -294,8 +294,13 @@ sealed interface LayoutStructure {
     }
 
     @Serializable
+    data class History(val history: List<Single>) {
+        constructor(vararg history: Single) : this(history.toList())
+    }
+
+    @Serializable
     data class Tabbed(
-        val tabs: List<Single>,
+        val tabs: List<History>,
         val selected: Int = 0,
         val name: String? = null,
         val fullWidth: Boolean = false,
@@ -308,10 +313,10 @@ sealed interface LayoutStructure {
             replace: Boolean = true,
         ): Tabbed {
             if (replace && atIndex <= tabs.lastIndex) return Tabbed(
-                tabs.toMutableList().apply { set(atIndex, tab) }, if(select) atIndex else selected
+                tabs.toMutableList().apply { set(atIndex, History(get(atIndex).history.plus(tab))) }, if(select) atIndex else selected
             )
             return Tabbed(tabs.toMutableList().apply {
-                add(atIndex, tab)
+                add(atIndex, History(tab))
             }, if (select) atIndex else selected)
         }
 
@@ -334,7 +339,7 @@ sealed interface LayoutStructure {
         return when (this) {
             is Tabbed -> this
             is Empty -> Tabbed(listOf(), 0)
-            is Single -> Tabbed(listOf(this), 0)
+            is Single -> Tabbed(listOf(History(this)), 0)
             else -> error("Cannot convert $this to a tabbed layout")
         }
     }

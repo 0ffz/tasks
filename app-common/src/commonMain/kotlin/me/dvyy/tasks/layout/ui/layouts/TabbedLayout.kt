@@ -130,7 +130,7 @@ fun TabbedLayout(
 
             Surface {
                 structure.tabs.getOrNull(structure.selected)?.let {
-                    Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(new) })
+                    Layout(it.history.last(), onLayoutUpdate = { new -> onLayoutUpdate(new) })
                 } ?: run {
                         LayoutStructure.Single.Empty.content()
                 }
@@ -193,9 +193,10 @@ private fun Tabs(
                     Modifier.padding(ui.tabPadding),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    structure.tabs.firstOrNull()?.tabLabel(Location.TabList)
+                    structure.tabs.firstOrNull()?.history?.last()?.tabLabel(Location.TabList)
                 }
-            } else structure.tabs.forEachIndexed { index, tab ->
+            } else structure.tabs.forEachIndexed { index, tabHistory ->
+                val tab = tabHistory.history.last()
                 Box(
                     Modifier.clickable {
                         onTabbedUpdate(structure.copy(selected = index))

@@ -6,8 +6,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -26,11 +25,12 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun FileList(
     files: List<FileStructure>,
+    depth: Int = 0,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier) {
         files.forEach {
-            FileEntry(it)
+            FileEntry(it, depth)
         }
     }
 }
@@ -39,6 +39,7 @@ fun FileList(
 @Composable
 fun FileEntry(
     file: FileStructure,
+    depth: Int = 0,
     layout: LayoutViewModel = koinViewModel(),
 ) = Column {
     var open by remember { mutableStateOf(false) }
@@ -68,30 +69,26 @@ fun FileEntry(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(UI.padding.sm)
         ) {
+            Spacer(Modifier.width(UI.padding.sm * depth))
             when (file) {
                 is FileStructure.File -> {
+                    Spacer(Modifier.width(UI.padding.xxl))
                     file.opensLayout.tabLabel(Location.Sidebar)
                 }
 
                 is FileStructure.Folder -> {
 //                    Icon(Icons.Rounded.Folder, "Folder")
-//                    Spacer(Modifier.width(UI.padding.sm))
-                    Text(file.name)
-                    Spacer(Modifier.weight(1f))
-                    val rotation by animateFloatAsState(if (open) 180f else 0f)
-                    Icon(Icons.Rounded.ArrowDropDown, "Toggle", modifier = Modifier.rotate(rotation))
+                    val rotation by animateFloatAsState(if (open) 90f else 0f)
+                    Icon(Icons.Rounded.ChevronRight, "Toggle", modifier = Modifier.rotate(rotation))
+                    Text(file.name, maxLines = 1)
                 }
 
                 is FileStructure.Element -> file.content()
             }
         }
     }
-    if (file is FileStructure.Folder) {
-        AnimatedVisibility(visible = open) {
-            Box(Modifier.padding(start = UI.padding.xl)) {
-                FileList(file.children)
-            }
-        }
+    if (file is FileStructure.Folder) AnimatedVisibility(visible = open) {
+        FileList(file.children, depth + 1)
     }
 }
 

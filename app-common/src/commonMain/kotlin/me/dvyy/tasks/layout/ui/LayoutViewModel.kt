@@ -118,12 +118,12 @@ class LayoutViewModel(
         LayoutStructure.Split(
             first = LayoutStructure.Split(
                 first = LayoutStructure.Tabbed(
-                    listOf(left.wrap {
+                    listOf(LayoutStructure.History(left.wrap {
                         androidx.compose.material3.Surface(
                             tonalElevation = UI.elevation.lv1,
                             modifier = Modifier.fillMaxSize()
                         ) { it() }
-                    }),
+                    })),
                     fullWidth = true,
                     selectable = false,
                 ),
