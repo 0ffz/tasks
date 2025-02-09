@@ -12,82 +12,61 @@ import me.dvyy.tasks.database.helpers.KeyHelpers.frontMatter
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
 import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.model.database.RankFunctions
 import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
+import org.dizitart.kno2.documentOf
 import org.dizitart.kno2.filters.elemMatch
 import org.dizitart.kno2.filters.eq
+import org.dizitart.no2.collection.FindOptions
+import org.dizitart.no2.common.SortOrder
 
 class TasksLocalDataSource(
     val vault: Vault,
 //    val messages: MessagesDataSource,
 ) {
     fun moveTask(task: VaultPath, /*from: VaultPath,*/ to: VaultPath) {
+        var moveDocumentTo: VaultPath? = null
         vault.update(task, frontMatter = {
 //            val updatedProjects = (it.read<List<String>>("projects") ?: listOf()).minus(from.pathWithoutExt).plus(to.pathWithoutExt)
             val updatedProjects = listOf(to.pathWithoutExt)
             it.write("projects", updatedProjects)
         })
-    }
-//    suspend fun createList(listId: ListId, list: TaskListModel) {
-//        database.listsQueries.transaction {
-//            val lastRank = database.listsQueries.lastRank().awaitAsOneOrNull() ?: 0
-//            database.listsQueries.insert(
-//                TaskList(
-//                    uuid = listId,
-//                    isProject = !listId.isDate,
-//                    title = list.properties.displayName,
-//                    rank = lastRank + 1
-//                )
-//            )
-//
-//        }
-//        database.tasksQueries.transaction {
-//            list.tasks.forEach {
-//                database.tasksQueries.upsert(it)
-//            }
-//        }
-//    }
 
-
-    fun observeListTasks(listId: VaultPath): Flow<List<TaskUiStateWithPath>> {
-        return vault.query(frontMatter("projects") elemMatch ("$" eq listId.pathWithoutExt))
-            .project(frontMatter("projects"), frontMatter("done"), "fileContent", "path").asList {
-                TaskUiStateWithPath(
-                    state = TaskUiState(
-                        text = (it.content()),
-                        completed = it.frontMatter<Boolean?>("done") ?: false,
-                        highlight = Highlight.Unmarked,
-                    ),
-                    path = it.vaultPath()
-                )
+        vault.getDocument(task)?.let {
+            if (it.read<Boolean>(frontMatter("managed")) == true) {
+                val vaultPath = it.vaultPath()
+                val targetFolder = vault.taskFolderFor(to)
+                if (vaultPath.parent != targetFolder) {
+                    moveDocumentTo = targetFolder.resolve(vaultPath.displayName + ".md")
+                }
             }
-//        val unranked = database.tasksQueries.forListWithoutRank(listId).awaitAsList()
-//        if (unranked.isNotEmpty()) database.tasksQueries.transaction {
-//            unranked.forEach {
-//                upsertRank(Rank(uuid = it.uuid, parent = listId.uuid, getRankAfterLast(listId)))
-//            }
-//        }
-//        return database.tasksQueries.forList(listId).asFlow().mapToList(Dispatchers.Default)
+        }
+//        if (moveDocumentTo != null) vault.moveDocument(task, moveDocumentTo)
     }
 
-
-//    fun observeListProperties(listId: ListId): Flow<TaskListProperties> {
-//        return database.listsQueries.get(listId).asFlow()
-//            .mapToOneOrDefault(
-//                TaskList(
-//                    listId,
-//                    isProject = !listId.isDate,
-//                    title = null,
-//                    rank = 0,
-//                ), Dispatchers.Default
-//            )
-//            .map {
-//                TaskListProperties(
-//                    displayName = it.title,
-//                    date = listId.date,
-//                )
-//            }
-//    }
+    //    val markdownChecklistRegex = "^- \\[[xX ]]".toRegex()
+    fun observeListTasks(listId: VaultPath): Flow<List<TaskUiStateWithPath>> {
+//        vault.query(KeyHelpers.PATH_KEY eq listId.pathString).project(KeyHelpers.CONTENT_KEY).map {
+//            val content = it.single().content()
+//            content.lineSequence().filter { it.trim().matches(markdownChecklistRegex) }
+//        }
+        return vault.queryAsFlow(
+            frontMatter("projects") elemMatch ("$" eq listId.pathWithoutExt), FindOptions.orderBy(
+                frontMatter("sortOrder"),
+                SortOrder.Ascending
+            )
+        ).project(frontMatter("projects"), frontMatter("done"), "fileContent", "path").asList {
+            TaskUiStateWithPath(
+                state = TaskUiState(
+                    text = (it.content()),
+                    completed = it.frontMatter<Boolean?>("done") ?: false,
+                    highlight = Highlight.Unmarked,
+                ),
+                path = it.vaultPath()
+            )
+        }
+    }
 
 //    fun observeProjects(): Flow<List<ListId>> {
 ////        return database.listsQueries.getProjects().asFlow().mapToList(Dispatchers.Default)
@@ -106,38 +85,28 @@ class TasksLocalDataSource(
 //            )
 //        }
 
-//    suspend fun upsertTask(task: Task) {
-////        database.tasksQueries.upsert(task)
-//    }
+    //    // Rank functions
 //
-//    suspend fun createTask(listId: ListId, atEndOfList: Boolean): Task {
-////        val rank = if (atEndOfList) getRankAfterLast(listId) else getRankBeforeFirst(listId)
-////        val task = Task(
-////            uuid = TaskId.new(),
-////            list = listId,
-////            completed = false,
-////            text = "",
-////            highlight = Highlight.Unmarked,
-////        )
-////        upsertTask(task)
-////        upsertRank(rank = Rank(task.uuid.uuid, listId.uuid, rank))
-////        return task
-//    }
-//
-//    // Rank functions
-//
-//    suspend fun getLastRankOrMiddle(listId: ListId) =
-//        (database.rankQueries.lastRank(listId.uuid).awaitAsOneOrNull() ?: RankFunctions.middleChar.toString())
-//
+    fun getLastRankOrMiddle(list: VaultPath) = vault.query(
+        frontMatter("projects") elemMatch ("$" eq list.pathWithoutExt), FindOptions.orderBy(
+            frontMatter("sortOrder"),
+            SortOrder.Descending
+        )
+    ).project(documentOf(frontMatter("sortOrder") to null))
+        .firstOrNull()
+        .frontMatter<String>("sortOrder")
+        ?: RankFunctions.middleChar.toString()
+
+    //
 //    suspend fun getFirstRankOrMiddle(listId: ListId) =
 //        (database.rankQueries.firstRank(listId.uuid).awaitAsOneOrNull() ?: RankFunctions.middleChar.toString())
 //
-//    suspend fun getRankAfterLast(listId: ListId): String {
-//        val lastRank = getLastRankOrMiddle(listId)
-//        return RankFunctions.getRankAfter(lastRank)
-//    }
+    fun getRankAfterLast(list: VaultPath): String {
+        val lastRank = getLastRankOrMiddle(list)
+        return RankFunctions.getRankAfter(lastRank)
+    }
 //
-//    suspend fun getRankBeforeFirst(listId: ListId): String {
+//    fun getRankBeforeFirst(listId: VaultPath): String {
 //        val firstRank = getFirstRankOrMiddle(listId)
 //        return RankFunctions.getRankBefore(firstRank)
 //    }

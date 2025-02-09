@@ -19,7 +19,6 @@ import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.WhileUiSubscribed
 import org.dizitart.kno2.documentOf
-import kotlin.uuid.Uuid
 
 //package me.dvyy.tasks.tasks.ui
 //
@@ -109,7 +108,8 @@ class TasksViewModel(
             viewModelScope.launch { taskDataSource.moveTask(id, targetList) }
         }
     )
-//
+
+    //
 //    fun createProject(name: String? = null) = viewModelScope.launch {
 //        listRepo.create(ListId.newProject(), TaskListProperties(displayName = name))
 //    }
@@ -118,12 +118,21 @@ class TasksViewModel(
 //        listRepo.delete(key)
 //    }
 //
-    fun listInteractionsFor(path: VaultPath) = TaskListInteractions(
+    val alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    val idLength = 8
+    fun listInteractionsFor(listPath: VaultPath) = TaskListInteractions(
         createNewTask = { atEnd ->
-            val childNotePath = path.parent.resolve(Uuid.random().toString() + ".md")
+            val randomId = buildString { repeat(idLength) { append(alphabet.random()) } }
+            val taskName = "${listPath.displayName.take(16)}-$randomId.md"
+            val childNotePath = vault.taskFolderFor(listPath).resolve(taskName)
 
             viewModelScope.launch {
-                vault.createDocument(childNotePath, documentOf("projects" to listOf(path.pathWithoutExt))/*, atEnd*/)
+                vault.createDocument(
+                    childNotePath, frontMatter = documentOf(
+                        "projects" to listOf(listPath.pathWithoutExt),
+                        "managed" to true,
+                    )/*, atEnd*/
+                )
                 selectTask(childNotePath, focus = true)
             }
         },

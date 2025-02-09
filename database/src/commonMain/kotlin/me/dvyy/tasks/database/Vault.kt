@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.dvyy.tasks.database.VaultFileSystemDataSource.Companion.md5Hash
 import me.dvyy.tasks.database.helpers.DocumentHelpers.content
 import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
 import me.dvyy.tasks.database.helpers.DocumentHelpers.write
@@ -23,7 +22,6 @@ import org.dizitart.no2.collection.FindOptions
 import org.dizitart.no2.common.SortOrder
 import org.dizitart.no2.filters.Filter
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 class Vault(
     private val vault: VaultDataSource,
@@ -56,6 +54,8 @@ class Vault(
         return vault.findAsFlow("path" eq path.pathString).map { it.singleOrNull() }
     }
 
+    fun getDocument(path: VaultPath): Document? = vault.getDocument(path)
+
     fun update(
         path: VaultPath,
         frontMatter: ((Document) -> Document)? = null,
@@ -67,6 +67,14 @@ class Vault(
         if (content != null) document.put(KeyHelpers.CONTENT_KEY, content.invoke(document.content()))
         vault.upsertDocument(path, document)
         queueSave(path)
+    }
+
+    fun moveDocument(from: VaultPath, to: VaultPath) {
+        //TODO mechanism to prevent indexing while this is happening (or we might get duplicate path keys)
+        fileSystem.moveDocument(from, to)
+        vault.upsertDocument(from, documentOf(
+            "path" to to.pathString,
+        ))
     }
 
     fun queueSave(path: VaultPath) {
@@ -93,7 +101,9 @@ class Vault(
         indexer.indexRoot()
     }
 
-    fun query(filter: Filter = Filter.ALL): Flow<DocumentCursor> = vault.findAsFlow(filter)
+    fun taskFolderFor(list: VaultPath): VaultPath = VaultPath(".tasks").resolve(list.pathWithoutExt)
+    fun query(filter: Filter = Filter.ALL, options: FindOptions? = null): DocumentCursor = vault.find(filter, options)
+    fun queryAsFlow(filter: Filter = Filter.ALL, options: FindOptions? = null): Flow<DocumentCursor> = vault.findAsFlow(filter, options)
 
     suspend fun deleteDocument(path: VaultPath) = withContext(ioDispatcher) {
         vault.removeDocument(path)

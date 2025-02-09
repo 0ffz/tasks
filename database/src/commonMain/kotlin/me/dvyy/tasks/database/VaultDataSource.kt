@@ -33,6 +33,12 @@ class VaultDataSource(
         createIndex(IndexOptions.indexOptions(IndexType.FULL_TEXT), "fileContent")
     }
 
+    fun find(filter: Filter = Filter.ALL, options: FindOptions? = null): DocumentCursor =
+        if (options != null)
+            filesCollection.find(filter, options)
+        else
+            filesCollection.find(filter)
+
     fun findAsFlow(filter: Filter = Filter.ALL, options: FindOptions? = null): Flow<DocumentCursor> = flow {
         val updates = Channel<Unit>(CONFLATED)
         updates.trySend(Unit)

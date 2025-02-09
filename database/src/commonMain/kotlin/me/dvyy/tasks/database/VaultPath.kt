@@ -26,6 +26,10 @@ class VaultPath(desiredPath: String) {
         return VaultPath("$pathString/${other.removePrefix("/")}")
     }
 
+    fun resolve(other: VaultPath): VaultPath {
+        return resolve(other.pathString)
+    }
+
     val parent get(): VaultPath {
         return VaultPath(pathString.substringBeforeLast("/", missingDelimiterValue = ""))
     }

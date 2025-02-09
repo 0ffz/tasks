@@ -35,6 +35,11 @@ class VaultFileSystemDataSource(
         return MD5.digest(content.toByteArray()).toHexString()
     }
 
+    fun moveDocument(from: VaultPath, to: VaultPath) {
+        to.toPath().createParentDirectories()
+        from.toPath().moveTo(to.toPath())
+    }
+
     fun Path.toVaultPath(): VaultPath {
         return VaultPath(relativeTo(vaultRoot).toString())
     }
