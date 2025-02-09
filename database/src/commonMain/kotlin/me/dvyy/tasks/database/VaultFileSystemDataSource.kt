@@ -1,5 +1,8 @@
 package me.dvyy.tasks.database
 
+import me.dvyy.tasks.database.helpers.DocumentHelpers.content
+import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
+import me.dvyy.tasks.database.helpers.DocumentYamlHelpers.encodeToString
 import org.dizitart.no2.collection.Document
 import java.nio.file.Path
 import java.security.MessageDigest
@@ -8,8 +11,10 @@ import kotlin.io.path.*
 class VaultFileSystemDataSource(
     val vaultRoot: Path,
 ) {
-    fun createDocument(path: VaultPath) {
-        path.toPath().createParentDirectories().createFile()
+    fun createOrSaveDocument(path: VaultPath, fileContent: String = "") {
+        val fsPath = path.toPath()
+        fsPath.createParentDirectories().also { if (it.notExists()) it.createFile() }
+        fsPath.writeText(fileContent)
     }
 
     fun deleteDocument(path: VaultPath): Boolean {
@@ -20,10 +25,14 @@ class VaultFileSystemDataSource(
         return vaultRoot.resolve(pathString)
     }
 
-    fun saveDocument(path: VaultPath, document: Document) {
-        val content = document["fileContent"] as String
-        val frontMatter =
-        path.toPath().writeText(content)
+    /**
+     * @return md5 hash of the saved document, to update in database.
+     */
+    @OptIn(ExperimentalStdlibApi::class)
+    fun saveDocument(path: VaultPath, document: Document): String {
+        val content = document.stringify()
+        createOrSaveDocument(path, content)
+        return MD5.digest(content.toByteArray()).toHexString()
     }
 
     fun Path.toVaultPath(): VaultPath {
@@ -48,12 +57,9 @@ class VaultFileSystemDataSource(
 
         fun isIndexable(file: Path): Boolean = file.extension == "md"// || file.extension == "yaml"
 
-        fun Document.toYamlFrontMatter() = buildString {
-            appendLine("---")
-            this@toYamlFrontMatter.forEach { pair ->
-                appendLine("${pair.first}: ${pair.second}")
-            }
-            appendLine("---")
-        }
+        fun Document.stringify() = "---\n${frontMatter().encodeToString()}\n---\n${content()}"
+
+        @OptIn(ExperimentalStdlibApi::class)
+        val Document.md5Hash get() = MD5.digest(stringify().toByteArray()).toHexString()
     }
 }

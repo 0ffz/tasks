@@ -5,7 +5,9 @@ import me.dvyy.tasks.database.Vault
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.database.helpers.DocumentHelpers.content
 import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
+import me.dvyy.tasks.database.helpers.DocumentHelpers.read
 import me.dvyy.tasks.database.helpers.DocumentHelpers.vaultPath
+import me.dvyy.tasks.database.helpers.DocumentHelpers.write
 import me.dvyy.tasks.database.helpers.KeyHelpers.frontMatter
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
@@ -19,6 +21,13 @@ class TasksLocalDataSource(
     val vault: Vault,
 //    val messages: MessagesDataSource,
 ) {
+    fun moveTask(task: VaultPath, /*from: VaultPath,*/ to: VaultPath) {
+        vault.update(task, frontMatter = {
+//            val updatedProjects = (it.read<List<String>>("projects") ?: listOf()).minus(from.pathWithoutExt).plus(to.pathWithoutExt)
+            val updatedProjects = listOf(to.pathWithoutExt)
+            it.write("projects", updatedProjects)
+        })
+    }
 //    suspend fun createList(listId: ListId, list: TaskListModel) {
 //        database.listsQueries.transaction {
 //            val lastRank = database.listsQueries.lastRank().awaitAsOneOrNull() ?: 0
@@ -83,19 +92,6 @@ class TasksLocalDataSource(
 //    fun observeProjects(): Flow<List<ListId>> {
 ////        return database.listsQueries.getProjects().asFlow().mapToList(Dispatchers.Default)
 //    }
-//
-//    suspend fun deleteList(listId: ListId) {
-////        database.listsQueries.delete(listId)
-//    }
-//
-//    suspend fun getTask(taskId: TaskId): Task? {
-////        return database.tasksQueries.get(taskId).awaitAsOneOrNull()
-//    }
-//
-//    suspend fun deleteTask(taskId: TaskId) {
-////        database.tasksQueries.delete(taskId)
-//    }
-
 
 //    suspend fun setListProperties(listId: ListId, props: TaskListProperties) {
 //        database.listsQueries.transaction {

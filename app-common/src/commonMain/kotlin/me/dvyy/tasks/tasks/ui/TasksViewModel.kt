@@ -8,13 +8,18 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
+import me.dvyy.tasks.database.Vault
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import me.dvyy.tasks.tasks.ui.TaskInteractions
+import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
+import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
 import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.WhileUiSubscribed
+import org.dizitart.kno2.documentOf
+import kotlin.uuid.Uuid
 
 //package me.dvyy.tasks.tasks.ui
 //
@@ -54,7 +59,8 @@ data class SelectedTask(
 )
 
 class TasksViewModel(
-    val taskRepo: TasksLocalDataSource,
+    val taskDataSource: TasksLocalDataSource,
+    val vault: Vault,
 ) : ViewModel() {
     val selectedTask = MutableStateFlow<SelectedTask?>(null)
 
@@ -75,7 +81,7 @@ class TasksViewModel(
 //    private val listPropertiesObservers = mutableStateMapOf<ListId, StateFlow<Loadable<TaskListProperties>>>()
 //
     fun tasksFor(path: VaultPath): StateFlow<Loadable<List<TaskUiStateWithPath>>> =
-        taskRepo.observeListTasks(path)
+        taskDataSource.observeListTasks(path)
             .map { Loadable.Loaded(it) }
             .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
 
@@ -92,17 +98,17 @@ class TasksViewModel(
 //    }
 //
 //
-//    fun reorderInteractions() = TaskReorderInteractions(
-//        onDragEnterItem = { targetTask, dragged ->
-//            selectTask(null)
+    fun reorderInteractions() = TaskReorderInteractions(
+        onDragEnterItem = { targetTask, dragged ->
+            selectTask(null)
 //            viewModelScope.launch {
-//                taskRepo.moveTaskTo(taskId = dragged, destId = targetTask)
+//                taskDataSource.moveTask(task = dragged, destId = targetTask)
 //            }
-//        },
-//        onDragEnterColumn = { targetList, id ->
-//            viewModelScope.launch { taskRepo.move(id, targetList) }
-//        }
-//    )
+        },
+        onDragEnterColumn = { targetList, id ->
+            viewModelScope.launch { taskDataSource.moveTask(id, targetList) }
+        }
+    )
 //
 //    fun createProject(name: String? = null) = viewModelScope.launch {
 //        listRepo.create(ListId.newProject(), TaskListProperties(displayName = name))
@@ -112,15 +118,22 @@ class TasksViewModel(
 //        listRepo.delete(key)
 //    }
 //
-//    fun listInteractionsFor(list: ListId) = TaskListInteractions(
-//        createNewTask = { atEnd ->
-//            viewModelScope.launch { selectTask(taskRepo.create(list, atEnd).uuid, focus = true) }
-//        },
-//        onPropertiesChanged = { props ->
-//            viewModelScope.launch { listRepo.update(list, props) }
-//        },
-//    )
-//
+    fun listInteractionsFor(path: VaultPath) = TaskListInteractions(
+        createNewTask = { atEnd ->
+            val childNotePath = path.parent.resolve(Uuid.random().toString() + ".md")
+
+            viewModelScope.launch {
+                vault.createDocument(childNotePath, documentOf("projects" to listOf(path.pathWithoutExt))/*, atEnd*/)
+                selectTask(childNotePath, focus = true)
+            }
+        },
+        onPropertiesChanged = { props ->
+            //TODO
+//            viewModelScope.launch { vault.update(path) {
+//            } }
+        },
+    )
+
     fun interactionsFor(
         task: VaultPath,
         parent: VaultPath,
@@ -141,16 +154,13 @@ class TasksViewModel(
 //        return list.getOrNull(list.indexOfFirst { it.uuid == taskId } - 1)?.uuid
 //    }
 //
-//    fun onTaskChanged(key: TaskId, newState: TaskUiState) = viewModelScope.launch {
-//        taskRepo.update(key) {
-//            it.copy(
-//                text = newState.text,
-//                completed = newState.completed,
-//                highlight = newState.highlight
-//            )
-//        }
-//    }
-//
+    fun onTaskChanged(key: VaultPath, newState: TaskUiState) = viewModelScope.launch {
+        vault.update(key, frontMatter = {
+            it.merge(newState.toFrontMatter())
+        }, content = { newState.text })
+    }
+
+    //
 //    fun createTask(task: TaskUiState, listId: ListId, atEndOfList: Boolean = true) = viewModelScope.launch {
 //        val id = taskRepo.create(listId, atEndOfList).uuid
 //        onTaskChanged(id, task)
@@ -165,13 +175,13 @@ class TasksViewModel(
 //
     @Stable
     inner class DefaultTaskInteractions(
-        private val taskId: VaultPath,
-        private val listId: VaultPath,
+        private val taskPath: VaultPath,
+        private val listPath: VaultPath,
         private val uiState: TaskUiState,
 //        private val setUiState: (TaskUiState) -> Unit,
     ) : TaskInteractions {
         override fun toString(): String {
-            return "DefaultTaskInteractions(taskId=$taskId, listId=$listId, uiState=$uiState)"
+            return "DefaultTaskInteractions(taskId=$taskPath, listId=$listPath, uiState=$uiState)"
         }
 
         private fun selectNextTaskOrNew() {
@@ -194,7 +204,7 @@ class TasksViewModel(
         }
 
         override fun onDelete() {
-//            viewModelScope.launch { taskRepo.dele(taskId) }
+            viewModelScope.launch { vault.deleteDocument(taskPath) }
         }
 
         override fun onKeyEvent(event: KeyEvent): Boolean {
@@ -244,7 +254,7 @@ class TasksViewModel(
         }
 
         override fun onSelect() {
-            if (selectedTask.value?.path != taskId) selectTask(taskId)
+            if (selectedTask.value?.path != taskPath) selectTask(taskPath)
         }
     }
 }

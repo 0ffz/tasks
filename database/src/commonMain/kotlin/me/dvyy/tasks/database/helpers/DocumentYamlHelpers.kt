@@ -43,7 +43,7 @@ object DocumentYamlHelpers {
         is Document -> YamlMap(element.associate { YamlScalar(it.first, YamlPath.root) to encodeYamlNode(it.second) }, YamlPath.root)
         null -> YamlNull(YamlPath.root)
         is String -> YamlScalar(element, YamlPath.root)
-        else -> throw IllegalArgumentException("Unsupported type: ${element::class.simpleName}")
+        else -> YamlScalar(element.toString(), YamlPath.root)
     }
 
     private fun decodeYamlNode(node: YamlNode): Any? = when(node) {

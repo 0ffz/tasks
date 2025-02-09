@@ -21,8 +21,13 @@ class VaultPath(desiredPath: String) {
         // TODO make can't go up from Path(""), .. internally is okay
         require(!pathString.contains("..")) { "Path must not contain .." }
     }
-    companion object{
-        val root = VaultPath("/")
+
+    fun resolve(other: String): VaultPath {
+        return VaultPath("$pathString/${other.removePrefix("/")}")
+    }
+
+    val parent get(): VaultPath {
+        return VaultPath(pathString.substringBeforeLast("/", missingDelimiterValue = ""))
     }
 
     object Serializer: KSerializer<VaultPath> {
@@ -38,5 +43,18 @@ class VaultPath(desiredPath: String) {
         override fun deserialize(decoder: Decoder): VaultPath {
             return VaultPath(decoder.decodeString())
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VaultPath) return false
+
+        if (pathString != other.pathString) return false
+
+        return true
+    }
+
+    companion object{
+        val root = VaultPath("/")
     }
 }

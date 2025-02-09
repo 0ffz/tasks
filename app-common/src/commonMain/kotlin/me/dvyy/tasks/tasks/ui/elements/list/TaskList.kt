@@ -83,7 +83,7 @@ fun TaskList(
 
         fun String.isGroupToggle() = startsWith("--") || startsWith("==")
         Column {
-//            val selectedTask by viewModel.selectedTask.collectAsState()
+            val selectedTask by viewModel.selectedTask.collectAsState()
 //            val groupedTasks = mutableListOf(mutableListOf<TaskWithIDState>())
 //            tasks.forEach { task ->
 //                if (task.state.text.isGroupToggle()) groupedTasks.add(mutableListOf(task))
@@ -94,14 +94,15 @@ fun TaskList(
 //                    var isGroupHidden by remember { mutableStateOf(tasksInGroup.firstOrNull()?.state?.completed == true) }
                 tasks.forEachIndexed { index, (task, path) ->
                     key(path) {
-                        val selected = false // TODO selectedTask?.taskId == task.uuid
-                        val focusRequested = false // TODO selected && selectedTask?.requestFocus == true
+                        val selected = selectedTask?.path == path
+                        println("${selectedTask?.path}, and $path")
+                        val focusRequested = selected && selectedTask?.requestFocus == true
 //                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
                         // cached task is the SSOT in this context, some things like text updates take too long to update in db
                         CachedUpdate(
                             key = path,
                             value = task,
-                            onValueChanged = { /*TODO viewModel.onTaskChanged(task.uuid, it)*/ }
+                            onValueChanged = { viewModel.onTaskChanged(path, it) }
                         ) { cachedTask, setTask ->
                             val focusManager = LocalFocusManager.current
                             val keyboardOpen by keyboardAsState()

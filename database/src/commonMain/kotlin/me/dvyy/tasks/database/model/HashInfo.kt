@@ -1,6 +1,8 @@
 package me.dvyy.tasks.database.model
 
 import me.dvyy.tasks.database.VaultPath
+import me.dvyy.tasks.database.helpers.DocumentHelpers.vaultPath
+import me.dvyy.tasks.database.helpers.KeyHelpers
 import org.dizitart.no2.collection.Document
 
 data class HashInfo(
@@ -9,8 +11,8 @@ data class HashInfo(
 ) {
     companion object {
         fun Document.toHashInfo() = HashInfo(
-            VaultPath(this["path"] as String),
-            this["md5hash"] as String?,
+            vaultPath(),
+            this[KeyHelpers.MD5_HASH_KEY] as String?,
         )
     }
 }

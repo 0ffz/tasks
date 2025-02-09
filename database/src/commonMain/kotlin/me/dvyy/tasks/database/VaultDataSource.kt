@@ -4,9 +4,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import me.dvyy.tasks.database.helpers.KeyHelpers
 import me.dvyy.tasks.database.model.HashInfo
 import me.dvyy.tasks.database.model.HashInfo.Companion.toHashInfo
 import org.dizitart.kno2.documentOf
@@ -15,7 +15,7 @@ import org.dizitart.kno2.getCollection
 import org.dizitart.no2.Nitrite
 import org.dizitart.no2.collection.Document
 import org.dizitart.no2.collection.DocumentCursor
-import org.dizitart.no2.collection.NitriteCollection
+import org.dizitart.no2.collection.FindOptions
 import org.dizitart.no2.collection.UpdateOptions
 import org.dizitart.no2.collection.events.CollectionEventListener
 import org.dizitart.no2.collection.events.EventType
@@ -33,7 +33,7 @@ class VaultDataSource(
         createIndex(IndexOptions.indexOptions(IndexType.FULL_TEXT), "fileContent")
     }
 
-    fun findAsFlow(filter: Filter = Filter.ALL): Flow<DocumentCursor> = flow {
+    fun findAsFlow(filter: Filter = Filter.ALL, options: FindOptions? = null): Flow<DocumentCursor> = flow {
         val updates = Channel<Unit>(CONFLATED)
         updates.trySend(Unit)
         val listener = CollectionEventListener { event ->
@@ -44,7 +44,11 @@ class VaultDataSource(
         filesCollection.subscribe(listener)
         try {
             for (update in updates) {
-                emit(filesCollection.find(filter))
+                if (options != null) {
+                    emit(filesCollection.find(filter, options))
+                } else {
+                    emit(filesCollection.find(filter))
+                }
             }
         } finally {
             filesCollection.unsubscribe(listener)
@@ -56,8 +60,12 @@ class VaultDataSource(
     }
 
     fun upsertDocument(path: VaultPath, document: Document) {
+        // Clear existing frontMatter, since update doesn't delete old values
+        if (document.containsKey(KeyHelpers.FRONTMATTER_KEY))
+            filesCollection.update("path" eq path.pathString, documentOf(KeyHelpers.FRONTMATTER_KEY to null))
+
         filesCollection.update("path" eq path.pathString, document.apply {
-            put("path", path.pathString)
+            put(KeyHelpers.PATH_KEY, path.pathString)
         }, UpdateOptions.updateOptions(true))
     }
 

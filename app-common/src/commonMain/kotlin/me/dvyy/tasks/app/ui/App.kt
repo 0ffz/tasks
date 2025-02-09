@@ -1,5 +1,6 @@
 package me.dvyy.tasks.app.ui
 
+import TasksViewModel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,7 +53,7 @@ fun App(
     extras: @Composable () -> Unit = { },
 ) = AppTheme {
     val ui = rememberAppUIState()
-//    val tasksViewModel = koinViewModel<TasksViewModel>()
+    val tasksViewModel = koinViewModel<TasksViewModel>()
     val layoutViewModel = koinViewModel<LayoutViewModel>()
     CompositionLocalProvider(
         LocalUIState provides ui,
@@ -70,7 +71,7 @@ fun App(
                 Box(
                     Modifier
                         .padding(paddingValues)
-//                        .clickableWithoutRipple { tasksViewModel.selectTask(null) }
+                        .clickableWithoutRipple { tasksViewModel.selectTask(null) }
                 ) {
                     if (ui.isSmall) {
                         val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Empty)

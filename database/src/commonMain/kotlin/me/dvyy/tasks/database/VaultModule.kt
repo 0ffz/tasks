@@ -8,6 +8,7 @@ import org.dizitart.no2.mvstore.MVStoreModule
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import java.nio.file.Path
+import kotlin.time.Duration.Companion.seconds
 
 fun vaultModule(
     rootPath: Path,
@@ -29,5 +30,5 @@ fun vaultModule(
     singleOf(::VaultIndexer)
     singleOf(::VaultFileWatcher)
     single { VaultFileSystemDataSource(rootPath) }
-    single { Vault(get(), get(), get(), get(), Dispatchers.IO) }
+    single { Vault(get(), get(), get(), get(), Dispatchers.IO, queueSaveDelay = 2.seconds) }
 }
