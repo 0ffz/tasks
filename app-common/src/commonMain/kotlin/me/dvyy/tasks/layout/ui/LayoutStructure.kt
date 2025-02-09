@@ -2,41 +2,29 @@ package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.mikepenz.markdown.m3.Markdown
-import com.mikepenz.markdown.m3.markdownTypography
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import me.dvyy.tasks.app.AppIcons
-import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.app.ui.VaultViewModel
 import me.dvyy.tasks.core.ui.components.LeadingIcon
-import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
-import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.notes.ui.Note
 import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
-import me.dvyy.tasks.utils.loaded
-import org.dizitart.no2.collection.Document
-import org.koin.compose.viewmodel.koinViewModel
 
 object DpSerializer : KSerializer<Dp> {
     override val descriptor = Float.serializer().descriptor
@@ -129,7 +117,7 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-//                me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
+                me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
             }
         }
 
@@ -234,57 +222,7 @@ sealed interface LayoutStructure {
             @OptIn(ExperimentalMaterial3ExpressiveApi::class)
             @Composable
             override fun content() {
-                val vault = koinViewModel<VaultViewModel>()
-                val document by vault.observeDocument(path).collectAsState()
-                val frontMatter = document?.get("frontMatter") as? Document ?: return
-                val typography = markdownTypography(
-                    h1 = MaterialTheme.typography.displayMedium.copy(fontSize = 32.sp, fontWeight = FontWeight.Black),
-                    h2 = MaterialTheme.typography.displayMedium.copy(fontSize = 24.sp, fontWeight = FontWeight.Black),
-                    h3 = MaterialTheme.typography.displayMedium.copy(fontSize = 20.sp, fontWeight = FontWeight.Black),
-                    h4 = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-                    h5 = MaterialTheme.typography.displayMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold),
-                    h6 = MaterialTheme.typography.displayMedium.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
-                )
-//                val tasks: TasksViewModel = koinViewModel()
-//                val propLoadable by tasks.getListProperties(key).collectAsState()
-                val title = path.displayName
-                Column {
-                    Surface(Modifier.height(UI.tabHeight).fillMaxSize().padding(UI.tabPadding)) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Row {
-                                Text(
-                                    path.pathString.replace("/", " / "),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurface.fade(alpha = 0.6f)
-                                )
-                            }
-                        }
-                    }
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                        Column(Modifier.sizeIn(maxWidth = 800.dp).fillMaxSize().verticalScroll(rememberScrollState())) {
-                            Text(title, style = typography.h1)
-                            HorizontalDivider()
-                            me.dvyy.tasks.tasks.ui.elements.list.Project(
-                                path = path,
-                                scrollable = false,
-                                properties = TaskListProperties(displayName = path.pathString).loaded()
-                            )
-                            frontMatter.forEach {
-                                Row {
-                                    Text(it.first)
-                                    Text(it.second.toString())
-                                }
-                            }
-                            document?.get("fileContent")?.let {
-//                            val content = rememberRichTextState()
-//                            LaunchedEffect(it) { content.setMarkdown(it.toString()) }
-//                            RichText(content)
-                                Markdown(it.toString(), typography = typography)
-                            }
-//                    Project(key, propLoadable, scrollable = false)
-                        }
-                    }
-                }
+                Note(path)
             }
 
             companion object {
@@ -313,7 +251,8 @@ sealed interface LayoutStructure {
             replace: Boolean = true,
         ): Tabbed {
             if (replace && atIndex <= tabs.lastIndex) return Tabbed(
-                tabs.toMutableList().apply { set(atIndex, History(get(atIndex).history.plus(tab))) }, if(select) atIndex else selected
+                tabs.toMutableList().apply { set(atIndex, History(get(atIndex).history.plus(tab))) },
+                if (select) atIndex else selected
             )
             return Tabbed(tabs.toMutableList().apply {
                 add(atIndex, History(tab))

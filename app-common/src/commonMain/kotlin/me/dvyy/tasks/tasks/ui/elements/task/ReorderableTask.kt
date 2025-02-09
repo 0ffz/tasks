@@ -13,14 +13,14 @@ import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
 import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
-import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 inline fun ReorderableTask(
-    key: TaskId,
+    key: VaultPath,
     reorderInteractions: TaskReorderInteractions,
     content: @Composable () -> Unit,
 ) {
@@ -28,7 +28,7 @@ inline fun ReorderableTask(
         MultiplatformDragAndDropData(key, Offset.Zero)
     }
         .dragAndDropTarget(
-            shouldStartDragAndDrop = { it.isOfType<TaskId>() },
+            shouldStartDragAndDrop = { it.isOfType<VaultPath>() },
             target = remember(key) {
                 object : DragAndDropTarget {
                     override fun onDrop(event: DragAndDropEvent): Boolean {
@@ -36,7 +36,7 @@ inline fun ReorderableTask(
                     }
 
                     override fun onEntered(event: DragAndDropEvent) {
-                        val draggedKey = event.dataOrNull<TaskId>()
+                        val draggedKey = event.dataOrNull<VaultPath>()
                         if (key != draggedKey) reorderInteractions.onDragEnterItem(key, draggedKey ?: return)
                     }
                 }

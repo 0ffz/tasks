@@ -1,11 +1,11 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
 import androidx.compose.runtime.Immutable
-import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 @Immutable
-data class TaskWithIDState(
+data class TaskUiStateWithPath(
     val state: TaskUiState,
-    val uuid: TaskId,
+    val path: VaultPath,
 )

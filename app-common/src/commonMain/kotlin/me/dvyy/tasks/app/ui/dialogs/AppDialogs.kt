@@ -11,13 +11,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import me.dvyy.tasks.app.AppIcons
+import me.dvyy.tasks.app.ui.VaultViewModel
 import me.dvyy.tasks.auth.ui.AuthDialog
-import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.database.VaultPath
 import org.koin.compose.viewmodel.koinViewModel
 
 sealed interface AppDialog {
     data object Auth : AppDialog
-    data class ConfirmDeleteProject(val key: ListId) : AppDialog
+    data class ConfirmDeleteProject(val key: VaultPath) : AppDialog
 }
 
 @Composable
@@ -34,9 +35,9 @@ fun AppDialogs(app: DialogViewModel = koinViewModel()) {
 
 @Composable
 fun ConfirmDeleteProjectDialog(
-    key: ListId,
+    key: VaultPath,
     dialogs: DialogViewModel = koinViewModel(),
-//    tasks: TasksViewModel = koinViewModel(),
+    vault: VaultViewModel = koinViewModel(),
 ) {
     AlertDialog(
         onDismissRequest = { dialogs.dismiss() },
@@ -46,7 +47,7 @@ fun ConfirmDeleteProjectDialog(
         confirmButton = {
             TextButton(onClick = {
                 dialogs.dismiss()
-//                tasks.deleteProject(key)
+                vault.deleteDocument(key)
             }) { Text("Delete") }
         },
         dismissButton = {

@@ -31,6 +31,12 @@ class VaultViewModel(
     fun observeDocument(path: VaultPath) =
         vault.observeDocument(path).stateIn(viewModelScope, WhileUiSubscribed, null)
 
+    fun deleteDocument(path: VaultPath) {
+        viewModelScope.launch {
+            vault.deleteDocument(path)
+        }
+    }
+
     init {
         viewModelScope.launch {
             vault.index()

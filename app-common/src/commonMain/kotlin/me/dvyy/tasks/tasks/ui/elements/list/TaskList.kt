@@ -24,7 +24,6 @@ import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.database.VaultPath
-import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -39,7 +38,7 @@ import me.dvyy.tasks.utils.loadedOrNull
 @Composable
 fun TaskList(
     listId: VaultPath,
-    tasks: Loadable<List<TaskUiState>>, //TODO represent loading state explicitly?
+    tasks: Loadable<List<TaskUiStateWithPath>>, //TODO represent loading state explicitly?
     properties: Loadable<TaskListProperties>,
     colored: Boolean = false,
     reorderInteractions: TaskReorderInteractions,
@@ -51,7 +50,7 @@ fun TaskList(
 ) {
     val ui = LocalUIState.current
     val listDropTarget = Modifier.dragAndDropTarget(
-        shouldStartDragAndDrop = { it.isOfType<TaskId>() },
+        shouldStartDragAndDrop = { it.isOfType<VaultPath>() },
         target = remember(listId) {
             object : DragAndDropTarget {
                 override fun onDrop(event: DragAndDropEvent): Boolean {
@@ -59,7 +58,7 @@ fun TaskList(
                 }
 
                 override fun onEntered(event: DragAndDropEvent) {
-                    reorderInteractions.onDragEnterColumn(listId, event.dataOrNull<TaskId>() ?: return)
+                    reorderInteractions.onDragEnterColumn(listId, event.dataOrNull<VaultPath>() ?: return)
                 }
             }
         }
@@ -76,7 +75,7 @@ fun TaskList(
             loading = isLoading,
             key = listId,
         )
-        val tasks = tasks.loadedOrNull()?.map { TaskWithIDState(it, TaskId.new()) } ?: return@Column
+        val tasks = tasks.loadedOrNull() ?: return@Column
         val scrollState = rememberScrollState()
         val scrollModifier =
             if (scrollable) Modifier.verticalScroll(scrollState)
@@ -93,15 +92,15 @@ fun TaskList(
             Column(scrollModifier.padding(horizontal = 6.dp)) {
 //                groupedTasks.forEachIndexed { groupIndex, tasksInGroup ->
 //                    var isGroupHidden by remember { mutableStateOf(tasksInGroup.firstOrNull()?.state?.completed == true) }
-                tasks.forEachIndexed { index, task ->
-                    key(task.uuid) {
+                tasks.forEachIndexed { index, (task, path) ->
+                    key(path) {
                         val selected = false // TODO selectedTask?.taskId == task.uuid
                         val focusRequested = false // TODO selected && selectedTask?.requestFocus == true
 //                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
                         // cached task is the SSOT in this context, some things like text updates take too long to update in db
                         CachedUpdate(
-                            key = task.uuid,
-                            value = task.state,
+                            key = path,
+                            value = task,
                             onValueChanged = { /*TODO viewModel.onTaskChanged(task.uuid, it)*/ }
                         ) { cachedTask, setTask ->
                             val focusManager = LocalFocusManager.current
@@ -119,11 +118,11 @@ fun TaskList(
                             }
 
                             val taskInteractions = remember(cachedTask) {
-                                viewModel.interactionsFor()// TODO (task.uuid, listId, cachedTask, setTask)
+                                viewModel.interactionsFor(path, listId, task)// TODO (task.uuid, listId, cachedTask, setTask)
                             }
 //                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
                             Column {
-                                ReorderableTask(key = task.uuid, reorderInteractions = reorderInteractions) {
+                                ReorderableTask(key = path, reorderInteractions = reorderInteractions) {
                                     Task(
                                         cachedTask,
                                         setTask,

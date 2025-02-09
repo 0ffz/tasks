@@ -1,17 +1,16 @@
 package me.dvyy.tasks.tasks.data
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import me.dvyy.tasks.database.Vault
-import me.dvyy.tasks.database.VaultDataSource
 import me.dvyy.tasks.database.VaultPath
+import me.dvyy.tasks.database.helpers.DocumentHelpers.content
+import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
+import me.dvyy.tasks.database.helpers.DocumentHelpers.vaultPath
+import me.dvyy.tasks.database.helpers.KeyHelpers.frontMatter
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
-import me.dvyy.tasks.model.*
-import me.dvyy.tasks.model.database.RankFunctions
-import me.dvyy.tasks.model.network.NetworkMessage
+import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.dizitart.kno2.filters.elemMatch
 import org.dizitart.kno2.filters.eq
@@ -41,15 +40,18 @@ class TasksLocalDataSource(
 //    }
 
 
-    fun observeListTasks(listId: VaultPath): Flow<List<TaskUiState>> {
-        return vault.query("frontMatter.projects" elemMatch ("$" eq listId.pathWithoutExt ))
-            .project("frontMatter.projects", "fileContent", "frontMatter.done").asList {
-            TaskUiState(
-                text = (it["fileContent"] as String),
-                completed = (it.get("frontMatter.done") as String?)?.toBoolean() ?: false,
-                highlight = Highlight.Unmarked,
-            )
-        }
+    fun observeListTasks(listId: VaultPath): Flow<List<TaskUiStateWithPath>> {
+        return vault.query(frontMatter("projects") elemMatch ("$" eq listId.pathWithoutExt))
+            .project(frontMatter("projects"), frontMatter("done"), "fileContent", "path").asList {
+                TaskUiStateWithPath(
+                    state = TaskUiState(
+                        text = (it.content()),
+                        completed = it.frontMatter<Boolean?>("done") ?: false,
+                        highlight = Highlight.Unmarked,
+                    ),
+                    path = it.vaultPath()
+                )
+            }
 //        val unranked = database.tasksQueries.forListWithoutRank(listId).awaitAsList()
 //        if (unranked.isNotEmpty()) database.tasksQueries.transaction {
 //            unranked.forEach {
@@ -95,7 +97,7 @@ class TasksLocalDataSource(
 //    }
 
 
-    suspend fun setListProperties(listId: ListId, props: TaskListProperties) {
+//    suspend fun setListProperties(listId: ListId, props: TaskListProperties) {
 //        database.listsQueries.transaction {
 //            val list = database.listsQueries.get(listId).awaitAsOneOrNull()
 //            database.listsQueries.insert(
@@ -107,7 +109,6 @@ class TasksLocalDataSource(
 //                )
 //            )
 //        }
-    }
 
 //    suspend fun upsertTask(task: Task) {
 ////        database.tasksQueries.upsert(task)

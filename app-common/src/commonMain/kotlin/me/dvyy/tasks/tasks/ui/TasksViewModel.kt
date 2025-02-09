@@ -1,12 +1,17 @@
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
+import kotlinx.datetime.format.char
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import me.dvyy.tasks.tasks.ui.TaskInteractions
-import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
+import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.WhileUiSubscribed
@@ -43,36 +48,44 @@ sealed interface SyncState {
     data object Error : SyncState
 }
 
-//data class SelectedTask(
-//    val taskId: TaskId,
-//    val requestFocus: Boolean,
-//)
-//
+data class SelectedTask(
+    val path: VaultPath,
+    val requestFocus: Boolean,
+)
+
 class TasksViewModel(
     val taskRepo: TasksLocalDataSource,
 ) : ViewModel() {
-//    val selectedTask = MutableStateFlow<SelectedTask?>(null)
-//
+    val selectedTask = MutableStateFlow<SelectedTask?>(null)
+
+    //
 //    val projects = listRepo.observeProjects()
 //        .stateIn(viewModelScope, WhileUiSubscribed, emptyList())
 //
-//    fun selectTask(uuid: TaskId?, focus: Boolean = false) {
-//        selectedTask.update {
-//            if (uuid == null) null
-//            else SelectedTask(uuid, focus)
-//        }
-//    }
-//
+    fun selectTask(path: VaultPath?, focus: Boolean = false) {
+        selectedTask.update {
+            if (path == null) null
+            else SelectedTask(path, focus)
+        }
+    }
+
+    //
 //    // These flows will stop when coroutines aren't actively using them, they're safe to store in a map here
 //    private val listTaskObservers = mutableStateMapOf<ListId, StateFlow<Loadable<List<TaskWithIDState>>>>()
 //    private val listPropertiesObservers = mutableStateMapOf<ListId, StateFlow<Loadable<TaskListProperties>>>()
 //
-    fun tasksFor(path: VaultPath): StateFlow<Loadable<List<TaskUiState>>> =
+    fun tasksFor(path: VaultPath): StateFlow<Loadable<List<TaskUiStateWithPath>>> =
         taskRepo.observeListTasks(path)
             .map { Loadable.Loaded(it) }
             .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
-//
-//    fun getListProperties(key: ListId) = listPropertiesObservers.getOrPut(key) {
+
+    val dailyNotesFormat = LocalDate.Format {
+        year();char('/');monthNumber();char('/');dayOfMonth()
+    }
+
+    fun vaultPathFor(date: LocalDate) = VaultPath(date.format(dailyNotesFormat))
+
+    //    fun getListProperties(key: ListId) = listPropertiesObservers.getOrPut(key) {
 //        listRepo.observeProperties(key)
 //            .map { Loadable.Loaded(it) }
 //            .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
@@ -109,14 +122,15 @@ class TasksViewModel(
 //    )
 //
     fun interactionsFor(
+        task: VaultPath,
+        parent: VaultPath,
 //        taskId: TaskId,
 //        listId: ListId,
-//        uiState: TaskUiState,
+        uiState: TaskUiState,
 //        setUiState: (TaskUiState) -> Unit,
-    ): TaskInteractions = object : TaskInteractions {
-}
-//        DefaultTaskInteractions(taskId, listId, uiState, setUiState)
-//
+    ): TaskInteractions = DefaultTaskInteractions(task, parent, uiState)
+
+    //
 //    private fun taskAfter(listId: ListId, taskId: TaskId): TaskId? {
 //        val list = listTaskObservers[listId]?.value?.loadedOrNull() ?: return null
 //        return list.getOrNull(list.indexOfFirst { it.uuid == taskId } + 1)?.uuid
@@ -149,18 +163,18 @@ class TasksViewModel(
 //        }
 //    }
 //
-//    @Stable
-//    inner class DefaultTaskInteractions(
-//        private val taskId: TaskId,
-//        private val listId: ListId,
-//        private val uiState: TaskUiState,
+    @Stable
+    inner class DefaultTaskInteractions(
+        private val taskId: VaultPath,
+        private val listId: VaultPath,
+        private val uiState: TaskUiState,
 //        private val setUiState: (TaskUiState) -> Unit,
-//    ) : TaskInteractions {
-//        override fun toString(): String {
-//            return "DefaultTaskInteractions(taskId=$taskId, listId=$listId, uiState=$uiState)"
-//        }
-//
-//        private fun selectNextTaskOrNew() {
+    ) : TaskInteractions {
+        override fun toString(): String {
+            return "DefaultTaskInteractions(taskId=$taskId, listId=$listId, uiState=$uiState)"
+        }
+
+        private fun selectNextTaskOrNew() {
 //            val nextTask = taskAfter(listId, /*selectedTask.value ?: */taskId)
 //            if (nextTask != null) {
 //                selectTask(nextTask, focus = true)
@@ -169,34 +183,34 @@ class TasksViewModel(
 //                    selectTask(taskRepo.create(listId, atEndOfList = true).uuid, focus = true)
 //                }
 //            }
-//        }
-//
-//        override val keyboardActions = KeyboardActions(onNext = {
-//            selectNextTaskOrNew()
-//        })
-//
-//        override fun onListChanged(date: LocalDate) {
+        }
+
+        override val keyboardActions = KeyboardActions(onNext = {
+            selectNextTaskOrNew()
+        })
+
+        override fun onListChanged(date: LocalDate) {
 //            viewModelScope.launch { taskRepo.move(taskId, ListId.forDate(date)) }
-//        }
-//
-//        override fun onDelete() {
-//            viewModelScope.launch { taskRepo.delete(taskId) }
-//        }
-//
-//        override fun onKeyEvent(event: KeyEvent): Boolean {
-//            if (event.type != KeyEventType.KeyDown) return false
-//            if (event.key == Key.Backspace) {
-//                if (uiState.text.isEmpty()) {
-//                    viewModelScope.launch {
+        }
+
+        override fun onDelete() {
+//            viewModelScope.launch { taskRepo.dele(taskId) }
+        }
+
+        override fun onKeyEvent(event: KeyEvent): Boolean {
+            if (event.type != KeyEventType.KeyDown) return false
+            if (event.key == Key.Backspace) {
+                if (uiState.text.isEmpty()) {
+                    viewModelScope.launch {
 //                        selectTask(taskBefore(listId, taskId), focus = true)
 //                        taskRepo.delete(taskId)
-//                    }
-//                }
-//                return false
-//            }
+                    }
+                }
+                return false
+            }
 //            fun color(index: Int) =
 //                setUiState(uiState.copy(highlight = Highlight(Highlight.Type.entries[index], !event.isShiftPressed)))
-//            when {
+            when {
 //                event.isCtrlPressed -> {
 //                    when (event.key) {
 //                        Key.E -> {
@@ -215,22 +229,22 @@ class TasksViewModel(
 //                        else -> return false
 //                    }
 //                }
-//
-//                event.key == Key.Escape -> {
-//                    selectTask(null)
-//                }
-//
-//                event.key == Key.Enter -> {
-//                    if (!event.isShiftPressed) selectNextTaskOrNew()
-//                }
-//
-//                else -> return false
-//            }
-//            return true
-//        }
-//
-//        override fun onSelect() {
-//            if (selectedTask.value?.taskId != taskId) selectTask(taskId)
-//        }
-//    }
+
+                event.key == Key.Escape -> {
+                    selectTask(null)
+                }
+
+                event.key == Key.Enter -> {
+                    if (!event.isShiftPressed) selectNextTaskOrNew()
+                }
+
+                else -> return false
+            }
+            return true
+        }
+
+        override fun onSelect() {
+            if (selectedTask.value?.path != taskId) selectTask(taskId)
+        }
+    }
 }

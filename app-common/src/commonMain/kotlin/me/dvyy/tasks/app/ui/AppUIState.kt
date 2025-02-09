@@ -91,6 +91,9 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val bottomBarHeight = size.xxl
     val sideBarPadding = padding.sm
 
+    val propsLength = 150.dp
+    val propsRowHeight = 24.dp
+    val contentWidth =  900.dp
 }
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)

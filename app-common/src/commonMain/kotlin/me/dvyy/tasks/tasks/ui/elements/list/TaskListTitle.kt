@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.database.VaultPath
-import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.utils.Loadable
@@ -49,7 +48,9 @@ fun TaskListTitle(
             if (props.date != null) {
                 val date = props.date!!
                 Text(
-                    "${date.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()).lowercase().capitalize()} ${date.dayOfMonth}",
+                    "${
+                        date.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()).lowercase().capitalize()
+                    } ${date.dayOfMonth}",
                     Modifier.weight(1f, true),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,

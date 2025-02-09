@@ -1,6 +1,6 @@
 package me.dvyy.tasks.database
 
-import me.dvyy.tasks.database.helpers.DocumentHelpers
+import me.dvyy.tasks.database.helpers.DocumentYamlHelpers
 import org.dizitart.kno2.documentOf
 import org.dizitart.kno2.filters.notWithin
 import org.dizitart.no2.Nitrite
@@ -59,7 +59,7 @@ class VaultIndexer(
 
         // convert front matter and content to document
         //TODO decode yaml lists and objects correctly
-        val frontMatterDoc = frontMatter?.let { DocumentHelpers.decodeFromYaml(it) } ?: documentOf()
+        val frontMatterDoc = frontMatter?.let { DocumentYamlHelpers.decodeFromYaml(it) } ?: documentOf()
         val document = documentOf(
             "md5hash" to hash,
             "frontMatter" to frontMatterDoc,

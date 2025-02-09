@@ -92,8 +92,8 @@ class LayoutViewModel(
     }
 
     fun setActiveLayout(layout: LayoutStructure) {
-        println("Old layout was ${_activeLayout.value}")
-        println("Setting layout to $layout")
+//        println("Old layout was ${_activeLayout.value}")
+//        println("Setting layout to $layout")
         _activeLayout.update { layout }
     }
 
