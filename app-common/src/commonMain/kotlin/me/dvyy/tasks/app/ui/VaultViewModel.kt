@@ -10,6 +10,7 @@ import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.tree.ui.FileStructure
 import me.dvyy.tasks.utils.WhileUiSubscribed
+import org.dizitart.no2.collection.Document
 
 class VaultViewModel(
     val vault: Vault,
@@ -19,7 +20,10 @@ class VaultViewModel(
         .stateIn(viewModelScope, WhileUiSubscribed, emptyList())
 
     fun toFileStructure(list: List<VaultPath>, depth: Int = 0): List<FileStructure> {
-        val mapped = list.groupBy { it.pathString.splitToSequence("/").drop(depth).firstOrNull()?.takeIf { folder -> !it.pathString.endsWith(folder) } }
+        val mapped = list.groupBy {
+            it.pathString.splitToSequence("/").drop(depth).firstOrNull()
+                ?.takeIf { folder -> !it.pathString.endsWith(folder) }
+        }
         val files = mapped[null]?.map { FileStructure.File(LayoutStructure.Single.Project(it)) } ?: emptyList()
         val folders = mapped.mapNotNull { (folder, paths) ->
             if (folder == null) null
@@ -39,7 +43,13 @@ class VaultViewModel(
 
     fun updateContent(path: VaultPath, content: String) {
         viewModelScope.launch {
-            vault.update(path, content = { content })
+            vault.update(path, clearOldFrontMatter = false, content = { content })
+        }
+    }
+
+    fun updateFrontMatter(path: VaultPath, frontMatter: Document, clearOld: Boolean = false) {
+        viewModelScope.launch {
+            vault.update(path, clearOldFrontMatter = clearOld, frontMatter = { frontMatter })
         }
     }
 

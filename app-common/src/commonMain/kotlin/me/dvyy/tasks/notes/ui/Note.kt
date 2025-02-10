@@ -5,16 +5,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.automirrored.outlined.Note
 import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.automirrored.outlined.Segment
-import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.EditNote
-import androidx.compose.material.icons.outlined.ImportContacts
-import androidx.compose.material.icons.outlined.Note
-import androidx.compose.material.icons.outlined.NoteAlt
-import androidx.compose.material.icons.outlined.Notes
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
-import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.UI
@@ -61,6 +54,7 @@ fun FrontMatterIcon(value: Any) {
 @Composable
 fun NoteFrontMatter(
     frontMatter: Document,
+    updateFrontMatter: (Document) -> Unit,
 ) {
     val propsLength = UI.propsLength
     frontMatter.forEach {
@@ -84,7 +78,9 @@ fun NoteFrontMatter(
                 }
 
                 is Boolean -> {
-                    Checkbox(checked = value, onCheckedChange = {}, modifier = Modifier.size(UI.propsRowHeight))
+                    Checkbox(checked = value, modifier = Modifier.size(UI.propsRowHeight), onCheckedChange = {
+                        updateFrontMatter(documentOf(key to it))
+                    })
                 }
 
                 else -> Text(value.toString())
@@ -115,10 +111,10 @@ fun NoteTopBar(path: VaultPath, currentView: NoteView, onChangeView: (NoteView) 
                     color = MaterialTheme.colorScheme.onSurface.fade(alpha = 0.6f)
                 )
                 Spacer(Modifier.weight(1f))
-                if(currentView is EditView) IconButton(onClick = { onChangeView(MarkdownView()) }) {
+                if (currentView is EditView) IconButton(onClick = { onChangeView(MarkdownView()) }) {
                     Icon(Icons.AutoMirrored.Outlined.Notes, "List view")
                 }
-                if(currentView is MarkdownView) IconButton(onClick = { onChangeView(EditView()) }) {
+                if (currentView is MarkdownView) IconButton(onClick = { onChangeView(EditView()) }) {
                     Icon(AppIcons.EditNote, "Edit view")
                 }
             }
@@ -148,7 +144,7 @@ fun Note(
             ) {
                 Text(title, style = typography.h1)
                 HorizontalDivider()
-                NoteFrontMatter(frontMatter)
+                NoteFrontMatter(frontMatter, updateFrontMatter = { vault.updateFrontMatter(path, it) })
                 HorizontalDivider()
                 Project(
                     path = path,

@@ -23,7 +23,7 @@ class TasksLocalDataSource(
 ) {
     fun moveTask(task: VaultPath, /*from: VaultPath,*/ to: VaultPath) {
         var moveDocumentTo: VaultPath? = null
-        vault.update(task, frontMatter = {
+        vault.update(task, clearOldFrontMatter = false, frontMatter = {
 //            val updatedProjects = (it.read<List<String>>("projects") ?: listOf()).minus(from.pathWithoutExt).plus(to.pathWithoutExt)
             val updatedProjects = listOf(to.pathWithoutExt)
             it.write("projects", updatedProjects)

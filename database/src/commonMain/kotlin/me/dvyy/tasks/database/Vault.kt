@@ -58,6 +58,7 @@ class Vault(
 
     fun update(
         path: VaultPath,
+        clearOldFrontMatter: Boolean = false,
         frontMatter: ((Document) -> Document)? = null,
         content: ((String) -> String)? = null,
     ) {
@@ -65,7 +66,7 @@ class Vault(
         if (frontMatter != null)
             document.put(KeyHelpers.FRONTMATTER_KEY, frontMatter(document.frontMatter()))
         if (content != null) document.put(KeyHelpers.CONTENT_KEY, content.invoke(document.content()))
-        vault.upsertDocument(path, document)
+        vault.upsertDocument(path, document, clearOldFrontMatter)
         queueSave(path)
     }
 

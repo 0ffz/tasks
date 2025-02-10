@@ -65,9 +65,9 @@ class VaultDataSource(
         filesCollection.remove("path" eq path.pathString)
     }
 
-    fun upsertDocument(path: VaultPath, document: Document) {
+    fun upsertDocument(path: VaultPath, document: Document, clearOldFrontMatter: Boolean = true) {
         // Clear existing frontMatter, since update doesn't delete old values
-        if (document.containsKey(KeyHelpers.FRONTMATTER_KEY))
+        if (clearOldFrontMatter && document.containsKey(KeyHelpers.FRONTMATTER_KEY))
             filesCollection.update("path" eq path.pathString, documentOf(KeyHelpers.FRONTMATTER_KEY to null))
 
         filesCollection.update("path" eq path.pathString, document.apply {

@@ -171,8 +171,8 @@ class TasksViewModel(
 //    }
 //
     fun onTaskChanged(key: VaultPath, newState: TaskUiState) = viewModelScope.launch {
-        vault.update(key, frontMatter = {
-            it.merge(newState.toFrontMatter())
+        vault.update(key, clearOldFrontMatter = false, frontMatter = {
+            newState.toFrontMatter()
         }, content = { newState.text })
     }
 
