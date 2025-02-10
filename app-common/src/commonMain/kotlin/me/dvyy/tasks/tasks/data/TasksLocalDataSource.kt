@@ -1,5 +1,6 @@
 package me.dvyy.tasks.tasks.data
 
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.Flow
 import me.dvyy.tasks.database.Vault
 import me.dvyy.tasks.database.VaultPath
@@ -11,9 +12,9 @@ import me.dvyy.tasks.database.helpers.DocumentHelpers.write
 import me.dvyy.tasks.database.helpers.KeyHelpers.frontMatter
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
-import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
+import org.dizitart.kno2.documentOf
 import org.dizitart.no2.collection.FindOptions
 import org.dizitart.no2.common.SortOrder
 
@@ -40,6 +41,11 @@ class TasksLocalDataSource(
 //        if (moveDocumentTo != null) vault.moveDocument(task, moveDocumentTo)
     }
 
+    fun colorForTag(tag: String?): Color {
+        if (tag == null) return Color.Transparent
+        return Color(tag.hashCode().mod(0xFFFFFFFF)).copy(alpha = 1.0f)
+    }
+
     //    val markdownChecklistRegex = "^- \\[[xX ]]".toRegex()
     fun observeListTasks(listId: VaultPath): Flow<List<TaskUiStateWithPath>> {
 //        vault.query(KeyHelpers.PATH_KEY eq listId.pathString).project(KeyHelpers.CONTENT_KEY).map {
@@ -48,12 +54,22 @@ class TasksLocalDataSource(
 //        }
         return vault.queryAsFlow(
             TaskFilters.tasksForList(listId), FindOptions.orderBy(frontMatter("sortOrder"), SortOrder.Ascending)
-        ).project(frontMatter("projects"), frontMatter("done"), "fileContent", "path").asList {
+        )/*.project( //TODO projection doesn't work for lists?
+            documentOf(
+                "frontMatter" to documentOf(
+                    "projects" to null,
+                    "done" to null,
+                    "tags" to null,//documentOf()
+                ),
+                "fileContent" to null,
+                "path" to null
+            )
+        )*/.asList {
             TaskUiStateWithPath(
                 state = TaskUiState(
                     text = (it.content()),
                     completed = it.frontMatter<Boolean?>("done") ?: false,
-                    highlight = Highlight.Unmarked,
+                    highlight = colorForTag(it.frontMatter<List<String>>("tags")?.firstOrNull()),
                 ),
                 path = it.vaultPath()
             )

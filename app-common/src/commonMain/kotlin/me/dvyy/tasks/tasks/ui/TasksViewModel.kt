@@ -10,6 +10,8 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import me.dvyy.tasks.database.Vault
 import me.dvyy.tasks.database.VaultPath
+import me.dvyy.tasks.database.helpers.KeyHelpers.frontMatter
+import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -63,6 +65,11 @@ class TasksViewModel(
 ) : ViewModel() {
     val selectedTask = MutableStateFlow<SelectedTask?>(null)
 
+//    fun observeTags() = vault.queryAsFlow(
+//
+//    ).project(frontMatter("tags")).map {
+//        it.flat
+//    }
     //
 //    val projects = listRepo.observeProjects()
 //        .stateIn(viewModelScope, WhileUiSubscribed, emptyList())

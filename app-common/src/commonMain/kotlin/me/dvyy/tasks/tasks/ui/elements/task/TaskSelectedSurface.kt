@@ -13,12 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.core.ui.fade
 
 @Composable
 fun TaskSelectedSurface(
     visible: Boolean,
-    highlight: Highlight,
+    highlight: Color,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -27,9 +27,9 @@ fun TaskSelectedSurface(
     val fullCornerSize = 20.dp
     val cornerShape by animateDpAsState(if (visible) fullCornerSize else 0.dp)
     val padding by animateDpAsState(if (visible) UI.padding.lg else 0.dp)
-    val highlightColor = highlight.color
+    val highlightColor = highlight
         .copy(alpha = 0.15f)
-        .takeIf { visible && highlight != Highlight.Unmarked } ?: Color.Transparent
+        .takeIf { visible && highlight != Color.Transparent } ?: Color.Transparent
     val animatedHighlight by animateColorAsState(highlightColor)
     Surface(
         modifier = modifier.padding(vertical = padding),

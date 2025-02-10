@@ -29,7 +29,6 @@ import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.tasks.ui.elements.task.Task
-import me.dvyy.tasks.tasks.ui.elements.task.color
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.loadedOrNull
 
@@ -143,11 +142,10 @@ fun TaskList(
 
                             if (isGroupToggle) HorizontalDivider(
                                 thickness = 2.dp,
-                                color = cachedTask.highlight.color
+                                color = cachedTask.highlight
                                     .takeIf { it != Color.Transparent }
                                     ?: MaterialTheme.colorScheme.onSurface
                             )
-//                            }
                         }
                     }
                 }

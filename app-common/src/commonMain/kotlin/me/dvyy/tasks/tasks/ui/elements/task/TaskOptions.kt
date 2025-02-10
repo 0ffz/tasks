@@ -23,7 +23,6 @@ import kotlinx.datetime.*
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.koin.compose.viewmodel.koinViewModel
@@ -102,20 +101,29 @@ fun HighlightButtons(
 ) = Column {
     HorizontalDivider(Modifier.fillMaxWidth())
 //    var isLight by remember { mutableStateOf(task.highlight.isLight) }
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)) {
+    //TODO quick tagging
+    Row(
+        modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)
+    ) {
 //        LightDarkHighlightToggle(isLight, onToggle = {
 //            isLight = !isLight
 //            setTask(task.copy(highlight = task.highlight.copy(isLight = isLight)))
 //        })
-        Highlight.Type.entries.forEach {
-            HighlightButton(Highlight(it, true), task) { setTask(it); toggleFocused() }
-        }
+//        Highlight.Type.entries.forEach {
+//            HighlightButton(Highlight(it, true), task) { setTask(it); toggleFocused() }
+//        }
     }
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)) {
+    Row(
+        modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)
+    ) {
 
-        Highlight.Type.entries.forEach {
-            HighlightButton(Highlight(it, false), task) { setTask(it); toggleFocused() }
-        }
+//        Highlight.Type.entries.forEach {
+//            HighlightButton(Highlight(it, false), task) { setTask(it); toggleFocused() }
+//        }
     }
 }
 
@@ -170,12 +178,12 @@ fun LightDarkHighlightToggle(isLight: Boolean, onToggle: () -> Unit) {
 
 @Composable
 fun HighlightButton(
-    highlight: Highlight,
+    highlight: Color,
     task: TaskUiState,
     modifier: Modifier = Modifier,
     setTask: (TaskUiState) -> Unit,
 ) {
-    CircleButton(onClick = { setTask(task.copy(highlight = highlight)) }, highlight.color, modifier = modifier)
+    CircleButton(onClick = { setTask(task.copy(highlight = highlight)) }, highlight, modifier = modifier)
 }
 
 @Composable

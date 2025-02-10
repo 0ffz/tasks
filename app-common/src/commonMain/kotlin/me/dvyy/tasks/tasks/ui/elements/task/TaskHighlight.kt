@@ -9,18 +9,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.fade
-import me.dvyy.tasks.model.Highlight
 
 @Composable
 fun TaskHighlight(
     text: String,
-    highlight: Highlight,
+    highlight: Color,
     completed: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    val adjustedHighlight by animateColorAsState(highlight.color.fade(if (completed) UI.tasks.completedFade else 1f))
+    val adjustedHighlight by animateColorAsState(highlight.fade(if (completed) UI.tasks.completedFade else 1f))
     Surface(
         color = adjustedHighlight,
         shape = MaterialTheme.shapes.extraLarge,

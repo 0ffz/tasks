@@ -35,7 +35,7 @@ fun TaskTextField(
     val textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None
     val textColor by animateColorAsState(
         (if (selected) MaterialTheme.colorScheme.onSurface
-        else task.highlight.color.getBestTextColor())
+        else task.highlight.getBestTextColor())
             .fade(if (task.completed) 0.3f else 1f)
     )
     val textStyle = MaterialTheme.typography.bodyLarge.copy(
