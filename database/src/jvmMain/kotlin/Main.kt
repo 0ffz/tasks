@@ -1,4 +1,4 @@
-import me.dvyy.tasks.database.VaultIndexer
+import me.dvyy.tasks.database.VaultDataSource
 import me.dvyy.tasks.database.vaultModule
 import org.koin.dsl.koinApplication
 import kotlin.io.path.Path
@@ -8,6 +8,8 @@ fun main() {
         modules(vaultModule(Path("vault")))
     }
 
+    val vault = application.koin.get<VaultDataSource>()
+    println(vault.filesCollection.attributes)
 //    indexer.indexRoot()
 
 //    println(

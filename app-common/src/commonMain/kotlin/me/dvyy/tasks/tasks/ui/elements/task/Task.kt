@@ -18,11 +18,12 @@ import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
 import me.dvyy.tasks.tasks.ui.TaskInteractions
+import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 
 @Composable
 fun Task(
-    task: TaskUiState,
+    taskWithPath: TaskUiStateWithPath,
     setTask: (TaskUiState) -> Unit,
     selected: Boolean,
     interactions: TaskInteractions,
@@ -32,6 +33,7 @@ fun Task(
     overrideCheckboxIcon: ImageVector? = null,
     overrideCheckboxCompletedIcon: ImageVector? = null,
 ) {
+    val (task, path) = taskWithPath
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
     val selectedState by rememberUpdatedState(selected)
@@ -91,7 +93,7 @@ fun Task(
                             detectDragGestures { _, _ -> }
                         }
                 ) {
-                    TaskOptions(task, setTask, date, interactions)
+                    TaskOptions(task, path, setTask, date, interactions)
                 }
             }
         }

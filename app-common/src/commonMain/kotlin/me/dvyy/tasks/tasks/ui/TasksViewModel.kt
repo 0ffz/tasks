@@ -10,8 +10,6 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import me.dvyy.tasks.database.Vault
 import me.dvyy.tasks.database.VaultPath
-import me.dvyy.tasks.database.helpers.KeyHelpers.frontMatter
-import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -65,7 +63,7 @@ class TasksViewModel(
 ) : ViewModel() {
     val selectedTask = MutableStateFlow<SelectedTask?>(null)
 
-//    fun observeTags() = vault.queryAsFlow(
+    //    fun observeTags() = vault.queryAsFlow(
 //
 //    ).project(frontMatter("tags")).map {
 //        it.flat
@@ -124,7 +122,7 @@ class TasksViewModel(
 //    fun deleteProject(key: ListId) = viewModelScope.launch {
 //        listRepo.delete(key)
 //    }
-//
+
     val alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
     val idLength = 8
     fun listInteractionsFor(listPath: VaultPath) = TaskListInteractions(
@@ -216,7 +214,9 @@ class TasksViewModel(
         })
 
         override fun onListChanged(date: LocalDate) {
-//            viewModelScope.launch { taskRepo.move(taskId, ListId.forDate(date)) }
+            viewModelScope.launch {
+                taskDataSource.moveTask(taskPath, vaultPathFor(date))
+            }
         }
 
         override fun onDelete() {

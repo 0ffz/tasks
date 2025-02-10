@@ -126,7 +126,7 @@ fun TaskList(
                             Column {
                                 ReorderableTask(key = path, reorderInteractions = reorderInteractions) {
                                     Task(
-                                        cachedTask,
+                                        TaskUiStateWithPath(cachedTask, path),
                                         setTask,
                                         selected,
                                         taskInteractions,

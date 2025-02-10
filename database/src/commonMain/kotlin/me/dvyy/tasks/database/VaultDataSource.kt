@@ -1,6 +1,5 @@
 package me.dvyy.tasks.database
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +24,6 @@ import org.dizitart.no2.index.IndexType
 
 class VaultDataSource(
     val db: Nitrite,
-    val dbScope: CoroutineDispatcher,
 ) {
     val filesCollection = db.getCollection("files") {
         createIndex("path")

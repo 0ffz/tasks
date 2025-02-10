@@ -20,9 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
+import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.database.VaultPath
+import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.koin.compose.viewmodel.koinViewModel
@@ -35,11 +38,13 @@ sealed interface FocusedOption {
 @Composable
 fun TaskOptions(
     task: TaskUiState,
+    taskPath: VaultPath,
     setTask: (TaskUiState) -> Unit,
     initialDate: LocalDate? = null,
     interactions: TaskInteractions,
     submitAction: (() -> Unit)? = null,
     time: TimeViewModel = koinViewModel(),
+    layoutViewModel: LayoutViewModel = koinViewModel(),
 ) {
     val ui = LocalUIState.current
     var focused: FocusedOption by remember { mutableStateOf(FocusedOption.None) }
@@ -64,6 +69,9 @@ fun TaskOptions(
                 }
             }, orientation = Orientation.Horizontal)*/
             ) { toggleFocused() }
+            IconButton(onClick = { layoutViewModel.openInActiveView(taskPath)}) {
+                Icon(AppIcons.Fullscreen, contentDescription = "Open task")
+            }
             val today by time.today.collectAsState()
             TaskDatePicker(initialDate ?: today, interactions)
             Spacer(Modifier.weight(1f))

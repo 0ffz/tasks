@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.tree.ui.FileStructure
 
 // The scope used here is the scope that is used for the mapping work
@@ -89,6 +90,10 @@ class LayoutViewModel(
 
     fun openInActiveView(file: FileStructure.File) {
         openFilesChannel.trySend(file)
+    }
+
+    fun openInActiveView(note: VaultPath) {
+        openInActiveView(FileStructure.File(LayoutStructure.Single.Project(note)))
     }
 
     fun setActiveLayout(layout: LayoutStructure) {
