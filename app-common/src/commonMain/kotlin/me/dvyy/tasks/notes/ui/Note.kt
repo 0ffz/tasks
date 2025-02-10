@@ -5,12 +5,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.automirrored.outlined.Note
+import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.automirrored.outlined.Segment
+import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.CheckBox
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.ImportContacts
+import androidx.compose.material.icons.outlined.Note
+import androidx.compose.material.icons.outlined.NoteAlt
+import androidx.compose.material.icons.outlined.Notes
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -23,9 +29,12 @@ import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.VaultViewModel
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.database.VaultPath
-import me.dvyy.tasks.database.helpers.DocumentHelpers.content
 import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
 import me.dvyy.tasks.tasks.ui.elements.list.Project
+import me.dvyy.tasks.views.data.EditView
+import me.dvyy.tasks.views.data.MarkdownView
+import me.dvyy.tasks.views.data.NoteView
+import org.dizitart.kno2.documentOf
 import org.dizitart.no2.collection.Document
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -95,15 +104,23 @@ fun NoteTypography() = markdownTypography(
 )
 
 @Composable
-fun NoteTopBar(path: VaultPath) {
+fun NoteTopBar(path: VaultPath, currentView: NoteView, onChangeView: (NoteView) -> Unit) {
     Surface(Modifier.height(UI.tabHeight).fillMaxSize().padding(UI.tabPadding)) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(Modifier.weight(1f))
                 Text(
                     path.pathWithoutExt.replace("/", " / "),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface.fade(alpha = 0.6f)
                 )
+                Spacer(Modifier.weight(1f))
+                if(currentView is EditView) IconButton(onClick = { onChangeView(MarkdownView()) }) {
+                    Icon(Icons.AutoMirrored.Outlined.Notes, "List view")
+                }
+                if(currentView is MarkdownView) IconButton(onClick = { onChangeView(EditView()) }) {
+                    Icon(AppIcons.EditNote, "Edit view")
+                }
             }
         }
     }
@@ -120,11 +137,15 @@ fun Note(
     val title = path.displayName
 //    val tasks: TasksViewModel = koinViewModel()
 //    val propLoadable by tasks.getListProperties(key).collectAsState()
+    var view: NoteView by remember { mutableStateOf(MarkdownView()) }
 
     Column {
-        NoteTopBar(path)
+        NoteTopBar(path, currentView = view, onChangeView = { view = it })
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-            Column(Modifier.sizeIn(maxWidth = UI.contentWidth).padding(UI.padding.md).fillMaxSize().verticalScroll(rememberScrollState())) {
+            Column(
+                Modifier.sizeIn(maxWidth = UI.contentWidth).padding(UI.padding.md).fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
                 Text(title, style = typography.h1)
                 HorizontalDivider()
                 NoteFrontMatter(frontMatter)
@@ -134,13 +155,7 @@ fun Note(
                     scrollable = false,
                 )
                 Spacer(Modifier.height(UI.padding.sm))
-                document?.content()?.let {
-//                            val content = rememberRichTextState()
-//                            LaunchedEffect(it) { content.setMarkdown(it.toString()) }
-//                            RichText(content)
-                    Markdown(it.toString(), typography = typography)
-                }
-//                    Project(key, propLoadable, scrollable = false)
+                document?.let { view.content(documentOf(), it) }
             }
         }
     }

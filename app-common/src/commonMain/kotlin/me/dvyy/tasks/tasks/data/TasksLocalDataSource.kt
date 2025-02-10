@@ -12,18 +12,13 @@ import me.dvyy.tasks.database.helpers.KeyHelpers.frontMatter
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.model.database.RankFunctions
 import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
-import org.dizitart.kno2.documentOf
-import org.dizitart.kno2.filters.elemMatch
-import org.dizitart.kno2.filters.eq
 import org.dizitart.no2.collection.FindOptions
 import org.dizitart.no2.common.SortOrder
 
 class TasksLocalDataSource(
     val vault: Vault,
-//    val messages: MessagesDataSource,
 ) {
     fun moveTask(task: VaultPath, /*from: VaultPath,*/ to: VaultPath) {
         var moveDocumentTo: VaultPath? = null
@@ -52,10 +47,7 @@ class TasksLocalDataSource(
 //            content.lineSequence().filter { it.trim().matches(markdownChecklistRegex) }
 //        }
         return vault.queryAsFlow(
-            frontMatter("projects") elemMatch ("$" eq listId.pathWithoutExt), FindOptions.orderBy(
-                frontMatter("sortOrder"),
-                SortOrder.Ascending
-            )
+            TaskFilters.tasksForList(listId), FindOptions.orderBy(frontMatter("sortOrder"), SortOrder.Ascending)
         ).project(frontMatter("projects"), frontMatter("done"), "fileContent", "path").asList {
             TaskUiStateWithPath(
                 state = TaskUiState(
@@ -85,111 +77,4 @@ class TasksLocalDataSource(
 //            )
 //        }
 
-    //    // Rank functions
-//
-    fun getLastRankOrMiddle(list: VaultPath) = vault.query(
-        frontMatter("projects") elemMatch ("$" eq list.pathWithoutExt), FindOptions.orderBy(
-            frontMatter("sortOrder"),
-            SortOrder.Descending
-        )
-    ).project(documentOf(frontMatter("sortOrder") to null))
-        .firstOrNull()
-        .frontMatter<String>("sortOrder")
-        ?: RankFunctions.middleChar.toString()
-
-    //
-//    suspend fun getFirstRankOrMiddle(listId: ListId) =
-//        (database.rankQueries.firstRank(listId.uuid).awaitAsOneOrNull() ?: RankFunctions.middleChar.toString())
-//
-    fun getRankAfterLast(list: VaultPath): String {
-        val lastRank = getLastRankOrMiddle(list)
-        return RankFunctions.getRankAfter(lastRank)
-    }
-//
-//    fun getRankBeforeFirst(listId: VaultPath): String {
-//        val firstRank = getFirstRankOrMiddle(listId)
-//        return RankFunctions.getRankBefore(firstRank)
-//    }
-//
-//    suspend fun getRankAfter(listId: ListId, rank: String): String {
-//        val lastRank = getLastRankOrMiddle(listId)
-//        return RankFunctions.getRankAfter(lastRank)
-//    }
-//
-//    suspend fun upsertRank(rank: Rank) {
-//        database.rankQueries.upsert(rank)
-//        messages.saveMessage(NetworkMessage.Type.Update, rank.uuid, EntityType.RANK)
-//    }
-//
-//    suspend fun getRankFor(task: TaskId): String? {
-//        return database.rankQueries.getRank(task.uuid).awaitAsOneOrNull()
-//    }
-//
-//    /**
-//     * Moves [taskId] to [destId]'s list and places it before or after [destId] depending on the rank.
-//     *
-//     * @return Whether task changed lists after the reorder.
-//     */
-//    suspend fun reorderTask(taskId: TaskId, destId: TaskId): Boolean = database.transactionWithResult {
-//        val task = getTask(taskId) ?: return@transactionWithResult false
-//        val dest = getTask(destId) ?: return@transactionWithResult false
-//        val changedLists = task.list != dest.list
-//
-//        if (changedLists) moveTaskToList(taskId, dest.list)
-//        val taskRank = getRankFor(taskId) ?: RankFunctions.firstChar.toString()
-//        val destRank = getRankFor(destId) ?: RankFunctions.lastChar.toString()
-//
-//        if (taskRank == destRank) return@transactionWithResult changedLists
-//
-//        if (taskRank < destRank) {
-//            moveTaskAfter(dest.list, taskId, destRank)
-//        } else {
-//            moveTaskBefore(dest.list, taskId, destRank)
-//        }
-//        changedLists
-//    }
-//
-//    suspend fun moveTaskToList(taskId: TaskId, listId: ListId) {
-//        vault.createDocument()
-//        database.tasksQueries.transaction {
-//            val task = getTask(taskId) ?: return@transaction
-//            val rank = getRankAfterLast(listId)
-//            upsertTask(task.copy(list = listId))
-//            upsertRank(Rank(taskId.uuid, listId.uuid, rank))
-//        }
-//    }
-//
-//    suspend fun moveTaskBefore(
-//        list: ListId,
-//        task: TaskId,
-//        destRank: String,
-//    ) {
-//        val before = database.rankQueries.getRankBefore(list.uuid, destRank)
-//            .awaitAsOneOrNull()
-//            ?: RankFunctions.firstChar.toString()
-//
-//        moveTaskBetween(list, task, before, destRank)
-//    }
-//
-//    suspend fun moveTaskAfter(
-//        list: ListId,
-//        task: TaskId,
-//        destRank: String,
-//    ) {
-//        val after = database.rankQueries.getRankAfter(list.uuid, destRank)
-//            .awaitAsOneOrNull()
-//            ?: RankFunctions.lastChar.toString()
-//
-//        moveTaskBetween(list, task, destRank, after)
-//    }
-//
-//    suspend fun moveTaskBetween(
-//        list: ListId,
-//        task: TaskId,
-//        firstRank: String,
-//        secondRank: String,
-//    ) {
-//        val newRank = RankFunctions.getLexicographicMiddle(firstRank, secondRank)
-//        upsertRank(Rank(task.uuid, list.uuid, newRank))
-//    }
 }

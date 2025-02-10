@@ -8,7 +8,7 @@ sealed interface Loadable<T> {
     class Loading<T> : Loadable<T>
 
     @Immutable
-    class Loaded<T>(
+    data class Loaded<T>(
         val data: T,
     ) : Loadable<T>
 

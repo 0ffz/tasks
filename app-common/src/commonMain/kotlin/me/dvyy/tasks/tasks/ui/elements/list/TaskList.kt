@@ -30,7 +30,6 @@ import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.tasks.ui.elements.task.Task
 import me.dvyy.tasks.tasks.ui.elements.task.color
-import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.loadedOrNull
 
@@ -95,7 +94,6 @@ fun TaskList(
                 tasks.forEachIndexed { index, (task, path) ->
                     key(path) {
                         val selected = selectedTask?.path == path
-                        println("${selectedTask?.path}, and $path")
                         val focusRequested = selected && selectedTask?.requestFocus == true
 //                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
                         // cached task is the SSOT in this context, some things like text updates take too long to update in db
@@ -119,7 +117,11 @@ fun TaskList(
                             }
 
                             val taskInteractions = remember(cachedTask) {
-                                viewModel.interactionsFor(path, listId, task)// TODO (task.uuid, listId, cachedTask, setTask)
+                                viewModel.interactionsFor(
+                                    path,
+                                    listId,
+                                    task
+                                )// TODO (task.uuid, listId, cachedTask, setTask)
                             }
 //                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
                             Column {

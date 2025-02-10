@@ -37,6 +37,12 @@ class VaultViewModel(
         }
     }
 
+    fun updateContent(path: VaultPath, content: String) {
+        viewModelScope.launch {
+            vault.update(path, content = { content })
+        }
+    }
+
     init {
         viewModelScope.launch {
             vault.index()

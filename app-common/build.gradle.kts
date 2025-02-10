@@ -56,8 +56,10 @@ kotlin {
 //                implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc10"))
                 implementation("com.mikepenz:multiplatform-markdown-renderer:0.30.0")
                 implementation("com.mikepenz:multiplatform-markdown-renderer-m3:0.30.0")
+                implementation("com.mikepenz:multiplatform-markdown-renderer-code:0.30.0")
 
                 implementation(libs.nitrite.core)
+                implementation("io.github.theapache64:rebugger:1.0.0-rc03")
             }
         }
         val jvmMain by creating {
