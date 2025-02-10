@@ -60,6 +60,8 @@ kotlin {
 
                 implementation(libs.nitrite.core)
                 implementation("io.github.theapache64:rebugger:1.0.0-rc03")
+                implementation("com.github.alorma.compose-settings:ui-tiles:2.10.0")
+                implementation("com.github.alorma.compose-settings:ui-tiles-extended:2.10.0")
             }
         }
         val jvmMain by creating {

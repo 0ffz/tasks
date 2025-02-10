@@ -13,33 +13,44 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.alorma.compose.settings.ui.SettingsGroup
+import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
 import me.dvyy.tasks.app.ui.theme.Fonts
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsBulkAddTab(
 //    tasks: TasksViewModel = koinViewModel(),
 ) {
     var text by remember { mutableStateOf("") }
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text(buildAnnotatedString {
-            append("Enter tasks, one per line, use ^ for date, ! for highlight, : for text, ex")
-            appendLine()
-            withStyle(SpanStyle(fontFamily = Fonts.monospaced())) { append("!1 ^2024-12-31 :Do something important!") }
-        })
-        OutlinedTextField(
-            text,
-            onValueChange = { text = it },
-            minLines = 8,
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(fontFamily = Fonts.monospaced()),
-        )
+    SettingsGroup(title = { Text("Bulk add") }) {
 
-        TextButton(onClick = {
+        SettingsTileScaffold(
+            title = { Text("Bulk add tasks") },
+            subtitle = {
+                Column {
+                    Text(buildAnnotatedString {
+                        append("Enter tasks, one per line, use ^ for date, ! for highlight, : for text, ex")
+                        appendLine()
+                        withStyle(SpanStyle(fontFamily = Fonts.monospaced())) { append("!1 ^2024-12-31 :Do something important!") }
+                    })
+                    OutlinedTextField(
+                        text,
+                        onValueChange = { text = it },
+                        minLines = 8,
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(fontFamily = Fonts.monospaced()),
+                    )
+
+                    TextButton(onClick = {
 //            tasks.bulkAdd(text.lines())
-            text = ""
-        }) {
-            Text("Done")
-        }
+                        text = ""
+                    }) {
+                        Text("Done")
+                    }
+                }
+            },
+        )
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     }
 }
