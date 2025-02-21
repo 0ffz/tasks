@@ -36,26 +36,30 @@ class LayoutViewModel(
 
     val rightSidebar = prefs.serializable<LayoutStructure>(viewModelScope, "rightSidebar", LayoutStructure.Empty)
     val bottomBar = prefs.serializable<LayoutStructure>(viewModelScope, "bottomBar", LayoutStructure.Empty)
-    private val _mainView = prefs.serializable<LayoutStructure>(viewModelScope, "mainView", LayoutStructure.Empty)
+    private val _mainView = prefs.serializable<LayoutStructure.Tabbed>(viewModelScope, "mainView", LayoutStructure.Tabbed(listOf(), 0))
 
-    val mainView = _mainView.map(viewModelScope) {
-        it.takeIf { it is LayoutStructure.Tabbed || it is LayoutStructure.Split } ?: LayoutStructure.Tabbed(listOf(), 0)
+    val mainView: StateFlow<LayoutStructure.Tabbed> = _mainView.map(viewModelScope) {
+        it
+//        it.takeIf { it is LayoutStructure.Tabbed }
+//            ?: LayoutStructure.Tabbed(listOf(), 0)
     }
 
     val layoutButtonLocations = MutableStateFlow(LayoutButtonLocations())
     val topRightLayout = mainView.map(viewModelScope) {
-        var top = it
-        while (top is LayoutStructure.Split) {
-            top = if (top.orientation == Orientation.Vertical) top.first else top.second
-        }
-        top
+//        var top = it
+//        while (top is LayoutStructure.Split) {
+//            top = if (top.orientation == Orientation.Vertical) top.first else top.second
+//        }
+//        top
+        it
     }
     val topLeftLayout = mainView.map(viewModelScope) {
-        var top = it
-        while (top is LayoutStructure.Split) {
-            top = if (top.orientation == Orientation.Vertical) top.first else top.first
-        }
-        top
+//        var top = it
+//        while (top is LayoutStructure.Split) {
+//            top = if (top.orientation == Orientation.Vertical) top.first else top.first
+//        }
+//        top
+        it
     }
 
     fun findTopRow(layout: LayoutStructure): List<LayoutStructure> = when (layout) {
@@ -102,7 +106,7 @@ class LayoutViewModel(
         _activeLayout.update { layout }
     }
 
-    fun setMainView(layout: LayoutStructure) {
+    fun setTabView(layout: LayoutStructure.Tabbed) {
         _mainView.update { layout }
     }
 

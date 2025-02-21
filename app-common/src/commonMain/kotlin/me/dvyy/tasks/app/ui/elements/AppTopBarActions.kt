@@ -13,7 +13,6 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppTopBarActions() = Row {
-    WeekViewActions()
     PlatformSpecificTopBarActions()
 }
 

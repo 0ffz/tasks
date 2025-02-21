@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
@@ -20,7 +21,9 @@ import com.mikepenz.markdown.m3.markdownTypography
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.VaultViewModel
+import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
 import me.dvyy.tasks.core.ui.fade
+import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
 import me.dvyy.tasks.tasks.ui.elements.list.Project
@@ -100,23 +103,19 @@ fun NoteTypography() = markdownTypography(
 )
 
 @Composable
-fun NoteTopBar(path: VaultPath, currentView: NoteView, onChangeView: (NoteView) -> Unit) {
-    Surface(Modifier.height(UI.tabHeight).fillMaxSize().padding(UI.tabPadding)) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+fun PageTopBar(
+    text: @Composable () -> Unit = {},
+    buttons: @Composable () -> Unit = {},
+) {
+    Surface(Modifier.height(UI.tabHeight).fillMaxSize(), tonalElevation = UI.elevation.lv1 / 5f) {
+        Box(Modifier.fillMaxSize().padding(UI.tabPadding), contentAlignment = Alignment.Center) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Spacer(Modifier.weight(1f))
-                Text(
-                    path.pathWithoutExt.replace("/", " / "),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface.fade(alpha = 0.6f)
-                )
+                ProvideTextStyle( MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.onSurface.fade(0.6f))) {
+                    text()
+                }
                 Spacer(Modifier.weight(1f))
-                if (currentView is EditView) IconButton(onClick = { onChangeView(MarkdownView()) }) {
-                    Icon(Icons.AutoMirrored.Outlined.Notes, "List view")
-                }
-                if (currentView is MarkdownView) IconButton(onClick = { onChangeView(EditView()) }) {
-                    Icon(AppIcons.EditNote, "Edit view")
-                }
+                buttons()
             }
         }
     }
@@ -136,7 +135,7 @@ fun Note(
     var view: NoteView by remember { mutableStateOf(MarkdownView()) }
 
     Column {
-        NoteTopBar(path, currentView = view, onChangeView = { view = it })
+//        NoteTopBar(path, currentView = view, onChangeView = { view = it })
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             Column(
                 Modifier.sizeIn(maxWidth = UI.contentWidth).padding(UI.padding.md).fillMaxSize()

@@ -3,7 +3,6 @@ package me.dvyy.tasks.layout.ui
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -19,6 +18,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import me.dvyy.tasks.app.AppIcons
+import me.dvyy.tasks.app.ui.elements.WeekViewActions
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single
@@ -87,6 +87,11 @@ sealed interface LayoutStructure {
         @Composable
         fun content()
 
+
+        @Composable
+        fun topButtons() {
+        }
+
         data class RichTextView(val file: String) : Single {
             override val icon get() = AppIcons.Description
             override val text get() = "Rich text"
@@ -118,6 +123,12 @@ sealed interface LayoutStructure {
             @Composable
             override fun content() {
                 me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
+            }
+
+            @Composable
+            override fun topButtons() {
+                if (!startAtToday && takeDays == 7)
+                    WeekViewActions()
             }
         }
 
@@ -219,7 +230,25 @@ sealed interface LayoutStructure {
                 }
             }
 
-            @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+            @Composable
+            override fun topButtons() {
+//                if (currentView is EditView) IconButton(onClick = { onChangeView(MarkdownView()) }) {
+//                    Icon(Icons.AutoMirrored.Outlined.Notes, "List view")
+//                }
+//                if (currentView is MarkdownView) IconButton(onClick = { onChangeView(EditView()) }) {
+//                    Icon(AppIcons.EditNote, "Edit view")
+//                }
+            }
+
+//            @Composable
+//            fun NoteTopBar(path: VaultPath, currentView: NoteView, onChangeView: (NoteView) -> Unit) {
+//                PageTopBar(
+//                    text = { Text(path.pathWithoutExt.replace("/", " / ")) },
+//                    buttons = {
+//                    }
+//                )
+//            }
+
             @Composable
             override fun content() {
                 Note(path)
@@ -232,8 +261,8 @@ sealed interface LayoutStructure {
     }
 
     @Serializable
-    data class History(val history: List<Single>) {
-        constructor(vararg history: Single) : this(history.toList())
+    data class History(val history: List<LayoutStructure>) {
+        constructor(vararg history: LayoutStructure) : this(history.toList())
     }
 
     @Serializable
@@ -245,7 +274,7 @@ sealed interface LayoutStructure {
         val selectable: Boolean = true,
     ) : LayoutStructure {
         fun withTab(
-            tab: Single,
+            tab: LayoutStructure,
             select: Boolean = true,
             atIndex: Int = tabs.size,
             replace: Boolean = true,

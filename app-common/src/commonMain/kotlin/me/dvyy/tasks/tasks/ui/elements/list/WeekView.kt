@@ -1,6 +1,7 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
 import TasksViewModel
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -28,11 +29,12 @@ fun WeekView(
     time: TimeViewModel = koinViewModel(),
     startAtToday: Boolean = false,
     takeDays: Int = 7,
-) {
+) = Column {
+    val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
+
     val scrollState = rememberScrollState()
     Scaffold(snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
         val columns = if (UI.isSmall) 1 else takeDays
-        val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
         val datesScrollable = Modifier.optional(UI.isSmall) { verticalScroll(scrollState) }
         val today by time.today.collectAsState()
 

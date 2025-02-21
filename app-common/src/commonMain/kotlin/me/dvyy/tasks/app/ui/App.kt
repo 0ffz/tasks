@@ -77,8 +77,8 @@ fun App(
                         val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Empty)
                         Row {
                             Layout(structure, onLayoutUpdate = { new ->
-                                val main = (new as LayoutStructure.Split).first
-                                layoutViewModel.setMainView(main)
+                                val main = (new as LayoutStructure.Split).first as? LayoutStructure.Tabbed
+                                if (main != null) layoutViewModel.setTabView(main)
                             })
                         }
                     } else {
@@ -87,8 +87,11 @@ fun App(
                             LeftNavigationRail()
                             TintedVerticalDivider(Modifier.padding(top = UI.tabHeight))
                             Layout(structure, onLayoutUpdate = {
-                                val main = ((it as? LayoutStructure.Split)?.first as? LayoutStructure.Split)?.second
-                                if (main != null) layoutViewModel.setMainView(main)
+                                val main = (((it as? LayoutStructure.Split)?.first as? LayoutStructure.Split)?.second) as? LayoutStructure.Tabbed
+//                                if(main is LayoutStructure.Tabbed) main
+//                                else structure
+//                                val main = it as? LayoutStructure.Tabbed
+                                if (main != null) layoutViewModel.setTabView(main)
                             })
                         }
                     }

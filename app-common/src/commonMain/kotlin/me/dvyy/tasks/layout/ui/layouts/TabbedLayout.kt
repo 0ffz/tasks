@@ -129,11 +129,13 @@ fun TabbedLayout(
 
             Surface {
                 structure.tabs.getOrNull(structure.selected)?.let {
-                    Layout(it.history.last(), onLayoutUpdate = { new -> onLayoutUpdate(new) })
+                    Layout(it.history.last(), onLayoutUpdate = { new ->
+                        // Replace currently opened tab
+                        onLayoutUpdate(structure.withTab(new, atIndex = structure.selected, replace = true))
+                    })
                 } ?: run {
-                        LayoutStructure.Single.Empty.content()
+                    LayoutStructure.Single.Empty.content()
                 }
-                DropTarget(structure, onLayoutUpdate)
             }
         }
     }
@@ -192,7 +194,7 @@ private fun Tabs(
                     Modifier.padding(ui.tabPadding),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    structure.tabs.firstOrNull()?.history?.last()?.tabLabel(Location.TabList)
+                    (structure.tabs.firstOrNull()?.history?.last() as? LayoutStructure.Single)?.tabLabel(Location.TabList)
                 }
             } else structure.tabs.forEachIndexed { index, tabHistory ->
                 val tab = tabHistory.history.last()
@@ -227,7 +229,7 @@ private fun Tabs(
                         }
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            tab.tabLabel(if (index == structure.selected) Location.Selected else Location.TabList)
+                            (tab as? LayoutStructure.Single)?.tabLabel(if (index == structure.selected) Location.Selected else Location.TabList)
                         }
                     }
                     if (index == structure.selected) Surface(
