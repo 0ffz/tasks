@@ -27,7 +27,7 @@ class LocalPreferencesRepository(
 
         scope.launch(Dispatchers.Default) {
             cachedSetting.debounce(debounceMillis).collect {
-                write(localStore, key, it)
+                runCatching { write(localStore, key, it) }.onFailure { it.printStackTrace() }
             }
         }
 

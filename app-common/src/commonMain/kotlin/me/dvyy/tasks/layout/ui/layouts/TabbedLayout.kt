@@ -13,10 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
@@ -28,6 +30,7 @@ import me.dvyy.tasks.app.ui.elements.AppDrawerIconButton
 import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
 import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
+import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.core.ui.modifiers.onMiddleMouseClick
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.Layout
@@ -141,6 +144,15 @@ fun TabbedLayout(
     }
 }
 
+@Composable
+fun TabHeader(content: @Composable () -> Unit) = Column {
+    Surface(Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.height(UI.tabHeight).padding(UI.tabPadding), verticalAlignment = Alignment.CenterVertically) {
+            content()
+        }
+    }
+    TintedHorizontalDivider()
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -194,7 +206,8 @@ private fun Tabs(
                     Modifier.padding(ui.tabPadding),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    (structure.tabs.firstOrNull()?.history?.last() as? LayoutStructure.Single)?.tabLabel(Location.TabList)
+                    val single = structure.tabs.firstOrNull()?.history?.last() as? LayoutStructure.Single
+                    TabLabel(single?.icon, single?.text ?: "Untitled View")
                 }
             } else structure.tabs.forEachIndexed { index, tabHistory ->
                 val tab = tabHistory.history.last()
@@ -229,7 +242,9 @@ private fun Tabs(
                         }
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            (tab as? LayoutStructure.Single)?.tabLabel(if (index == structure.selected) Location.Selected else Location.TabList)
+                            val single = tab as? LayoutStructure.Single
+                            TabLabel(single?.icon, single?.text ?: "Untitled View")
+//                            (tab as? LayoutStructure.Single)?.tabLabel(if (index == structure.selected) Location.Selected else Location.TabList)
                         }
                     }
                     if (index == structure.selected) Surface(
@@ -263,5 +278,17 @@ private fun Tabs(
                 colors = listOf(Color.Transparent, MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1))
             )
         ).align(Alignment.CenterEnd)
+    )
+}
+
+@Composable
+fun TabLabel(
+    icon: ImageVector?,
+    text: String,
+) = LeadingIcon(icon, text) {
+    Text(
+        text,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
     )
 }

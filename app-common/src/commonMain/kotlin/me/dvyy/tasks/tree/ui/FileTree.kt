@@ -19,6 +19,7 @@ import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.layout.ui.layouts.TabLabel
 import me.dvyy.tasks.tasks.ui.elements.list.optional
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -73,7 +74,7 @@ fun FileEntry(
             when (file) {
                 is FileStructure.File -> {
                     Spacer(Modifier.width(UI.padding.xxl))
-                    file.opensLayout.tabLabel(Location.Sidebar)
+                    TabLabel(file.opensLayout.icon, file.opensLayout.text)
                 }
 
                 is FileStructure.Folder -> {

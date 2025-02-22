@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,7 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.VaultViewModel
+import me.dvyy.tasks.layout.ui.layouts.TabHeader
+import me.dvyy.tasks.layout.ui.layouts.TabLabel
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
 import org.koin.compose.koinInject
@@ -32,6 +36,7 @@ fun AppFileTree(
     Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp).verticalScroll(rememberScrollState()),
     verticalArrangement = Arrangement.spacedBy(8.dp)
 ) {
+
     val drawer = app.drawerState
     val scope = rememberCoroutineScope()
     fun closeDrawer() {

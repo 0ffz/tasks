@@ -2,6 +2,7 @@ package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -36,7 +37,8 @@ class LayoutViewModel(
 
     val rightSidebar = prefs.serializable<LayoutStructure>(viewModelScope, "rightSidebar", LayoutStructure.Empty)
     val bottomBar = prefs.serializable<LayoutStructure>(viewModelScope, "bottomBar", LayoutStructure.Empty)
-    private val _mainView = prefs.serializable<LayoutStructure.Tabbed>(viewModelScope, "mainView", LayoutStructure.Tabbed(listOf(), 0))
+    private val _mainView =
+        prefs.serializable<LayoutStructure.Tabbed>(viewModelScope, "mainView", LayoutStructure.Tabbed(listOf(), 0))
 
     val mainView: StateFlow<LayoutStructure.Tabbed> = _mainView.map(viewModelScope) {
         it
@@ -126,16 +128,12 @@ class LayoutViewModel(
     val desktopLayout = combine(leftSidebar, rightSidebar, bottomBar, mainView) { left, right, bottom, main ->
         LayoutStructure.Split(
             first = LayoutStructure.Split(
-                first = LayoutStructure.Tabbed(
-                    listOf(LayoutStructure.History(left.wrap {
-                        androidx.compose.material3.Surface(
-                            tonalElevation = UI.elevation.lv1,
-                            modifier = Modifier.fillMaxSize()
-                        ) { it() }
-                    })),
-                    fullWidth = true,
-                    selectable = false,
-                ),
+                first = left.wrap {
+                    Surface(
+                        tonalElevation = UI.elevation.lv1,
+                        modifier = Modifier.fillMaxSize()
+                    ) { it() }
+                },
                 second = main,
                 split = SplitAmount.Fixed(200.dp),
                 orientation = Orientation.Horizontal,

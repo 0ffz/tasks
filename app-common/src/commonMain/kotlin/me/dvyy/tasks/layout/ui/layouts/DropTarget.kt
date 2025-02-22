@@ -20,13 +20,12 @@ fun DropTarget(
 //        layoutViewModel.setActiveLayout(select)
     }
 
-//    HoverBox(
-//        Modifier.fillMaxSize(),
-//        hoverableModifier = { Modifier.align(Alignment.Center).fillMaxSize(0.33f) },
-//        onDropped = { new ->
-//            val tabbed = structure.withTab(new, replace = false)
-//            update(tabbed, tabbed)
-//        })
+    HoverBox(
+        Modifier.fillMaxSize(),
+        hoverableModifier = { Modifier.align(Alignment.Center).fillMaxSize(0.33f) },
+        onDropped = { new ->
+            update(new, new)
+        })
 
     Column(Modifier.fillMaxSize()) {
         HoverBox(Modifier.weight(1f), onDropped = { new ->

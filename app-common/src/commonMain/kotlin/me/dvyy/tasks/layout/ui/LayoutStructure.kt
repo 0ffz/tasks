@@ -7,39 +7,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.elements.WeekViewActions
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.database.VaultPath
-import me.dvyy.tasks.layout.ui.LayoutStructure.Single
-import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
+import me.dvyy.tasks.layout.ui.layouts.TabHeader
+import me.dvyy.tasks.layout.ui.layouts.TabLabel
 import me.dvyy.tasks.notes.ui.Note
 import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
-
-object DpSerializer : KSerializer<Dp> {
-    override val descriptor = Float.serializer().descriptor
-    override fun serialize(encoder: Encoder, value: Dp) = encoder.encodeFloat(value.value)
-    override fun deserialize(decoder: Decoder) = Dp(decoder.decodeFloat())
-}
-
-@Serializable
-sealed interface SplitAmount {
-    @Serializable
-    data class Fixed(val value: @Serializable(with = DpSerializer::class) Dp) : SplitAmount
-
-    @Serializable
-    data class Percent(val value: Float) : SplitAmount
-}
+import me.dvyy.tasks.tasks.ui.elements.list.LayoutActions
+import me.dvyy.tasks.tasks.ui.elements.list.LocalLayoutActions
 
 @Serializable
 sealed interface LayoutStructure {
@@ -70,27 +54,7 @@ sealed interface LayoutStructure {
         }
 
         @Composable
-        fun DefaultTabLabel(
-            icon: ImageVector?,
-            text: String,
-        ) = LeadingIcon(icon, text) {
-            Text(
-                text,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-
-        @Composable
-        fun tabLabel(selected: Location) = DefaultTabLabel(icon, text)
-
-        @Composable
         fun content()
-
-
-        @Composable
-        fun topButtons() {
-        }
 
         data class RichTextView(val file: String) : Single {
             override val icon get() = AppIcons.Description
@@ -122,14 +86,18 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-                me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
+                me.dvyy.tasks.tasks.ui.elements.list.WeekView(
+                    title = text,
+                    startAtToday = startAtToday,
+                    takeDays = takeDays
+                )
             }
 
-            @Composable
-            override fun topButtons() {
-                if (!startAtToday && takeDays == 7)
-                    WeekViewActions()
-            }
+//            @Composable
+//            override fun topButtons() {
+//                if (!startAtToday && takeDays == 7)
+//                    WeekViewActions()
+//            }
         }
 
         @Serializable
@@ -138,7 +106,10 @@ sealed interface LayoutStructure {
             override val text get() = "File tree"
 
             @Composable
-            override fun content() {
+            override fun content() = Column {
+                TabHeader {
+                    TabLabel(null, "File tree")
+                }
                 AppFileTree()
             }
         }
@@ -202,8 +173,9 @@ sealed interface LayoutStructure {
         data class Project(
             val path: VaultPath,
         ) : Single {
-            @Composable
-            override fun tabLabel(location: Location) {
+            override val text: String = path.displayName
+//            @Composable
+//            override fun tabLabel(location: Location) {
 //                val tasks: TasksViewModel = koinViewModel()
 //                val dialogs: DialogViewModel = koinViewModel()
 //                val propsLoadable by tasks.getListProperties(key).collectAsState()
@@ -216,29 +188,23 @@ sealed interface LayoutStructure {
 //                    props.displayName == "Inbox" -> AppIcons.Inbox
 //                    else -> AppIcons.Description
 //                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    DefaultTabLabel(icon, path.displayName)
-                    if (location == Location.Sidebar) {
-                        Spacer(Modifier.weight(1f))
-//                        IconButton(
-//                            onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
-//                            modifier = Modifier.size(UI.size.md)
-//                        ) {
-//                            Icon(AppIcons.Close, "Delete project", tint = MaterialTheme.colorScheme.outline)
-//                        }
-                    }
-                }
-            }
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    DefaultTabLabel(icon, path.displayName)
+//                    if (location == Location.Sidebar) {
+//                        Spacer(Modifier.weight(1f))
+////                        IconButton(
+////                            onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
+////                            modifier = Modifier.size(UI.size.md)
+////                        ) {
+////                            Icon(AppIcons.Close, "Delete project", tint = MaterialTheme.colorScheme.outline)
+////                        }
+//                    }
+//                }
+//            }
 
-            @Composable
-            override fun topButtons() {
-//                if (currentView is EditView) IconButton(onClick = { onChangeView(MarkdownView()) }) {
-//                    Icon(Icons.AutoMirrored.Outlined.Notes, "List view")
-//                }
-//                if (currentView is MarkdownView) IconButton(onClick = { onChangeView(EditView()) }) {
-//                    Icon(AppIcons.EditNote, "Edit view")
-//                }
-            }
+//            @Composable
+//            override fun topButtons() {
+//            }
 
 //            @Composable
 //            fun NoteTopBar(path: VaultPath, currentView: NoteView, onChangeView: (NoteView) -> Unit) {
@@ -293,9 +259,6 @@ sealed interface LayoutStructure {
         }
     }
 
-//    @Serializable
-//    data class Tab(val name: String, val content: LayoutStructure.Single)
-
     @Serializable
     data object Empty : Single {
         @Composable
@@ -303,20 +266,12 @@ sealed interface LayoutStructure {
         }
     }
 
-    fun tabIfNecessary(tabName: String): Tabbed {
-        return when (this) {
-            is Tabbed -> this
-            is Empty -> Tabbed(listOf(), 0)
-            is Single -> Tabbed(listOf(History(this)), 0)
-            else -> error("Cannot convert $this to a tabbed layout")
-        }
-    }
+//    fun tabIfNecessary(tabName: String): Tabbed {
+//        return when (this) {
+//            is Tabbed -> this
+//            is Empty -> Tabbed(listOf(), 0)
+//            is Single -> Tabbed(listOf(History(this)), 0)
+//            else -> error("Cannot convert $this to a tabbed layout")
+//        }
+//    }
 }
-
-inline fun Single.wrap(crossinline wrap: @Composable (original: @Composable () -> Unit) -> Unit): Single =
-    object : Wrap(this) {
-        @Composable
-        override fun content() {
-            wrap { super.content() }
-        }
-    }
