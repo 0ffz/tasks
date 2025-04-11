@@ -18,10 +18,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.mikepenz.markdown.m3.markdownTypography
 import me.dvyy.tasks.app.AppIcons
+import me.dvyy.tasks.app.ui.AppUIState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.VaultViewModel
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.database.VaultPath
+import me.dvyy.tasks.database.helpers.DocumentHelpers.content
 import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
 import me.dvyy.tasks.tasks.ui.elements.list.AppScreen
 import me.dvyy.tasks.tasks.ui.elements.list.Project
@@ -133,6 +135,8 @@ fun Note(
 ) {
     val document by vault.observeDocument(path).collectAsState()
     val frontMatter = document?.frontMatter() ?: return
+    val content = document?.content() ?: return
+    val isManaged = frontMatter["managed"] as Boolean
     val typography = NoteTypography()
     val title = path.displayName
 //    val tasks: TasksViewModel = koinViewModel()
@@ -153,16 +157,28 @@ fun Note(
                 Modifier.sizeIn(maxWidth = UI.contentWidth).padding(UI.padding.md).fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                Text(title, style = typography.h1)
-                HorizontalDivider()
-                NoteFrontMatter(frontMatter, updateFrontMatter = { vault.updateFrontMatter(path, it) })
+                if(isManaged) {
+                    Text(content, style = typography.h1)
+                } else {
+                    Text(title, style = typography.h1)
+                    NoteFrontMatter(frontMatter, updateFrontMatter = { vault.updateFrontMatter(path, it) })
+                    HorizontalDivider()
+                    Spacer(Modifier.height(UI.padding.sm))
+                }
+                Text("Subtasks", style = typography.h2)
                 HorizontalDivider()
                 Project(
                     path = path,
                     scrollable = false,
                 )
-                Spacer(Modifier.height(UI.padding.sm))
-                document?.let { view.content(documentOf(), it) }
+                if(isManaged) {
+                    Spacer(Modifier.height(UI.padding.sm))
+                    Button(onClick = { vault.convertToNote(path) }) {
+                        Text("Convert to Note")
+                    }
+                } else {
+                    document?.let { view.content(documentOf(), it) }
+                }
             }
         }
     }

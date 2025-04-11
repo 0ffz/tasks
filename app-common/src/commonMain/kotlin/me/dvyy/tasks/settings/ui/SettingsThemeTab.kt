@@ -22,7 +22,6 @@ import me.dvyy.tasks.app.ui.theme.Fonts
 import me.dvyy.tasks.app.ui.theme.TaskAppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsThemeTab(
     prefs: PreferencesViewModel = koinViewModel(),

@@ -11,10 +11,8 @@ import me.dvyy.tasks.database.helpers.DocumentHelpers.vaultPath
 import me.dvyy.tasks.database.helpers.DocumentHelpers.write
 import me.dvyy.tasks.database.helpers.KeyHelpers.frontMatter
 import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.asList
-import me.dvyy.tasks.database.helpers.NitriteFlowHelpers.project
 import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
-import org.dizitart.kno2.documentOf
 import org.dizitart.no2.collection.FindOptions
 import org.dizitart.no2.common.SortOrder
 
@@ -75,10 +73,6 @@ class TasksLocalDataSource(
             )
         }
     }
-
-//    fun observeProjects(): Flow<List<ListId>> {
-////        return database.listsQueries.getProjects().asFlow().mapToList(Dispatchers.Default)
-//    }
 
 //    suspend fun setListProperties(listId: ListId, props: TaskListProperties) {
 //        database.listsQueries.transaction {

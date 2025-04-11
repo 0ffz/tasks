@@ -1,5 +1,6 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
+import TasksViewModel
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.ScrollableState
@@ -7,6 +8,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -23,28 +25,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.database.VaultPath
 
 @Composable
 fun AllProjectsView(
     modifier: Modifier = Modifier,
-//    tasksViewModel: TasksViewModel = viewModel(),
+    tasksViewModel: TasksViewModel = viewModel(),
     horizontal: Boolean,
     staggered: Boolean,
 ) {
     val ui = LocalUIState.current
-//    val projects by tasksViewModel.projects.collectAsState()
-//    ProjectLayout(modifier, horizontal, staggered, projects, { it.uuid }) { key ->
+    val projects = listOf<VaultPath>(VaultPath("test/a.md"), VaultPath("test/b.md"))//by tasksViewModel.projects.collectAsState()
+    ProjectLayout(modifier, horizontal, staggered, projects, { it }) { path ->
 //        val properties by tasksViewModel.getListProperties(key).collectAsState()
-//        Project(
-//            tasksViewModel = tasksViewModel,
-//            key = key,
+        Project(
+            path = path,
 //            properties = properties,
-//            modifier = Modifier.width(ui.taskListWidth),
-//            scrollable = horizontal,
-//        )
-//    }
+            modifier = Modifier.width(ui.taskListWidth),
+            scrollable = horizontal,
+            showTitle = true,
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

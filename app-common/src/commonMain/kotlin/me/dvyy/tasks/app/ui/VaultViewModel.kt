@@ -5,15 +5,18 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.database.Vault
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.tree.ui.FileStructure
 import me.dvyy.tasks.utils.WhileUiSubscribed
+import org.dizitart.kno2.documentOf
 import org.dizitart.no2.collection.Document
 
 class VaultViewModel(
     val vault: Vault,
+    val dialogViewModel: DialogViewModel,
 ) : ViewModel() {
     val fileTree = vault.fileTree()
         .map { toFileStructure(it) }
@@ -47,10 +50,12 @@ class VaultViewModel(
         }
     }
 
-    fun updateFrontMatter(path: VaultPath, frontMatter: Document, clearOld: Boolean = false) {
-        viewModelScope.launch {
-            vault.update(path, clearOldFrontMatter = clearOld, frontMatter = { frontMatter })
-        }
+    fun updateFrontMatter(path: VaultPath, frontMatter: Document, clearOld: Boolean = false) = viewModelScope.launch {
+        vault.update(path, clearOldFrontMatter = clearOld, frontMatter = { frontMatter })
+    }
+
+    fun convertToNote(path: VaultPath) = viewModelScope.launch {
+        updateFrontMatter(path, documentOf("managed" to false))
     }
 
     init {

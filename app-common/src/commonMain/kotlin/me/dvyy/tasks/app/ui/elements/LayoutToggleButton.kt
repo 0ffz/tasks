@@ -22,7 +22,7 @@ fun LayoutToggleButton(
     IconToggleButton(
         checked = enabled,
         onCheckedChange = onClick,
-        shape = MaterialTheme.shapes.small,
+//        shape = MaterialTheme.shapes.small,
     ) {
         Box(
             modifier = Modifier

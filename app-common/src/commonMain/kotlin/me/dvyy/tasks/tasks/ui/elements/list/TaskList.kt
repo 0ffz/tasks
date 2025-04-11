@@ -44,7 +44,7 @@ fun TaskList(
     viewModel: TasksViewModel,
     modifier: Modifier = Modifier,
     scrollable: Boolean = false,
-    showTitle: Boolean = false,
+    showTitle: Boolean = true,
 ) {
     val ui = LocalUIState.current
     val listDropTarget = Modifier.dragAndDropTarget(
