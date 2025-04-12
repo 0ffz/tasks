@@ -1,9 +1,6 @@
 package me.dvyy.tasks.database
 
-import me.dvyy.tasks.database.helpers.DocumentHelpers.content
-import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
-import me.dvyy.tasks.database.helpers.DocumentYamlHelpers.encodeToString
-import org.dizitart.no2.collection.Document
+import me.dvyy.tasks.database.model.Note
 import java.nio.file.Path
 import java.security.MessageDigest
 import kotlin.io.path.*
@@ -11,13 +8,13 @@ import kotlin.io.path.*
 class VaultFileSystemDataSource(
     val vaultRoot: Path,
 ) {
-    fun createOrSaveDocument(path: VaultPath, fileContent: String = "") {
+    fun createOrSaveNote(path: VaultPath, fileContent: String = "") {
         val fsPath = path.toPath()
         fsPath.createParentDirectories().also { if (it.notExists()) it.createFile() }
         fsPath.writeText(fileContent)
     }
 
-    fun deleteDocument(path: VaultPath): Boolean {
+    fun deleteNote(path: VaultPath): Boolean {
         return path.toPath().deleteIfExists()
     }
 
@@ -29,13 +26,13 @@ class VaultFileSystemDataSource(
      * @return md5 hash of the saved document, to update in database.
      */
     @OptIn(ExperimentalStdlibApi::class)
-    fun saveDocument(path: VaultPath, document: Document): String {
-        val content = document.stringify()
-        createOrSaveDocument(path, content)
+    fun saveNote(path: VaultPath, note: Note): String {
+        val content = note.stringify()
+        createOrSaveNote(path, content)
         return MD5.digest(content.toByteArray()).toHexString()
     }
 
-    fun moveDocument(from: VaultPath, to: VaultPath) {
+    fun moveNote(from: VaultPath, to: VaultPath) {
         to.toPath().createParentDirectories()
         from.toPath().moveTo(to.toPath())
     }
@@ -62,9 +59,7 @@ class VaultFileSystemDataSource(
 
         fun isIndexable(file: Path): Boolean = file.extension == "md"// || file.extension == "yaml"
 
-        fun Document.stringify() = "---\n${frontMatter().encodeToString()}\n---\n${content()}"
-
         @OptIn(ExperimentalStdlibApi::class)
-        val Document.md5Hash get() = MD5.digest(stringify().toByteArray()).toHexString()
+        fun Note.calculateHash(): String = MD5.digest(stringify().toByteArray()).toHexString()
     }
 }

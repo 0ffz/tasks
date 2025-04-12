@@ -1,5 +1,6 @@
 package me.dvyy.tasks.database
 
+import org.dizitart.no2.common.module.NitriteModule.module
 import kotlinx.coroutines.Dispatchers
 import org.dizitart.kno2.nitrite
 import org.dizitart.kno2.serialization.KotlinXSerializationMapper
@@ -22,7 +23,7 @@ fun vaultModule(
                     .filePath(dbPath.toFile())
                     .build()
             )
-            loadModule { setOf(KotlinXSerializationMapper()) }
+            loadModule(module(KotlinXSerializationMapper()))
         }
     }
 

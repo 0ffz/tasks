@@ -18,20 +18,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.mikepenz.markdown.m3.markdownTypography
 import me.dvyy.tasks.app.AppIcons
-import me.dvyy.tasks.app.ui.AppUIState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.VaultViewModel
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.database.VaultPath
-import me.dvyy.tasks.database.helpers.DocumentHelpers.content
-import me.dvyy.tasks.database.helpers.DocumentHelpers.frontMatter
+import me.dvyy.tasks.database.model.NoteFrontMatter
 import me.dvyy.tasks.tasks.ui.elements.list.AppScreen
 import me.dvyy.tasks.tasks.ui.elements.list.Project
 import me.dvyy.tasks.views.data.EditView
 import me.dvyy.tasks.views.data.MarkdownView
 import me.dvyy.tasks.views.data.NoteView
-import org.dizitart.kno2.documentOf
-import org.dizitart.no2.collection.Document
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -56,11 +52,11 @@ fun FrontMatterIcon(value: Any) {
 
 @Composable
 fun NoteFrontMatter(
-    frontMatter: Document,
-    updateFrontMatter: (Document) -> Unit,
+    frontMatter: NoteFrontMatter,
+    updateFrontMatter: (NoteFrontMatter.() -> Unit) -> Unit,
 ) {
     val propsLength = UI.propsLength
-    frontMatter.forEach {
+    frontMatter.entries().forEach {
         Row(
             Modifier.padding(UI.padding.sm).height(UI.propsRowHeight),
             verticalAlignment = Alignment.CenterVertically,
@@ -82,7 +78,9 @@ fun NoteFrontMatter(
 
                 is Boolean -> {
                     Checkbox(checked = value, modifier = Modifier.size(UI.propsRowHeight), onCheckedChange = {
-                        updateFrontMatter(documentOf(key to it))
+                        updateFrontMatter {
+                            this[key] = it
+                        }
                     })
                 }
 
@@ -133,10 +131,10 @@ fun Note(
     path: VaultPath,
     vault: VaultViewModel = koinViewModel(),
 ) {
-    val document by vault.observeDocument(path).collectAsState()
-    val frontMatter = document?.frontMatter() ?: return
-    val content = document?.content() ?: return
-    val isManaged = frontMatter["managed"] as Boolean
+    val note = vault.observeDocument(path).collectAsState().value ?: return
+    val frontMatter = note.frontMatter
+    val content = note.fileContent ?: return
+    val isManaged = frontMatter.managed == true
     val typography = NoteTypography()
     val title = path.displayName
 //    val tasks: TasksViewModel = koinViewModel()
@@ -161,7 +159,7 @@ fun Note(
                     Text(content, style = typography.h1)
                 } else {
                     Text(title, style = typography.h1)
-                    NoteFrontMatter(frontMatter, updateFrontMatter = { vault.updateFrontMatter(path, it) })
+                    NoteFrontMatter(frontMatter, updateFrontMatter = { vault.updateFrontMatter(path) { it() } })
                     HorizontalDivider()
                     Spacer(Modifier.height(UI.padding.sm))
                 }
@@ -177,7 +175,7 @@ fun Note(
                         Text("Convert to Note")
                     }
                 } else {
-                    document?.let { view.content(documentOf(), it) }
+                    view.content(note)
                 }
             }
         }

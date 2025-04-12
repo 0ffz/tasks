@@ -2,7 +2,8 @@ package me.dvyy.tasks.tasks.ui.state
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-import org.dizitart.kno2.documentOf
+import me.dvyy.tasks.database.model.NoteFrontMatter
+import me.dvyy.tasks.tasks.data.TaskModel.done
 
 @Stable
 data class TaskUiState(
@@ -10,15 +11,7 @@ data class TaskUiState(
     val completed: Boolean,
     val highlight: Color = Color.Transparent,
 ) {
-    fun toFrontMatter() = documentOf(
-        "done" to completed,
-//        "highlight" to highlight,
-    )
-    companion object {
-//        fun fromModel(model: Task) = TaskUiState(
-//            text = model.text ?: "",
-//            completed = model.completed,
-//            highlight = model.highlight,
-//        )
+    fun toFrontMatter() = NoteFrontMatter.new {
+        done = completed
     }
 }

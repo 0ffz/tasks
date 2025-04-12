@@ -1,6 +1,7 @@
 package me.dvyy.tasks.database
 
 import me.dvyy.tasks.database.helpers.DocumentYamlHelpers
+import me.dvyy.tasks.database.model.NoteFrontMatter
 import org.dizitart.kno2.documentOf
 import org.dizitart.kno2.filters.notWithin
 import org.dizitart.no2.Nitrite
@@ -38,7 +39,7 @@ class VaultIndexer(
     /** Reads yaml front matter for an input stream and adds properties to [db] */
     fun index(path: VaultPath, inputStream: InputStream, hash: String) {
         // read front matter and content
-        var frontMatter: String? = null
+        var frontMatterString: String? = null
         val content = inputStream.bufferedReader().useLines { lines ->
             val acc = StringBuilder()
             var hasFrontMatter: Boolean? = null
@@ -47,8 +48,8 @@ class VaultIndexer(
                     hasFrontMatter = line == "---"
                     continue
                 }
-                if (line == "---" && hasFrontMatter && frontMatter == null) {
-                    frontMatter = acc.toString()
+                if (line == "---" && hasFrontMatter && frontMatterString == null) {
+                    frontMatterString = acc.toString()
                     acc.clear()
                 } else {
                     acc.appendLine(line)
@@ -59,15 +60,12 @@ class VaultIndexer(
 
         // convert front matter and content to document
         //TODO decode yaml lists and objects correctly
-        val frontMatterDoc = frontMatter?.let { DocumentYamlHelpers.decodeFromYaml(it) } ?: documentOf()
-        val document = documentOf(
-            "md5hash" to hash,
-            "frontMatter" to frontMatterDoc,
-            "fileContent" to content
-        )
-        vault.upsertDocument(path, document)
+        val frontMatterDoc = NoteFrontMatter(frontMatterString?.let { DocumentYamlHelpers.decodeFromYaml(it) } ?: documentOf())
+        vault.upsert(path) {
+            md5hash = hash
+            frontMatter = frontMatterDoc
+            fileContent = content
+        }
     }
-
 //    fun vaultPath(file: Path): VaultPath = VaultPath(file.relativeTo(root).pathString)
-
 }

@@ -18,33 +18,7 @@ import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.WhileUiSubscribed
-import org.dizitart.kno2.documentOf
 
-//package me.dvyy.tasks.tasks.ui
-//
-//import androidx.compose.foundation.text.KeyboardActions
-//import androidx.compose.runtime.Stable
-//import androidx.compose.runtime.mutableStateMapOf
-//import androidx.compose.ui.input.key.*
-//import androidx.lifecycle.ViewModel
-//import androidx.lifecycle.viewModelScope
-//import kotlinx.coroutines.flow.*
-//import kotlinx.coroutines.launch
-//import kotlinx.datetime.LocalDate
-//import me.dvyy.tasks.model.Highlight
-//import me.dvyy.tasks.model.ListId
-//import me.dvyy.tasks.model.TaskId
-//import me.dvyy.tasks.model.TaskListProperties
-//import me.dvyy.tasks.tasks.data.BulkAddRepository
-//import me.dvyy.tasks.tasks.data.TaskListRepository
-//import me.dvyy.tasks.tasks.data.TaskRepository
-//import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
-//import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
-//import me.dvyy.tasks.tasks.ui.state.TaskUiState
-//import me.dvyy.tasks.utils.Loadable
-//import me.dvyy.tasks.utils.WhileUiSubscribed
-//import me.dvyy.tasks.utils.loadedOrNull
-//
 sealed interface SyncState {
     data object InProgress : SyncState
     data object UnSynced : SyncState
@@ -132,12 +106,12 @@ class TasksViewModel(
             val childNotePath = vault.taskFolderFor(listPath).resolve(taskName)
 
             viewModelScope.launch {
-                vault.createDocument(
-                    childNotePath, frontMatter = documentOf(
-                        "projects" to listOf(listPath.pathWithoutExt),
-                        "managed" to true,
-                    )/*, atEnd*/
-                )
+                vault.createDocument(childNotePath) {
+                    frontMatter {
+                        projects = listOf(listPath.pathWithoutExt)
+                        managed = true
+                    }
+                }/*, atEnd*/
                 selectTask(childNotePath, focus = true)
             }
         },
@@ -169,9 +143,10 @@ class TasksViewModel(
 //    }
 //
     fun onTaskChanged(key: VaultPath, newState: TaskUiState) = viewModelScope.launch {
-        vault.update(key, clearOldFrontMatter = false, frontMatter = {
-            newState.toFrontMatter()
-        }, content = { newState.text })
+        vault.update(key, clearOldFrontMatter = false) {
+            frontMatter = newState.toFrontMatter()
+            fileContent = newState.text
+        }
     }
 
     //

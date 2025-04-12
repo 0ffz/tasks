@@ -58,7 +58,6 @@ kotlin {
                 implementation("com.mikepenz:multiplatform-markdown-renderer-m3:0.30.0")
                 implementation("com.mikepenz:multiplatform-markdown-renderer-code:0.30.0")
 
-                implementation(libs.nitrite.core)
                 implementation("io.github.theapache64:rebugger:1.0.0-rc03")
                 implementation("com.github.alorma.compose-settings:ui-tiles:2.10.0")
                 implementation("com.github.alorma.compose-settings:ui-tiles-extended:2.10.0")
