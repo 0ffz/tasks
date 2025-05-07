@@ -1,5 +1,6 @@
 package me.dvyy.tasks.database
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -10,6 +11,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlin.io.path.Path
 
 @Serializable(with = VaultPath.Serializer::class)
+@Immutable
 class VaultPath(desiredPath: String) {
     val pathString: String = desiredPath.removePrefix("/")
     val pathWithoutExt = pathString.removeSuffix(".md")
@@ -56,6 +58,14 @@ class VaultPath(desiredPath: String) {
         if (pathString != other.pathString) return false
 
         return true
+    }
+
+    override fun hashCode(): Int {
+        return pathString.hashCode()
+    }
+
+    override fun toString(): String {
+        return "VaultPath($pathString)"
     }
 
     companion object{

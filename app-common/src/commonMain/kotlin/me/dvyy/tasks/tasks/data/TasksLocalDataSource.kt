@@ -15,22 +15,22 @@ class TasksLocalDataSource(
     val vault: Vault,
 ) {
     fun moveTask(task: VaultPath, /*from: VaultPath,*/ to: VaultPath) {
-        var moveDocumentTo: VaultPath? = null
+//        var moveDocumentTo: VaultPath? = null
         vault.update(task, clearOldFrontMatter = false) {
 //            val updatedProjects = (it.read<List<String>>("projects") ?: listOf()).minus(from.pathWithoutExt).plus(to.pathWithoutExt)
-            val updatedProjects = listOf(to.pathString)
+            val updatedProjects = listOf(to.pathWithoutExt)
             frontMatter.projects = updatedProjects
         }
 
-        vault.getNote(task)?.let {
-            if (it.frontMatter.managed == true) {
-                val vaultPath = it.path
-                val targetFolder = vault.taskFolderFor(to)
-                if (vaultPath.parent != targetFolder) {
-                    moveDocumentTo = targetFolder.resolve(vaultPath.displayName + ".md")
-                }
-            }
-        }
+//        vault.getNote(task)?.let {
+//            if (it.frontMatter.managed == true) {
+//                val vaultPath = it.path
+//                val targetFolder = vault.taskFolderFor(to)
+//                if (vaultPath.parent != targetFolder) {
+//                    moveDocumentTo = targetFolder.resolve(vaultPath.displayName + ".md")
+//                }
+//            }
+//        }
 //        if (moveDocumentTo != null) vault.moveDocument(task, moveDocumentTo)
     }
 
@@ -39,13 +39,8 @@ class TasksLocalDataSource(
         return Color(tag.hashCode().mod(0xFFFFFFFF)).copy(alpha = 1.0f)
     }
 
-    //    val markdownChecklistRegex = "^- \\[[xX ]]".toRegex()
-    fun observeListTasks(listId: VaultPath): Flow<List<TaskUiStateWithPath>> {
-//        vault.query(KeyHelpers.PATH_KEY eq listId.pathString).project(KeyHelpers.CONTENT_KEY).map {
-//            val content = it.single().content()
-//            content.lineSequence().filter { it.trim().matches(markdownChecklistRegex) }
-//        }
-        return vault.getRelations(NoteFrontMatter::projects, listId.pathWithoutExt).map {
+    fun observeListTasks(list: VaultPath): Flow<List<TaskUiStateWithPath>> {
+        return vault.getBacklinks(NoteFrontMatter::projects, list).asFlow().map {
             it.map { note ->
                 TaskUiStateWithPath(
                     state = TaskUiState(

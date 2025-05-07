@@ -28,7 +28,7 @@ class VaultDataSource(
     val db: Nitrite,
 ) {
     val filesCollection = db.getCollection("files") {
-        createIndex("path")
+        createIndex(Note::path.name)
         createIndex(IndexOptions.indexOptions(IndexType.NON_UNIQUE), Note::md5hash.name) //TODO also track filesize
         createIndex(IndexOptions.indexOptions(IndexType.FULL_TEXT), Note::fileContent.name)
     }

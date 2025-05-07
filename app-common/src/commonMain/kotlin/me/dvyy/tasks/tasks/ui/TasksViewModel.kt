@@ -10,6 +10,8 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import me.dvyy.tasks.database.Vault
 import me.dvyy.tasks.database.VaultPath
+import me.dvyy.tasks.database.model.NoteFrontMatter
+import me.dvyy.tasks.tasks.data.RankDataSource
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
@@ -18,6 +20,7 @@ import me.dvyy.tasks.tasks.ui.elements.list.TaskUiStateWithPath
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.WhileUiSubscribed
+import kotlin.text.take
 
 sealed interface SyncState {
     data object InProgress : SyncState
@@ -34,6 +37,7 @@ data class SelectedTask(
 class TasksViewModel(
     val taskDataSource: TasksLocalDataSource,
     val vault: Vault,
+    val rankDataSource: RankDataSource,
 ) : ViewModel() {
     val selectedTask = MutableStateFlow<SelectedTask?>(null)
 
@@ -79,11 +83,13 @@ class TasksViewModel(
     fun reorderInteractions() = TaskReorderInteractions(
         onDragEnterItem = { targetTask, dragged ->
             selectTask(null)
-//            viewModelScope.launch {
-//                taskDataSource.moveTask(task = dragged, destId = targetTask)
-//            }
+            println("dragged: $dragged, target: $targetTask")
+            viewModelScope.launch {
+                rankDataSource.reorderTask(dragged, targetTask)
+            }
         },
         onDragEnterColumn = { targetList, id ->
+            println("Into list: $id, target: $targetList")
             viewModelScope.launch { taskDataSource.moveTask(id, targetList) }
         }
     )
@@ -99,20 +105,31 @@ class TasksViewModel(
 
     val alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
     val idLength = 8
+
+    private fun VaultPath.createSubtask(
+        atEnd: Boolean = true,
+        select: Boolean = true
+    ): VaultPath {
+        val randomId = buildString { repeat(idLength) { append(alphabet.random()) } }
+        val taskName = "${this.displayName.take(16)}-$randomId.md"
+        val childNotePath = vault.taskFolderFor(this).resolve(taskName)
+        return vault.createDocument(childNotePath) {
+            frontMatter {
+                projects = listOf(this@createSubtask.pathWithoutExt)
+                managed = true
+                sortOrder = vault.getBacklinks(NoteFrontMatter::projects, this@createSubtask).run {
+                    if(atEnd) rankAfterLast() else rankBeforeFirst()
+                }
+            }
+        }.also {
+            if(select) selectTask(it, focus = true)
+        }
+    }
+
     fun listInteractionsFor(listPath: VaultPath) = TaskListInteractions(
         createNewTask = { atEnd ->
-            val randomId = buildString { repeat(idLength) { append(alphabet.random()) } }
-            val taskName = "${listPath.displayName.take(16)}-$randomId.md"
-            val childNotePath = vault.taskFolderFor(listPath).resolve(taskName)
-
             viewModelScope.launch {
-                vault.createDocument(childNotePath) {
-                    frontMatter {
-                        projects = listOf(listPath.pathWithoutExt)
-                        managed = true
-                    }
-                }/*, atEnd*/
-                selectTask(childNotePath, focus = true)
+                listPath.createSubtask(atEnd)
             }
         },
         onPropertiesChanged = { props ->
@@ -173,15 +190,15 @@ class TasksViewModel(
             return "DefaultTaskInteractions(taskId=$taskPath, listId=$listPath, uiState=$uiState)"
         }
 
-        private fun selectNextTaskOrNew() {
-//            val nextTask = taskAfter(listId, /*selectedTask.value ?: */taskId)
-//            if (nextTask != null) {
-//                selectTask(nextTask, focus = true)
-//            } else if (uiState.text.isNotEmpty()) {
-//                viewModelScope.launch {
-//                    selectTask(taskRepo.create(listId, atEndOfList = true).uuid, focus = true)
-//                }
-//            }
+        private fun selectNextTaskOrNew() = viewModelScope.launch {
+            val nextTask = vault.getBacklinks(NoteFrontMatter::projects, listPath).run {
+                itemAfter(rankOf(taskPath)!!)
+            }
+            if (nextTask != null) {
+                selectTask(nextTask.path, focus = true)
+            } else if (uiState.text.isNotEmpty()) {
+                listPath.createSubtask()
+            }
         }
 
         override val keyboardActions = KeyboardActions(onNext = {

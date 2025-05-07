@@ -14,10 +14,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.typeOf
 
-interface DocumentWrapper {
-    val document: Document
-}
-
 class Note internal constructor(
     override val document: Document,
 ) : DocumentWrapper {
@@ -72,6 +68,7 @@ class NoteFrontMatter internal constructor(
 ) : DocumentWrapper {
     var managed: Boolean? by document
     var projects: List<String> by document
+    var sortOrder: String? by document
 
     fun entries(): List<Pair<String, Any>> = document.map { it.first to it.second }
 

@@ -15,6 +15,7 @@ import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.sync.ui.SyncViewModel
+import me.dvyy.tasks.tasks.data.RankDataSource
 import me.dvyy.tasks.tasks.data.SyncAPI
 import me.dvyy.tasks.tasks.data.TasksLocalDataSource
 import org.koin.core.module.dsl.singleOf
@@ -37,6 +38,7 @@ fun authModule() = module {
 
 fun repositoriesModule() = module {
     singleOf(::TasksLocalDataSource)
+    singleOf(::RankDataSource)
 //    singleOf(::TaskRepository)
 //    singleOf(::TaskListRepository)
 //    singleOf(::BulkAddRepository)
