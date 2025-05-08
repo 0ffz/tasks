@@ -1,7 +1,6 @@
 package me.dvyy.tasks.tasks.data
 
 import me.dvyy.tasks.database.Vault
-import me.dvyy.tasks.database.VaultDataSource
 import me.dvyy.tasks.database.VaultPath
 import me.dvyy.tasks.database.model.NoteFrontMatter
 import me.dvyy.tasks.model.database.RankFunctions

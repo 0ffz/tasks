@@ -1,10 +1,10 @@
 package me.dvyy.tasks.database.helpers
 
+import me.dvyy.tasks.database.model.Note
+
 object KeyHelpers {
-    const val FRONTMATTER_KEY = "frontMatter"
-    const val CONTENT_KEY = "fileContent"
-    const val PATH_KEY = "path"
-    const val MD5_HASH_KEY = "md5hash"
+    val FRONTMATTER_KEY = "frontMatter"
+    val PATH_KEY = Note::path.name
 
 
     fun frontMatter(key: String) = "$FRONTMATTER_KEY.$key"

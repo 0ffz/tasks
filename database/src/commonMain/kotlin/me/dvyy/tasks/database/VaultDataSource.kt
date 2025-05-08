@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import me.dvyy.tasks.database.helpers.KeyHelpers
+import me.dvyy.tasks.database.helpers.applyTimestamps
 import me.dvyy.tasks.database.helpers.documentOfNulls
 import me.dvyy.tasks.database.model.HashInfo
 import me.dvyy.tasks.database.model.HashInfo.Companion.toHashInfo
@@ -66,6 +67,7 @@ class VaultDataSource(
     }
 
     fun upsert(path: VaultPath, note: Note, clearOldFrontMatter: Boolean = true) {
+        note.document.applyTimestamps()
         // Clear existing frontMatter, since update doesn't delete old values
         if (clearOldFrontMatter && note.document.containsKey(KeyHelpers.FRONTMATTER_KEY))
             filesCollection.update("path" eq path.pathString, documentOf(KeyHelpers.FRONTMATTER_KEY to null))
