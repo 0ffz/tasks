@@ -13,7 +13,6 @@ import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
-import me.dvyy.tasks.tasks.data.BulkAddRepository
 import me.dvyy.tasks.tasks.data.TaskListRepository
 import me.dvyy.tasks.tasks.data.TaskRepository
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
@@ -37,7 +36,6 @@ data class SelectedTask(
 
 class TasksViewModel(
     private val taskRepo: TaskRepository,
-    private val bulkAddRepo: BulkAddRepository,
     private val listRepo: TaskListRepository,
 ) : ViewModel() {
     val selectedTask = MutableStateFlow<SelectedTask?>(null)

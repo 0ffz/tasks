@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.sqldelight)
 }
 
 composeCompiler {
@@ -16,14 +15,11 @@ kotlin {
     androidTarget()
     compilerOptions {
         freeCompilerArgs.addAll("-Xexpect-actual-classes")
+        freeCompilerArgs.add("-Xcontext-parameters")
         optIn.add("kotlin.uuid.ExperimentalUuidApi")
     }
 
-    jvm("desktop") {
-        compilations.all {
-            kotlinOptions.jvmTarget = "17"
-        }
-    }
+    jvm("desktop")
 
 //    @OptIn(ExperimentalWasmDsl::class)
 //    wasmJs {
@@ -42,7 +38,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.sqldelight.runtime)
                 implementation(project(":app-model"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
@@ -70,10 +65,9 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.kotlin.result)
-                implementation(libs.sqldelight.primitive.adapters)
-                implementation(libs.coroutines.extensions)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
+                implementation("me.dvyy:database")
             }
         }
         val jvmMain by creating {
@@ -87,7 +81,6 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.cio)
-                implementation(libs.sqldelight.sqlite.driver)
             }
         }
         val androidMain by getting {
@@ -98,7 +91,6 @@ kotlin {
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.ui)
                 implementation(libs.androidx.activity.compose)
-                implementation(libs.sqldelight.android.driver)
                 implementation(libs.koin.android)
             }
         }
@@ -106,7 +98,6 @@ kotlin {
 //        val wasmJsMain by getting {
 //            dependencies {
 //                //TODO waiting for wasmJs driver
-//                implementation(libs.sqldelight.web.worker.driver.wasm)
 //                implementation(devNpm("copy-webpack-plugin", "9.1.0"))
 //            }
 //        }
@@ -132,12 +123,12 @@ dependencies {
     implementation(libs.androidx.foundation.android)
 }
 
-sqldelight {
-    databases {
-        create("Database") {
-            packageName.set("me.dvyy.tasks.db.client")
-            srcDirs("src/commonMain/sqldelight")
-            generateAsync.set(true)
-        }
-    }
-}
+//sqldelight {
+//    databases {
+//        create("Database") {
+//            packageName.set("me.dvyy.tasks.db.client")
+//            srcDirs("src/commonMain/sqldelight")
+//            generateAsync.set(true)
+//        }
+//    }
+//}

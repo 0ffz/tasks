@@ -1,14 +1,14 @@
 package me.dvyy.tasks.tasks.data
 
 import kotlinx.coroutines.withContext
-import me.dvyy.tasks.db.client.Task
+import me.dvyy.syncengine.db.Database
+import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.model.EntityType
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Delete
 import me.dvyy.tasks.model.network.NetworkMessage.Type.Update
 import me.dvyy.tasks.sync.data.MessagesDataSource
-import me.dvyy.tasks.utils.AppDispatchers
 
 //private const val KEY_DELETED_TASKS = "app-deleted-tasks"
 
@@ -16,9 +16,7 @@ class TaskRepository(
     private val localStore: TasksLocalDataSource,
     private val messages: MessagesDataSource,
 ) {
-    private val dbContext = AppDispatchers.db
-
-    suspend fun create(list: ListId, atEndOfList: Boolean): Task = withContext(dbContext) {
+    suspend fun create(list: ListId, atEndOfList: Boolean): Task = Database.write {
         localStore.createTask(list, atEndOfList)
         // Don't save a message until the task is modified
     }
