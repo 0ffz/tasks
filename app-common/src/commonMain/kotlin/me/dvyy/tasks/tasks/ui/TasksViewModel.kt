@@ -1,231 +1,89 @@
 package me.dvyy.tasks.tasks.ui
 
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
-import me.dvyy.tasks.model.Highlight
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import me.dvyy.syncengine.db.Database
+import me.dvyy.syncengine.db.tables.SubtaskRelation
+import me.dvyy.tasks.database.Mutators
+import me.dvyy.tasks.model.components.Task
+import me.dvyy.tasks.database.TasksView
 import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
-import me.dvyy.tasks.tasks.data.TaskListRepository
-import me.dvyy.tasks.tasks.data.TaskRepository
-import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
-import me.dvyy.tasks.tasks.ui.elements.list.TaskWithIDState
-import me.dvyy.tasks.tasks.ui.state.TaskUiState
-import me.dvyy.tasks.utils.Loadable
-import me.dvyy.tasks.utils.WhileUiSubscribed
-import me.dvyy.tasks.utils.loadedOrNull
+import me.dvyy.tasks.model.mutators.DeleteRowMutator
+import me.dvyy.tasks.model.mutators.JsonPatchMutator
+import me.dvyy.tasks.model.schema.JsonTable
+import me.dvyy.tasks.model.schema.NotesDAO
+import me.dvyy.tasks.model.schema.NotesTable
+import me.dvyy.tasks.model.schema.RelationTableDAO
+import kotlin.uuid.Uuid
 
-sealed interface SyncState {
-    data object InProgress : SyncState
-    data object UnSynced : SyncState
-    data object Success : SyncState
-    data object Error : SyncState
-}
-
-data class SelectedTask(
-    val taskId: TaskId,
-    val requestFocus: Boolean,
+data class TaskWithList(
+    val list: Uuid,
+    val task: Uuid,
 )
 
 class TasksViewModel(
-    private val taskRepo: TaskRepository,
-    private val listRepo: TaskListRepository,
+    val tasks: NotesDAO<Task> = NotesDAO(Task.serializer(), NotesTable),
+    val rank: RelationTableDAO<Task> = RelationTableDAO(SubtaskRelation),
+    val mutators: Mutators,
 ) : ViewModel() {
-    val selectedTask = MutableStateFlow<SelectedTask?>(null)
+    val selectedTask = MutableStateFlow<TaskWithList?>(null)
+//    val projects = MutableStateFlow<>()
 
-    val projects = listRepo.observeProjects()
-        .stateIn(viewModelScope, WhileUiSubscribed, emptyList())
-
-    fun selectTask(uuid: TaskId?, focus: Boolean = false) {
-        selectedTask.update {
-            if (uuid == null) null
-            else SelectedTask(uuid, focus)
-        }
+    fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = Database.watch(SubtaskRelation) {
+        rank.childrenOf(list)
+    }
+    fun watchTask(id: Uuid) = Database.watch(TasksView) {
+        tasks.get(id)
     }
 
-    // These flows will stop when coroutines aren't actively using them, they're safe to store in a map here
-    private val listTaskObservers = mutableStateMapOf<ListId, StateFlow<Loadable<List<TaskWithIDState>>>>()
-    private val listPropertiesObservers = mutableStateMapOf<ListId, StateFlow<Loadable<TaskListProperties>>>()
-
-    fun tasksFor(listId: ListId): StateFlow<Loadable<List<TaskWithIDState>>> =
-        listTaskObservers.getOrPut(listId) {
-            flow { emitAll(listRepo.observeTasksFor(listId)) }
-                .map { list ->
-                    Loadable.Loaded(list.map { model ->
-                        TaskWithIDState(
-                            TaskUiState.fromModel(model),
-                            model.uuid,
-                        )
-                    })
-                }
-                .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
-        }
-
-    fun getListProperties(key: ListId) = listPropertiesObservers.getOrPut(key) {
-        listRepo.observeProperties(key)
-            .map { Loadable.Loaded(it) }
-            .stateIn(viewModelScope, WhileUiSubscribed, Loadable.Loading())
+    fun mutateTask(id: Uuid, new: Task) = viewModelScope.launch {
+        mutators(JsonPatchMutator(NotesTable.name, id, Json.encodeToJsonElement(new)))
     }
 
-
-    fun reorderInteractions() = TaskReorderInteractions(
-        onDragEnterItem = { targetTask, dragged ->
-            selectTask(null)
-            viewModelScope.launch {
-                taskRepo.moveTaskTo(taskId = dragged, destId = targetTask)
-            }
-        },
-        onDragEnterColumn = { targetList, id ->
-            viewModelScope.launch { taskRepo.move(id, targetList) }
-        }
-    )
-
-    fun createProject(name: String? = null) = viewModelScope.launch {
-        listRepo.create(ListId.newProject(), TaskListProperties(displayName = name))
+    fun deleteTask(id: Uuid) = viewModelScope.launch {
+        mutators(DeleteRowMutator(NotesTable.name, id))
     }
 
-    fun deleteProject(key: ListId) = viewModelScope.launch {
-        listRepo.delete(key)
+    fun createTask(list: Uuid, task: Task) = viewModelScope.launch {
+        TODO()
     }
 
-    fun listInteractionsFor(list: ListId) = TaskListInteractions(
-        createNewTask = { atEnd ->
-            viewModelScope.launch { selectTask(taskRepo.create(list, atEnd).uuid, focus = true) }
-        },
-        onPropertiesChanged = { props ->
-            viewModelScope.launch { listRepo.update(list, props) }
-        },
-    )
-
-    fun interactionsFor(
-        taskId: TaskId,
-        listId: ListId,
-        uiState: TaskUiState,
-        setUiState: (TaskUiState) -> Unit,
-    ): TaskInteractions =
-        DefaultTaskInteractions(taskId, listId, uiState, setUiState)
-
-    private fun taskAfter(listId: ListId, taskId: TaskId): TaskId? {
-        val list = listTaskObservers[listId]?.value?.loadedOrNull() ?: return null
-        return list.getOrNull(list.indexOfFirst { it.uuid == taskId } + 1)?.uuid
+    fun selectNextTask() = viewModelScope.launch {
+        val curr = selectedTask.value ?: return@launch
+        val next = Database.read { rank.getAfter(curr.task) }
+        if (next != null) selectedTask.emit(curr.copy(task = next))
+        else createTask(curr.list, TODO())
     }
 
-    private fun taskBefore(listId: ListId, taskId: TaskId): TaskId? {
-        val list = listTaskObservers[listId]?.value?.loadedOrNull() ?: return null
-        return list.getOrNull(list.indexOfFirst { it.uuid == taskId } - 1)?.uuid
-    }
+    fun selectTask(task: TaskWithList?) = selectedTask.update { task }
 
-    fun onTaskChanged(key: TaskId, newState: TaskUiState) = viewModelScope.launch {
-        taskRepo.update(key) {
-            it.copy(
-                text = newState.text,
-                completed = newState.completed,
-                highlight = newState.highlight
-            )
-        }
-    }
-
-    fun createTask(task: TaskUiState, listId: ListId, atEndOfList: Boolean = true) = viewModelScope.launch {
-        val id = taskRepo.create(listId, atEndOfList).uuid
-        onTaskChanged(id, task)
-    }
-
-    fun bulkAdd(lines: List<String>) {
-        lines.forEach { line ->
-            val task = bulkAddRepo.parseLine(line)
-            createTask(TaskUiState.fromModel(task), task.list)
-        }
+    fun deleteProject(id: Uuid) {
+        TODO()
     }
 
     @Stable
-    inner class DefaultTaskInteractions(
-        private val taskId: TaskId,
-        private val listId: ListId,
-        private val uiState: TaskUiState,
-        private val setUiState: (TaskUiState) -> Unit,
-    ) : TaskInteractions {
-        override fun toString(): String {
-            return "DefaultTaskInteractions(taskId=$taskId, listId=$listId, uiState=$uiState)"
-        }
-
-        private fun selectNextTaskOrNew() {
-            val nextTask = taskAfter(listId, /*selectedTask.value ?: */taskId)
-            if (nextTask != null) {
-                selectTask(nextTask, focus = true)
-            } else if (uiState.text.isNotEmpty()) {
-                viewModelScope.launch {
-                    selectTask(taskRepo.create(listId, atEndOfList = true).uuid, focus = true)
-                }
-            }
-        }
-
-        override val keyboardActions = KeyboardActions(onNext = {
-            selectNextTaskOrNew()
-        })
-
-        override fun onListChanged(date: LocalDate) {
-            viewModelScope.launch { taskRepo.move(taskId, ListId.forDate(date)) }
-        }
-
+    fun interactionsFor(task: Uuid) = object : TaskInteractions {
         override fun onDelete() {
-            viewModelScope.launch { taskRepo.delete(taskId) }
+            deleteTask(task)
         }
 
-        override fun onKeyEvent(event: KeyEvent): Boolean {
-            if (event.type != KeyEventType.KeyDown) return false
-            if (event.key == Key.Backspace) {
-                if (uiState.text.isEmpty()) {
-                    viewModelScope.launch {
-                        selectTask(taskBefore(listId, taskId), focus = true)
-                        taskRepo.delete(taskId)
-                    }
-                }
-                return false
-            }
-            fun color(index: Int) =
-                setUiState(uiState.copy(highlight = Highlight(Highlight.Type.entries[index], !event.isShiftPressed)))
-            when {
-                event.isCtrlPressed -> {
-                    when (event.key) {
-                        Key.E -> {
-                            val shift = if (event.isShiftPressed) -1 else 1
-                            setUiState(uiState.copy(highlight = uiState.highlight.offsetBy(shift)))
-                        }
+        override fun onSelect() = selectedTask.update { TODO() }
+    }
 
-                        Key.One -> color(1)
-                        Key.Two -> color(2)
-                        Key.Three -> color(3)
-                        Key.Four -> color(4)
-                        Key.Five -> color(5)
-                        Key.Six -> color(6)
-                        Key.Seven -> color(7)
-                        Key.Zero -> color(0)
-                        else -> return false
-                    }
-                }
+    fun createProject() {
+        TODO("Not yet implemented")
+    }
 
-                event.key == Key.Escape -> {
-                    selectTask(null)
-                }
-
-                event.key == Key.Enter -> {
-                    if (!event.isShiftPressed) selectNextTaskOrNew()
-                }
-
-                else -> return false
-            }
-            return true
-        }
-
-        override fun onSelect() {
-            if (selectedTask.value?.taskId != taskId) selectTask(taskId)
-        }
+    fun getListProperties(key: ListId): StateFlow<TaskListProperties> {
+        return MutableStateFlow(TaskListProperties(displayName = "Temp"))
     }
 }

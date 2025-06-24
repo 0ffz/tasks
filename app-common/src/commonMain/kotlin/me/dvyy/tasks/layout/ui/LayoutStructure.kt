@@ -34,6 +34,7 @@ import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
 import me.dvyy.tasks.tasks.ui.elements.list.Project
+import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.loadedOrNull
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -183,10 +184,11 @@ sealed interface LayoutStructure {
                 val tasks: TasksViewModel = koinViewModel()
                 val dialogs: DialogViewModel = koinViewModel()
                 val propsLoadable by tasks.getListProperties(key).collectAsState()
-                val props = propsLoadable.loadedOrNull() ?: run {
-                    Text("Loading project...")
-                    return
-                }
+//                val props = propsLoadable.loadedOrNull() ?: run {
+//                    Text("Loading project...")
+//                    return
+//                }
+                val props = propsLoadable
                 val icon = when {
                     props.displayName?.contains(emojiRegex) == true -> null
                     props.displayName == "Inbox" -> AppIcons.Inbox
@@ -211,7 +213,7 @@ sealed interface LayoutStructure {
                 val tasks: TasksViewModel = koinViewModel()
                 val propLoadable by tasks.getListProperties(key).collectAsState()
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    Project(key, propLoadable, scrollable = false)
+                    Project(key, Loadable.Loaded(propLoadable), scrollable = false)
                 }
             }
 

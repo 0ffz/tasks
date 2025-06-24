@@ -1,40 +1,18 @@
 package me.dvyy.tasks.app.data
 
-import app.cash.sqldelight.EnumColumnAdapter
-import app.cash.sqldelight.db.SqlDriver
-import me.dvyy.tasks.db.client.*
-import me.dvyy.tasks.model.database.Adapters
+import androidx.sqlite.SQLiteDriver
+import kotlinx.coroutines.runBlocking
+import me.dvyy.syncengine.db.Database
+import me.dvyy.tasks.model.schema.AppSchema
 
 expect class DriverFactory {
-    fun createDriver(): SqlDriver
+    fun createDriver(): SQLiteDriver
 }
 
 
-fun createClientDatabase(driverFactory: DriverFactory): Database {
-    val driver = driverFactory.createDriver()
-    return createClientDatabase(driver)
-}
-
-fun createClientDatabase(driver: SqlDriver): Database {
-    return Database(
-        driver = driver,
-        messageAdapter = Message.Adapter(
-            uuidAdapter = Adapters.BytesToUuid,
-            modifiedAdapter = Adapters.LongToInstant,
-            typeAdapter = EnumColumnAdapter(),
-            entityTypeAdapter = EnumColumnAdapter(),
-        ),
-        taskAdapter = Task.Adapter(
-            uuidAdapter = Adapters.BytesToTaskId,
-            highlightAdapter = Adapters.StringToHighlight,
-            listAdapter = Adapters.BytesToListId,
-        ),
-        taskListAdapter = TaskList.Adapter(
-            uuidAdapter = Adapters.BytesToListId,
-        ),
-        rankAdapter = Rank.Adapter(
-            uuidAdapter = Adapters.BytesToUuid,
-            parentAdapter = Adapters.BytesToUuid,
-        ),
-    )
+fun createClientDatabase(): Database {
+    runBlocking {
+        Database.write { AppSchema.forEach { it.create() } }
+    }
+    return Database
 }

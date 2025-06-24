@@ -61,11 +61,12 @@ fun AppFileTree(
             add(file(LayoutStructure.Single.Projects(horizontal = true)))
             add(FileStructure.Element { HorizontalDivider() })
 
-            val projects by tasks.projects.collectAsState()
-
-            projects.forEach { key ->
-                add(file(LayoutStructure.Single.Project(key)))
-            }
+            //TODO add back project list
+//            val projects by tasks.projects.collectAsState()
+//
+//            projects.forEach { key ->
+//                add(file(LayoutStructure.Single.Project(key)))
+//            }
         }
     )
 

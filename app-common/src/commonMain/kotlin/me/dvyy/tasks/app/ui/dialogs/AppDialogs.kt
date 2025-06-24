@@ -47,7 +47,7 @@ fun ConfirmDeleteProjectDialog(
         confirmButton = {
             TextButton(onClick = {
                 dialogs.dismiss()
-                tasks.deleteProject(key)
+                tasks.deleteProject(key.uuid)
             }) { Text("Delete") }
         },
         dismissButton = {

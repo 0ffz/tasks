@@ -15,12 +15,13 @@ import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
+import kotlin.uuid.Uuid
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 inline fun ReorderableTask(
-    key: TaskId,
+    key: Uuid,
     reorderInteractions: TaskReorderInteractions,
     content: @Composable () -> Unit,
 ) {
@@ -36,8 +37,9 @@ inline fun ReorderableTask(
                     }
 
                     override fun onEntered(event: DragAndDropEvent) {
-                        val draggedKey = event.dataOrNull<TaskId>()
-                        if (key != draggedKey) reorderInteractions.onDragEnterItem(key, draggedKey ?: return)
+                        //TODO dragging
+//                        val draggedKey = event.dataOrNull<TaskId>()
+//                        if (key != draggedKey) reorderInteractions.onDragEnterItem(key, draggedKey ?: return)
                     }
                 }
             }

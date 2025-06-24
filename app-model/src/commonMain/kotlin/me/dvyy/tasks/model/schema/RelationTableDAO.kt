@@ -51,23 +51,23 @@ class RelationTableDAO<T>(
      *
      * @return Whether task changed lists after the reorder.
      */
-    context(tx: WriteTransaction)
-    suspend fun reorder(source: TaskInList, destination: TaskInList): Boolean {
-        if (source.list != destination.list) TODO("change lists")
-        val changedLists = task.list != dest.list
-
-        if (changedLists) moveTaskToList(taskId, dest.list)
-        val taskRank = getRankFor(source) ?: RankFunctions.firstChar.toString()
-        val destRank = getRankFor(destination) ?: RankFunctions.lastChar.toString()
-
-        if (taskRank == destRank) return@transactionWithResult changedLists
-
-        if (taskRank < destRank) {
-            moveAfter(destination.list, source.task, destination.task)
-        } else {
-            moveTaskBefore(dest.list, taskId, destRank)
-        }
-        changedLists
-    }
+//    context(tx: WriteTransaction)
+//    suspend fun reorder(source: TaskInList, destination: TaskInList): Boolean {
+//        if (source.list != destination.list) TODO("change lists")
+//        val changedLists = task.list != dest.list
+//
+//        if (changedLists) moveTaskToList(taskId, dest.list)
+//        val taskRank = getRankFor(source) ?: RankFunctions.firstChar.toString()
+//        val destRank = getRankFor(destination) ?: RankFunctions.lastChar.toString()
+//
+//        if (taskRank == destRank) return@transactionWithResult changedLists
+//
+//        if (taskRank < destRank) {
+//            moveAfter(destination.list, source.task, destination.task)
+//        } else {
+//            moveTaskBefore(dest.list, taskId, destRank)
+//        }
+//        changedLists
+//    }
 }
 

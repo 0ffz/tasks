@@ -22,7 +22,7 @@ fun LayoutToggleButton(
     IconToggleButton(
         checked = enabled,
         onCheckedChange = onClick,
-        shape = MaterialTheme.shapes.small,
+//        shape = MaterialTheme.shapes.small, TODO bring in fix from nitrite branch
     ) {
         Box(
             modifier = Modifier

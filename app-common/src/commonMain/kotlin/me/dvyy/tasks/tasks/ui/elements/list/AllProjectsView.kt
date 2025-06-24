@@ -37,17 +37,18 @@ fun AllProjectsView(
     staggered: Boolean,
 ) {
     val ui = LocalUIState.current
-    val projects by tasksViewModel.projects.collectAsState()
-    ProjectLayout(modifier, horizontal, staggered, projects, { it.uuid }) { key ->
-        val properties by tasksViewModel.getListProperties(key).collectAsState()
-        Project(
-            tasksViewModel = tasksViewModel,
-            key = key,
-            properties = properties,
-            modifier = Modifier.width(ui.taskListWidth),
-            scrollable = horizontal,
-        )
-    }
+    //TODO project viewmodel
+//    val projects by tasksViewModel.projects.collectAsState()
+//    ProjectLayout(modifier, horizontal, staggered, projects, { it.uuid }) { key ->
+//        val properties by tasksViewModel.getListProperties(key).collectAsState()
+//        Project(
+//            tasksViewModel = tasksViewModel,
+//            key = key,
+//            properties = properties,
+//            modifier = Modifier.width(ui.taskListWidth),
+//            scrollable = horizontal,
+//        )
+//    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

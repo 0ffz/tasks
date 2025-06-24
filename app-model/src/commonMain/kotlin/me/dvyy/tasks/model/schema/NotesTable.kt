@@ -1,13 +1,5 @@
 package me.dvyy.tasks.model.schema
 
-import me.dvyy.syncengine.db.tables.Table
+val NotesTable = JsonTable("notes")
 
-object NotesTable : Table(
-    """
-    CREATE TABLE IF NOT EXISTS notes (
-        id BLOB PRIMARY KEY,
-        data BLOB
-    )
-    """.trimIndent()
-)
-
+val SubtaskTable = JsonTable("subtask")

@@ -2,7 +2,6 @@ package me.dvyy.tasks.sync.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cash.sqldelight.coroutines.mapToOneOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -28,14 +27,15 @@ class SyncViewModel(
 
             trySync()
 
-            syncRepo.observeLastUpdated()
-                .mapToOneOrNull(Dispatchers.Default)
-                .filter { it != null }
-                .debounce(3.seconds)
-                .collectLatest {
-                    println(it)
-                    trySync()
-                }
+            //TODO reimplement sync
+//            syncRepo.observeLastUpdated()
+//                .mapToOneOrNull(Dispatchers.Default)
+//                .filter { it != null }
+//                .debounce(3.seconds)
+//                .collectLatest {
+//                    println(it)
+//                    trySync()
+//                }
         }
     }
 

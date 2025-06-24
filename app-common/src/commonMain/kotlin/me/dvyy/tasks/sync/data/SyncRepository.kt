@@ -18,33 +18,33 @@ private const val KEY_LAST_EDIT = "app-last-edit"
 class SyncRepository(
     private val syncApi: SyncAPI,
     private val settings: Settings,
-    private val messages: MessagesDataSource,
+//    private val messages: MessagesDataSource,
 ) {
     private val _lastAppSync = MutableStateFlow(settings.decodeValueOrNull(Instant.serializer(), KEY_LAST_EDIT))
     val lastAppSync = _lastAppSync.asStateFlow()
 
-    suspend fun observeLastUpdated() = messages.observeLastUpdated()
+//    suspend fun observeLastUpdated() = messages.observeLastUpdated()
 
     suspend fun sync() = sync(lastAppSync.value)
 
     suspend fun sync(lastSynced: Instant?) = withContext(AppDispatchers.db) {
         val now = Clock.System.now()
 //        val lastSync = lastAppSync.value ?: Instant.DISTANT_PAST
-        val changes = Changelist(
-            lastSynced = lastSynced,
-            upTo = now,
-            messages = messages.getChanges(now)
-        )
-        val received = withContext(Dispatchers.Default) { syncApi.sync(changes) }
-        messages.applyMessages(received.messages)
-        messages.clear(now)
+//        val changes = Changelist(
+//            lastSynced = lastSynced,
+//            upTo = now,
+//            messages = messages.getChanges(now)
+//        )
+//        val received = withContext(Dispatchers.Default) { syncApi.sync(changes) }
+//        messages.applyMessages(received.messages)
+//        messages.clear(now)
         updateSyncTime(now)
     }
 
     suspend fun fullSync() = withContext(AppDispatchers.db) {
-        val now = Clock.System.now()
-        messages.createMessagesForAllEntities(now)
-        sync()
+//        val now = Clock.System.now()
+//        messages.createMessagesForAllEntities(now)
+//        sync()
     }
 
     private fun updateSyncTime(time: Instant) {

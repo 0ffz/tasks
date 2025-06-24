@@ -37,7 +37,8 @@ fun SettingsBulkAddTab(
         )
 
         TextButton(onClick = {
-            tasks.bulkAdd(text.lines())
+            //TODO bulk add
+//            tasks.bulkAdd(text.lines())
             text = ""
         }) {
             Text("Done")

@@ -8,12 +8,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.ArrowDropUp
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -21,25 +19,26 @@ import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
-import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.tasks.ui.CachedUpdate
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.tasks.ui.elements.task.Task
-import me.dvyy.tasks.tasks.ui.elements.task.color
+import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.loadedOrNull
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskList(
     listId: ListId,
-    tasks: Loadable<List<TaskWithIDState>>, //TODO represent loading state explicitly?
-    properties: Loadable<TaskListProperties>,
+    tasks: Loadable<List<Uuid>>, //TODO represent loading state explicitly?
+    properties: TaskListProperties,
     colored: Boolean = false,
     reorderInteractions: TaskReorderInteractions,
     interactions: TaskListInteractions,
@@ -68,7 +67,7 @@ fun TaskList(
     ) {
         val isLoading = tasks is Loadable.Loading
         TaskListTitle(
-            properties,
+            Loadable.Loaded(properties),
             colored,
             interactions,
             loading = isLoading,
@@ -92,16 +91,17 @@ fun TaskList(
             Column(scrollModifier.padding(horizontal = 6.dp)) {
 //                groupedTasks.forEachIndexed { groupIndex, tasksInGroup ->
 //                    var isGroupHidden by remember { mutableStateOf(tasksInGroup.firstOrNull()?.state?.completed == true) }
-                tasks.forEachIndexed { index, task ->
-                    key(task.uuid) {
-                        val selected = selectedTask?.taskId == task.uuid
-                        val focusRequested = selected && selectedTask?.requestFocus == true
+                tasks.forEachIndexed { index, taskId ->
+                    key(taskId) {
+                        val selected = selectedTask?.task == taskId
+                        val focusRequested = false //TODO selected && selectedTask?.requestFocus == true
+                        val taskState = viewModel.watchTask(taskId).collectAsState(null).value ?: return
 //                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
                         // cached task is the SSOT in this context, some things like text updates take too long to update in db
                         CachedUpdate(
-                            key = task.uuid,
-                            value = task.state,
-                            onValueChanged = { viewModel.onTaskChanged(task.uuid, it) }
+                            key = taskId,
+                            value = taskState,
+                            onValueChanged = { viewModel.mutateTask(taskId, it) }
                         ) { cachedTask, setTask ->
                             val focusManager = LocalFocusManager.current
                             val keyboardOpen by keyboardAsState()
@@ -118,15 +118,15 @@ fun TaskList(
                             }
 
                             val taskInteractions = remember(cachedTask) {
-                                viewModel.interactionsFor(task.uuid, listId, cachedTask, setTask)
+                                viewModel.interactionsFor(taskId)// TODO, listId, cachedTask, setTask)
                             }
 
 //                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
                             Column {
-                                ReorderableTask(key = task.uuid, reorderInteractions = reorderInteractions) {
+                                ReorderableTask(key = taskId, reorderInteractions = reorderInteractions) {
                                     Task(
-                                        cachedTask,
-                                        setTask,
+                                        TaskUiState.fromModel(cachedTask),
+                                        { setTask(Task(it.text, it.completed)) },
                                         selected,
                                         taskInteractions,
                                         focusRequested = focusRequested,
@@ -139,25 +139,27 @@ fun TaskList(
                             }
 //                                }
 
-                            if (isGroupToggle) HorizontalDivider(
-                                thickness = 2.dp,
-                                color = cachedTask.highlight.color
-                                    .takeIf { it != Color.Transparent }
-                                    ?: MaterialTheme.colorScheme.onSurface
-                            )
+                            //TODO add back color
+//                            if (isGroupToggle) HorizontalDivider(
+//                                thickness = 2.dp,
+//                                color = cachedTask.highlight.color
+//                                    .takeIf { it != Color.Transparent }
+//                                    ?: MaterialTheme.colorScheme.onSurface
+//                            )
 //                            }
                         }
                     }
                 }
-                Column(Modifier.clickableWithoutRipple {
-                    val lastTask = tasks.lastOrNull()
-                    if (lastTask == null || lastTask.state.text.isNotEmpty())
-                        interactions.createNewTask(true)
-                    else viewModel.selectTask(lastTask.uuid, focus = true)
-                }.then(listDropTarget)) {
-                    Spacer(modifier = Modifier.height(ui.tasks.height))
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                }
+                //TODO add back
+//                Column(Modifier.clickableWithoutRipple {
+//                    val lastTask = tasks.lastOrNull()
+//                    if (lastTask == null || lastTask.state.text.isNotEmpty())
+//                        interactions.createNewTask(true)
+//                    else viewModel.selectTask(lastTask.uuid, focus = true)
+//                }.then(listDropTarget)) {
+//                    Spacer(modifier = Modifier.height(ui.tasks.height))
+//                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+//                }
             }
             if (scrollable && !ui.isSmall)
                 Box(Modifier.fillMaxSize().then(listDropTarget))

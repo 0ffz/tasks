@@ -1,8 +1,8 @@
 package me.dvyy.tasks.tasks.ui.state
 
 import androidx.compose.runtime.Stable
-import me.dvyy.tasks.db.client.Task
 import me.dvyy.tasks.model.Highlight
+import me.dvyy.tasks.model.components.Task
 
 @Stable
 data class TaskUiState(
@@ -13,8 +13,8 @@ data class TaskUiState(
     companion object {
         fun fromModel(model: Task) = TaskUiState(
             text = model.text ?: "",
-            completed = model.completed,
-            highlight = model.highlight,
+            completed = model.done,
+            highlight = Highlight.Unmarked, //TODO swap to tag system
         )
     }
 }

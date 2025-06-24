@@ -1,4 +1,5 @@
 import androidx.compose.ui.window.application
+import me.dvyy.tasks.app.data.createClientDatabase
 import me.dvyy.tasks.app.ui.AppDesktop
 import org.graalvm.nativeimage.ImageInfo
 import org.graalvm.nativeimage.ProcessProperties

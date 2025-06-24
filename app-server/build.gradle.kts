@@ -41,9 +41,6 @@ dependencies {
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.logback)
     implementation(libs.ktor.server.config.yaml)
-
-    implementation(libs.postgresql)
-    implementation(libs.hikaricp)
     implementation(libs.koin.core)
 
 }
@@ -66,16 +63,5 @@ jib {
 //            "-XX:MaxGCPauseMillis=100",
 //            "-XX:+UseStringDeduplication"
 //        )
-    }
-}
-
-sqldelight {
-    databases {
-        create("ServerDatabase") {
-            deriveSchemaFromMigrations.set(true)
-            migrationOutputDirectory = file("$buildDir/generated/migrations")
-            migrationOutputFileFormat = ".sql" // Defaults to .sql
-            packageName.set("me.dvyy.tasks.db.server")
-        }
     }
 }

@@ -19,7 +19,10 @@ import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
+import me.dvyy.tasks.utils.Loadable
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
@@ -34,7 +37,7 @@ fun WeekView(
 ) {
     val scrollState = rememberScrollState()
     Scaffold(snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
-        val reorderInteractions = tasksViewModel.reorderInteractions()
+//        TODO val reorderInteractions = tasksViewModel.reorderInteractions()
         val columns = if (UI.isSmall) 1 else takeDays
         val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
         val datesScrollable = Modifier.optional(UI.isSmall) { verticalScroll(scrollState) }
@@ -49,16 +52,16 @@ fun WeekView(
             val isToday = day == today
             val listId = ListId.forDate(day)
             val properties by tasksViewModel.getListProperties(listId).collectAsState()
-            val tasks by tasksViewModel.tasksFor(listId).collectAsState()
+            val tasks by tasksViewModel.watchTasksFor(listId.uuid).collectAsState(listOf())
             var scrollToPosition by remember { mutableStateOf(0F) }
             TaskList(
                 listId = listId,
-                tasks = tasks,
+                tasks = Loadable.Loaded(tasks),
                 properties = properties,
                 colored = isToday,
                 viewModel = tasksViewModel,
-                reorderInteractions = reorderInteractions,
-                interactions = tasksViewModel.listInteractionsFor(listId),
+                reorderInteractions = TaskReorderInteractions(),//reorderInteractions,
+                interactions = TaskListInteractions(),//tasksViewModel.listInteractionsFor(listId),
                 scrollable = !UI.isSmall,
                 modifier = Modifier.onGloballyPositioned { coords ->
                     scrollToPosition = coords.positionInRoot().y
