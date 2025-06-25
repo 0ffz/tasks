@@ -1,7 +1,5 @@
 package me.dvyy.tasks.model.serializers
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlin.uuid.Uuid
@@ -15,12 +13,12 @@ object AppFormats {
         contextual(Uuid::class, UuidSerializer)
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    val cbor = Cbor {
-        encodeDefaults = false
-        ignoreUnknownKeys = true
-        serializersModule = binaryModule
-    }
+//    @OptIn(ExperimentalSerializationApi::class)
+//    val cbor = Cbor {
+//        encodeDefaults = false
+//        ignoreUnknownKeys = true
+//        serializersModule = binaryModule
+//    }
 
     val json = Json {
         prettyPrint = true

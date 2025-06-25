@@ -9,5 +9,6 @@ import kotlin.io.path.absolutePathString
 fun main() = application {
     if (ImageInfo.inImageRuntimeCode())
         System.setProperty("java.home", Path(ProcessProperties.getExecutableName()).parent.absolutePathString())
+    createClientDatabase()
     AppDesktop()
 }

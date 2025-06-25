@@ -4,6 +4,7 @@ import me.dvyy.syncengine.db.tables.View
 import me.dvyy.tasks.model.schema.NotesTable
 
 object TasksView : View(
+    "tasks",
     """
     SELECT
         cast(data ->> '$.name' as TEXT) AS name,

@@ -21,8 +21,8 @@ class RollbackTable(
     override val involves: Set<TableReading> = setOf(underlying, overlay)
 
     val merged: View = View(
+        name,
         """
-        CREATE VIEW IF NOT EXISTS $name AS
         SELECT ${underlying.columns.joinToString(",") { "coalesce(o.$it, u.$it) as $it" }}
         FROM $underlying u
         FULL OUTER JOIN $overlay o

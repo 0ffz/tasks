@@ -59,7 +59,7 @@ fun ApplicationScope.AppDesktop() = KoinIsolatedContext(createAppKoinApplication
     ) {
         getKoin().loadModules(remember {
             listOf(module {
-                single<Database> { createClientDatabase() }
+//                single<Database> { createClientDatabase() }
                 single {
                     TopbarViewModel(
                         windowState = windowState,
