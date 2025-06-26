@@ -68,6 +68,7 @@ kotlin {
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
                 implementation("me.dvyy:database")
+                implementation("me.dvyy:core")
             }
         }
         val jvmMain by creating {

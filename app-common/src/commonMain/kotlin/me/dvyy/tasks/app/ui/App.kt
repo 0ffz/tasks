@@ -85,7 +85,6 @@ fun App(
                             TintedVerticalDivider(Modifier.padding(top = UI.tabHeight))
                             Layout(structure, onLayoutUpdate = {
                                 val main = ((it as? LayoutStructure.Split)?.first as? LayoutStructure.Split)?.second
-                                println(main)
                                 if (main != null) layoutViewModel.setMainView(main)
                             })
                         }

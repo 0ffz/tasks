@@ -118,7 +118,7 @@ fun TaskList(
                             }
 
                             val taskInteractions = remember(cachedTask) {
-                                viewModel.interactionsFor(taskId)// TODO, listId, cachedTask, setTask)
+                                viewModel.interactionsFor(listId.uuid, taskId)// TODO, listId, cachedTask, setTask)
                             }
 
 //                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
@@ -126,7 +126,7 @@ fun TaskList(
                                 ReorderableTask(key = taskId, reorderInteractions = reorderInteractions) {
                                     Task(
                                         TaskUiState.fromModel(cachedTask),
-                                        { setTask(Task(it.text, it.completed)) },
+                                        { setTask(Task(it.text, it.completed, listId.uuid)) },
                                         selected,
                                         taskInteractions,
                                         focusRequested = focusRequested,

@@ -2,6 +2,7 @@ package me.dvyy.tasks.model.schema
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import me.dvyy.syncengine.db.Transaction
 import me.dvyy.syncengine.db.WriteTransaction
 import me.dvyy.syncengine.db.bindUuid
@@ -16,6 +17,11 @@ class NotesDAO<T>(
     val json: Json = Json,
 ) {
     context(tx: Transaction)
+    fun childrenOf(uuid: Uuid): List<Uuid> = tx.getList("SELECT id FROM notes WHERE parent = ?", uuid.toString()) {
+        Uuid.fromByteArray(getBlob(0))
+    }
+
+    context(tx: Transaction)
     fun get(
         id: Uuid,
     ): T = tx.getSingle("SELECT json(data) FROM $table WHERE id = ?", id) {
@@ -29,6 +35,12 @@ class NotesDAO<T>(
     ) = mutate(id, json.encodeToString(serializer, data))
 
     context(tx: WriteTransaction)
+    fun create(
+        id: Uuid,
+        data: JsonElement,
+    ) = mutate(id, data.toString())
+
+    context(tx: WriteTransaction)
     fun delete(id: Uuid) {
         tx.exec("""DELETE FROM $table WHERE id = ?""", id)
     }
@@ -38,14 +50,16 @@ class NotesDAO<T>(
         id: Uuid,
         @Language("JSON") patchString: String,
     ) {
+        //INSERT INTO $table(id, data)
+        //            VALUES (?, jsonb(?))
+        //            ON CONFLICT DO
         tx.exec(
             """
-            INSERT INTO $table(id, data)
-            VALUES (?, jsonb(?)) 
-            ON CONFLICT DO UPDATE SET 
-            data = jsonb_patch(data, jsonb(excluded.data))
+            UPDATE $table SET
+            data = jsonb_patch(data, jsonb(?))
+            WHERE id = ?
             """.trimIndent(),
-            id, patchString.toString()
+            patchString, id
         )
         tx.modified(table)
     }

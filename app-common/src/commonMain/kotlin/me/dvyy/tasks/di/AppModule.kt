@@ -11,9 +11,11 @@ import me.dvyy.tasks.auth.data.AuthAPI
 import me.dvyy.tasks.auth.data.AuthRepository
 import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.ui.AuthViewModel
-import me.dvyy.tasks.database.MutatorQueue
-import me.dvyy.tasks.database.Mutators
+import me.dvyy.syncengine.schema.MutatorQueue
+import me.dvyy.syncengine.schema.Mutators
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.model.database.AppDatabase
+import me.dvyy.tasks.model.mutators.Mutator
 import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.data.SyncAPI
@@ -22,7 +24,6 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import kotlin.coroutines.EmptyCoroutineContext.get
 
 fun appModule() = module {
     singleOf(::AppState)
@@ -49,13 +50,13 @@ fun repositoriesModule() = module {
 fun syncModule() = module {
     singleOf(::SyncAPI)
     singleOf(::SyncRepository)
-    singleOf<Mutators>(::MutatorQueue)
+    singleOf(::AppDatabase)
     viewModelOf(::SyncViewModel)
 }
 
 fun viewModelsModule() = module {
     viewModelOf(::TimeViewModel)
-    viewModel { TasksViewModel(mutators = get<Mutators>()) }
+    viewModel { TasksViewModel(db = get<AppDatabase>()) }
     viewModelOf(::AuthViewModel)
     viewModelOf(::DialogViewModel)
     viewModelOf(::PreferencesViewModel)

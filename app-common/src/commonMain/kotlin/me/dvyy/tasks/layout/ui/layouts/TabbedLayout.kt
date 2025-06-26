@@ -97,7 +97,6 @@ fun TabbedLayout(
             awaitPointerEventScope {
                 while (true) {
                     awaitFirstDown(pass = PointerEventPass.Initial)
-                    println("Pressed!")
                     layoutViewModel.setActiveLayout(structure)
                 }
             }

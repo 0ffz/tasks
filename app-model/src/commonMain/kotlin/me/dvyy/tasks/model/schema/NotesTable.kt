@@ -1,5 +1,14 @@
 package me.dvyy.tasks.model.schema
 
-val NotesTable = JsonTable("notes")
+import me.dvyy.syncengine.schema.table
 
-val SubtaskTable = JsonTable("subtask")
+val NotesTable = table("notes") {
+    text("text")
+    integer("done")
+    blob("parent")
+}
+
+val SubtaskTable = table("subtask") {
+    blob("parent")
+    blob("child")
+}

@@ -52,7 +52,8 @@ fun WeekView(
             val isToday = day == today
             val listId = ListId.forDate(day)
             val properties by tasksViewModel.getListProperties(listId).collectAsState()
-            val tasks by tasksViewModel.watchTasksFor(listId.uuid).collectAsState(listOf())
+            val tasks by remember(listId) { tasksViewModel.watchTasksFor(listId.uuid) }.collectAsState(listOf())
+            println("Tasks are: $tasks")
             var scrollToPosition by remember { mutableStateOf(0F) }
             TaskList(
                 listId = listId,
@@ -61,7 +62,7 @@ fun WeekView(
                 colored = isToday,
                 viewModel = tasksViewModel,
                 reorderInteractions = TaskReorderInteractions(),//reorderInteractions,
-                interactions = TaskListInteractions(),//tasksViewModel.listInteractionsFor(listId),
+                interactions = tasksViewModel.listInteractionsFor(listId.uuid),//tasksViewModel.listInteractionsFor(listId),
                 scrollable = !UI.isSmall,
                 modifier = Modifier.onGloballyPositioned { coords ->
                     scrollToPosition = coords.positionInRoot().y
