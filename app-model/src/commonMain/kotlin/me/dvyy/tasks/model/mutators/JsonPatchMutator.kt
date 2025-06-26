@@ -14,7 +14,7 @@ class JsonPatchMutator(
 ) : Mutator {
     context(tx: WriteTransaction)
     override fun mutate(db: AppDatabase) {
-        db.tasks.mutate(id, patch.toString())
+        db.tasks.patch(id, patch.toString())
     }
 //    companion object {
 //        inline fun <reified T> fromData(

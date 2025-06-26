@@ -5,10 +5,9 @@ import me.dvyy.syncengine.db.WriteTransaction
 import me.dvyy.syncengine.db.tables.Table
 import me.dvyy.tasks.model.components.TaskInList
 import me.dvyy.tasks.model.database.RankFunctions
-import java.util.*
 import kotlin.uuid.Uuid
 
-class RelationTableDAO<T>(
+class RelationTableDAO(
     val table: Table,
 ) {
     context(tx: Transaction)
@@ -26,11 +25,11 @@ class RelationTableDAO<T>(
         val rank = tx.getOrNull(
             "SELECT rank FROM subtask WHERE parent = ? and child = ?",
             parent, other
-        ) { getText(0) } ?: RankFunctions.firstChar.toString()
+        ) { getText(0) } ?: RankFunctions.FIRST_CHAR.toString()
         val next = tx.getOrNull(
             "SELECT rank FROM subtask WHERE parent = ? and rank > ? LIMIT 1",
             parent, rank
-        ) { getText(0) } ?: RankFunctions.lastChar.toString()
+        ) { getText(0) } ?: RankFunctions.LAST_CHAR.toString()
         val middle: String = RankFunctions.getLexicographicMiddle(rank, next)
         tx.getSingle(
             "UPDATE subtask SET rank = ?, parent = ? WHERE parent = ? AND child = ?",

@@ -32,10 +32,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
-//                implementation(libs.kotlinx.serialization.cbor)
-                implementation("me.dvyy:database")
-                implementation("me.dvyy:core")
-//                implementation(libs.uuid)
+                implementation("me.dvyy.syncengine:core")
             }
         }
     }

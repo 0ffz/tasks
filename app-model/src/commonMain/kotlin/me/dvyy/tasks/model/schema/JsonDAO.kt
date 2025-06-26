@@ -5,19 +5,17 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import me.dvyy.syncengine.db.Transaction
 import me.dvyy.syncengine.db.WriteTransaction
-import me.dvyy.syncengine.db.bindUuid
-import me.dvyy.syncengine.db.tables.TableReading
+import me.dvyy.syncengine.schema.JsonTable
 import org.intellij.lang.annotations.Language
-import java.util.*
 import kotlin.uuid.Uuid
 
-class NotesDAO<T>(
+class JsonDAO<T>(
     val serializer: KSerializer<T>,
-    val table: TableReading,
+    val table: JsonTable,
     val json: Json = Json,
 ) {
     context(tx: Transaction)
-    fun childrenOf(uuid: Uuid): List<Uuid> = tx.getList("SELECT id FROM notes WHERE parent = ?", uuid.toString()) {
+    fun childrenOf(uuid: Uuid): List<Uuid> = tx.getList("SELECT id FROM $table WHERE parent = ?", uuid.toString()) {
         Uuid.fromByteArray(getBlob(0))
     }
 
@@ -29,16 +27,16 @@ class NotesDAO<T>(
     }
 
     context(tx: WriteTransaction)
-    fun mutate(
+    fun patch(
         id: Uuid,
         data: T,
-    ) = mutate(id, json.encodeToString(serializer, data))
+    ) = patch(id, json.encodeToString(serializer, data))
 
     context(tx: WriteTransaction)
     fun create(
         id: Uuid,
         data: JsonElement,
-    ) = mutate(id, data.toString())
+    ) = patch(id, data.toString())
 
     context(tx: WriteTransaction)
     fun delete(id: Uuid) {
@@ -46,7 +44,7 @@ class NotesDAO<T>(
     }
 
     context(tx: WriteTransaction)
-    fun mutate(
+    fun patch(
         id: Uuid,
         @Language("JSON") patchString: String,
     ) {
@@ -64,3 +62,4 @@ class NotesDAO<T>(
         tx.modified(table)
     }
 }
+

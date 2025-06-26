@@ -1,14 +1,14 @@
 package me.dvyy.tasks.model.database
 
 object RankFunctions {
-    val firstChar = 'a'
-    val lastChar = 'z' + 1
-    val middleChar = charBetweenOrNull(firstChar, lastChar)!!
+    const val FIRST_CHAR = 'a'
+    const val LAST_CHAR = 'z' + 1
+    val middleChar = charBetweenOrNull(FIRST_CHAR, LAST_CHAR)!!
 
     fun getLexicographicMiddle(s1: String, s2: String): String {
         val (s1, s2) = listOf(s1, s2).sorted()
-        val first = s1.padEnd(s2.length, firstChar)
-        val second = s2.padEnd(s1.length, lastChar)
+        val first = s1.padEnd(s2.length, FIRST_CHAR)
+        val second = s2.padEnd(s1.length, LAST_CHAR)
         val equalUntil = first.zip(second).indexOfFirst { it.first != it.second }
         return (equalUntil..first.lastIndex)
             .firstNotNullOfOrNull { charBetweenOrNull(first[it], second[it])?.to(it) }
@@ -21,10 +21,10 @@ object RankFunctions {
     }
 
     fun getRankAfter(rank: String): String {
-        return getLexicographicMiddle(rank, lastChar.toString())
+        return getLexicographicMiddle(rank, LAST_CHAR.toString())
     }
 
     fun getRankBefore(rank: String): String {
-        return getLexicographicMiddle(rank, firstChar.toString())
+        return getLexicographicMiddle(rank, FIRST_CHAR.toString())
     }
 }
