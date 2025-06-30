@@ -60,8 +60,7 @@ fun WeekView(
                 tasks = Loadable.Loaded(tasks),
                 properties = properties,
                 colored = isToday,
-                viewModel = tasksViewModel,
-                reorderInteractions = TaskReorderInteractions(),//reorderInteractions,
+                reorderInteractions = tasksViewModel.reorderInteractions(),//reorderInteractions,
                 interactions = tasksViewModel.listInteractionsFor(listId.uuid),//tasksViewModel.listInteractionsFor(listId),
                 scrollable = !UI.isSmall,
                 modifier = Modifier.onGloballyPositioned { coords ->

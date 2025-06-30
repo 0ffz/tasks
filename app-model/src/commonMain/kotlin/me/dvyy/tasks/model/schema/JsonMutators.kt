@@ -1,6 +1,8 @@
 package me.dvyy.tasks.model.schema
 
+import me.dvyy.syncengine.db.Database
 import me.dvyy.syncengine.schema.Mutators
+import me.dvyy.syncengine.schema.minus
 import me.dvyy.tasks.model.mutators.DeleteRowMutator
 import me.dvyy.tasks.model.mutators.JsonCreateMutator
 import me.dvyy.tasks.model.mutators.JsonPatchMutator
@@ -26,11 +28,16 @@ class JsonMutators<T>(
         )
     )
 
-    suspend fun patch(uuid: Uuid, element: T) = mutators.invoke(
-        JsonPatchMutator(
-            dao.table.name,
-            uuid,
-            dao.json.encodeToJsonElement(dao.serializer, element)
+    suspend fun patch(uuid: Uuid, element: T) {
+        val existing = Database.read { dao.getJsonElement(uuid) }
+        val new = dao.json.encodeToJsonElement(dao.serializer, element)
+        val patch = new - existing
+        mutators.invoke(
+            JsonPatchMutator(
+                table = dao.table.name,
+                id = uuid,
+                patch = patch
+            )
         )
-    )
+    }
 }

@@ -10,10 +10,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dvyy.syncengine.db.Database
+import me.dvyy.syncengine.schema.Mutators
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.model.database.AppDatabase
+import me.dvyy.tasks.model.database.AppMutators
+import me.dvyy.tasks.model.mutators.MoveTaskMutator
 import me.dvyy.tasks.model.schema.NotesTable
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
 import kotlin.uuid.Uuid
@@ -30,15 +33,15 @@ class TasksViewModel(
 //    val projects = MutableStateFlow<>()
 
     fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = Database.watch(NotesTable) {
-        db.tasks.childrenOf(list)
+        db.query.rank.childrenOf(list)
     }
 
     fun watchTask(id: Uuid) = Database.watch(NotesTable) {
-        db.tasks.get(id)
+        db.query.tasks.get(id)
     }
 
     fun mutateTask(id: Uuid, new: Task) = viewModelScope.launch {
-        db.mutateTasks.patch(id, new)
+        db.mutate.tasks.patch(id, new)
 //        val task = Database.read {
 //            db.tasks.get(id)
 //        }
@@ -51,7 +54,7 @@ class TasksViewModel(
 
     fun selectNextTask() = viewModelScope.launch {
         val curr = selectedTask.value ?: return@launch
-        val next = Database.read { db.rank.getAfter(curr.task) }
+        val next = Database.read { db.query.rank.getAfter(curr.task) }
         if (next != null) selectedTask.emit(curr.copy(task = next))
 //        else createTask(curr.list, TODO())
     }
@@ -66,7 +69,7 @@ class TasksViewModel(
     fun interactionsFor(list: Uuid, task: Uuid) = object : TaskInteractions {
         override fun onDelete() {
             viewModelScope.launch {
-                db.mutateTasks.delete(task)
+                db.mutate.tasks.delete(task)
             }
         }
 
@@ -74,10 +77,19 @@ class TasksViewModel(
     }
 
     @Stable
+    fun reorderInteractions() = TaskReorderInteractions(
+        onDragEnterColumn = { list, dragged ->
+            viewModelScope.launch {
+                db.mutate(MoveTaskMutator(dragged, list))
+            }
+        }
+    )
+
+    @Stable
     fun listInteractionsFor(list: Uuid) = TaskListInteractions(
         createNewTask = {
             viewModelScope.launch {
-                db.mutateTasks.create(Task("", false, list))
+                db.mutate.tasks.create(Task("", false, list))
             }
         }
     )

@@ -7,5 +7,6 @@ import kotlin.uuid.Uuid
 data class Task(
     val text: String,
     val done: Boolean = false,
-    val parent: Uuid
+    val parent: Uuid,
+    val rank: String? = null,
 )

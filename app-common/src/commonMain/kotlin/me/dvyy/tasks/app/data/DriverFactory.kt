@@ -2,13 +2,12 @@ package me.dvyy.tasks.app.data
 
 import androidx.sqlite.SQLiteDriver
 import kotlinx.coroutines.runBlocking
-import me.dvyy.syncengine.db.Database
 import me.dvyy.syncengine.client.mutators.MutatorsTable
-import me.dvyy.syncengine.schema.createSchema
-import me.dvyy.tasks.model.database.AppDatabase
+import me.dvyy.syncengine.client.mutators.RollbackJsonTable
+import me.dvyy.syncengine.client.mutators.asClientSchema
+import me.dvyy.syncengine.db.Database
+import me.dvyy.syncengine.schema.Schema
 import me.dvyy.tasks.model.schema.AppSchema
-import me.dvyy.tasks.model.schema.NotesTable
-import me.dvyy.tasks.model.schema.SubtaskTable
 
 expect class DriverFactory {
     fun createDriver(): SQLiteDriver
@@ -16,8 +15,7 @@ expect class DriverFactory {
 
 fun createClientDatabase() {
     runBlocking {
-
-        AppSchema.initialize()
+        AppSchema.asClientSchema().initialize()
         Database.write {
             MutatorsTable.create()
         }

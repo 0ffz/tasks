@@ -8,11 +8,6 @@ object AppFormats {
     val networkModule = SerializersModule {
         contextual(Uuid::class, UuidAsStringSerializer)
     }
-
-    val binaryModule = SerializersModule {
-        contextual(Uuid::class, UuidSerializer)
-    }
-
 //    @OptIn(ExperimentalSerializationApi::class)
 //    val cbor = Cbor {
 //        encodeDefaults = false

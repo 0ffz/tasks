@@ -1,27 +1,23 @@
 package me.dvyy.tasks.model.mutators
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import me.dvyy.syncengine.db.WriteTransaction
-import me.dvyy.tasks.model.database.AppDatabase
+import me.dvyy.syncengine.schema.JsonElementAsStringSerializer
+import me.dvyy.syncengine.schema.UuidSerializer
+import me.dvyy.tasks.model.database.AppDAO
 import kotlin.uuid.Uuid
 
 @Serializable
+@SerialName("patch")
 class JsonPatchMutator(
     val table: String,
-    val id: Uuid,
-    val patch: JsonElement,
+    val id: @Serializable(with = UuidSerializer::class) Uuid,
+    val patch: @Serializable(with = JsonElementAsStringSerializer::class) JsonElement,
 ) : Mutator {
     context(tx: WriteTransaction)
-    override fun mutate(db: AppDatabase) {
+    override fun mutate(db: AppDAO) {
         db.tasks.patch(id, patch.toString())
     }
-//    companion object {
-//        inline fun <reified T> fromData(
-//            data: T,
-//            serializer: KSerializer<T> = kotlinx.serialization.serializer<T>()
-//        ) {
-//            JsonPatchMutator()
-//        }
-//    }
 }

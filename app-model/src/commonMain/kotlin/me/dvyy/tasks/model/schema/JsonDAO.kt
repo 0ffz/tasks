@@ -12,18 +12,18 @@ import kotlin.uuid.Uuid
 class JsonDAO<T>(
     val serializer: KSerializer<T>,
     val table: JsonTable,
-    val json: Json = Json,
+    val json: Json = Json { ignoreUnknownKeys = true },
 ) {
-    context(tx: Transaction)
-    fun childrenOf(uuid: Uuid): List<Uuid> = tx.getList("SELECT id FROM $table WHERE parent = ?", uuid.toString()) {
-        Uuid.fromByteArray(getBlob(0))
-    }
-
     context(tx: Transaction)
     fun get(
         id: Uuid,
-    ): T = tx.getSingle("SELECT json(data) FROM $table WHERE id = ?", id) {
+    ): T? = tx.getOrNull("SELECT json(data) FROM $table WHERE id = ?", id) {
         json.decodeFromString(serializer, getText(0))
+    }
+
+    context(tx: Transaction)
+    fun getJsonElement(id: Uuid) = tx.getSingle("SELECT json(data) FROM $table WHERE id = ?", id) {
+        json.parseToJsonElement(getText(0))
     }
 
     context(tx: WriteTransaction)
@@ -36,11 +36,21 @@ class JsonDAO<T>(
     fun create(
         id: Uuid,
         data: JsonElement,
-    ) = patch(id, data.toString())
+    ) {
+        tx.exec("INSERT INTO $table (id, data) VALUES (?, jsonb(?))", id, data.toString())
+        tx.modified(table)
+    }
 
     context(tx: WriteTransaction)
     fun delete(id: Uuid) {
         tx.exec("""DELETE FROM $table WHERE id = ?""", id)
+        tx.modified(table)
+    }
+
+    context(tx: WriteTransaction)
+    fun jsonSet(id: Uuid, path: String, value: String) {
+        tx.exec("UPDATE $table SET data = jsonb_set(data, ?, jsonb(?)) WHERE id = ?", path, value, id)
+        tx.modified(table)
     }
 
     context(tx: WriteTransaction)

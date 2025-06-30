@@ -15,10 +15,12 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
+import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
@@ -42,9 +44,9 @@ fun TaskList(
     colored: Boolean = false,
     reorderInteractions: TaskReorderInteractions,
     interactions: TaskListInteractions,
-    viewModel: TasksViewModel,
     modifier: Modifier = Modifier,
     scrollable: Boolean = false,
+    viewModel: TasksViewModel = viewModel(),
 ) {
     val ui = LocalUIState.current
     val listDropTarget = Modifier.dragAndDropTarget(
@@ -56,6 +58,7 @@ fun TaskList(
                 }
 
                 override fun onEntered(event: DragAndDropEvent) {
+                    println("reordering $event")
                     reorderInteractions.onDragEnterColumn(listId, event.dataOrNull<TaskId>() ?: return)
                 }
             }
@@ -151,15 +154,15 @@ fun TaskList(
                     }
                 }
                 //TODO add back
-//                Column(Modifier.clickableWithoutRipple {
-//                    val lastTask = tasks.lastOrNull()
-//                    if (lastTask == null || lastTask.state.text.isNotEmpty())
-//                        interactions.createNewTask(true)
-//                    else viewModel.selectTask(lastTask.uuid, focus = true)
-//                }.then(listDropTarget)) {
-//                    Spacer(modifier = Modifier.height(ui.tasks.height))
-//                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
-//                }
+                Column(Modifier/*.clickableWithoutRipple {
+                    val lastTask = tasks.lastOrNull()
+                    if (lastTask == null || lastTask.state.text.isNotEmpty())
+                        interactions.createNewTask(true)
+                    else viewModel.selectTask(lastTask.uuid, focus = true)
+                }*/.then(listDropTarget)) {
+                    Spacer(modifier = Modifier.height(ui.tasks.height))
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                }
             }
             if (scrollable && !ui.isSmall)
                 Box(Modifier.fillMaxSize().then(listDropTarget))

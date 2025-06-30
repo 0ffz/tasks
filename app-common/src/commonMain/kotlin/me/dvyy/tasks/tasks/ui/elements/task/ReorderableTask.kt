@@ -26,7 +26,7 @@ inline fun ReorderableTask(
     content: @Composable () -> Unit,
 ) {
     val dragAndDropModifier = Modifier.platformDragAndDropSource {
-        MultiplatformDragAndDropData(key, Offset.Zero)
+        MultiplatformDragAndDropData(TaskId(key), Offset.Zero)
     }
         .dragAndDropTarget(
             shouldStartDragAndDrop = { it.isOfType<TaskId>() },
@@ -37,6 +37,7 @@ inline fun ReorderableTask(
                     }
 
                     override fun onEntered(event: DragAndDropEvent) {
+                        println("Entered task $event")
                         //TODO dragging
 //                        val draggedKey = event.dataOrNull<TaskId>()
 //                        if (key != draggedKey) reorderInteractions.onDragEnterItem(key, draggedKey ?: return)
