@@ -13,8 +13,8 @@ import kotlin.uuid.Uuid
 @SerialName("patch")
 class JsonPatchMutator(
     val table: String,
-    val id: @Serializable(with = UuidSerializer::class) Uuid,
-    val patch: @Serializable(with = JsonElementAsStringSerializer::class) JsonElement,
+    val id: Uuid,
+    val patch: JsonElement,
 ) : Mutator {
     context(tx: WriteTransaction)
     override fun mutate(db: AppDAO) {

@@ -11,7 +11,7 @@ import kotlin.uuid.Uuid
 @SerialName("delete")
 class DeleteRowMutator(
     val table: String,
-    val id: @Serializable(with = UuidSerializer::class) Uuid,
+    val id: Uuid,
 ) : Mutator {
     context(tx: WriteTransaction)
     override fun mutate(db: AppDAO) {

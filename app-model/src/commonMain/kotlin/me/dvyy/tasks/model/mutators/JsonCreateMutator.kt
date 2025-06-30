@@ -13,20 +13,11 @@ import kotlin.uuid.Uuid
 @SerialName("create")
 class JsonCreateMutator(
     val table: String,
-    val id: @Serializable(with = UuidSerializer::class) Uuid,
-    val data: @Serializable(with = JsonElementAsStringSerializer::class) JsonElement,
+    val id: Uuid,
+    val data: JsonElement,
 ) : Mutator {
     context(tx: WriteTransaction)
     override fun mutate(db: AppDAO) {
         db.tasks.create(id, data)
     }
-
-//    companion object {
-//        inline fun <reified T> fromData(
-//            data: T,
-//            serializer: KSerializer<T> = kotlinx.serialization.serializer<T>()
-//        ) {
-//            JsonPatchMutator()
-//        }
-//    }
 }
