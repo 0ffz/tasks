@@ -10,6 +10,6 @@ pluginManagement {
 rootProject.name = "tasks"
 
 
-include("app-android", "app-common", "app-desktop", "app-model")
+include("app-android", "app-common", "app-desktop", "app-model", "app-server")
 
 includeBuild("../syncengine")

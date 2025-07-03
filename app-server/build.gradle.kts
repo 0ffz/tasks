@@ -24,6 +24,7 @@ kotlin {
 
 dependencies {
     implementation(project(":app-model"))
+    implementation("me.dvyy.syncengine:server")
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.cbor)
 
@@ -34,7 +35,6 @@ dependencies {
 
     implementation(libs.kotlinx.datetime)
 
-    implementation(libs.h2)
     implementation(libs.ktor.server.auth.jvm)
     implementation(libs.ktor.server.auth.ldap)
     implementation(libs.ktor.server.netty)
