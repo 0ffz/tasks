@@ -12,7 +12,10 @@ import kotlin.uuid.Uuid
 class JsonDAO<T>(
     val serializer: KSerializer<T>,
     val table: JsonTable,
-    val json: Json = Json { ignoreUnknownKeys = true },
+    val json: Json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    },
 ) {
     context(tx: Transaction)
     fun get(

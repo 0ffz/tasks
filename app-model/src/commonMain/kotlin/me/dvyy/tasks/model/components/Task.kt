@@ -6,7 +6,7 @@ import kotlin.uuid.Uuid
 @Serializable
 data class Task(
     val text: String,
-    val done: Boolean,
+    val done: Boolean = false,
     val parent: Uuid,
     val rank: String? = null,
 )
