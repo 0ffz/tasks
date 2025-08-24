@@ -13,3 +13,4 @@ rootProject.name = "tasks"
 include("app-android", "app-common", "app-desktop", "app-model", "app-server")
 
 includeBuild("../syncengine")
+includeBuild("../sqlite-kt")

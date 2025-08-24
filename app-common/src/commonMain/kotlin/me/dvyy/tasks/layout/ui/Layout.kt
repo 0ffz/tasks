@@ -16,7 +16,6 @@ fun Layout(
 //    if(structure is LayoutStructure.Tabbed || structure == LayoutStructure.Empty) {
 //        DropTarget(structure, onLayoutUpdate)
 //    }
-
     when (structure) {
         is LayoutStructure.Scrollable -> ScrollableLayout(structure)
 
@@ -29,6 +28,3 @@ fun Layout(
         LayoutStructure.Empty -> Box(Modifier.fillMaxSize())
     }
 }
-
-
-

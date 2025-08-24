@@ -1,9 +1,12 @@
 package me.dvyy.tasks.di
 
 import kotlinx.coroutines.Dispatchers
+import me.dvyy.sqlite.Database
+import me.dvyy.syncengine.client.mutators.ClientSchema
 import me.dvyy.syncengine.client.mutators.MutatorQueue
 import me.dvyy.syncengine.schema.Mutators
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
+import me.dvyy.tasks.app.data.createClientDatabase
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
@@ -14,9 +17,9 @@ import me.dvyy.tasks.auth.data.AuthRepository
 import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.model.database.AppDAO
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.AppMutators
-import me.dvyy.tasks.model.database.AppDAO
 import me.dvyy.tasks.model.mutators.Mutator
 import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.sync.ui.SyncViewModel
@@ -33,6 +36,8 @@ fun appModule() = module {
     single { Dispatchers.Default }
     singleOf(::AppSettings)
     singleOf(::LocalPreferencesRepository)
+    single { Database(path = "app.db") }
+    single<ClientSchema>(createdAtStart = true) { createClientDatabase(get()) }
 }
 
 fun authModule() = module {
@@ -53,7 +58,7 @@ fun repositoriesModule() = module {
 fun syncModule() = module {
     singleOf(::SyncAPI)
     singleOf(::SyncRepository)
-    single { MutatorQueue(get(), Mutator.serializer()) }.binds(arrayOf(Mutators::class, MutatorQueue::class))
+    single { MutatorQueue(get(), get(), Mutator.serializer()) }.binds(arrayOf(Mutators::class, MutatorQueue::class))
     singleOf(::AppDAO)
     singleOf(::AppMutators)
     singleOf(::AppDatabase)

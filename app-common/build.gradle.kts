@@ -67,9 +67,9 @@ kotlin {
                 implementation(libs.kotlin.result)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
-                implementation("me.dvyy.syncengine:database")
                 implementation("me.dvyy.syncengine:core")
                 implementation("me.dvyy.syncengine:client")
+                implementation("me.dvyy:sqlite-kt:0.0.2-alpha.6")
             }
         }
         val jvmMain by creating {

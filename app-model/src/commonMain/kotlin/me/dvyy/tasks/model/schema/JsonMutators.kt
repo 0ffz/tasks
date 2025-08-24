@@ -1,6 +1,6 @@
 package me.dvyy.tasks.model.schema
 
-import me.dvyy.syncengine.db.Database
+import me.dvyy.sqlite.Database
 import me.dvyy.syncengine.schema.Mutators
 import me.dvyy.syncengine.schema.minus
 import me.dvyy.tasks.model.mutators.DeleteRowMutator
@@ -10,6 +10,7 @@ import me.dvyy.tasks.model.mutators.Mutator
 import kotlin.uuid.Uuid
 
 class JsonMutators<T>(
+    val db: Database,
     val dao: JsonDAO<T>,
     val mutators: Mutators<Mutator>,
 ) {
@@ -29,7 +30,7 @@ class JsonMutators<T>(
     )
 
     suspend fun patch(uuid: Uuid, element: T) {
-        val existing = Database.read { dao.getJsonElement(uuid) }
+        val existing = db.read { dao.getJsonElement(uuid) }
         val new = dao.json.encodeToJsonElement(dao.serializer, element)
         val patch = new - existing
         mutators.invoke(

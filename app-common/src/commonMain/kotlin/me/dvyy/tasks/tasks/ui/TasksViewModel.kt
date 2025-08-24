@@ -3,19 +3,15 @@ package me.dvyy.tasks.tasks.ui
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.dvyy.syncengine.db.Database
-import me.dvyy.syncengine.schema.Mutators
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.model.database.AppDatabase
-import me.dvyy.tasks.model.database.AppMutators
 import me.dvyy.tasks.model.mutators.MoveTaskMutator
 import me.dvyy.tasks.model.schema.NotesTable
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
@@ -32,11 +28,11 @@ class TasksViewModel(
     val selectedTask = MutableStateFlow<TaskWithList?>(null)
 //    val projects = MutableStateFlow<>()
 
-    fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = Database.watch(NotesTable) {
+    fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = db.query.db.watch(NotesTable) {
         db.query.rank.childrenOf(list)
     }
 
-    fun watchTask(id: Uuid) = Database.watch(NotesTable) {
+    fun watchTask(id: Uuid) = db.query.db.watch(NotesTable) {
         db.query.tasks.get(id)
     }
 
@@ -54,7 +50,7 @@ class TasksViewModel(
 
     fun selectNextTask() = viewModelScope.launch {
         val curr = selectedTask.value ?: return@launch
-        val next = Database.read { db.query.rank.getAfter(curr.task) }
+        val next = db.query.db.read { db.query.rank.getAfter(curr.task) }
         if (next != null) selectedTask.emit(curr.copy(task = next))
 //        else createTask(curr.list, TODO())
     }

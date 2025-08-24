@@ -35,10 +35,10 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = version.toString()
-        setProperty("archivesBaseName", "Tasks-$version")
+//        setProperty("archivesBaseName", "Tasks-$version")
     }
     signingConfigs {
-        if (androidKeystoreFile != null) create("release") {
+        if (androidKeystoreFile != null) register("release") {
             properties["storeFile"]
             storeFile = file(androidKeystoreFile!!)
             storePassword = androidKeystorePassword

@@ -2,7 +2,7 @@ package me.dvyy.tasks.model.mutators
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.dvyy.syncengine.db.WriteTransaction
+import me.dvyy.sqlite.WriteTransaction
 import me.dvyy.syncengine.schema.AbstractMutator
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId

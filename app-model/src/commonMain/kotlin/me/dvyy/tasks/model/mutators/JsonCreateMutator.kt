@@ -3,9 +3,7 @@ package me.dvyy.tasks.model.mutators
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
-import me.dvyy.syncengine.db.WriteTransaction
-import me.dvyy.syncengine.schema.JsonElementAsStringSerializer
-import me.dvyy.syncengine.schema.UuidSerializer
+import me.dvyy.sqlite.WriteTransaction
 import me.dvyy.tasks.model.database.AppDAO
 import kotlin.uuid.Uuid
 

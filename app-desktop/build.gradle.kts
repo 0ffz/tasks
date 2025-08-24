@@ -85,7 +85,7 @@ val composePackageDir = "$buildDir/compose/binaries/main-release/${
 }"
 
 tasks {
-    task("runFix") {
+    register("runFix") {
         dependsOn("run")
     }
 
@@ -111,7 +111,7 @@ tasks {
         src("https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage")
         dest(appImageTool)
         doLast {
-            exec { commandLine("chmod", "+x", appImageTool) }
+            providers.exec { commandLine("chmod", "+x", appImageTool) }
         }
     }
 
@@ -184,16 +184,16 @@ graalvmNative {
 }
 
 tasks {
-    val copyLibjawt = task<ProcessResources>("copyLibjawt") {
+    val copyLibjawt = register<ProcessResources>("copyLibjawt") {
         val source = when {
             os.isWindows -> "build/compose/binaries/main/app/$appName/runtime/bin/jawt.dll"
             os.isUnix -> "build/compose/binaries/main/app/$appName/lib/runtime/lib/libjawt.so"
-            else -> return@task
+            else -> return@register
         }
         val target = when {
             os.isWindows -> "build/native/nativeCompile/bin"
             os.isUnix -> "build/native/nativeCompile/lib"
-            else -> return@task
+            else -> return@register
         }
         dependsOn("createDistributable")
         from(source)

@@ -1,14 +1,13 @@
 package me.dvyy.tasks.model.schema
 
-import me.dvyy.syncengine.db.Transaction
-import me.dvyy.syncengine.db.WriteTransaction
-import me.dvyy.syncengine.db.getUuid
+import me.dvyy.sqlite.Transaction
+import me.dvyy.sqlite.WriteTransaction
+import me.dvyy.sqlite.statement.getUuid
 import me.dvyy.tasks.model.components.Task
-import me.dvyy.tasks.model.components.TaskInList
 import kotlin.uuid.Uuid
 
 class SubtasksDAO(
-    val tasks: JsonDAO<Task>
+    val tasks: JsonDAO<Task>,
 ) {
     context(tx: Transaction)
     fun childrenOf(uuid: Uuid): List<Uuid> = tx.getList("SELECT id FROM tasks WHERE parent = ?", uuid.toString()) {

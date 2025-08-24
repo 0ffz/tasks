@@ -1,6 +1,6 @@
 package me.dvyy.tasks.model.schema
 
-import me.dvyy.syncengine.db.tables.View
+import me.dvyy.sqlite.tables.View
 import me.dvyy.syncengine.schema.jsonTable
 import me.dvyy.syncengine.schema.schema
 import me.dvyy.syncengine.schema.view
