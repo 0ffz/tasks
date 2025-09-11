@@ -1,22 +1,16 @@
 package me.dvyy.tasks.app.data
 
-import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import ca.gosyer.appdirs.AppDirs
+import me.dvyy.sqlite.Database
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
+import kotlin.io.path.div
 
-actual class DriverFactory {
-    actual fun createDriver(): SQLiteDriver {
-        val dirs = AppDirs(Environment.customAppDir ?: "tasks", "dvyy")
-
-        val dataPath = Path(dirs.getUserDataDir())
-        dataPath.createDirectories()
-//        val driver: SqlDriver = JdbcSqliteDriver(
-//            url = "jdbc:sqlite:${(dataPath / "tasks.db").absolutePathString()}",
-//            properties = Properties(),
-//            schema = Database.Schema.synchronous(),
-//        )
-        return BundledSQLiteDriver()
-    }
+actual fun createDatabase(): Database {
+    val dirs = AppDirs(Environment.customAppDir ?: "tasks", "dvyy")
+    val dataPath = Path(dirs.getUserDataDir())
+    dataPath.createDirectories()
+    //TODO swap back to tasks.db once migrations figured out
+    return Database((dataPath / "database.db").absolutePathString())
 }

@@ -34,4 +34,4 @@ fun Application.configureSecurity(
 data class UserSession(
     val username: String,
     val userId: Int,
-) : Principal
+)

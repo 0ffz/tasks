@@ -3,15 +3,11 @@ package me.dvyy.tasks.sync.data
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.serialization.decodeValueOrNull
 import com.russhwolf.settings.serialization.encodeValue
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import me.dvyy.tasks.model.network.Changelist
 import me.dvyy.tasks.tasks.data.SyncAPI
-import me.dvyy.tasks.utils.AppDispatchers
 
 private const val KEY_LAST_EDIT = "app-last-edit"
 
@@ -27,7 +23,7 @@ class SyncRepository(
 
     suspend fun sync() = sync(lastAppSync.value)
 
-    suspend fun sync(lastSynced: Instant?) = withContext(AppDispatchers.db) {
+    suspend fun sync(lastSynced: Instant?) {
         val now = Clock.System.now()
 //        val lastSync = lastAppSync.value ?: Instant.DISTANT_PAST
 //        val changes = Changelist(
@@ -41,7 +37,7 @@ class SyncRepository(
         updateSyncTime(now)
     }
 
-    suspend fun fullSync() = withContext(AppDispatchers.db) {
+    suspend fun fullSync() {
 //        val now = Clock.System.now()
 //        messages.createMessagesForAllEntities(now)
 //        sync()

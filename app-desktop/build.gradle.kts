@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     id("de.undercouch.download") version "5.3.1"
-    id("org.graalvm.buildtools.native") version "0.10.4"
+//    id("org.graalvm.buildtools.native") version "0.10.4"
 }
 
 kotlin {
@@ -120,7 +120,7 @@ tasks {
     }
 
     val copyBuildToPackaging by registering(Copy::class) {
-        dependsOn(nativeCompile)
+//        dependsOn(nativeCompile)
         dependsOn(deleteOldAppDirFiles)
         from("build/native/nativeCompile/")
         into("$linuxAppDir/usr")
@@ -148,40 +148,40 @@ tasks {
     }
 }
 
-graalvmNative {
-    toolchainDetection.set(false)
-    binaries {
-        named("main") {
-            mainClass.set("MainKt")
-            imageName.set("tasks")
-            buildArgs(
-                "-O2",
-                "-Djava.awt.headless=false",
-                "--strict-image-heap", // kotlin 2.0 fix
-                "-H:+ReportExceptionStackTraces",
-                "-R:MaxHeapSize=300M",
-                "-H:+AddAllCharsets",
-            )
-
-            // Don't open terminal when running exe on Windows
-            if (os.isWindows) buildArgs.addAll(
-                "-H:NativeLinkerOption=/SUBSYSTEM:WINDOWS",
-                "-H:NativeLinkerOption=/ENTRY:mainCRTStartup",
-            )
-            configurationFileDirectories.from("native-image/${os.familyName}")
-        }
-    }
-
-    agent {
-        defaultMode.set("standard")
-
-        metadataCopy {
-            inputTaskNames.add("run") // Tasks previously executed with the agent attached.
-            outputDirectories.add("native-image/${os.familyName}")
-            mergeWithExisting.set(true)
-        }
-    }
-}
+//graalvmNative {
+//    toolchainDetection.set(false)
+//    binaries {
+//        named("main") {
+//            mainClass.set("MainKt")
+//            imageName.set("tasks")
+//            buildArgs(
+//                "-O2",
+//                "-Djava.awt.headless=false",
+//                "--strict-image-heap", // kotlin 2.0 fix
+//                "-H:+ReportExceptionStackTraces",
+//                "-R:MaxHeapSize=300M",
+//                "-H:+AddAllCharsets",
+//            )
+//
+//            // Don't open terminal when running exe on Windows
+//            if (os.isWindows) buildArgs.addAll(
+//                "-H:NativeLinkerOption=/SUBSYSTEM:WINDOWS",
+//                "-H:NativeLinkerOption=/ENTRY:mainCRTStartup",
+//            )
+//            configurationFileDirectories.from("native-image/${os.familyName}")
+//        }
+//    }
+//
+//    agent {
+//        defaultMode.set("standard")
+//
+//        metadataCopy {
+//            inputTaskNames.add("run") // Tasks previously executed with the agent attached.
+//            outputDirectories.add("native-image/${os.familyName}")
+//            mergeWithExisting.set(true)
+//        }
+//    }
+//}
 
 tasks {
     val copyLibjawt = register<ProcessResources>("copyLibjawt") {
@@ -200,7 +200,7 @@ tasks {
         into(target)
     }
 
-    nativeCompile {
-        dependsOn(copyLibjawt)
-    }
+//    nativeCompile {
+//        dependsOn(copyLibjawt)
+//    }
 }

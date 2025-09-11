@@ -94,7 +94,8 @@ class TasksViewModel(
         TODO("Not yet implemented")
     }
 
-    fun getListProperties(key: ListId): StateFlow<TaskListProperties> {
-        return MutableStateFlow(TaskListProperties(displayName = "Temp"))
+    fun getListProperties(key: ListId): StateFlow<TaskListProperties> = when {
+        key.isDate -> MutableStateFlow(TaskListProperties(date = key.date))
+        else -> MutableStateFlow(TaskListProperties(displayName = "Temp"))
     }
 }
