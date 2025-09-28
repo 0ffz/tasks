@@ -12,8 +12,8 @@ import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.model.database.AppDatabase
-import me.dvyy.tasks.model.mutators.MoveTaskMutator
-import me.dvyy.tasks.model.schema.NotesTable
+import me.dvyy.tasks.model.database.NotesTable
+import me.dvyy.tasks.model.database.mutators.MoveTaskMutator
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
 import kotlin.uuid.Uuid
 
@@ -85,7 +85,9 @@ class TasksViewModel(
     fun listInteractionsFor(list: Uuid) = TaskListInteractions(
         createNewTask = {
             viewModelScope.launch {
+//                repeat(1000) {
                 db.mutate.tasks.create(Task("", false, list))
+//                }
             }
         }
     )

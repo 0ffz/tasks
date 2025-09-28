@@ -10,7 +10,7 @@ pluginManagement {
 rootProject.name = "tasks"
 
 
-include("app-android", "app-common", "app-desktop", "app-model", "app-server")
+include("app-android", "app-common", "app-desktop", "app-model", "app-server", "tests")
 
 includeBuild("../syncengine")
 includeBuild("../sqlite-kt")

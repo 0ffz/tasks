@@ -6,7 +6,7 @@ ktor:
     host: "$HOST:0.0.0.0"
     port: "$PORT:4000"
 database:
-  url: "$DATABASE_URL:jdbc:postgresql://localhost/tasks?user=tasks&password=password"
+  path: "database.db"
 ldap:
   serverURL: "$LDAP_SERVER_URL:ldap://localhost:3890"
   userDNFormat: "$LDAP_USER_DN_FORMAT:cn=%s,ou=people,dc=example,dc=com"

@@ -1,4 +1,4 @@
-package me.dvyy.tasks.model.mutators
+package me.dvyy.tasks.model.database.mutators
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -8,14 +8,14 @@ import me.dvyy.tasks.model.database.AppDAO
 import kotlin.uuid.Uuid
 
 @Serializable
-@SerialName("create")
-class JsonCreateMutator(
-    val table: String,
+@SerialName("patch")
+class JsonPatchMutator(
+//    val table: String,
     val id: Uuid,
-    val data: JsonElement,
+    val patch: JsonElement,
 ) : Mutator {
     context(tx: WriteTransaction)
     override fun mutate(db: AppDAO) {
-        db.tasks.create(id, data)
+        db.tasks.patch(id, patch.toString())
     }
 }

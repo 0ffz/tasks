@@ -25,10 +25,13 @@ kotlin {
                 implementation(project(":app-model"))
                 implementation(project(":app-common"))
                 implementation(project(":app-server"))
+                implementation("me.dvyy.syncengine:client")
+                implementation("me.dvyy.syncengine:server")
                 implementation(libs.junit)
                 implementation(libs.postgresql)
                 implementation(libs.hikaricp)
                 implementation(libs.testcontainers.postgresql)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
     }

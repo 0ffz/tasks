@@ -7,19 +7,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import me.dvyy.tasks.tasks.data.SyncAPI
+import me.dvyy.tasks.tasks.data.KtorSyncService
 
 private const val KEY_LAST_EDIT = "app-last-edit"
 
 class SyncRepository(
-    private val syncApi: SyncAPI,
+    private val syncService: KtorSyncService,
     private val settings: Settings,
-//    private val messages: MessagesDataSource,
 ) {
     private val _lastAppSync = MutableStateFlow(settings.decodeValueOrNull(Instant.serializer(), KEY_LAST_EDIT))
     val lastAppSync = _lastAppSync.asStateFlow()
-
-//    suspend fun observeLastUpdated() = messages.observeLastUpdated()
 
     suspend fun sync() = sync(lastAppSync.value)
 

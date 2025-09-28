@@ -11,9 +11,11 @@ import io.ktor.server.routing.*
 import me.dvyy.tasks.config.JWTConfig
 import me.dvyy.tasks.config.LDAPConfig
 import me.dvyy.tasks.model.auth.AuthRequest
+import me.dvyy.tasks.plugins.UserRepository
 import java.util.*
 
 fun Route.login(
+    userRepository: UserRepository,
     ldapConfig: LDAPConfig,
     jwtConfig: JWTConfig,
 ) = post("/login") {
@@ -26,7 +28,7 @@ fun Route.login(
     )
         ?: return@post call.respond(HttpStatusCode.Conflict, "Invalid credentials")
 
-    val userId = TODO() //server.getOrCreateUserId(userPrincipal.name)
+    val userId = userRepository.getOrCreateUserId(userPrincipal.name)
 
     val token = JWT.create()
         .withAudience(jwtConfig.audience)

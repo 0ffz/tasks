@@ -1,15 +1,21 @@
-package me.dvyy.tasks.model.schema
+package me.dvyy.tasks.model.database.dao
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import me.dvyy.sqlite.Transaction
 import me.dvyy.sqlite.WriteTransaction
+import me.dvyy.sqlite.statement.NamedColumnSqliteStatement
 import me.dvyy.syncengine.schema.JsonTable
 import org.intellij.lang.annotations.Language
 import kotlin.uuid.Uuid
 
-class JsonDAO<T>(
+/**
+ * CRUD operations for [JsonTable].
+ *
+ * @property table The table to perform crud operations on.
+ */
+class JsonDataDAO<T>(
     val serializer: KSerializer<T>,
     val table: JsonTable,
     val json: Json = Json {
@@ -22,6 +28,15 @@ class JsonDAO<T>(
         id: Uuid,
     ): T? = tx.getOrNull("SELECT json(data) FROM $table WHERE id = ?", id) {
         json.decodeFromString(serializer, getText(0))
+    }
+
+    context(tx: Transaction)
+    fun <T> jsonGet(
+        id: Uuid,
+        jsonPath: String,
+        statement: NamedColumnSqliteStatement.() -> T,
+    ): T? = tx.getOrNull("SELECT json(data) FROM $table WHERE id = ?", id) {
+        statement()
     }
 
     context(tx: Transaction)
@@ -64,9 +79,6 @@ class JsonDAO<T>(
         id: Uuid,
         @Language("JSON") patchString: String,
     ) {
-        //INSERT INTO $table(id, data)
-        //            VALUES (?, jsonb(?))
-        //            ON CONFLICT DO
         tx.exec(
             """
             UPDATE $table SET

@@ -1,4 +1,4 @@
-package me.dvyy.tasks.model.database
+package me.dvyy.tasks.model.rank
 
 object RankFunctions {
     const val FIRST_CHAR = 'a'

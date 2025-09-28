@@ -6,27 +6,30 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import me.dvyy.syncengine.SyncServer
+import me.dvyy.syncengine.sync.SyncRequest
+import me.dvyy.syncengine.sync.SyncResult
 import me.dvyy.tasks.config.JWTConfig
 import me.dvyy.tasks.config.LDAPConfig
-import me.dvyy.tasks.model.network.Changelist
+import me.dvyy.tasks.routes.login
 
 fun Application.configureRouting(
-//    server: ServerDataSource,
+    userRepository: UserRepository,
+    syncServer: SyncServer,
     jwtConfig: JWTConfig,
     ldapConfig: LDAPConfig,
 ) {
     routing {
-//        login(ldapConfig, jwtConfig, server)
+        login(userRepository, ldapConfig, jwtConfig)
         authenticate {
             get("/auth/check") {
                 call.respond(HttpStatusCode.OK)
             }
-
             put("/sync") {
-                val changelist = call.receive<Changelist>()
-                println("Got changelist $changelist")
+                val changelist = call.receive<SyncRequest>()
                 val session = call.principal<UserSession>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
-//                call.respond<Changelist>(server.resolveMessages(changelist, session))
+                val result = syncServer.sync(changelist, session.identity)
+                call.respond<SyncResult>(result)
             }
         }
     }

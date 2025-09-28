@@ -1,4 +1,4 @@
-package me.dvyy.tasks.model.schema
+package me.dvyy.tasks.model.database
 
 import me.dvyy.sqlite.tables.View
 import me.dvyy.syncengine.schema.jsonTable

@@ -1,4 +1,4 @@
-package me.dvyy.tasks.model.schema
+package me.dvyy.tasks.model.database.dao
 
 import me.dvyy.sqlite.Transaction
 import me.dvyy.sqlite.WriteTransaction
@@ -6,8 +6,9 @@ import me.dvyy.sqlite.statement.getUuid
 import me.dvyy.tasks.model.components.Task
 import kotlin.uuid.Uuid
 
-class SubtasksDAO(
-    val tasks: JsonDAO<Task>,
+//TODO filter owner when using get
+class SubtaskRelationDAO(
+    val tasks: JsonDataDAO<Task>,
 ) {
     context(tx: Transaction)
     fun childrenOf(uuid: Uuid): List<Uuid> = tx.getList("SELECT id FROM tasks WHERE parent = ?", uuid.toString()) {

@@ -1,4 +1,4 @@
-package me.dvyy.tasks.model.mutators
+package me.dvyy.tasks.model.database.mutators
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

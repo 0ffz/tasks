@@ -8,12 +8,6 @@ object AppFormats {
     val networkModule = SerializersModule {
         contextual(Uuid::class, UuidAsStringSerializer)
     }
-//    @OptIn(ExperimentalSerializationApi::class)
-//    val cbor = Cbor {
-//        encodeDefaults = false
-//        ignoreUnknownKeys = true
-//        serializersModule = binaryModule
-//    }
 
     val json = Json {
         prettyPrint = true

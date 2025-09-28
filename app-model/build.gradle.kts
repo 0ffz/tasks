@@ -32,7 +32,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
-                implementation("me.dvyy.syncengine:core")
+                api("me.dvyy.syncengine:core")
             }
         }
     }

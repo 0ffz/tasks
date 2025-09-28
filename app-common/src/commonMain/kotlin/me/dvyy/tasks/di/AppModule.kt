@@ -20,10 +20,10 @@ import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.model.database.AppDAO
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.AppMutators
-import me.dvyy.tasks.model.mutators.Mutator
+import me.dvyy.tasks.model.database.mutators.Mutator
 import me.dvyy.tasks.sync.data.SyncRepository
 import me.dvyy.tasks.sync.ui.SyncViewModel
-import me.dvyy.tasks.tasks.data.SyncAPI
+import me.dvyy.tasks.tasks.data.KtorSyncService
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
@@ -56,7 +56,7 @@ fun repositoriesModule() = module {
 
 
 fun syncModule() = module {
-    singleOf(::SyncAPI)
+    singleOf(::KtorSyncService)
     singleOf(::SyncRepository)
     single { MutatorQueue(get(), get(), Mutator.serializer()) }.binds(arrayOf(Mutators::class, MutatorQueue::class))
     singleOf(::AppDAO)
