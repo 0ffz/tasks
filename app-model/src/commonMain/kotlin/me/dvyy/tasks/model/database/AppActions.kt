@@ -1,14 +1,16 @@
 package me.dvyy.tasks.model.database
 
+import me.dvyy.sqlite.Database
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.tasks.model.database.actions.JsonActions
-import me.dvyy.tasks.model.database.dao.JsonDataDAO
+import me.dvyy.tasks.model.database.dao.JsonDataQueries
 
 class AppActions(
-    val appDAO: AppDAO,
-    val actions: Actions,
+    private val db: Database,
+    private val appQueries: AppQueries,
+    private val actions: Actions,
 ) {
-    val tasks = jsonActions(appDAO.tasks)
+    val tasks = jsonActions(appQueries.tasks)
 
-    private fun <T> jsonActions(dao: JsonDataDAO<T>) = JsonActions(appDAO.db, dao, actions)
+    private fun <T> jsonActions(dao: JsonDataQueries<T>) = JsonActions(db, dao, actions)
 }

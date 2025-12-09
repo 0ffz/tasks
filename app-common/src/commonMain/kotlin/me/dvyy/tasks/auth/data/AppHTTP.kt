@@ -9,7 +9,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
 import me.dvyy.tasks.model.serializers.AppFormats
-import me.dvyy.tasks.tasks.data.SyncConfig
+import me.dvyy.tasks.sync.data.SyncConfig
 
 class AppHTTP(
     private val ioDispatcher: CoroutineDispatcher,

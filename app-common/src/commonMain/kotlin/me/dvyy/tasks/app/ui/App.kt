@@ -19,7 +19,6 @@ import me.dvyy.tasks.app.ui.elements.LeftNavigationRail
 import me.dvyy.tasks.app.ui.elements.PlatformSpecificTopBarActions
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
-import me.dvyy.tasks.di.*
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
@@ -27,20 +26,6 @@ import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.dsl.KoinAppDeclaration
-import org.koin.dsl.koinApplication
-
-fun createAppKoinApplication(extras: KoinAppDeclaration = {}) = koinApplication {
-    extras()
-    modules(
-        appModule(),
-        repositoriesModule(),
-        authModule(),
-        syncModule(),
-        viewModelsModule(),
-    )
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +40,7 @@ fun App(
     CompositionLocalProvider(
         LocalUIState provides ui,
     ) {
-        val sync = koinViewModel<SyncViewModel>() // Ensure sync inits at start
+        koinViewModel<SyncViewModel>() // Ensure sync inits at start
         val scrollBehavior = if (ui.isSmall)
             TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
         else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())

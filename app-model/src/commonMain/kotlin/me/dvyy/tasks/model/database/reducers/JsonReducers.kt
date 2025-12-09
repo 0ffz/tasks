@@ -1,14 +1,14 @@
 package me.dvyy.tasks.model.database.reducers
 
 import me.dvyy.syncengine.reducers.MutableReducers
-import me.dvyy.tasks.model.database.AppDAO
+import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.actions.DeleteRowAction
 import me.dvyy.tasks.model.database.actions.JsonCreateAction
 import me.dvyy.tasks.model.database.actions.JsonPatchAction
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 
 fun MutableReducers.jsonReducers(
-    db: AppDAO,
+    db: AppQueries,
 ) {
     reduce<DeleteRowAction> {
         db.tasks.delete(it.id)

@@ -15,7 +15,7 @@ import kotlin.uuid.Uuid
  *
  * @property table The table to perform crud operations on.
  */
-class JsonDataDAO<T>(
+class JsonDataQueries<T>(
     val serializer: KSerializer<T>,
     val table: JsonTable,
     val json: Json = Json {

@@ -3,12 +3,12 @@ package me.dvyy.tasks.model.database.actions
 import me.dvyy.sqlite.Database
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.schema.minus
-import me.dvyy.tasks.model.database.dao.JsonDataDAO
+import me.dvyy.tasks.model.database.dao.JsonDataQueries
 import kotlin.uuid.Uuid
 
 class JsonActions<T>(
     val db: Database,
-    val dao: JsonDataDAO<T>,
+    val dao: JsonDataQueries<T>,
     val actions: Actions,
 ) {
     suspend fun create(element: T) = actions.invoke(

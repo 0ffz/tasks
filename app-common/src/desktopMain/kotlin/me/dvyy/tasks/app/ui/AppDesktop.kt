@@ -11,6 +11,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import me.dvyy.app_common.generated.resources.Res
 import me.dvyy.app_common.generated.resources.icon
+import me.dvyy.tasks.app.createAppKoinApplication
 import me.dvyy.tasks.app.data.TopbarViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinIsolatedContext

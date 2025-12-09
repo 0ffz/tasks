@@ -2,7 +2,7 @@ package me.dvyy.tasks.auth.data
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import me.dvyy.tasks.tasks.data.LoginInfo
+import me.dvyy.tasks.sync.data.LoginInfo
 
 class AuthRepository(
     private val http: AppHTTP,

@@ -7,8 +7,8 @@ import me.dvyy.tasks.model.components.Task
 import kotlin.uuid.Uuid
 
 //TODO filter owner when using get
-class SubtaskRelationDAO(
-    val tasks: JsonDataDAO<Task>,
+class SubtaskRelationQueries(
+    val tasks: JsonDataQueries<Task>,
 ) {
     context(tx: Transaction)
     fun childrenOf(uuid: Uuid): List<Uuid> = tx.getList("SELECT id FROM tasks WHERE parent = ?", uuid.toString()) {

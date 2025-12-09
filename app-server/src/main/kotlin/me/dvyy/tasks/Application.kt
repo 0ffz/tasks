@@ -8,7 +8,7 @@ import me.dvyy.syncengine.server.schema.ServerActionProcessor
 import me.dvyy.syncengine.server.schema.SyncServer
 import me.dvyy.tasks.config.JWTConfig
 import me.dvyy.tasks.config.LDAPConfig
-import me.dvyy.tasks.model.database.AppDAO
+import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.AppSchema
 import me.dvyy.tasks.model.database.reducers.jsonReducers
 import me.dvyy.tasks.plugins.*
@@ -21,9 +21,9 @@ fun main(args: Array<String>) {
 fun Application.module() {
     val database = Database(environment.config.property("database.path").getString())
     val schema = AppSchema
-    val appDao = AppDAO(database)
+    val appQueries = AppQueries(database)
     val reducers = reducers {
-        jsonReducers(appDao)
+        jsonReducers(appQueries)
     }
     val userRepository = UserRepository(database, ServerDatabase())
     val applier = ServerActionProcessor(reducers)

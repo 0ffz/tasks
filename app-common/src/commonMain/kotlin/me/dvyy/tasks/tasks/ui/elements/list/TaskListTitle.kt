@@ -19,7 +19,7 @@ import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
-import me.dvyy.tasks.tasks.ui.CachedUpdate
+import me.dvyy.tasks.utils.CachedUpdate
 import me.dvyy.tasks.utils.Loadable
 import me.dvyy.tasks.utils.loadedOrNull
 import java.time.format.TextStyle

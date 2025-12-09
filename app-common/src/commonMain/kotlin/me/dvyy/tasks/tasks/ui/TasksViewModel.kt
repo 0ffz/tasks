@@ -26,14 +26,13 @@ class TasksViewModel(
     val db: AppDatabase,
 ) : ViewModel() {
     val selectedTask = MutableStateFlow<TaskWithList?>(null)
-//    val projects = MutableStateFlow<>()
 
-    fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = db.query.db.watch(NotesTable.name) {
-        db.query.rank.childrenOf(list)
+    fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = db.watch(NotesTable.name) {
+        rank.childrenOf(list)
     }
 
-    fun watchTask(id: Uuid) = db.query.db.watch(NotesTable.name) {
-        db.query.tasks.get(id)
+    fun watchTask(id: Uuid) = db.watch(NotesTable.name) {
+        tasks.get(id)
     }
 
     fun mutateTask(id: Uuid, new: Task) = viewModelScope.launch {
@@ -50,7 +49,7 @@ class TasksViewModel(
 
     fun selectNextTask() = viewModelScope.launch {
         val curr = selectedTask.value ?: return@launch
-        val next = db.query.db.read { db.query.rank.getAfter(curr.task) }
+        val next = db.read { rank.getAfter(curr.task) }
         if (next != null) selectedTask.emit(curr.copy(task = next))
 //        else createTask(curr.list, TODO())
     }

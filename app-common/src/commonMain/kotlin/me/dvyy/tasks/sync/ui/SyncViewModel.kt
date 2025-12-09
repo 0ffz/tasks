@@ -2,16 +2,16 @@ package me.dvyy.tasks.sync.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import me.dvyy.tasks.sync.data.SyncRepository
-import me.dvyy.tasks.tasks.ui.SyncState
+import me.dvyy.syncengine.client.sync.SyncClient
 import java.net.ConnectException
 import kotlin.time.Duration.Companion.seconds
 
+@OptIn(FlowPreview::class)
 class SyncViewModel(
-    private val syncRepo: SyncRepository,
+    private val syncClient: SyncClient,
 ) : ViewModel() {
     val syncState: StateFlow<SyncState> get() = _syncState
     private val _syncState = MutableStateFlow<SyncState>(SyncState.UnSynced)
@@ -26,16 +26,10 @@ class SyncViewModel(
             }
 
             trySync()
-
-            //TODO reimplement sync
-//            syncRepo.observeLastUpdated()
-//                .mapToOneOrNull(Dispatchers.Default)
-//                .filter { it != null }
-//                .debounce(3.seconds)
-//                .collectLatest {
-//                    println(it)
-//                    trySync()
-//                }
+            syncClient.changesMade.debounce(3.seconds).collectLatest {
+                println("Changes made")
+                trySync()
+            }
         }
     }
 
@@ -53,14 +47,16 @@ class SyncViewModel(
     }
 
     fun sync() = queueSync {
-        syncRepo.sync()
+        syncClient.sync()
     }
 
     fun fullSync() = queueSync {
-        syncRepo.fullSync()
+        TODO()
+//        syncClient.fullSync()
     }
 
     fun forcePull() = queueSync {
-        syncRepo.sync(lastSynced = null)
+        TODO()
+//        syncClient.sync(lastSynced = null)
     }
 }

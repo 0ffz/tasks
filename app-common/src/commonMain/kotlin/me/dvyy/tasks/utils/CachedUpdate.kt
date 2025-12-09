@@ -1,4 +1,4 @@
-package me.dvyy.tasks.tasks.ui
+package me.dvyy.tasks.utils
 
 import androidx.compose.runtime.*
 import kotlinx.coroutines.flow.collectLatest

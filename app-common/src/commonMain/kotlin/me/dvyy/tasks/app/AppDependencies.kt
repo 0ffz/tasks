@@ -1,9 +1,11 @@
-package me.dvyy.tasks.di
+package me.dvyy.tasks.app
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.client.mutators.ActionQueue
-import me.dvyy.syncengine.reducers.reducers
+import me.dvyy.syncengine.client.sync.SyncClient
+import me.dvyy.syncengine.sync.SyncService
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
@@ -16,26 +18,41 @@ import me.dvyy.tasks.auth.data.CredentialsDataSource
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.model.database.AppActions
-import me.dvyy.tasks.model.database.AppDAO
 import me.dvyy.tasks.model.database.AppDatabase
-import me.dvyy.tasks.sync.data.SyncRepository
+import me.dvyy.tasks.model.database.commonSyncModule
+import me.dvyy.tasks.sync.data.KtorSyncService
 import me.dvyy.tasks.sync.ui.SyncViewModel
-import me.dvyy.tasks.tasks.data.KtorSyncService
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.binds
-import org.koin.dsl.module
+import org.koin.dsl.*
 
-fun appModule() = module {
+fun createAppKoinApplication(extras: KoinAppDeclaration = {}) = koinApplication {
+    extras()
+    modules(appModule())
+}.also {
+    runBlocking {
+        //TODO loading screen
+        it.koin.get<SyncClient>().initialize()
+    }
+}
+
+fun appModule() = module(createdAtStart = true) {
+    includes(
+        coreModule(),
+        authModule(),
+        syncModule(),
+        viewModelsModule(),
+    )
+}
+
+fun coreModule() = module {
     singleOf(::AppState)
     single { Dispatchers.Default }
-    singleOf(::AppSettings)
+    single { AppFactories.createDatabase() }
+    single { AppFactories.createAppSettings() }
     singleOf(::LocalPreferencesRepository)
-    TODO("Create database properly")
-//    single { createDatabase() }
-//    single<Schema>(createdAtStart = true) { createClientDatabase(get()) }
 }
 
 fun authModule() = module {
@@ -45,25 +62,17 @@ fun authModule() = module {
     singleOf(::AuthRepository)
 }
 
-fun repositoriesModule() = module {
-//    singleOf(::TasksLocalDataSource)
-//    singleOf(::TaskRepository)
-//    singleOf(::TaskListRepository)
-//    singleOf(::BulkAddRepository)
-}
-
-
-fun syncModule() = module {
-    singleOf(::KtorSyncService)
-    singleOf(::SyncRepository)
-    single { ActionQueue(get(), reducers { TODO() }) }.binds(arrayOf(Actions::class, ActionQueue::class))
-    singleOf(::AppDAO)
+fun syncModule() = module(createdAtStart = true) {
+    includes(commonSyncModule(), authModule())
+    singleOf(::KtorSyncService) bind SyncService::class
+    singleOf(::ActionQueue) binds (arrayOf(Actions::class, ActionQueue::class))
     singleOf(::AppActions)
+    singleOf(::SyncClient)
     singleOf(::AppDatabase)
     viewModelOf(::SyncViewModel)
 }
 
-fun viewModelsModule() = module {
+fun viewModelsModule() = module(createdAtStart = true) {
     viewModelOf(::TimeViewModel)
     viewModel { TasksViewModel(db = get<AppDatabase>()) }
     viewModelOf(::AuthViewModel)

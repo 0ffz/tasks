@@ -3,8 +3,8 @@ package me.dvyy.tasks.auth.data
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import com.russhwolf.settings.set
-import me.dvyy.tasks.tasks.data.LoginInfo
-import me.dvyy.tasks.tasks.data.SyncConfig
+import me.dvyy.tasks.sync.data.LoginInfo
+import me.dvyy.tasks.sync.data.SyncConfig
 
 private const val KEY_USERNAME = "app-username"
 private const val KEY_PASSWORD = "app-password"
