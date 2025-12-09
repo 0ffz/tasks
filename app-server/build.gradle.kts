@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.jib)
+    id("me.dvyy.sqlite.codegen")
 }
 
 application {
@@ -64,5 +65,11 @@ jib {
 //            "-XX:MaxGCPauseMillis=100",
 //            "-XX:+UseStringDeduplication"
 //        )
+    }
+}
+
+sqliteKt {
+    register("server") {
+        packageName = "me.dvyy.tasks.server.database"
     }
 }

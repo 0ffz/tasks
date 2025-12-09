@@ -22,7 +22,7 @@ fun Application.configureSecurity(
         )
         validate { credential ->
             val name = credential.payload.getClaim("username").asString() ?: return@validate null
-            val userId = credential.payload.getClaim("userId").asString().toIntOrNull() ?: return@validate null
+            val userId = credential.payload.getClaim("userId").asString().toLongOrNull() ?: return@validate null
             UserSession(name, userId)
         }
         challenge { _, _ ->

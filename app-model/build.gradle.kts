@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinx.serialization)
+    id("me.dvyy.sqlite.codegen")
 }
 
 kotlin {
@@ -37,3 +38,10 @@ kotlin {
         }
     }
 }
+
+
+//sqliteKt {
+//    create("main") {
+//        packageName = "me.dvyy.tasks.model.database"
+//    }
+//}

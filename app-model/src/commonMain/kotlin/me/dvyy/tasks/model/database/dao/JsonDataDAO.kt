@@ -50,7 +50,6 @@ class JsonDataDAO<T>(
         data: JsonElement,
     ) {
         tx.exec("INSERT INTO $table (id, data, owner) VALUES (?, jsonb(?), ?)", id, data.toString(), tx.identity)
-        tx.modified(table)
     }
 
     context(tx: WriteTransaction)
@@ -62,7 +61,6 @@ class JsonDataDAO<T>(
     context(tx: WriteTransaction)
     fun delete(id: Uuid) {
         tx.exec("DELETE FROM $table WHERE id = ? AND owner = ?", id, tx.identity)
-        tx.modified(table)
     }
 
     context(tx: WriteTransaction)
@@ -71,7 +69,6 @@ class JsonDataDAO<T>(
             "UPDATE $table SET data = jsonb_set(data, ?, jsonb(?)) WHERE id = ? AND owner = ?",
             path, value, id, tx.identity
         )
-        tx.modified(table)
     }
 
     context(tx: WriteTransaction)
@@ -87,7 +84,6 @@ class JsonDataDAO<T>(
             """.trimIndent(),
             patchString, id, tx.identity
         )
-        tx.modified(table)
     }
 }
 

@@ -18,6 +18,7 @@ kotlin {
                 implementation(libs.kotest.assertions)
                 implementation(libs.kotest.property)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         val jvmTest by getting {

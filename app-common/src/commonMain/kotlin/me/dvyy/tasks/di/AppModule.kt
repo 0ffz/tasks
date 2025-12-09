@@ -1,12 +1,9 @@
 package me.dvyy.tasks.di
 
 import kotlinx.coroutines.Dispatchers
-import me.dvyy.syncengine.client.mutators.ClientSchema
 import me.dvyy.syncengine.client.mutators.MutatorQueue
 import me.dvyy.syncengine.schema.Mutators
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
-import me.dvyy.tasks.app.data.createClientDatabase
-import me.dvyy.tasks.app.data.createDatabase
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.TimeViewModel
@@ -36,8 +33,9 @@ fun appModule() = module {
     single { Dispatchers.Default }
     singleOf(::AppSettings)
     singleOf(::LocalPreferencesRepository)
-    single { createDatabase() }
-    single<ClientSchema>(createdAtStart = true) { createClientDatabase(get()) }
+    TODO("Create database properly")
+//    single { createDatabase() }
+//    single<Schema>(createdAtStart = true) { createClientDatabase(get()) }
 }
 
 fun authModule() = module {
