@@ -3,13 +3,14 @@ package me.dvyy.tasks
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import me.dvyy.sqlite.Database
-import me.dvyy.syncengine.MutatorApplier
-import me.dvyy.syncengine.SyncServer
+import me.dvyy.syncengine.reducers.reducers
+import me.dvyy.syncengine.server.schema.ServerActionProcessor
+import me.dvyy.syncengine.server.schema.SyncServer
 import me.dvyy.tasks.config.JWTConfig
 import me.dvyy.tasks.config.LDAPConfig
 import me.dvyy.tasks.model.database.AppDAO
 import me.dvyy.tasks.model.database.AppSchema
-import me.dvyy.tasks.model.database.mutators.Mutator
+import me.dvyy.tasks.model.database.reducers.jsonReducers
 import me.dvyy.tasks.plugins.*
 import me.dvyy.tasks.server.database.ServerDatabase
 
@@ -20,8 +21,12 @@ fun main(args: Array<String>) {
 fun Application.module() {
     val database = Database(environment.config.property("database.path").getString())
     val schema = AppSchema
+    val appDao = AppDAO(database)
+    val reducers = reducers {
+        jsonReducers(appDao)
+    }
     val userRepository = UserRepository(database, ServerDatabase())
-    val applier = MutatorApplier(AppDAO(database), Mutator.serializer())
+    val applier = ServerActionProcessor(reducers)
     val syncServer = SyncServer(database, schema, applier)
     runBlocking {
         userRepository.initialize()

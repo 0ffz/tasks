@@ -4,15 +4,16 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import me.dvyy.sqlite.Database
-import me.dvyy.syncengine.MutatorApplier
-import me.dvyy.syncengine.SyncServer
-import me.dvyy.syncengine.client.mutators.MutatorQueue
+import me.dvyy.syncengine.client.mutators.ActionQueue
 import me.dvyy.syncengine.client.sync.SyncClient
-import me.dvyy.syncengine.mockService
+import me.dvyy.syncengine.reducers.reducers
+import me.dvyy.syncengine.server.schema.ServerActionProcessor
+import me.dvyy.syncengine.server.schema.SyncServer
+import me.dvyy.syncengine.server.schema.mockService
 import me.dvyy.tasks.model.database.AppDAO
 import me.dvyy.tasks.model.database.AppSchema
-import me.dvyy.tasks.model.database.mutators.JsonCreateMutator
-import me.dvyy.tasks.model.database.mutators.Mutator
+import me.dvyy.tasks.model.database.actions.JsonCreateAction
+import me.dvyy.tasks.model.database.reducers.jsonReducers
 import kotlin.test.Test
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -24,20 +25,20 @@ class DbConnectionTest : DbTest() {
 
     @Test
     fun testDbConnection() = runTest {
+        val reducers = reducers {
+            jsonReducers(AppDAO(serverDatabase))
+        }
         // Server
         val server = SyncServer(
-            serverDatabase, AppSchema, MutatorApplier(
-                AppDAO(serverDatabase),
-                Mutator.serializer()
-            )
+            serverDatabase, AppSchema, ServerActionProcessor(reducers)
         )
         val mockSyncService = server.mockService(user = 0)
 
         // Client
-        val clientMutatorQueue = MutatorQueue(clientDatabase, AppDAO(clientDatabase), Mutator.serializer())
+        val clientActionQueue = ActionQueue(clientDatabase, reducers)
         val client = SyncClient(
             db = clientDatabase,
-            mutators = clientMutatorQueue,
+            mutators = clientActionQueue,
             schema = AppSchema,
             syncService = mockSyncService
         )
@@ -47,7 +48,7 @@ class DbConnectionTest : DbTest() {
 
         val json = Json.decodeFromString<JsonElement>("""{ "text":  "hello world" }""")
 
-        clientMutatorQueue(JsonCreateMutator(id = Uuid.random(), data = json))
+        clientActionQueue(JsonCreateAction(id = Uuid.random(), data = json))
         client.sync()
     }
 }

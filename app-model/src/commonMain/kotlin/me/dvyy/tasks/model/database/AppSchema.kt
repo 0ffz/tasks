@@ -1,6 +1,5 @@
 package me.dvyy.tasks.model.database
 
-import me.dvyy.sqlite.tables.View
 import me.dvyy.syncengine.schema.jsonTable
 import me.dvyy.syncengine.schema.schema
 import me.dvyy.syncengine.schema.view
@@ -14,15 +13,7 @@ val TasksView = view("tasks", NotesTable) {
     text("rank")
 }
 
-val MutatorsDebugView = View(
-    "mutators_json",
-    """
-        SELECT json(data), length(data) FROM mutators
-    """.trimIndent(),
-    setOf()
-)
-
 val AppSchema = schema(
     shared = setOf(NotesTable),
-    views = setOf(TasksView, MutatorsDebugView),
+    views = setOf(TasksView),
 )

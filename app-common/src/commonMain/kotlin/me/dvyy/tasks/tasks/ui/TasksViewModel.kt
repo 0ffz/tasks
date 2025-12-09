@@ -13,7 +13,7 @@ import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.NotesTable
-import me.dvyy.tasks.model.database.mutators.MoveTaskMutator
+import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
 import kotlin.uuid.Uuid
 
@@ -28,11 +28,11 @@ class TasksViewModel(
     val selectedTask = MutableStateFlow<TaskWithList?>(null)
 //    val projects = MutableStateFlow<>()
 
-    fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = db.query.db.watch(NotesTable) {
+    fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = db.query.db.watch(NotesTable.name) {
         db.query.rank.childrenOf(list)
     }
 
-    fun watchTask(id: Uuid) = db.query.db.watch(NotesTable) {
+    fun watchTask(id: Uuid) = db.query.db.watch(NotesTable.name) {
         db.query.tasks.get(id)
     }
 
@@ -76,7 +76,7 @@ class TasksViewModel(
     fun reorderInteractions() = TaskReorderInteractions(
         onDragEnterColumn = { list, dragged ->
             viewModelScope.launch {
-                db.mutate(MoveTaskMutator(dragged, list))
+                db.mutate(MoveTaskAction(dragged, list))
             }
         }
     )

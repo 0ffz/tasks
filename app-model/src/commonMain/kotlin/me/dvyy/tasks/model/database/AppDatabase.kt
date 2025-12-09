@@ -1,12 +1,12 @@
 package me.dvyy.tasks.model.database
 
-import me.dvyy.tasks.model.database.mutators.Mutator
+import me.dvyy.syncengine.actions.Action
 
 class AppDatabase(
     val query: AppDAO,
-    val mutate: AppMutators,
+    val mutate: AppActions,
 ) {
-    suspend fun mutate(mutator: Mutator) {
-        mutate.mutators.invoke(mutator)
+    suspend fun mutate(mutator: Action) {
+        mutate.actions.invoke(mutator)
     }
 }

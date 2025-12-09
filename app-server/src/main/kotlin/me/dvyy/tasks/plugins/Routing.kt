@@ -6,7 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import me.dvyy.syncengine.SyncServer
+import me.dvyy.syncengine.server.schema.SyncServer
 import me.dvyy.syncengine.sync.SyncRequest
 import me.dvyy.syncengine.sync.SyncResult
 import me.dvyy.tasks.config.JWTConfig

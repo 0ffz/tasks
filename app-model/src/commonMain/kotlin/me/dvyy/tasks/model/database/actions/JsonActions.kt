@@ -1,30 +1,26 @@
-package me.dvyy.tasks.model.database.helpers
+package me.dvyy.tasks.model.database.actions
 
 import me.dvyy.sqlite.Database
-import me.dvyy.syncengine.schema.Mutators
+import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.schema.minus
 import me.dvyy.tasks.model.database.dao.JsonDataDAO
-import me.dvyy.tasks.model.database.mutators.DeleteRowMutator
-import me.dvyy.tasks.model.database.mutators.JsonCreateMutator
-import me.dvyy.tasks.model.database.mutators.JsonPatchMutator
-import me.dvyy.tasks.model.database.mutators.Mutator
 import kotlin.uuid.Uuid
 
-class JsonMutators<T>(
+class JsonActions<T>(
     val db: Database,
     val dao: JsonDataDAO<T>,
-    val mutators: Mutators<Mutator>,
+    val actions: Actions,
 ) {
-    suspend fun create(element: T) = mutators.invoke(
-        JsonCreateMutator(
+    suspend fun create(element: T) = actions.invoke(
+        JsonCreateAction(
 //            dao.table.name,
             Uuid.random(),
             dao.json.encodeToJsonElement(dao.serializer, element)
         )
     )
 
-    suspend fun delete(uuid: Uuid) = mutators.invoke(
-        DeleteRowMutator(
+    suspend fun delete(uuid: Uuid) = actions.invoke(
+        DeleteRowAction(
 //            dao.table.name,
             uuid
         )
@@ -34,8 +30,8 @@ class JsonMutators<T>(
         val existing = db.read { dao.getJsonElement(uuid) }
         val new = dao.json.encodeToJsonElement(dao.serializer, element)
         val patch = new - existing
-        mutators.invoke(
-            JsonPatchMutator(
+        actions.invoke(
+            JsonPatchAction(
 //                table = dao.table.name,
                 id = uuid,
                 patch = patch
