@@ -27,7 +27,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(project(":app-model"))
-                implementation(project(":app-common"))
+                implementation(project(":app-client"))
                 implementation(project(":app-server"))
                 implementation("me.dvyy.syncengine:client")
                 implementation("me.dvyy.syncengine:server")

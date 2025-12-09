@@ -29,7 +29,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":app-common"))
+                implementation(project(":app-client"))
                 implementation(libs.koin.core)
                 api(compose.runtime)
                 api(compose.foundation)

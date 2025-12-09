@@ -7,7 +7,7 @@ on:
       - develop
     paths-ignore:
       - '**.md'
-      - 'app-common/**'
+      - 'app-client/**'
       - 'app-android/**'
       - 'app-desktop/**'
       - 'app-web/**'
