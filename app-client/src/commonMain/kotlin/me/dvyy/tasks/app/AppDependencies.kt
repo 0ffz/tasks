@@ -1,5 +1,6 @@
 package me.dvyy.tasks.app
 
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import me.dvyy.syncengine.actions.Actions
@@ -23,14 +24,17 @@ import me.dvyy.tasks.model.database.commonSyncModule
 import me.dvyy.tasks.sync.data.KtorSyncService
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.*
+import org.koin.dsl.bind
+import org.koin.dsl.binds
+import org.koin.dsl.koinApplication
+import org.koin.dsl.module
 
-fun createAppKoinApplication(extras: KoinAppDeclaration = {}) = koinApplication {
-    extras()
-    modules(appModule())
+fun createAppKoinApplication(overrides: Module = module {}) = koinApplication {
+    modules(appModule(), overrides)
 }.also {
     runBlocking {
         //TODO loading screen
@@ -48,6 +52,7 @@ fun appModule() = module(createdAtStart = true) {
 }
 
 fun coreModule() = module {
+    single { Logger }
     singleOf(::AppState)
     single { Dispatchers.Default }
     single { AppFactories.createDatabase() }

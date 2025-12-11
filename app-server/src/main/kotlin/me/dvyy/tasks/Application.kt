@@ -1,5 +1,6 @@
 package me.dvyy.tasks
 
+import co.touchlab.kermit.Logger
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import me.dvyy.sqlite.Database
@@ -21,13 +22,13 @@ fun main(args: Array<String>) {
 fun Application.module() {
     val database = Database(environment.config.property("database.path").getString())
     val schema = AppSchema
-    val appQueries = AppQueries(database)
+    val appQueries = AppQueries()
     val reducers = reducers {
         jsonReducers(appQueries)
     }
     val userRepository = UserRepository(database, ServerDatabase())
-    val applier = ServerActionProcessor(reducers)
-    val syncServer = SyncServer(database, schema, applier)
+    val applier = ServerActionProcessor(Logger, reducers)
+    val syncServer = SyncServer(Logger, database, schema, applier)
     runBlocking {
         userRepository.initialize()
         syncServer.initialize()

@@ -1,8 +1,0 @@
-upsert:
-INSERT INTO taskList VALUES ? ON CONFLICT(uuid, userId) DO UPDATE
-SET isProject = excluded.isProject,
-    title = excluded.title,
-    rank = excluded.rank;
-
-delete:
-DELETE FROM taskList WHERE userId = ? AND uuid = ?;

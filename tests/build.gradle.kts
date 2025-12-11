@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -26,6 +28,9 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
+                implementation(libs.kermit)
+                implementation(compose.desktop.currentOs)
+                implementation(libs.koin.test)
                 implementation(project(":app-model"))
                 implementation(project(":app-client"))
                 implementation(project(":app-server"))

@@ -36,6 +36,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.koin.core)
                 api("me.dvyy.syncengine:core")
+                api("me.dvyy.syncengine:json-actions")
             }
         }
     }

@@ -18,11 +18,13 @@ import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.module.Module
 import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApplicationScope.AppDesktop() = KoinIsolatedContext(createAppKoinApplication()) {
+fun ApplicationScope.AppDesktop(overrides: Module = module { }) =
+    KoinIsolatedContext(createAppKoinApplication(overrides)) {
     val windowState = rememberWindowState(width = 1200.dp, height = 960.dp)
     val icon = painterResource(Res.drawable.icon)
     var resizable by remember { mutableStateOf(true) }

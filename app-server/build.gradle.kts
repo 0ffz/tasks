@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.cbor)
 
+    implementation(libs.kermit)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.server.cors)

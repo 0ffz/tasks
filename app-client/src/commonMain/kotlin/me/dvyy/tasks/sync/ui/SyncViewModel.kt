@@ -3,7 +3,10 @@ package me.dvyy.tasks.sync.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dvyy.syncengine.client.sync.SyncClient
 import java.net.ConnectException
@@ -26,10 +29,14 @@ class SyncViewModel(
             }
 
             trySync()
-            syncClient.changesMade.debounce(3.seconds).collectLatest {
-                println("Changes made")
+            while (true) {
                 trySync()
+                delay(1.seconds)
             }
+//            syncClient.changesMade.debounce(3.seconds).collectLatest {
+//                println("Changes made")
+//                trySync()
+//            }
         }
     }
 

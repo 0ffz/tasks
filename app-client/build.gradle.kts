@@ -65,6 +65,7 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.kotlin.result)
+                implementation(libs.kermit)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
                 implementation("me.dvyy.syncengine:core")

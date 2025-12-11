@@ -2,8 +2,8 @@ package me.dvyy.tasks.model.database
 
 import me.dvyy.sqlite.Database
 import me.dvyy.syncengine.actions.Actions
-import me.dvyy.tasks.model.database.actions.JsonActions
-import me.dvyy.tasks.model.database.dao.JsonDataQueries
+import me.dvyy.syncengine.jsonactions.JsonActions
+import me.dvyy.syncengine.jsonactions.JsonDataQueries
 
 class AppActions(
     private val db: Database,

@@ -1,12 +1,12 @@
 package me.dvyy.tasks.model.database
 
+import me.dvyy.syncengine.jsonactions.reducers.jsonReducers
 import me.dvyy.syncengine.reducers.Reducers
 import me.dvyy.syncengine.reducers.reducers
 import me.dvyy.syncengine.schema.Schema
 import me.dvyy.syncengine.schema.jsonTable
 import me.dvyy.syncengine.schema.schema
 import me.dvyy.syncengine.schema.view
-import me.dvyy.tasks.model.database.reducers.jsonReducers
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -29,7 +29,8 @@ fun commonSyncModule() = module {
     single<Schema> { AppSchema }
     single<Reducers> {
         reducers {
-            jsonReducers(get())
+            val queries = get<AppQueries>()
+            jsonReducers(listOf(queries.tasks))
         }
     }
 }

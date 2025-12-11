@@ -1,6 +1,0 @@
-selectIdByName:
-SELECT id FROM userEntity WHERE username = ?;
-
-insertUser:
-INSERT INTO userEntity(username) VALUES (?)
-RETURNING id;

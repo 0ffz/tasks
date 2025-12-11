@@ -11,7 +11,8 @@ class SubtaskRelationQueries(
     val tasks: JsonDataQueries<Task>,
 ) {
     context(tx: Transaction)
-    fun childrenOf(uuid: Uuid): List<Uuid> = tx.getList("SELECT id FROM tasks WHERE parent = ?", uuid.toString()) {
+    fun childrenOf(uuid: Uuid): List<Uuid> =
+        tx.getList("SELECT id FROM tasks WHERE parent = ? ORDER BY id", uuid.toString()) {
         Uuid.fromByteArray(getBlob(0))
     }
 

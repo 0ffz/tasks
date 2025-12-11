@@ -8,14 +8,11 @@ import kotlin.uuid.Uuid
 @Serializable
 sealed interface EntityId {
     val uuid: Uuid
-    val type: EntityType
 }
 
 @Serializable
 @JvmInline
 value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
-    override val type: EntityType get() = EntityType.TASK
-
     companion object {
         fun new(): TaskId = TaskId(Uuid.random())
     }
@@ -24,7 +21,6 @@ value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
 @Serializable
 @JvmInline
 value class ListId(override val uuid: @Contextual Uuid) : EntityId {
-    override val type: EntityType get() = EntityType.LIST
 
     val isDate: Boolean get() = uuid.toLongs { top, _ -> top == TOP_BITS }
     val date: LocalDate?
