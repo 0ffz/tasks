@@ -1,12 +1,17 @@
 package me.dvyy.tasks.model.database
 
+import me.dvyy.syncengine.jsonactions.actions.DeleteRowAction
+import me.dvyy.syncengine.jsonactions.actions.JsonCreateAction
+import me.dvyy.syncengine.jsonactions.actions.JsonPatchAction
 import me.dvyy.syncengine.jsonactions.reducers.jsonReducers
 import me.dvyy.syncengine.reducers.Reducers
 import me.dvyy.syncengine.reducers.reducers
+import me.dvyy.syncengine.reducers.syncProtocol
 import me.dvyy.syncengine.schema.Schema
 import me.dvyy.syncengine.schema.jsonTable
 import me.dvyy.syncengine.schema.schema
 import me.dvyy.syncengine.schema.view
+import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import me.dvyy.tasks.model.database.reducers.taskReducers
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -23,6 +28,15 @@ val TasksView = view("tasks", NotesTable) {
 val AppSchema = schema(
     shared = setOf(NotesTable),
     views = setOf(TasksView),
+    protocol = syncProtocol {
+        // Json actions
+        action<DeleteRowAction>(1)
+        action<JsonPatchAction>(2)
+        action<JsonCreateAction>(3)
+
+        // Task interactions
+        action<MoveTaskAction>(100)
+    }
 )
 
 fun commonSyncModule() = module {
@@ -31,7 +45,7 @@ fun commonSyncModule() = module {
     single<Reducers> {
         reducers {
             val queries = get<AppQueries>()
-            jsonReducers(0, listOf(queries.tasks))
+            jsonReducers(listOf(queries.tasks))
             taskReducers(queries)
         }
     }

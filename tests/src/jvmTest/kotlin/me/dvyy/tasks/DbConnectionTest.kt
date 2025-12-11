@@ -7,12 +7,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import me.dvyy.sqlite.Database
-import me.dvyy.syncengine.client.mutators.ActionQueue
 import me.dvyy.syncengine.client.sync.SyncClient
 import me.dvyy.syncengine.jsonactions.actions.JsonCreateAction
 import me.dvyy.syncengine.jsonactions.actions.JsonPatchAction
 import me.dvyy.syncengine.reducers.Reducers
-import me.dvyy.syncengine.server.schema.ServerActionProcessor
 import me.dvyy.syncengine.server.schema.SyncServer
 import me.dvyy.syncengine.server.schema.mockService
 import me.dvyy.syncengine.sync.SyncService
@@ -43,19 +41,16 @@ class DbConnectionTest : DbTest() {
     @Test
     fun testDbConnection() = runTest {
         // Server
-        val server = SyncServer(
-            Logger, serverDatabase, AppSchema, ServerActionProcessor(Logger, reducers)
-        )
+        val server = SyncServer.of(serverDatabase, reducers, AppSchema)
         val mockSyncService = server.mockService(user = 0)
 
         // Client
-        val clientActionQueue = ActionQueue(Logger, clientDatabase, reducers)
-        val client = SyncClient(
+        val client = SyncClient.of(
             logger = Logger,
             db = clientDatabase,
-            actionQueue = clientActionQueue,
             schema = AppSchema,
-            syncService = mockSyncService
+            reducers = reducers,
+            syncService = mockSyncService,
         )
 
         client.initialize()
@@ -68,9 +63,9 @@ class DbConnectionTest : DbTest() {
 
         val id = Uuid.random()
         val id2 = Uuid.random()
-        clientActionQueue(JsonCreateAction(table = "notes", id = id, data = json))
-        clientActionQueue(JsonCreateAction(table = "notes", id = id2, data = json))
-        clientActionQueue(JsonPatchAction(table = "notes", id = id, patch = json2))
+        client(JsonCreateAction(table = "notes", id = id, data = json))
+        client(JsonCreateAction(table = "notes", id = id2, data = json))
+        client(JsonPatchAction(table = "notes", id = id, patch = json2))
         client.sync()
         val serverTask = serverDatabase.read {
             val queries = AppQueries().tasks
@@ -89,10 +84,7 @@ class DbConnectionTest : DbTest() {
     @Test
     fun rollbackTest() = runTest {
         val serverLogger = loggerNamed("Server")
-        val server = SyncServer(
-            serverLogger,
-            serverDatabase, AppSchema, ServerActionProcessor(serverLogger, reducers)
-        )
+        val server = SyncServer.of(serverDatabase, reducers, AppSchema, serverLogger)
         server.initialize()
         val application = createAppKoinApplication(module {
             single<Database> { Database.temporary() }
@@ -107,10 +99,7 @@ class DbConnectionTest : DbTest() {
     @Test
     fun applicationTest() = runTest {
         val serverLogger = loggerNamed("Server")
-        val server = SyncServer(
-            serverLogger,
-            serverDatabase, AppSchema, ServerActionProcessor(serverLogger, reducers)
-        )
+        val server = SyncServer.of(serverDatabase, reducers, AppSchema, serverLogger)
         server.initialize()
         application {
             AppDesktop(overrides = module {
