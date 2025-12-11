@@ -7,6 +7,7 @@ import me.dvyy.syncengine.schema.Schema
 import me.dvyy.syncengine.schema.jsonTable
 import me.dvyy.syncengine.schema.schema
 import me.dvyy.syncengine.schema.view
+import me.dvyy.tasks.model.database.reducers.taskReducers
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -30,7 +31,8 @@ fun commonSyncModule() = module {
     single<Reducers> {
         reducers {
             val queries = get<AppQueries>()
-            jsonReducers(listOf(queries.tasks))
+            jsonReducers(0, listOf(queries.tasks))
+            taskReducers(queries)
         }
     }
 }

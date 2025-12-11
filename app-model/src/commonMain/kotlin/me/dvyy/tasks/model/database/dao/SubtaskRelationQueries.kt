@@ -3,6 +3,7 @@ package me.dvyy.tasks.model.database.dao
 import me.dvyy.sqlite.Transaction
 import me.dvyy.sqlite.WriteTransaction
 import me.dvyy.sqlite.statement.getUuid
+import me.dvyy.syncengine.jsonactions.JsonDataQueries
 import me.dvyy.tasks.model.components.Task
 import kotlin.uuid.Uuid
 

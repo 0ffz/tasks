@@ -11,7 +11,7 @@ import me.dvyy.syncengine.client.mutators.ActionQueue
 import me.dvyy.syncengine.client.sync.SyncClient
 import me.dvyy.syncengine.jsonactions.actions.JsonCreateAction
 import me.dvyy.syncengine.jsonactions.actions.JsonPatchAction
-import me.dvyy.syncengine.reducers.reducers
+import me.dvyy.syncengine.reducers.Reducers
 import me.dvyy.syncengine.server.schema.ServerActionProcessor
 import me.dvyy.syncengine.server.schema.SyncServer
 import me.dvyy.syncengine.server.schema.mockService
@@ -23,7 +23,8 @@ import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.AppSchema
-import me.dvyy.tasks.model.database.reducers.jsonReducers
+import me.dvyy.tasks.model.database.commonSyncModule
+import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
@@ -34,9 +35,10 @@ import kotlin.uuid.Uuid
 class DbConnectionTest : DbTest() {
     val clientDatabase = Database.temporary()
     val serverDatabase = Database.temporary()
-    val reducers = reducers {
-        jsonReducers(AppQueries())
-    }
+    val koin = koinApplication {
+        modules(commonSyncModule())
+    }.koin
+    val reducers = koin.get<Reducers>()
 
     @Test
     fun testDbConnection() = runTest {
@@ -66,9 +68,9 @@ class DbConnectionTest : DbTest() {
 
         val id = Uuid.random()
         val id2 = Uuid.random()
-        clientActionQueue(JsonCreateAction(id = id, data = json))
-        clientActionQueue(JsonCreateAction(id = id2, data = json))
-        clientActionQueue(JsonPatchAction(id = id, patch = json2))
+        clientActionQueue(JsonCreateAction(table = "notes", id = id, data = json))
+        clientActionQueue(JsonCreateAction(table = "notes", id = id2, data = json))
+        clientActionQueue(JsonPatchAction(table = "notes", id = id, patch = json2))
         client.sync()
         val serverTask = serverDatabase.read {
             val queries = AppQueries().tasks

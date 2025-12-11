@@ -5,7 +5,7 @@ import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 
 fun MutableReducers.taskReducers(db: AppQueries) {
-    reduce<MoveTaskAction> {
+    reduce<MoveTaskAction>(3) {
         db.rank.moveTaskToList(it.task.uuid, it.toList.uuid)
     }
 }
