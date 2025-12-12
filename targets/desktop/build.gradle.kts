@@ -20,7 +20,7 @@ dependencies {
     implementation(project(":app-client"))
     implementation(project(":app-model"))
     implementation(compose.desktop.currentOs)
-    compileOnly(libs.graalvm.library.support)
+    implementation(libs.graalvm.library.support)
 
 }
 

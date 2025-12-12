@@ -14,6 +14,7 @@ class KtorSyncService(
     private val http: AppHTTP,
 ) : SyncService {
     override suspend fun sync(uuid: Uuid, initialRequest: SyncRequest, request: Flow<SyncRequest>): Flow<SyncResult> =
+        if (http.config == null) emptyFlow() else
         flow {
             println(http.config)
             http.client.webSocket("/sync") {

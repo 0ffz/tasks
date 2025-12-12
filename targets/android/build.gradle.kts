@@ -6,6 +6,9 @@ plugins {
 }
 
 
+kotlin {
+    jvmToolchain(17)
+}
 dependencies {
     implementation(project(":app-client"))
 //    implementation(libs.compose.ui.tooling.preview)

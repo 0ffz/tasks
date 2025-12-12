@@ -1,6 +1,7 @@
 plugins {
+    application
     alias(libs.plugins.kotlinJvm)
-    alias(libs.plugins.ktor)
+//    alias(libs.plugins.ktor)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.jib)
     id("me.dvyy.sqlite.codegen")

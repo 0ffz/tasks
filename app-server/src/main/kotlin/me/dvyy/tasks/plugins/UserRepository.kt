@@ -13,6 +13,7 @@ class UserRepository(
     }
 
     suspend fun getOrCreateUserId(name: String): Identity = db.write {
-        dao.users.getOrCreateUserId(name)
+        dao.users.insertUser(name)
+        dao.users.getUserId(name).first { getLong(it.id) }
     }
 }

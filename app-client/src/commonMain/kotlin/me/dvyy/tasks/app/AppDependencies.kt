@@ -24,6 +24,7 @@ import me.dvyy.tasks.model.database.commonSyncModule
 import me.dvyy.tasks.sync.data.KtorSyncService
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import org.koin.core.KoinApplication
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
@@ -33,7 +34,9 @@ import org.koin.dsl.binds
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
-fun createAppKoinApplication(overrides: Module = module {}) = koinApplication {
+fun createAppKoinApplication(configure: KoinApplication.() -> Unit = {}, overrides: Module = module {}) =
+    koinApplication {
+        configure()
     modules(appModule(), overrides)
 }.also {
     runBlocking {
@@ -55,7 +58,7 @@ fun coreModule() = module {
     single<Logger> { Logger }
     singleOf(::AppState)
     single { Dispatchers.Default }
-    single { AppFactories.createDatabase() }
+    single { AppFactories.createDatabase(this) }
     single { AppFactories.createAppSettings() }
     singleOf(::LocalPreferencesRepository)
 }
