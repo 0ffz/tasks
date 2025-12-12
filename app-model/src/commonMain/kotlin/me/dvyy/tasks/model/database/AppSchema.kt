@@ -11,6 +11,7 @@ import me.dvyy.syncengine.schema.Schema
 import me.dvyy.syncengine.schema.jsonTable
 import me.dvyy.syncengine.schema.schema
 import me.dvyy.syncengine.schema.view
+import me.dvyy.tasks.model.database.actions.CreateTaskAction
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import me.dvyy.tasks.model.database.reducers.taskReducers
 import org.koin.core.module.dsl.singleOf
@@ -36,6 +37,7 @@ val AppSchema = schema(
 
         // Task interactions
         action<MoveTaskAction>(100)
+        action<CreateTaskAction>(101)
     }
 )
 

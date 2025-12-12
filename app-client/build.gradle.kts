@@ -71,6 +71,7 @@ kotlin {
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
                 implementation("me.dvyy.syncengine:core")
                 implementation("me.dvyy.syncengine:client")
+                implementation("me.dvyy.syncengine:json-actions")
                 implementation("me.dvyy:sqlite-kt:0.0.2-alpha.6")
             }
         }

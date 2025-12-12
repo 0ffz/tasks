@@ -17,6 +17,7 @@ fun <T> CachedUpdate(
 ) {
     // this will run whenever a new value comes in from the outside (e.g. from DB)
     val cached = remember(key) { mutableStateOf(value) }
+    val toPush = remember { mutableStateOf<T?>(null) }
     var awaitingPush by remember { mutableStateOf(false) }
 //    if (!awaitingPush) cached.value = value
     //TODO onValueChanged isn't considered immutable for some lambdas so this will fire repeatedly,
@@ -24,14 +25,14 @@ fun <T> CachedUpdate(
     // Specifically had issues with onPropertiesChanged
     LaunchedEffect(key, debounceMillis) {
         awaitingPush = false
-        snapshotFlow { cached.value }
+        snapshotFlow { toPush.value }
             .drop(1)
             .onEach {
                 awaitingPush = true
             }
             .debounce(debounceMillis)
             .collectLatest {
-                onValueChanged(it)
+                if (it != null) onValueChanged(it)
                 awaitingPush = false
             }
     }
@@ -42,5 +43,6 @@ fun <T> CachedUpdate(
 
     content(cached.value) {
         cached.value = it
+        toPush.value = it
     }
 }

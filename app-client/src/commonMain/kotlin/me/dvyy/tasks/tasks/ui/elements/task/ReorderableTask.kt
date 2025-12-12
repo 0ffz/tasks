@@ -10,9 +10,11 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.geometry.Offset
 import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
+import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.tasks.ui.TaskReorderInteractions
 import kotlin.uuid.Uuid
 
@@ -36,10 +38,12 @@ inline fun ReorderableTask(
                     }
 
                     override fun onEntered(event: DragAndDropEvent) {
-                        println("Entered task $event")
-                        //TODO dragging
-//                        val draggedKey = event.dataOrNull<TaskId>()
-//                        if (key != draggedKey) reorderInteractions.onDragEnterItem(key, draggedKey ?: return)
+                        val draggedKey = event.dataOrNull<TaskId>()
+                        println("Entered task $event with data $draggedKey")
+                        if (key.asTask() != draggedKey) reorderInteractions.onDragEnterItem(
+                            key.asTask(),
+                            draggedKey ?: return
+                        )
                     }
                 }
             }

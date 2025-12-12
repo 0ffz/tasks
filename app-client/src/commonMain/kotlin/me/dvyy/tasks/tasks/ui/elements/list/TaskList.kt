@@ -96,7 +96,7 @@ fun TaskList(
                 tasks.forEachIndexed { index, taskId ->
                     key(taskId) {
                         val selected = selectedTask?.task == taskId
-                        val focusRequested = false //TODO selected && selectedTask?.requestFocus == true
+                        val focusRequested = selected// && selectedTask?.requestFocus == true
                         val taskState = viewModel.watchTask(taskId).collectAsState(null).value ?: return
 //                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
                         // cached task is the SSOT in this context, some things like text updates take too long to update in db
@@ -128,7 +128,7 @@ fun TaskList(
                                 ReorderableTask(key = taskId, reorderInteractions = reorderInteractions) {
                                     Task(
                                         TaskUiState.fromModel(cachedTask),
-                                        { setTask(Task(it.text, it.completed, listId.uuid)) },
+                                        { setTask(Task(text = it.text, done = it.completed, parent = listId.uuid)) },
                                         selected,
                                         taskInteractions,
                                         focusRequested = focusRequested,

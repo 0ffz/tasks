@@ -5,6 +5,7 @@ import me.dvyy.sqlite.WriteTransaction
 import me.dvyy.sqlite.statement.getUuid
 import me.dvyy.syncengine.jsonactions.JsonDataQueries
 import me.dvyy.tasks.model.components.Task
+import me.dvyy.tasks.model.rank.RankFunctions
 import kotlin.uuid.Uuid
 
 //TODO filter owner when using get
@@ -13,21 +14,43 @@ class SubtaskRelationQueries(
 ) {
     context(tx: Transaction)
     fun childrenOf(uuid: Uuid): List<Uuid> =
-        tx.getList("SELECT id FROM tasks WHERE parent = ? ORDER BY id", uuid.toString()) {
-        Uuid.fromByteArray(getBlob(0))
-    }
+        tx.getList("SELECT id FROM tasks WHERE parent = ? ORDER BY rank, id", uuid.toString()) {
+            Uuid.fromByteArray(getBlob(0))
+        }
 
     context(tx: WriteTransaction)
     fun moveTaskToList(uuid: Uuid, list: Uuid) {
         tasks.jsonSet(uuid, "$.parent", "'${list.toHexDashString()}'")
     }
 
-    context(tx: Transaction)
-    fun getRankFor(task: Uuid): String? =
-        tx.getOrNull("SELECT id FROM tasks WHERE parent = ?", task) { getText(0) }
+    data class TaskRank(val parent: Uuid, val rank: String)
 
-    //    context(tx: WriteTransaction)
-//    fun moveAfter(parent: Uuid, child: Uuid, other: Uuid) {
+    context(tx: Transaction)
+    fun getRankFor(task: Uuid): TaskRank? = tx
+        .select("SELECT parent, rank FROM tasks WHERE id = ? AND rank IS NOT NULL", task)
+        .firstOrNull { TaskRank(Uuid.parseHexDash(getText(0)), getText(1)) }
+
+    context(tx: Transaction)
+    fun getLastRankInList(list: Uuid): String? = tx
+        .select("SELECT rank FROM tasks WHERE parent = ? ORDER BY rank DESC LIMIT 1", list.toHexDashString())
+        .firstOrNull { getText(0) }
+
+    context(tx: WriteTransaction)
+    fun moveToTask(task: Uuid, target: Uuid) {
+        val taskRank = getRankFor(task) ?: return
+        val targetRank = getRankFor(target) ?: return
+        if (taskRank.parent != targetRank.parent) {
+            moveTaskToList(task, targetRank.parent)
+        }
+        val nextRank = if (taskRank.rank > targetRank.rank) {
+            getBefore(target)?.let { getRankFor(it)?.rank } ?: RankFunctions.FIRST_CHAR.toString()
+        } else {
+            getAfter(target)?.let { getRankFor(it)?.rank } ?: RankFunctions.LAST_CHAR.toString()
+        }
+        println(targetRank.rank + " " + nextRank)
+        val middle = RankFunctions.getLexicographicMiddle(targetRank.rank, nextRank)
+        setRank(task, middle)
+        println("Moved $task to $middle")
 //        //TODO better binds
 //        val rank = tx.getOrNull(
 //            "SELECT rank FROM subtask WHERE parent = ? and child = ?",
@@ -44,19 +67,31 @@ class SubtaskRelationQueries(
 //        ) {
 //
 //        }
-//    }
-//
+    }
+
+    //
     context(tx: Transaction)
     fun getAfter(id: Uuid): Uuid? {
-        val rank = getRankFor(id) ?: return null
-        return tx.getOrNull("SELECT id FROM tasks WHERE rank > ? LIMIT 1 ORDER BY rank", rank) { getUuid(0) }
+        val (list, rank) = getRankFor(id) ?: return null
+        return tx.getOrNull(
+            "SELECT id FROM tasks WHERE rank > ? AND parent = ? ORDER BY rank LIMIT 1",
+            rank,
+            list.toHexDashString()
+        ) { getUuid(0) }
     }
 
     context(tx: Transaction)
     fun getBefore(id: Uuid): Uuid? {
-        val rank = getRankFor(id) ?: return null
-        return tx.getOrNull("SELECT id FROM tasks WHERE rank < ? LIMIT 1 ORDER BY rank DESC", rank) { getUuid(0) }
+        val (list, rank) = getRankFor(id) ?: return null
+        return tx.getOrNull(
+            "SELECT id FROM tasks WHERE rank < ? AND parent = ? ORDER BY rank DESC LIMIT 1",
+            rank,
+            list.toHexDashString()
+        ) { getUuid(0) }
     }
+
+    context(tx: WriteTransaction)
+    fun setRank(uuid: Uuid, rank: String) = tasks.jsonSet(uuid, "$.rank", "'$rank'")
 
     /**
      * Moves [taskId] to [destId]'s list and places it before or after [destId] depending on the rank.

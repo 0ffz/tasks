@@ -1,6 +1,7 @@
 package me.dvyy.tasks.tasks.ui
 
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
@@ -35,12 +36,14 @@ class TasksViewModel(
         tasks.get(id)
     }
 
-    fun mutateTask(id: Uuid, new: Task) = viewModelScope.launch {
-        db.mutate.tasks.patch(id, new)
+    fun mutateTask(id: Uuid, new: Task) {
+        viewModelScope.launch {
+            db.mutate.tasks.update(id, new)
 //        val task = Database.read {
 //            db.tasks.get(id)
 //        }
 //        db.mutate(JsonPatchMutator(NotesTable.name, id, jsonSubtract(Task.serializer(), new, task)))
+        }
     }
 //
 //    fun deleteTask(id: Uuid) = viewModelScope.launch {
@@ -68,11 +71,28 @@ class TasksViewModel(
             }
         }
 
+        override fun onKeyEvent(event: KeyEvent): Boolean {
+            if (event.type == KeyEventType.KeyUp) return false
+            return when {
+                event.key == Key.Enter -> {
+                    selectNextTask()
+                    true
+                }
+
+                else -> false
+            }
+        }
+
         override fun onSelect() = selectedTask.update { TaskWithList(list, task) }
     }
 
     @Stable
     fun reorderInteractions() = TaskReorderInteractions(
+        onDragEnterItem = { target, dragged ->
+            viewModelScope.launch {
+                db.mutate(MoveTaskAction(dragged, toList = null, toTask = target))
+            }
+        },
         onDragEnterColumn = { list, dragged ->
             viewModelScope.launch {
                 db.mutate(MoveTaskAction(dragged, list))
