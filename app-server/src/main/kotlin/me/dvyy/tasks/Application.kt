@@ -10,7 +10,7 @@ import me.dvyy.tasks.config.JWTConfig
 import me.dvyy.tasks.config.LDAPConfig
 import me.dvyy.tasks.model.database.commonSyncModule
 import me.dvyy.tasks.plugins.*
-import me.dvyy.tasks.server.database.ServerDatabase
+import me.dvyy.tasks.server.database.ServerQueries
 import org.koin.dsl.koinApplication
 
 fun main(args: Array<String>) {
@@ -24,7 +24,7 @@ fun Application.module() {
     }.koin
     val reducers = koin.get<Reducers>()
     val schema = koin.get<Schema>()
-    val userRepository = UserRepository(database, ServerDatabase())
+    val userRepository = UserRepository(database, ServerQueries())
     val syncServer = SyncServer.of(database, reducers, schema)
     runBlocking {
         userRepository.initialize()

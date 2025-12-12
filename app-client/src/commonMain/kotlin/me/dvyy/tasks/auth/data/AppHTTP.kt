@@ -5,11 +5,16 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.websocket.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.protobuf.ProtoBuf
 import me.dvyy.tasks.model.serializers.AppFormats
 import me.dvyy.tasks.sync.data.SyncConfig
+import java.util.zip.Deflater
 
 class AppHTTP(
     private val ioDispatcher: CoroutineDispatcher,
@@ -22,6 +27,15 @@ class AppHTTP(
                 ignoreUnknownKeys = true
                 serializersModule = AppFormats.networkModule
             })
+        }
+        install(WebSockets) {
+            contentConverter = KotlinxWebsocketSerializationConverter(ProtoBuf)
+            extensions {
+                install(WebSocketDeflateExtension) {
+                    compressionLevel = Deflater.DEFAULT_COMPRESSION
+                    compressIfBiggerThan(bytes = 4 * 1024)
+                }
+            }
         }
     }
 

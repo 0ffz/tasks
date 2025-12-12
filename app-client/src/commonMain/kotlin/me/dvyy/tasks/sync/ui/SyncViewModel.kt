@@ -3,22 +3,36 @@ package me.dvyy.tasks.sync.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dvyy.syncengine.client.sync.SyncClient
 import java.net.ConnectException
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
 class SyncViewModel(
     private val syncClient: SyncClient,
 ) : ViewModel() {
-    val syncState: StateFlow<SyncState> get() = _syncState
     private val _syncState = MutableStateFlow<SyncState>(SyncState.UnSynced)
+    val syncState = _syncState.asStateFlow()
 
+    private var runningSyncJob: Job? = null
+    fun startSyncJob() {
+        if (runningSyncJob == null) {
+            runningSyncJob = viewModelScope.launch {
+                syncClient.establishSync()
+            }
+            _syncState.update { SyncState.Connected }
+        }
+    }
+
+    fun stopSyncJob() {
+        runningSyncJob?.cancel()
+        runningSyncJob = null
+        _syncState.update { SyncState.Disconnected }
+    }
     init {
         viewModelScope.launch {
             fun trySync() = runCatching {
@@ -27,17 +41,8 @@ class SyncViewModel(
                 if (it is ConnectException) println(it.message)
                 else it.printStackTrace()
             }
-
-            trySync()
-            while (true) {
-                trySync()
-                delay(1.seconds)
-            }
-//            syncClient.changesMade.debounce(3.seconds).collectLatest {
-//                println("Changes made")
-//                trySync()
-//            }
         }
+        startSyncJob()
     }
 
     private inline fun queueSync(crossinline run: suspend () -> Unit) = viewModelScope.launch {

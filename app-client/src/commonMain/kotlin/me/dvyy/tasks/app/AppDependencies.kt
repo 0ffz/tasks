@@ -52,7 +52,7 @@ fun appModule() = module(createdAtStart = true) {
 }
 
 fun coreModule() = module {
-    single { Logger }
+    single<Logger> { Logger }
     singleOf(::AppState)
     single { Dispatchers.Default }
     single { AppFactories.createDatabase() }

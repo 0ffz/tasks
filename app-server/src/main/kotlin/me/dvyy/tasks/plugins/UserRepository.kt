@@ -2,11 +2,11 @@ package me.dvyy.tasks.plugins
 
 import me.dvyy.sqlite.Database
 import me.dvyy.sqlite.Identity
-import me.dvyy.tasks.server.database.ServerDatabase
+import me.dvyy.tasks.server.database.ServerQueries
 
 class UserRepository(
     val db: Database,
-    val dao: ServerDatabase,
+    val dao: ServerQueries,
 ) {
     suspend fun initialize() = db.write {
         dao.create()

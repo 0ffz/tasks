@@ -14,11 +14,9 @@ import me.dvyy.syncengine.reducers.Reducers
 import me.dvyy.syncengine.server.schema.SyncServer
 import me.dvyy.syncengine.server.schema.mockService
 import me.dvyy.syncengine.sync.SyncService
-import me.dvyy.tasks.app.createAppKoinApplication
 import me.dvyy.tasks.app.ui.AppDesktop
 import me.dvyy.tasks.helpers.loggerNamed
 import me.dvyy.tasks.model.components.Task
-import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.AppSchema
 import me.dvyy.tasks.model.database.commonSyncModule
@@ -79,21 +77,6 @@ class DbConnectionTest : DbTest() {
         val expected = Task(text = "hello world 2", parent = parent) to Task(text = "hello world", parent = parent)
         serverTask shouldBe expected
         clientTask shouldBe expected
-    }
-
-    @Test
-    fun rollbackTest() = runTest {
-        val serverLogger = loggerNamed("Server")
-        val server = SyncServer.of(serverDatabase, reducers, AppSchema, serverLogger)
-        server.initialize()
-        val application = createAppKoinApplication(module {
-            single<Database> { Database.temporary() }
-            single<SyncService> { server.mockService(user = 0, 0.5.seconds) }
-        })
-        val listId = Uuid.random()
-        application.koin.get<AppDatabase>().mutate.tasks.create(Task(text = "1", parent = listId))
-        application.koin.get<AppDatabase>().mutate.tasks.create(Task(text = "2", parent = listId))
-        application.koin.get<SyncClient>().sync()
     }
 
     @Test

@@ -5,4 +5,6 @@ sealed interface SyncState {
     data object UnSynced : SyncState
     data object Success : SyncState
     data object Error : SyncState
+    data object Connected : SyncState
+    data object Disconnected : SyncState
 }

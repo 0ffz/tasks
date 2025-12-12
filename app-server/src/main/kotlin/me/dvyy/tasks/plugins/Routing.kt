@@ -1,11 +1,16 @@
 package me.dvyy.tasks.plugins
 
 import io.ktor.http.*
+import io.ktor.serialization.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.protobuf.ProtoBuf
 import me.dvyy.syncengine.server.schema.SyncServer
 import me.dvyy.syncengine.sync.SyncRequest
 import me.dvyy.syncengine.sync.SyncResult
@@ -19,17 +24,28 @@ fun Application.configureRouting(
     jwtConfig: JWTConfig,
     ldapConfig: LDAPConfig,
 ) {
+    install(WebSockets) {
+        contentConverter = KotlinxWebsocketSerializationConverter(ProtoBuf)
+    }
     routing {
         login(userRepository, ldapConfig, jwtConfig)
         authenticate {
             get("/auth/check") {
                 call.respond(HttpStatusCode.OK)
             }
-            put("/sync") {
-                val changelist = call.receive<SyncRequest>()
-                val session = call.principal<UserSession>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
-                val result = syncServer.sync(changelist, session.identity)
-                call.respond<SyncResult>(result)
+            webSocket("/sync") {
+                val session =
+                    call.principal<UserSession>() ?: return@webSocket call.respond(HttpStatusCode.Unauthorized)
+                runCatching {
+                    val initialRequest = receiveDeserialized<SyncRequest>()
+                    syncServer.streamingSync(session.identity, initialRequest, incoming.consumeAsFlow().map {
+                        converter!!.deserialize<SyncRequest>(it)
+                    }).collect {
+                        sendSerialized<SyncResult>(it)
+                    }
+                }.onFailure {
+                    println(it.stackTraceToString())
+                }
             }
         }
     }

@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.kermit)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.serialization.protobuf)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.content.negotiation.jvm)
 
@@ -44,6 +45,7 @@ dependencies {
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.logback)
     implementation(libs.ktor.server.config.yaml)
+    implementation(libs.ktor.server.websockets)
     implementation(libs.koin.core)
 
 }

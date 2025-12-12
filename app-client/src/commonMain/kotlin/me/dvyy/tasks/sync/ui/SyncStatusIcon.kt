@@ -8,9 +8,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PublishedWithChanges
 import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.SyncDisabled
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -20,11 +22,25 @@ import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun ClickableSyncStatusIcon(
+fun SyncIndicator(
     sync: SyncViewModel = koinViewModel(),
 ) {
-    IconButton(onClick = { sync.sync() }) {
-        SyncStatusIcon(sync)
+    val state by sync.syncState.collectAsState()
+    val icon = when (state) {
+        is SyncState.Error -> Icons.Outlined.SyncProblem
+        is SyncState.Disconnected -> Icons.Outlined.SyncDisabled
+        else -> Icons.Outlined.Sync
+    }
+    Crossfade(state) {
+        val color =
+            if (state is SyncState.Connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+        IconButton(
+            onClick = {
+                if (state == SyncState.Connected) sync.stopSyncJob() else sync.startSyncJob()
+            },
+        ) {
+            Icon(icon, contentDescription = "Sync", tint = color)
+        }
     }
 }
 
