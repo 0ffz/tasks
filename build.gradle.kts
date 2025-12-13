@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.composeHotReload) apply false
     alias(libs.plugins.jib) apply false
     id("com.github.ben-manes.versions") version "0.51.0"
     id("nl.littlerobots.version-catalog-update") version "0.8.5"

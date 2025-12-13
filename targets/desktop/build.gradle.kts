@@ -1,15 +1,21 @@
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.reload.gradle.ComposeHotRun
 
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.composeHotReload)
     id("de.undercouch.download") version "5.3.1"
 //    id("org.graalvm.buildtools.native") version "0.10.4"
 }
 
+
+tasks.withType<ComposeHotRun>().configureEach {
+    mainClass.set("MainKt")
+}
 kotlin {
     jvmToolchain(21)
 }

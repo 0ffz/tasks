@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.ExperimentalTime
 
 class TimeViewModel : ViewModel() {
     val timezone = TimeZone.currentSystemDefault()
@@ -41,6 +43,7 @@ class TimeViewModel : ViewModel() {
         _weekStart.update { weekStartForToday() }
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun getToday() = Clock.System.now().toLocalDateTime(timezone).date
 
     fun weekStartForToday() = today.value.minus(getDayOfWeek().toLong(), DateTimeUnit.DAY)

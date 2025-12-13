@@ -27,6 +27,7 @@ import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.ExperimentalTime
 
 sealed interface FocusedOption {
     data object None : FocusedOption
@@ -119,7 +120,7 @@ fun HighlightButtons(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDatePicker(initialDate: LocalDate, interactions: TaskInteractions, time: TimeViewModel = koinViewModel()) {
     var showDatePicker by remember { mutableStateOf(false) }

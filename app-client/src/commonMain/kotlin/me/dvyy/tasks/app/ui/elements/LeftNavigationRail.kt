@@ -18,6 +18,16 @@ import me.dvyy.tasks.sync.ui.SyncIndicator
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
+fun TopBarContainer(content: @Composable () -> Unit) = PlatformTopBarContainer {
+    Column {
+        Box(Modifier.height(UI.tabHeight)) {
+            content()
+        }
+        TintedHorizontalDivider()
+    }
+}
+
+@Composable
 fun LeftNavigationRail(
     layout: LayoutViewModel = koinViewModel(),
 ) {
@@ -29,11 +39,11 @@ fun LeftNavigationRail(
             Modifier/*.padding(UI.sideBarPadding)*/.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(Modifier.size(UI.tabHeight), contentAlignment = Alignment.Center) {
-                AppIcon(Modifier.size(28.dp))
+            TopBarContainer {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    AppIcon(Modifier.size(28.dp))
+                }
             }
-
-            TintedHorizontalDivider()
 
             val buttons by layout.layoutButtonLocations.collectAsState()
             val selected by layout.leftSidebar.collectAsState()

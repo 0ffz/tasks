@@ -23,6 +23,7 @@ import me.dvyy.tasks.sync.ui.SyncStatusIcon
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsSyncTab(
     auth: AuthViewModel = koinViewModel(),
@@ -42,20 +43,20 @@ fun SettingsSyncTab(
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        TextButton(onClick = { sync.sync() }) {
+        TextButton(onClick = { sync.sync() }, shapes = ButtonDefaults.shapes()) {
             LeadingIcon({ SyncStatusIcon() }) {
                 Text(text = "Sync")
             }
         }
         TextButton(
-            onClick = { sync.forcePull() }
+            onClick = { sync.forcePull() }, shapes = ButtonDefaults.shapes()
         ) {
             LeadingIcon(Icons.Outlined.CloudDownload, contentDescription = "Pull all") {
                 Text(text = "Pull all")
             }
         }
         TextButton(
-            onClick = { sync.fullSync() }
+            onClick = { sync.fullSync() }, shapes = ButtonDefaults.shapes()
         ) {
             LeadingIcon(Icons.Outlined.CloudUpload, contentDescription = "Push all") {
                 Text(text = "Push all")

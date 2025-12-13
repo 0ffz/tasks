@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinx.serialization)
 }
-
 composeCompiler {
     stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
 }
@@ -39,12 +38,13 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":app-model"))
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.preview)
-                implementation(compose.material3)
-                implementation(compose.materialIconsExtended)
-                implementation(compose.ui)
+                implementation("org.jetbrains.compose.runtime:runtime:1.10.0-rc02")
+                implementation("org.jetbrains.compose.foundation:foundation:1.10.0-rc02")
+                implementation("org.jetbrains.compose.ui:ui-tooling-preview:1.10.0-rc02")
+                implementation("org.jetbrains.compose.material3:material3:1.10.0-alpha01")
+//                implementation("org.jetbrains.compose.material3:material3:1.9.0-beta03")
+                implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+                implementation("org.jetbrains.compose.ui:ui:1.10.0-rc02")
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.serialization.cbor)
@@ -58,7 +58,7 @@ kotlin {
                 implementation(libs.multiplatform.settings)
                 implementation(libs.multiplatform.settings.no.arg)
                 implementation(libs.multiplatform.settings.serialization)
-                implementation(compose.components.resources)
+                implementation("org.jetbrains.compose.components:components-resources:1.10.0-rc02")
                 implementation(libs.material3.window.sizeclass.multiplatform)
                 implementation(libs.navigation.compose)
 //                implementation(libs.lifecycle.viewmodel)
