@@ -53,13 +53,13 @@ fun TaskList(
         target = remember(listId) {
             object : DragAndDropTarget {
                 override fun onDrop(event: DragAndDropEvent): Boolean {
+                    println("reordering $event")
+                    reorderInteractions.onDragEnterColumn(listId, event.dataOrNull<TaskId>() ?: return false)
                     return true
                 }
 
-                override fun onEntered(event: DragAndDropEvent) {
-                    println("reordering $event")
-                    reorderInteractions.onDragEnterColumn(listId, event.dataOrNull<TaskId>() ?: return)
-                }
+//                override fun onEntered(event: DragAndDropEvent) {
+//                }
             }
         }
     )

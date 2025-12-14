@@ -1,6 +1,7 @@
 package me.dvyy.tasks.settings.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.outlined.AutoMode
 import androidx.compose.material.icons.outlined.DarkMode
@@ -18,6 +19,7 @@ import me.dvyy.tasks.app.ui.theme.Fonts
 import me.dvyy.tasks.app.ui.theme.TaskAppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsThemeTab(
     prefs: PreferencesViewModel = koinViewModel(),
@@ -26,11 +28,11 @@ fun SettingsThemeTab(
     var theme by remember { mutableStateOf(prefsTheme) }
     BoxedList {
         var checked by remember { mutableStateOf(prefs.appTheme.value == TaskAppTheme.Material) }
-        SettingItem(
+        SettingToggle(
             "Use colorful theme",
-            description = "Enables Material color theme, will use system colors on Android"
-        ) {
-            Switch(checked, onCheckedChange = { toggle ->
+            description = "Enables Material color theme, will use system colors on Android",
+            checked = checked,
+            onCheckedChange = { toggle ->
                 checked = toggle
                 prefs.appTheme.update {
                     when (toggle) {
@@ -38,20 +40,26 @@ fun SettingsThemeTab(
                         false -> TaskAppTheme.JetbrainsLike
                     }
                 }
-            })
-        }
+            }
+        )
 
         SettingItem("Theme style") {
-            SingleChoiceSegmentedButtonRow(Modifier.widthIn(max = 500.dp).fillMaxWidth()) {
-                val darkModePref by prefs.darkMode.collectAsState()
+            val darkModePref by prefs.darkMode.collectAsState()
+            ButtonGroup(
+                overflowIndicator = { menuState ->
+                    ButtonGroupDefaults.OverflowIndicator(menuState = menuState)
+                },
+                Modifier.widthIn(max = 500.dp).height(44.dp),
+            ) {
+//            SingleChoiceSegmentedButtonRow(Modifier.widthIn(max = 500.dp).fillMaxWidth()) {
 
-                @Composable
                 fun option(pref: DarkModePref, label: String, icon: ImageVector, index: Int, count: Int) =
-                    SegmentedButton(
+                    toggleableItem(
                         darkModePref == pref,
-                        onClick = { prefs.darkMode.update { pref } },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = count),
-                        label = { Text(label) },
+                        onCheckedChange = { prefs.darkMode.update { pref } },
+//                        shape = SegmentedButtonDefaults.itemShape(index = index, count = count),
+                        label = label,
+                        weight = 1f,
                         icon = { Icon(icon, "Mode indicator") }
                     )
                 option(DarkModePref.AUTO, "Auto", AppIcons.AutoMode, 0, 3)

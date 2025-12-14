@@ -34,16 +34,13 @@ inline fun ReorderableTask(
             target = remember(key) {
                 object : DragAndDropTarget {
                     override fun onDrop(event: DragAndDropEvent): Boolean {
-                        return true
-                    }
-
-                    override fun onEntered(event: DragAndDropEvent) {
                         val draggedKey = event.dataOrNull<TaskId>()
                         println("Entered task $event with data $draggedKey")
                         if (key.asTask() != draggedKey) reorderInteractions.onDragEnterItem(
                             key.asTask(),
-                            draggedKey ?: return
+                            draggedKey ?: return false
                         )
+                        return true
                     }
                 }
             }

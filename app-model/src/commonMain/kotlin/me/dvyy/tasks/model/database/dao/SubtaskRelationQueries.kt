@@ -35,14 +35,20 @@ class SubtaskRelationQueries(
         .select("SELECT rank FROM tasks WHERE parent = ? ORDER BY rank DESC LIMIT 1", list.toHexDashString())
         .firstOrNull { getText(0) }
 
+    context(tx: Transaction)
+    fun getRankAfterLast(list: Uuid): String = RankFunctions.getRankAfter(
+        getLastRankInList(list) ?: RankFunctions.FIRST_CHAR.toString()
+    )
+
     context(tx: WriteTransaction)
     fun moveToTask(task: Uuid, target: Uuid) {
         val taskRank = getRankFor(task) ?: return
         val targetRank = getRankFor(target) ?: return
-        if (taskRank.parent != targetRank.parent) {
+        val parentsDiffer = taskRank.parent != targetRank.parent
+        if (parentsDiffer) {
             moveTaskToList(task, targetRank.parent)
         }
-        val nextRank = if (taskRank.rank > targetRank.rank) {
+        val nextRank = if (taskRank.rank > targetRank.rank || parentsDiffer) {
             getBefore(target)?.let { getRankFor(it)?.rank } ?: RankFunctions.FIRST_CHAR.toString()
         } else {
             getAfter(target)?.let { getRankFor(it)?.rank } ?: RankFunctions.LAST_CHAR.toString()
