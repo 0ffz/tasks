@@ -13,17 +13,15 @@ import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
-import me.dvyy.tasks.layout.ui.layouts.TintedHorizontalDivider
 import me.dvyy.tasks.sync.ui.SyncIndicator
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun TopBarContainer(content: @Composable () -> Unit) = PlatformTopBarContainer {
-    Column {
+fun TopBarContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) = PlatformTopBarContainer {
+    Column(modifier) {
         Box(Modifier.height(UI.tabHeight)) {
             content()
         }
-        TintedHorizontalDivider()
     }
 }
 

@@ -52,6 +52,7 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
 
 
     class Elevations {
+        val lv0 = 0.dp
         val lv1 = 1.dp
         val lv2 = 3.dp
         val lv3 = 6.dp
@@ -81,7 +82,7 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
 
 
     // Tabs
-    val tabHeight = size.xl
+    val tabHeight = 44.dp
     val tabPadding = padding.md
 
     // Task lists

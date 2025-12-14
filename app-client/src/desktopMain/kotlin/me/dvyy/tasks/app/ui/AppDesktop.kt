@@ -1,7 +1,12 @@
 package me.dvyy.tasks.app.ui
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -70,15 +75,17 @@ fun ApplicationScope.AppDesktop(overrides: Module = module { }) =
             })
         })
         CompositionLocalProvider(LocalDensity provides Density(density)) {
-            App(
-                topBar = {
+            Box(Modifier.border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RectangleShape)) {
+                App(
+                    topBar = {
 //                    DesktopTopBar()
-                    val isFloating by koinViewModel<TopbarViewModel>().floatingWindowSize.collectAsState()
-                    LaunchedEffect(isFloating) {
-                        resizable = isFloating == null
+                        val isFloating by koinViewModel<TopbarViewModel>().floatingWindowSize.collectAsState()
+                        LaunchedEffect(isFloating) {
+                            resizable = isFloating == null
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

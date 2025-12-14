@@ -4,9 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.dvyy.syncengine.client.sync.SyncClient
 import java.net.ConnectException
@@ -17,7 +15,9 @@ class SyncViewModel(
 ) : ViewModel() {
     private val _syncState = MutableStateFlow<SyncState>(SyncState.UnSynced)
     val syncState = _syncState.asStateFlow()
-
+    val queuedActionCount = syncClient.changesMade
+        .map { syncClient.getQueuedActionCount() }
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
     private var runningSyncJob: Job? = null
     fun startSyncJob() {
         if (runningSyncJob == null) {

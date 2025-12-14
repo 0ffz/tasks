@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.material3.*
@@ -14,8 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
-import me.dvyy.tasks.app.ui.dialogs.AppDialog
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
+import me.dvyy.tasks.auth.ui.AuthDialog
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.auth.ui.LoginState
 import me.dvyy.tasks.core.ui.components.LeadingIcon
@@ -29,21 +28,30 @@ fun SettingsSyncTab(
     auth: AuthViewModel = koinViewModel(),
     dialogs: DialogViewModel = koinViewModel(),
     sync: SyncViewModel = koinViewModel(),
-) = Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+) = Column(verticalArrangement = Arrangement.spacedBy(UI.padding.md)) {
     val loginState by auth.loginState.collectAsState()
     val login = loginState // Smart casts
 
     if (login !is LoginState.Success) {
-        Text("Please login to a sync server to use sync features.")
-        FilledTonalButton(onClick = { dialogs.show(AppDialog.Auth) }) {
-            Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Switch account")
-            Text(text = "Login")
+        BoxedList {
+            MultilineSettingItem(
+                "Enable sync",
+                description = "Login to a sync server to use sync features.",
+            ) {
+                AuthDialog()
+            }
         }
         return
     }
 
+    BoxedList("Sync") {
+        SettingItem("Unsynced actions", isLast = true) {
+            val count by sync.queuedActionCount.collectAsState("Unknown")
+            Text(count.toString())
+        }
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        TextButton(onClick = { sync.sync() }, shapes = ButtonDefaults.shapes()) {
+        FilledTonalButton(onClick = { sync.sync() }, shapes = ButtonDefaults.shapes()) {
             LeadingIcon({ SyncStatusIcon() }) {
                 Text(text = "Sync")
             }
@@ -64,15 +72,22 @@ fun SettingsSyncTab(
         }
     }
 
-    HorizontalDivider()
+    BoxedList("Account") {
+        SettingItem("User") {
+            Text(text = login.username)
+        }
+        SettingItem("Server", isLast = true) {
+            Text(text = login.serverURL)
+        }
 
-    Text("Account", style = MaterialTheme.typography.headlineMedium)
-
-    LeadingIcon(Icons.Outlined.AccountCircle, contentDescription = "Account") {
-        Text(text = "${login.username}@${login.serverURL}")
     }
-
-    FilledTonalButton(onClick = { auth.logout() }, colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)) {
+    FilledTonalButton(
+        onClick = { auth.logout() },
+        colors = ButtonDefaults.filledTonalButtonColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
+        )
+    ) {
         LeadingIcon(Icons.AutoMirrored.Outlined.Logout, contentDescription = "Account") {
             Text(text = "Logout")
         }

@@ -66,8 +66,8 @@ sealed interface TaskAppTheme {
             textDark = "#000000",
             tint = "#222222",
             surfaceContainer = "#F7F8FA",
-            outline = "#EBECF0",
-            outlineVariant = "#DFE1E5"
+            outline = "#D1D3DA",
+            outlineVariant = "#D6D8DE"
         ),
     )
 
