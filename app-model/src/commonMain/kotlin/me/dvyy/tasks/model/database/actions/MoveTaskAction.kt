@@ -20,4 +20,4 @@ data class MoveTaskAction(
 }
 
 @Serializable
-data class CreateTaskAction(val task: Task) : Action
+data class CreateTaskAction(val task: Task, val atEnd: Boolean) : Action

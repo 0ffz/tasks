@@ -23,6 +23,7 @@ val TasksView = view("tasks", NotesTable) {
     text("text")
     integer("done")
     text("parent")
+    text("highlight")
     text("rank")
 }
 

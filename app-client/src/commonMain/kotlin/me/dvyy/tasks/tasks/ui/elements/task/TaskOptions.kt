@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -17,12 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.core.ui.getBestTextColor
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.TaskInteractions
 import me.dvyy.tasks.tasks.ui.state.TaskUiState
@@ -34,6 +36,7 @@ sealed interface FocusedOption {
     data object Highlight : FocusedOption
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TaskOptions(
     task: TaskUiState,
@@ -48,34 +51,49 @@ fun TaskOptions(
     fun toggleFocused() {
         focused = if (focused == FocusedOption.Highlight) FocusedOption.None else FocusedOption.Highlight
     }
-    Column(
-        Modifier.padding(horizontal = ui.horizontalTaskTextPadding, vertical = UI.padding.sm),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(UI.padding.md)
-        ) {
+    Column {
+        Box(Modifier.height(UI.tasks.propertyButtonSize)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+//            horizontalArrangement = Arrangement.spacedBy(UI.padding.md)
+            ) {
 //            var dragged by remember { mutableStateOf(0f) }
-            HighlightButton(
-                task.highlight, task/*, modifier = Modifier.draggable(rememberDraggableState {
+                HighlightButton(
+                    task.highlight, task,/*, modifier = Modifier.draggable(rememberDraggableState {
                 dragged += it
                 if(abs(dragged) > 50) {
                     setTask(task.copy(highlight = task.highlight.offsetBy(dragged.toInt() / 50)))
                     dragged = 0f
                 }
             }, orientation = Orientation.Horizontal)*/
-            ) { toggleFocused() }
-            val today by time.today.collectAsState()
-            TaskDatePicker(initialDate ?: today, interactions)
-            Spacer(Modifier.weight(1f))
-            if (submitAction != null) {
-                FilledIconButton(onClick = submitAction) {
-                    Icon(Icons.Outlined.Done, contentDescription = "Submit")
+                    setTask = { toggleFocused() }
+                ) {
+                    Icon(Icons.Outlined.Tag, contentDescription = "Tag", Modifier.size(18.dp))
                 }
-            } else {
-                IconButton(onClick = { interactions.onDelete() }, modifier = Modifier.size(ui.tasks.checkboxSize)) {
-                    Icon(Icons.Outlined.Delete, contentDescription = "Delete")
+                val today by time.today.collectAsState()
+                TaskDatePicker(initialDate ?: today, interactions)
+                Spacer(Modifier.weight(1f))
+                if (submitAction != null) {
+                    FilledIconButton(onClick = submitAction) {
+                        Icon(Icons.Outlined.Done, contentDescription = "Submit")
+                    }
+                } else {
+                    BoxButton(
+                        onClick = { interactions.onDelete() },
+//                        shape = RoundedCornerShape(bottomEnd = 16.dp),
+//                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ) {
+
+                        Icon(Icons.Outlined.Delete, contentDescription = "Delete", Modifier.size(18.dp))
+                    }
+//                    FilledTonalIconButton(
+//
+//                        colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+//                        modifier = Modifier.height(UI.tasks.checkboxSize)
+//                    ) {
+//                    }
                 }
             }
         }
@@ -101,26 +119,68 @@ fun HighlightButtons(
     toggleFocused: () -> Unit,
     modifier: Modifier = Modifier,
 ) = Column {
-    HorizontalDivider(Modifier.fillMaxWidth())
-//    var isLight by remember { mutableStateOf(task.highlight.isLight) }
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)) {
+//    HorizontalDivider(Modifier.fillMaxWidth())
+    Row(
+        modifier,
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)
+    ) {
 //        LightDarkHighlightToggle(isLight, onToggle = {
 //            isLight = !isLight
 //            setTask(task.copy(highlight = task.highlight.copy(isLight = isLight)))
 //        })
-        Highlight.Type.entries.forEach {
-            HighlightButton(Highlight(it, true), task) { setTask(it); toggleFocused() }
+        Highlight.Type.entries.forEach { type ->
+            val highlight = Highlight(type, true)
+            HighlightButton(
+                highlight,
+                task,
+                setTask = { setTask(it.copy(highlight = highlight)); toggleFocused() }
+            )
         }
     }
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)) {
+    Row(
+        modifier,
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)
+    ) {
 
-        Highlight.Type.entries.forEach {
-            HighlightButton(Highlight(it, false), task) { setTask(it); toggleFocused() }
+        Highlight.Type.entries.forEach { type ->
+            val highlight = Highlight(type, false)
+            HighlightButton(
+                highlight,
+                task,
+                setTask = {
+                    setTask(it.copy(highlight = highlight)); toggleFocused()
+                }
+            )
         }
     }
 }
 
-@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class)
+@Composable
+fun BoxButton(
+    onClick: () -> Unit,
+    color: Color = Color.Transparent,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shape: Shape = RoundedCornerShape(UI.size.sm),
+    border: BorderStroke? = null,//BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)),
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) = Surface(
+    modifier = modifier.size(UI.tasks.propertyButtonSize).padding(UI.padding.sm),
+    onClick = onClick,
+    color = color,
+    shape = shape,
+    border = border,
+    contentColor = contentColor,
+) {
+    Box(contentAlignment = Alignment.Center) {
+        content()
+    }
+}
+
+
+@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TaskDatePicker(initialDate: LocalDate, interactions: TaskInteractions, time: TimeViewModel = koinViewModel()) {
     var showDatePicker by remember { mutableStateOf(false) }
@@ -128,17 +188,22 @@ fun TaskDatePicker(initialDate: LocalDate, interactions: TaskInteractions, time:
         initialSelectedDateMillis = initialDate.atStartOfDayIn(time.timezone).toEpochMilliseconds()
     )
 
-    AssistChip(
-        label = {
-            Text(
-                "Move",
-                maxLines = 1,
-                overflow = TextOverflow.Clip,
-            )
-        },
-        leadingIcon = { Icon(Icons.Outlined.CalendarMonth, contentDescription = "Move") },
+    BoxButton(
         onClick = { showDatePicker = true },
-    )
+    ) {
+        Icon(Icons.Outlined.CalendarMonth, contentDescription = "Move task", Modifier.size(18.dp))
+    }
+//    AssistChip(
+//        label = {
+//            Text(
+//                "Move",
+//                maxLines = 1,
+//                overflow = TextOverflow.Clip,
+//            )
+//        },
+//        leadingIcon = { Icon(Icons.Outlined.CalendarMonth, contentDescription = "Move") },
+//        onClick = { showDatePicker = true },
+//    )
     if (showDatePicker) DatePickerDialog(
         onDismissRequest = { showDatePicker = false },
         confirmButton = {
@@ -175,8 +240,11 @@ fun HighlightButton(
     task: TaskUiState,
     modifier: Modifier = Modifier,
     setTask: (TaskUiState) -> Unit,
+    content: @Composable () -> Unit = {},
 ) {
-    CircleButton(onClick = { setTask(task.copy(highlight = highlight)) }, highlight.color, modifier = modifier)
+    SquareButton(onClick = { setTask(task.copy(highlight = highlight)) }, highlight.color, modifier = modifier) {
+        content()
+    }
 }
 
 @Composable
@@ -187,14 +255,32 @@ fun CircleButton(
     content: @Composable () -> Unit = {},
 ) {
     val ui = LocalUIState.current
-    val border = if (color == Color.Transparent) BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface) else null
-    Button(
+    OutlinedButton(
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.onSurface,
             containerColor = color,
         ),
         onClick = onClick,
-        modifier = modifier.size(ui.tasks.propertyButtonSize).focusProperties { canFocus = false },
-        border = border,
+        modifier = modifier.size(ui.tasks.height).focusProperties { canFocus = false }
+//            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), CircleShape),
+//        border = border,
+    ) { content() }
+}
+
+@Composable
+fun SquareButton(
+    onClick: () -> Unit,
+    color: Color = Color.Transparent,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit = {},
+) {
+    LocalUIState.current
+    BoxButton(
+        onClick = onClick,
+//        borderShape = RoundedCornerShape(bottomStart = 16.dp),
+        color = color,
+        contentColor = color.getBestTextColor(),
+        modifier = Modifier
+            .focusProperties { canFocus = false }
     ) { content() }
 }

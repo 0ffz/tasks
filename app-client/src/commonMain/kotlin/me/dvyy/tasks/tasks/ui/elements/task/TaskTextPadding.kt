@@ -1,6 +1,7 @@
 package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -11,7 +12,7 @@ import me.dvyy.tasks.app.ui.LocalUIState
 fun TaskTextPadding(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val ui = LocalUIState.current
     Box(
-        modifier/*.height(ui.taskHeight)*/.padding(ui.taskTextPadding),
+        modifier.height(ui.tasks.height).padding(ui.taskTextPadding),
         contentAlignment = Alignment.CenterStart
     ) {
         content()

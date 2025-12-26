@@ -20,6 +20,7 @@ import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
+import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.TaskListProperties
@@ -57,9 +58,6 @@ fun TaskList(
                     reorderInteractions.onDragEnterColumn(listId, event.dataOrNull<TaskId>() ?: return false)
                     return true
                 }
-
-//                override fun onEntered(event: DragAndDropEvent) {
-//                }
             }
         }
     )
@@ -78,9 +76,8 @@ fun TaskList(
         val tasks = tasks.loadedOrNull() ?: return@Column
 //        println("Loading ${listId.date} with ${tasks.size}")
         val scrollState = rememberScrollState()
-        val scrollModifier =
-            if (scrollable) Modifier.verticalScroll(scrollState)
-            else Modifier
+        if (scrollable) Modifier.verticalScroll(scrollState)
+        else Modifier
 
         fun String.isGroupToggle() = startsWith("--") || startsWith("==")
         Column {
@@ -90,75 +87,74 @@ fun TaskList(
 //                if (task.state.text.isGroupToggle()) groupedTasks.add(mutableListOf(task))
 //                else groupedTasks.lastOrNull()?.add(task)
 //            }
-            Column(scrollModifier.padding(horizontal = 6.dp)) {
+
+            Column(Modifier.padding(horizontal = 6.dp)) {
 //                groupedTasks.forEachIndexed { groupIndex, tasksInGroup ->
 //                    var isGroupHidden by remember { mutableStateOf(tasksInGroup.firstOrNull()?.state?.completed == true) }
-                tasks.forEachIndexed { index, taskId ->
-                    key(taskId) {
-                        val selected = selectedTask?.task == taskId
-                        val focusRequested = selected// && selectedTask?.requestFocus == true
-                        val taskState = viewModel.watchTask(taskId).collectAsState(null).value ?: return
+                for ((index, taskId) in tasks.withIndex()) key(taskId) {
+                    val selected = selectedTask?.task == taskId
+                    val focusRequested = selected// && selectedTask?.requestFocus == true
+                    val taskState = viewModel.watchTask(taskId).collectAsState(null).value
+                    if (taskState == null) {
+                        Box(Modifier.height(ui.tasks.height).fillMaxWidth())
+                        continue
+                    }
 //                        val onChange = remember(task) { getInteractions(task) }::onTaskChanged
-                        // cached task is the SSOT in this context, some things like text updates take too long to update in db
-                        CachedUpdate(
-                            key = taskId,
-                            value = taskState,
-                            onValueChanged = { viewModel.mutateTask(taskId, it) }
-                        ) { cachedTask, setTask ->
-                            val focusManager = LocalFocusManager.current
-                            val keyboardOpen by keyboardAsState()
-                            val isGroupToggle = index == 0 && cachedTask.text.isGroupToggle()
+                    // cached task is the SSOT in this context, some things like text updates take too long to update in db
+                    CachedUpdate(
+                        key = taskId,
+                        value = taskState,
+                        onValueChanged = { viewModel.mutateTask(taskId, it) }
+                    ) { cachedTask, setTask ->
+                        val focusManager = LocalFocusManager.current
+                        val keyboardOpen by keyboardAsState()
+                        val isGroupToggle = index == 0 && cachedTask.text.isGroupToggle()
 
 //                                LaunchedEffect(cachedTask) {
 //                                    if (isGroupToggle) isGroupHidden = cachedTask.completed
 //                                }
 
-                            LaunchedEffect(keyboardOpen) {
-                                if (!keyboardOpen) {
-                                    focusManager.clearFocus()
-                                }
+                        LaunchedEffect(keyboardOpen) {
+                            if (!keyboardOpen) {
+                                focusManager.clearFocus()
                             }
+                        }
 
-                            val taskInteractions = remember(cachedTask) {
-                                viewModel.interactionsFor(listId.uuid, taskId)// TODO, listId, cachedTask, setTask)
-                            }
+                        val taskInteractions = remember(cachedTask) {
+                            viewModel.interactionsFor(listId.uuid, taskId)// TODO, listId, cachedTask, setTask)
+                        }
 
 //                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
-                            Column {
-                                ReorderableTask(key = taskId, reorderInteractions = reorderInteractions) {
-                                    Task(
-                                        TaskUiState.fromModel(cachedTask),
-                                        { setTask(Task(text = it.text, done = it.completed, parent = listId.uuid)) },
-                                        selected,
-                                        taskInteractions,
-                                        focusRequested = focusRequested,
-                                        forceShowCheckbox = isGroupToggle,
-                                        overrideCheckboxIcon = if (isGroupToggle) AppIcons.ArrowDropDown else null,
-                                        overrideCheckboxCompletedIcon = if (isGroupToggle) AppIcons.ArrowDropUp else null,
-                                    )
-                                }
-                                if (!isGroupToggle) HorizontalDivider()
+                        Column {
+                            ReorderableTask(key = taskId, reorderInteractions = reorderInteractions) {
+                                Task(
+                                    TaskUiState.fromModel(cachedTask),
+                                    {
+                                        setTask(
+                                            Task(
+                                                text = it.text,
+                                                done = it.completed,
+                                                highlight = it.highlight,
+                                                parent = listId.uuid
+                                            )
+                                        )
+                                    },
+                                    selected,
+                                    taskInteractions,
+                                    focusRequested = focusRequested,
+                                    forceShowCheckbox = isGroupToggle,
+                                    overrideCheckboxIcon = if (isGroupToggle) AppIcons.ArrowDropDown else null,
+                                    overrideCheckboxCompletedIcon = if (isGroupToggle) AppIcons.ArrowDropUp else null,
+                                )
                             }
-//                                }
-
-                            //TODO add back color
-//                            if (isGroupToggle) HorizontalDivider(
-//                                thickness = 2.dp,
-//                                color = cachedTask.highlight.color
-//                                    .takeIf { it != Color.Transparent }
-//                                    ?: MaterialTheme.colorScheme.onSurface
-//                            )
-//                            }
+                            if (!isGroupToggle) HorizontalDivider()
                         }
                     }
                 }
-                //TODO add back
-                Column(Modifier/*.clickableWithoutRipple {
-                    val lastTask = tasks.lastOrNull()
-                    if (lastTask == null || lastTask.state.text.isNotEmpty())
-                        interactions.createNewTask(true)
-                    else viewModel.selectTask(lastTask.uuid, focus = true)
-                }*/.then(listDropTarget)) {
+
+                Column(Modifier.clickableWithoutRipple {
+                    interactions.createNewTask(true)
+                }.then(listDropTarget)) {
                     Spacer(modifier = Modifier.height(ui.tasks.height))
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 }

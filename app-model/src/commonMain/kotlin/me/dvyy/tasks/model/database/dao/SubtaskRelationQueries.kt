@@ -36,6 +36,21 @@ class SubtaskRelationQueries(
         .firstOrNull { getText(0) }
 
     context(tx: Transaction)
+    fun getFirstRankInList(list: Uuid): String? = tx
+        .select("SELECT rank FROM tasks WHERE parent = ? ORDER BY rank LIMIT 1", list.toHexDashString())
+        .firstOrNull { getText(0) }
+
+    context(tx: Transaction)
+    fun getLastTaskInList(list: Uuid): Uuid? = tx
+        .select("SELECT id FROM tasks WHERE parent = ? ORDER BY rank DESC LIMIT 1", list.toHexDashString())
+        .firstOrNull { getUuid(0) }
+
+    context(tx: Transaction)
+    fun getFirstTaskInList(list: Uuid): Uuid? = tx
+        .select("SELECT id FROM tasks WHERE parent = ? ORDER BY rank LIMIT 1", list.toHexDashString())
+        .firstOrNull { getUuid(0) }
+
+    context(tx: Transaction)
     fun getRankAfterLast(list: Uuid): String = RankFunctions.getRankAfter(
         getLastRankInList(list) ?: RankFunctions.FIRST_CHAR.toString()
     )

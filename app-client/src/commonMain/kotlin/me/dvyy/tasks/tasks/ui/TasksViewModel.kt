@@ -4,11 +4,13 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.model.components.Task
@@ -16,6 +18,7 @@ import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.NotesTable
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import me.dvyy.tasks.tasks.ui.elements.list.TaskListInteractions
+import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
 data class TaskWithList(
@@ -50,11 +53,11 @@ class TasksViewModel(
 //        db.mutate(DeleteRowMutator(NotesTable.name, id))
 //    }
 
-    fun selectNextTask() = viewModelScope.launch {
+    fun selectNextTaskOrNew() = viewModelScope.launch {
         val curr = selectedTask.value ?: return@launch
         val next = db.read { rank.getAfter(curr.task) }
         if (next != null) selectedTask.emit(curr.copy(task = next))
-//        else createTask(curr.list, TODO())
+        else createAndSelectNewTask(curr.list)
     }
 
     fun selectTask(task: TaskWithList?) = selectedTask.update { task }
@@ -65,6 +68,11 @@ class TasksViewModel(
 
     @Stable
     fun interactionsFor(list: Uuid, task: Uuid) = object : TaskInteractions {
+        override fun onListChanged(date: LocalDate) {
+            viewModelScope.launch {
+                db.mutate.tasks.move(task, ListId.forDate(date))
+            }
+        }
         override fun onDelete() {
             viewModelScope.launch {
                 db.mutate.tasks.delete(task)
@@ -75,7 +83,7 @@ class TasksViewModel(
             if (event.type == KeyEventType.KeyUp) return false
             return when {
                 event.key == Key.Enter -> {
-                    selectNextTask()
+                    selectNextTaskOrNew()
                     true
                 }
 
@@ -100,15 +108,27 @@ class TasksViewModel(
         }
     )
 
-    @Stable
-    fun listInteractionsFor(list: Uuid) = TaskListInteractions(
-        createNewTask = {
-            viewModelScope.launch {
-//                repeat(1000) {
-                db.mutate.tasks.create(Task("", false, list))
-//                }
+    fun createAndSelectNewTask(list: Uuid, atEnd: Boolean = true) {
+        viewModelScope.launch {
+            val isLastEmpty = db.read {
+                val task =
+                    (if (atEnd) rank.getLastTaskInList(list) else rank.getFirstTaskInList(list)) ?: return@read false
+                tasks.get(task)?.text?.isEmpty() == true
+            }
+            if (!isLastEmpty) {
+                db.mutate.tasks.create(Task(text = "", done = false, parent = list), atEnd = atEnd)
+                delay(0.03.seconds)
+            }
+            db.read {
+                val task = (if (atEnd) rank.getLastTaskInList(list) else rank.getFirstTaskInList(list)) ?: return@read
+                selectTask(TaskWithList(list, task))
             }
         }
+    }
+
+    @Stable
+    fun listInteractionsFor(list: Uuid) = TaskListInteractions(
+        createNewTask = { createAndSelectNewTask(list, atEnd = it) }
     )
 
     fun createProject() {

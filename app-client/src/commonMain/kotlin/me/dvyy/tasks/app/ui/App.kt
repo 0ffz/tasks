@@ -27,7 +27,7 @@ import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun App(
     contentModifier: Modifier = Modifier,

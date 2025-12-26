@@ -62,25 +62,24 @@ fun Task(
             task.highlight,
         ) {
             Column {
-                Box(
-                    modifier = Modifier.padding(horizontal = ui.horizontalTaskTextPadding),
-//                    contentAlignment = Alignment.CenterStart,
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier.padding(start = ui.horizontalTaskTextPadding),
                 ) {
-                    Row(verticalAlignment = Alignment.Top) {
-                        Box(Modifier.weight(1f, true), contentAlignment = Alignment.CenterStart) {
-                            if (!selected) TaskHighlight(task.text, task.highlight, task.completed)
-                            TaskTextField(task, selected, setTask, interactions, focusRequested)
-                        }
-                        val responsive = LocalUIState.current
-
-                        if (forceShowCheckbox || responsive.alwaysShowCheckbox || isHovered || selected)
-                            TaskCheckBox(
-                                task,
-                                setTask,
-                                icon = overrideCheckboxIcon,
-                                completedIcon = overrideCheckboxCompletedIcon
-                            )
+                    Box(Modifier.weight(1f, true), contentAlignment = Alignment.CenterStart) {
+                        if (!selected) TaskHighlight(task.text, task.highlight, task.completed)
+                        TaskTextField(task, selected, setTask, interactions, focusRequested)
                     }
+                    val responsive = LocalUIState.current
+
+                    if (forceShowCheckbox || responsive.alwaysShowCheckbox || isHovered || selected)
+                        TaskCheckBox(
+                            selected,
+                            task,
+                            setTask,
+                            icon = overrideCheckboxIcon,
+                            completedIcon = overrideCheckboxCompletedIcon
+                        )
                 }
                 AnimatedVisibility(
                     selected,
@@ -91,7 +90,12 @@ fun Task(
                             detectDragGestures { _, _ -> }
                         }
                 ) {
-                    TaskOptions(task, setTask, date, interactions)
+                    TaskOptions(
+                        task = task,
+                        setTask = setTask,
+                        initialDate = date,
+                        interactions = interactions
+                    )
                 }
             }
         }

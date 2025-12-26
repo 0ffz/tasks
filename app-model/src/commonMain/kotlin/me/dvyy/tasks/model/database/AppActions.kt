@@ -4,8 +4,11 @@ import me.dvyy.sqlite.Database
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.jsonactions.JsonActions
 import me.dvyy.syncengine.jsonactions.JsonDataQueries
+import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
+import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import kotlin.uuid.Uuid
 
 class AppActions(
@@ -24,8 +27,12 @@ class TaskActions(
     private val db: Database,
 ) {
     val json = JsonActions(db, appQueries.tasks, actions)
-    suspend fun create(task: Task) {
-        actions.invoke(CreateTaskAction(task))
+    suspend fun create(task: Task, atEnd: Boolean = true) {
+        actions.invoke(CreateTaskAction(task, atEnd))
+    }
+
+    suspend fun move(task: Uuid, toList: ListId) {
+        actions(MoveTaskAction(task.asTask(), toList))
     }
 
     suspend fun update(id: Uuid, new: Task) {

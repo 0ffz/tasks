@@ -1,12 +1,17 @@
 package me.dvyy.tasks.model.components
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.EncodeDefault.Mode
 import kotlinx.serialization.Serializable
+import me.dvyy.tasks.model.Highlight
 import kotlin.uuid.Uuid
 
 @Serializable
 data class Task(
     val text: String,
+    @EncodeDefault(Mode.ALWAYS)
     val done: Boolean = false,
+    val highlight: Highlight? = null,
     val parent: Uuid,
     val rank: String? = null,
 )

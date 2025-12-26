@@ -19,9 +19,11 @@ fun MutableReducers.taskReducers(db: AppQueries) {
         }
         if (it.toTask != null) db.rank.moveToTask(it.task.uuid, it.toTask.uuid)
     }
-    reduce<CreateTaskAction> { (task) ->
-        val lastRank = db.rank.getLastRankInList(task.parent)?.let { RankFunctions.getRankAfter(it) }
-            ?: RankFunctions.middleChar.toString()
-        db.tasks.create(Uuid.random(), Json.encodeToJsonElement(task.copy(rank = lastRank)))
+    reduce<CreateTaskAction> { (task, atEnd) ->
+        val rank =
+            (if (atEnd) db.rank.getLastRankInList(task.parent)?.let { RankFunctions.getRankAfter(it) }
+            else db.rank.getFirstRankInList(task.parent)?.let { RankFunctions.getRankBefore(it) })
+                ?: RankFunctions.middleChar.toString()
+        db.tasks.create(Uuid.random(), Json.encodeToJsonElement(task.copy(rank = rank)))
     }
 }

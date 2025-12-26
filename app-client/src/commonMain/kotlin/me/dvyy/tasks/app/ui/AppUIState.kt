@@ -63,9 +63,9 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val elevation = Elevations()
 
     class Tasks {
-        val height = 36.dp
-        val checkboxSize = 36.dp
-        val propertyButtonSize = 26.dp
+        val height = 40.dp
+        val checkboxSize = 40.dp
+        val propertyButtonSize = 40.dp
 
         val completedFade = 0.3f
     }
@@ -73,8 +73,8 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val tasks = Tasks()
 
     val taskHighlightHeight = 24.dp
-    val taskTextPadding = 6.dp
-    val horizontalTaskTextPadding = 6.dp
+    val taskTextPadding = 4.dp
+    val horizontalTaskTextPadding = 4.dp
     val alwaysShowCheckbox get() = isSmall
 
     // Week view

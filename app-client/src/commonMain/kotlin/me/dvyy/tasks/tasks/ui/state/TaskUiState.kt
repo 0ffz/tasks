@@ -14,7 +14,7 @@ data class TaskUiState(
         fun fromModel(model: Task) = TaskUiState(
             text = model.text ?: "",
             completed = model.done,
-            highlight = Highlight.Unmarked, //TODO swap to tag system
+            highlight = model.highlight ?: Highlight.Unmarked, //TODO swap to tag system
         )
     }
 }
