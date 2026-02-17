@@ -17,6 +17,7 @@ class AppActions(
     private val actions: Actions,
 ) {
     val tasks = TaskActions(actions, appQueries, db)
+    val projects = jsonActions(appQueries.projects.crud)
 
     private fun <T> jsonActions(dao: JsonDataQueries<T>) = JsonActions(db, dao, actions)
 }

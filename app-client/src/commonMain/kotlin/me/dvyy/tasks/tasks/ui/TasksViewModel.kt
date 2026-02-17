@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.model.components.Project
 import me.dvyy.tasks.model.components.Task
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.NotesTable
@@ -30,6 +31,10 @@ class TasksViewModel(
     val db: AppDatabase,
 ) : ViewModel() {
     val selectedTask = MutableStateFlow<TaskWithList?>(null)
+
+    val projects = db.watch(NotesTable.name) {
+        projects.getAll()
+    }
 
     fun watchTasksFor(list: Uuid): Flow<List<Uuid>> = db.watch(NotesTable.name) {
         rank.childrenOf(list)
@@ -73,6 +78,7 @@ class TasksViewModel(
                 db.mutate.tasks.move(task, ListId.forDate(date))
             }
         }
+
         override fun onDelete() {
             viewModelScope.launch {
                 db.mutate.tasks.delete(task)
@@ -131,8 +137,8 @@ class TasksViewModel(
         createNewTask = { createAndSelectNewTask(list, atEnd = it) }
     )
 
-    fun createProject() {
-        TODO("Not yet implemented")
+    fun createProject() = viewModelScope.launch {
+        db.mutate.projects.create(Project("New Project"))
     }
 
     fun getListProperties(key: ListId): StateFlow<TaskListProperties> = when {

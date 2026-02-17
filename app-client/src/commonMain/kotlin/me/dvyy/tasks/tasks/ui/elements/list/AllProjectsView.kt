@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,7 +27,10 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.model.asList
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.utils.Loadable
 
 @Composable
 fun AllProjectsView(
@@ -35,19 +39,21 @@ fun AllProjectsView(
     horizontal: Boolean,
     staggered: Boolean,
 ) {
-    LocalUIState.current
-    //TODO project viewmodel
-//    val projects by tasksViewModel.projects.collectAsState()
-//    ProjectLayout(modifier, horizontal, staggered, projects, { it.uuid }) { key ->
-//        val properties by tasksViewModel.getListProperties(key).collectAsState()
-//        Project(
-//            tasksViewModel = tasksViewModel,
-//            key = key,
-//            properties = properties,
-//            modifier = Modifier.width(ui.taskListWidth),
-//            scrollable = horizontal,
-//        )
-//    }
+    val ui = LocalUIState.current
+    val projects by tasksViewModel.projects.collectAsState(listOf())
+    ProjectLayout(modifier, horizontal, staggered, projects, { it.id }) { key ->
+//        Text(key.project.title, modifier = Modifier.width(ui.taskListWidth),)
+        val listId = key.id.asList()
+        val tasks by remember(listId) { tasksViewModel.watchTasksFor(listId.uuid) }.collectAsState(listOf())
+        TaskList(
+            listId = listId,
+            tasks = Loadable.Loaded(tasks),
+            properties = TaskListProperties(displayName = key.project.title),
+            reorderInteractions = tasksViewModel.reorderInteractions(),
+            interactions = tasksViewModel.listInteractionsFor(listId.uuid),
+            modifier = Modifier.width(ui.taskListWidth),
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

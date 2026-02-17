@@ -26,10 +26,13 @@ val TasksView = view("tasks", NotesTable) {
     text("highlight")
     text("rank")
 }
+val ProjectsView = view("projects", NotesTable) {
+    text("title")
+}
 
 val AppSchema = schema(
     shared = setOf(NotesTable),
-    views = setOf(TasksView),
+    views = setOf(TasksView, ProjectsView),
     protocol = syncProtocol {
         // Json actions
         action<DeleteRowAction>(1)
