@@ -50,6 +50,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.cbor)
 //                implementation(libs.uuid)
 
+                implementation(libs.filekit.dialogs)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.serialization.json)
                 implementation(libs.ktor.serialization.protobuf)

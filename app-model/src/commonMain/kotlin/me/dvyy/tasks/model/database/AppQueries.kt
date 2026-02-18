@@ -1,5 +1,6 @@
 package me.dvyy.tasks.model.database
 
+import kotlinx.serialization.json.JsonObject
 import me.dvyy.sqlite.Transaction
 import me.dvyy.sqlite.statement.getUuid
 import me.dvyy.syncengine.jsonactions.JsonDataQueries
@@ -9,6 +10,7 @@ import me.dvyy.tasks.model.database.dao.SubtaskRelationQueries
 import kotlin.uuid.Uuid
 
 class AppQueries {
+    val notes = JsonDataQueries(JsonObject.serializer(), NotesTable)
     val tasks = JsonDataQueries(Task.serializer(), NotesTable)
     val projects = Projects()
     val rank = SubtaskRelationQueries(tasks)

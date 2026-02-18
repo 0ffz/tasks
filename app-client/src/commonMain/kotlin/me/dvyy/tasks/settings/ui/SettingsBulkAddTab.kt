@@ -9,12 +9,14 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import me.dvyy.tasks.app.ui.theme.Fonts
 import me.dvyy.tasks.core.ui.fade
+import me.dvyy.tasks.takeout.TakeoutViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsBulkAddTab(
     tasks: TasksViewModel = koinViewModel(),
+    takeout: TakeoutViewModel = koinViewModel(),
 ) {
     var text by remember { mutableStateOf("") }
     BoxedList {
@@ -46,6 +48,18 @@ fun SettingsBulkAddTab(
                 text = ""
             }) {
                 Text("Done")
+            }
+
+            TextButton(onClick = {
+                takeout.startImport()
+            }) {
+                Text("Import tasks")
+            }
+
+            TextButton(onClick = {
+                takeout.startExport()
+            }) {
+                Text("Export tasks")
             }
         }
     }

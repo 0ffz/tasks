@@ -23,6 +23,7 @@ import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.commonSyncModule
 import me.dvyy.tasks.sync.data.KtorSyncService
 import me.dvyy.tasks.sync.ui.SyncViewModel
+import me.dvyy.tasks.takeout.takeoutModule
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import org.koin.core.KoinApplication
 import org.koin.core.module.Module
@@ -50,6 +51,7 @@ fun appModule() = module(createdAtStart = true) {
         coreModule(),
         authModule(),
         syncModule(),
+        takeoutModule(),
         viewModelsModule(),
     )
 }
