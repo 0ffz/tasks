@@ -2,12 +2,11 @@ package me.dvyy.tasks.sync.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
+import co.touchlab.kermit.Logger
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import me.dvyy.syncengine.client.sync.SyncClient
-import java.net.ConnectException
+import me.dvyy.syncengine.client.sync.SyncStatus
 
 @OptIn(FlowPreview::class)
 class SyncViewModel(
@@ -18,31 +17,29 @@ class SyncViewModel(
     val queuedActionCount = syncClient.changesMade
         .map { syncClient.getQueuedActionCount() }
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
-    private var runningSyncJob: Job? = null
-    fun startSyncJob() {
-        if (runningSyncJob == null) {
-            runningSyncJob = viewModelScope.launch {
-                syncClient.establishSync()
+
+    init {
+        viewModelScope.launch {
+            syncClient.status.collectLatest { status ->
+                if (status !is SyncStatus.Connected) {
+                    reconnectWithBackoff()
+                }
             }
-            _syncState.update { SyncState.Connected }
         }
     }
 
-    fun stopSyncJob() {
-        runningSyncJob?.cancel()
-        runningSyncJob = null
-        _syncState.update { SyncState.Disconnected }
-    }
-    init {
-        viewModelScope.launch {
-            fun trySync() = runCatching {
-                sync()
-            }.onFailure {
-                if (it is ConnectException) println(it.message)
-                else it.printStackTrace()
+    private suspend fun reconnectWithBackoff() {
+        var currentDelay = 1000L
+        val maxDelay = 60000L
+        while (true) {
+            try {
+                syncClient.startSyncJob(context = Dispatchers.IO)
+            } catch (e: Exception) {
+                delay(currentDelay)
+                currentDelay = (currentDelay * 2).coerceAtMost(maxDelay)
+                Logger.v { "Failed to connect to server, retrying in $currentDelay ms..." }
             }
         }
-        startSyncJob()
     }
 
     private inline fun queueSync(crossinline run: suspend () -> Unit) = viewModelScope.launch {
@@ -56,19 +53,5 @@ class SyncViewModel(
         }.onSuccess {
             _syncState.update { SyncState.Success }
         }
-    }
-
-    fun sync() = queueSync {
-        syncClient.sync()
-    }
-
-    fun fullSync() = queueSync {
-        TODO()
-//        syncClient.fullSync()
-    }
-
-    fun forcePull() = queueSync {
-        TODO()
-//        syncClient.sync(lastSynced = null)
     }
 }

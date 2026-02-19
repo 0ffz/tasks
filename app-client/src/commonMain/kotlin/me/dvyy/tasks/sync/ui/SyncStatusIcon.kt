@@ -36,7 +36,8 @@ fun SyncIndicator(
             if (state is SyncState.Connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
         IconButton(
             onClick = {
-                if (state == SyncState.Connected) sync.stopSyncJob() else sync.startSyncJob()
+                TODO()
+//                if (state == SyncState.Connected) sync.stopSyncJob() else sync.startSyncJob()
             },
         ) {
             Icon(icon, contentDescription = "Sync", tint = color)
