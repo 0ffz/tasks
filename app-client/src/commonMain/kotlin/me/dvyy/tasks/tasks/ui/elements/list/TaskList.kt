@@ -23,6 +23,7 @@ import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.tasks.ui.elements.task.Task
 import me.dvyy.tasks.tasks.ui.state.ProjectState
+import me.dvyy.tasks.utils.CachedUpdate
 import me.dvyy.tasks.utils.keyboardAsState
 
 @Composable
@@ -89,7 +90,10 @@ private fun Tasks(
             }
 
             ReorderableTask(key = id, onDropTask = { task.mutate.dropTaskOnThis(it) }) {
-                Task(task, focusRequested = task.selected)
+                CachedUpdate(task, task.uiState, task.setTask) { uiState, update ->
+                    val caching = task.copy(uiState = uiState, setTask = { update(it) })
+                    Task(caching, focusRequested = task.selected)
+                }
             }
             HorizontalDivider()
         }

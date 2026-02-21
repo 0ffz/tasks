@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.geometry.Offset
+import co.touchlab.kermit.Logger
 import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
 import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
@@ -28,11 +29,11 @@ fun ReorderableTask(
     }
         .dragAndDropTarget(
             shouldStartDragAndDrop = { it.isOfType<TaskId>() },
-            target = remember(key) {
+            target = remember(key, onDropTask) {
                 object : DragAndDropTarget {
                     override fun onDrop(event: DragAndDropEvent): Boolean {
                         val draggedKey = event.dataOrNull<TaskId>()
-                        println("Entered task $event with data $draggedKey")
+                        Logger.v { "Entered task $key with data $draggedKey" }
                         if (key != draggedKey) onDropTask(draggedKey ?: return false)
                         return true
                     }

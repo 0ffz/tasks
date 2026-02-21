@@ -20,7 +20,6 @@ import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.NotesTable
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import me.dvyy.tasks.tasks.ui.state.*
-import me.dvyy.tasks.utils.CachedUpdate
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
@@ -113,7 +112,9 @@ class TasksViewModel(
 
     private fun taskMutations(list: ListId, task: TaskId) = object : TaskMutations {
         override fun dropTaskOnThis(other: TaskId) {
-            db.launchMutate(MoveTaskAction(other, toList = list, toTask = task))
+            viewModelScope.launch {
+                db.mutate(MoveTaskAction(other, toList = list, toTask = task))
+            }
         }
 
         override fun onDelete() {
@@ -168,8 +169,6 @@ class TasksViewModel(
     @Composable
     fun rememberUpdatedTaskState(list: ListId, id: TaskId): TaskState? {
         val state = remember(list, id) { watchTask(list, id) }.collectAsState().value ?: return null
-        return CachedUpdate(id, state.uiState, state.setTask) { uiState, update ->
-            state.copy(uiState = uiState, setTask = { update(it) })
-        }
+        return state
     }
 }

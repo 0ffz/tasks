@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
+import me.dvyy.tasks.tasks.ui.elements.task.disableDragGestures
 import me.dvyy.tasks.tasks.ui.state.TaskState
 
 @Composable
@@ -23,7 +24,7 @@ fun TaskCheckBox(
         onClick = { task.updateUi { it.copy(completed = !it.completed) } },
         shape = CircleShape,
         border = null,
-        modifier = Modifier.height(UI.tasks.height)
+        modifier = Modifier.height(UI.tasks.height).disableDragGestures()
     ) {
         when {
             task.uiState.completed -> Icon(completedIcon ?: Icons.Outlined.TaskAlt, contentDescription = "Completed")

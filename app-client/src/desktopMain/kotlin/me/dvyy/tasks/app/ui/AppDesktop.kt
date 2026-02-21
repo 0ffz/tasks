@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
+import co.touchlab.kermit.*
 import me.dvyy.app_client.generated.resources.Res
 import me.dvyy.app_client.generated.resources.icon
 import me.dvyy.tasks.app.createAppKoinApplication
@@ -26,10 +27,30 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
+object ColoredFormatter : MessageStringFormatter {
+    override fun formatSeverity(severity: Severity): String {
+        val color: String = when (severity) {
+            Severity.Verbose -> "\u001B[37m"  // White
+            Severity.Debug -> "\u001B[36m"    // Cyan
+            Severity.Info -> "\u001B[32m"     // Green
+            Severity.Warn -> "\u001B[33m"     // Yellow
+            Severity.Error -> "\u001B[31m"    // Red
+            Severity.Assert -> "\u001B[35m"   // Magenta
+        }
+        return color + "[${severity.name.first().uppercaseChar()}]"
+    }
+
+    override fun formatMessage(severity: Severity?, tag: Tag?, message: Message): String {
+        return super.formatMessage(severity, tag, message) + "\u001B[0m"
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApplicationScope.AppDesktop(overrides: Module = module { }) =
-    KoinIsolatedContext(createAppKoinApplication(overrides = overrides)) {
+fun ApplicationScope.AppDesktop(
+    overrides: Module = module { },
+) = KoinIsolatedContext(createAppKoinApplication(overrides = overrides)) {
+    Logger.setLogWriters(platformLogWriter(ColoredFormatter))
     val windowState = rememberWindowState(width = 1200.dp, height = 960.dp)
     val icon = painterResource(Res.drawable.icon)
     var resizable by remember { mutableStateOf(true) }
