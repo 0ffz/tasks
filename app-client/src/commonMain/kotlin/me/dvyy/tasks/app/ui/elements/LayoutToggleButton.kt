@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.dvyy.tasks.layout.ui.LayoutButton
-import me.dvyy.tasks.tasks.ui.elements.list.optional
+import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 
 @Composable
 fun LayoutToggleButton(

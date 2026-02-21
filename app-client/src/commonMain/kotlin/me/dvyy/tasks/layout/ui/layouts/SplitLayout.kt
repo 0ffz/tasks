@@ -19,8 +19,8 @@ import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.SplitAmount
-import me.dvyy.tasks.tasks.ui.elements.list.Divider
-import me.dvyy.tasks.tasks.ui.elements.list.optional
+import me.dvyy.tasks.tasks.ui.elements.helpers.optional
+import me.dvyy.tasks.tasks.ui.elements.views.Divider
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Duration.Companion.seconds
 

@@ -18,34 +18,33 @@ import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.model.TaskListProperties
+import me.dvyy.tasks.tasks.ui.state.ProjectHeaderState
 import me.dvyy.tasks.utils.CachedUpdate
-import me.dvyy.tasks.utils.Loadable
-import me.dvyy.tasks.utils.loadedOrNull
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun TaskListTitle(
-    props: Loadable<TaskListProperties>,
+fun ProjectHeader(
+    header: ProjectHeaderState,
+    listId: ListId,
     colored: Boolean,
-    interactions: TaskListInteractions? = null,
     loading: Boolean = false,
     showDivider: Boolean = true,
-    key: ListId,
+    addTask: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val color =
-        if (colored) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.onSurface
+    val pd = UI.padding
+    val color = when {
+        colored -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.onSurface
+    }
     val colorFaded = color.fade(alpha = 0.6f)
     Row(
-        modifier.padding(start = UI.padding.md, top = UI.padding.sm, bottom = UI.padding.sm, end = UI.padding.sm),
+        modifier.padding(horizontal = pd.md, vertical = pd.sm),
         verticalAlignment = Alignment.Bottom,
     ) {
-        val loadedProps = props.loadedOrNull() ?: return
-        CachedUpdate(key, loadedProps, interactions?.onPropertiesChanged ?: {}) { props, setProps ->
-            if (props.date != null) {
-                val date = props.date!!
+        when (header) {
+            is ProjectHeaderState.Date -> {
+                val date = header.date
                 Text(
                     "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)} ${date.day}",
                     Modifier.weight(1f, true),
@@ -61,38 +60,46 @@ fun TaskListTitle(
                     overflow = TextOverflow.Clip,
                     color = colorFaded
                 )
-            } else {
-                BasicTextField(
-                    props.displayName ?: "Untitled",
-                    onValueChange = { setProps(props.copy(displayName = it)) },
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                    modifier = Modifier.weight(1f, true),
-                    textStyle = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = color,
-                    ),
-                    maxLines = 1,
-                )
+
             }
-            IconButton(onClick = {
-                interactions?.createNewTask?.invoke(false)
-            }, modifier = Modifier.size(32.dp)) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = "Add task to top",
-                    tint = colorFaded,
-                )
+
+            is ProjectHeaderState.Named -> {
+                CachedUpdate(listId, header.displayName, header.onRename) { name, setName ->
+                    BasicTextField(
+                        name,
+                        onValueChange = { setName(it) },
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                        modifier = Modifier.weight(1f, true),
+                        textStyle = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = color,
+                        ),
+                        maxLines = 1,
+                    )
+                }
+            }
+
+            else -> {
+                //TODO show loading progress indicator
             }
         }
+        // == Add task to top button
+        IconButton(onClick = addTask, modifier = Modifier.size(32.dp)) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = "Add task to top",
+                tint = colorFaded,
+            )
+        }
     }
-    if (showDivider) Box(Modifier.padding(horizontal = UI.padding.md)) {
-        val isLoading = loading || props is Loadable.Loading
 
-        if (!isLoading) HorizontalDivider(
+    // == Loading indicator and divider
+    if (showDivider) Box(Modifier.padding(horizontal = pd.md)) {
+        if (!loading) HorizontalDivider(
             thickness = 2.dp,
             color = color
         )
-        AnimatedVisibility(isLoading, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(loading, enter = fadeIn(), exit = fadeOut()) {
             LinearProgressIndicator(Modifier.height(2.dp).fillMaxWidth())
         }
     }

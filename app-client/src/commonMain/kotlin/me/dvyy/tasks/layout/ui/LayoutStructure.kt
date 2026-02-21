@@ -12,7 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,9 +31,9 @@ import me.dvyy.tasks.layout.ui.LayoutStructure.Single
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import me.dvyy.tasks.tasks.ui.elements.list.AllProjectsView
 import me.dvyy.tasks.tasks.ui.elements.list.Project
-import me.dvyy.tasks.utils.Loadable
+import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
+import me.dvyy.tasks.tasks.ui.elements.views.AllProjectsView
 import org.koin.compose.viewmodel.koinViewModel
 
 object DpSerializer : KSerializer<Dp> {
@@ -128,7 +127,7 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-                me.dvyy.tasks.tasks.ui.elements.list.WeekView(startAtToday = startAtToday, takeDays = takeDays)
+                me.dvyy.tasks.tasks.ui.elements.views.WeekView(startAtToday = startAtToday, takeDays = takeDays)
             }
         }
 
@@ -181,19 +180,15 @@ sealed interface LayoutStructure {
             override fun tabLabel(location: Location) {
                 val tasks: TasksViewModel = koinViewModel()
                 val dialogs: DialogViewModel = koinViewModel()
-                val propsLoadable by tasks.getListProperties(key).collectAsState()
-//                val props = propsLoadable.loadedOrNull() ?: run {
-//                    Text("Loading project...")
-//                    return
-//                }
-                val props = propsLoadable
+                val title = tasks.watchProjectTitle(key.uuid).collectAsState(initial = null).value?.title
                 val icon = when {
-                    props.displayName?.contains(emojiRegex) == true -> null
-                    props.displayName == "Inbox" -> AppIcons.Inbox
+                    //TODO reimplement
+//                    props.displayName?.contains(emojiRegex) == true -> null
+//                    props.displayName == "Inbox" -> AppIcons.Inbox
                     else -> AppIcons.Description
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    DefaultTabLabel(icon, props.displayName ?: "Untitled")
+                    DefaultTabLabel(icon, title ?: "Untitled")
                     if (location == Location.Sidebar) {
                         Spacer(Modifier.weight(1f))
                         IconButton(
@@ -208,10 +203,8 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-                val tasks: TasksViewModel = koinViewModel()
-                val propLoadable by tasks.getListProperties(key).collectAsState()
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    Project(key, Loadable.Loaded(propLoadable), scrollable = false)
+                    Project(key, displayOptions = rememberProjectDisplayOptions(scrollable = false))
                 }
             }
 

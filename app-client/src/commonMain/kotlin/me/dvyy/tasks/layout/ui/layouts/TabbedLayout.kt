@@ -33,7 +33,7 @@ import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutViewModel
-import me.dvyy.tasks.tasks.ui.elements.list.optional
+import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

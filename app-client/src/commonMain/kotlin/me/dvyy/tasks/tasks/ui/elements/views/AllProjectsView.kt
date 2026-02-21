@@ -1,4 +1,4 @@
-package me.dvyy.tasks.tasks.ui.elements.list
+package me.dvyy.tasks.tasks.ui.elements.views
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -27,10 +27,9 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.model.TaskListProperties
 import me.dvyy.tasks.model.asList
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import me.dvyy.tasks.utils.Loadable
+import me.dvyy.tasks.tasks.ui.elements.list.Project
 
 @Composable
 fun AllProjectsView(
@@ -42,17 +41,8 @@ fun AllProjectsView(
     val ui = LocalUIState.current
     val projects by tasksViewModel.projects.collectAsState(listOf())
     ProjectLayout(modifier, horizontal, staggered, projects, { it.id }) { key ->
-//        Text(key.project.title, modifier = Modifier.width(ui.taskListWidth),)
         val listId = key.id.asList()
-        val tasks by remember(listId) { tasksViewModel.watchTasksFor(listId.uuid) }.collectAsState(listOf())
-        TaskList(
-            listId = listId,
-            tasks = Loadable.Loaded(tasks),
-            properties = TaskListProperties(displayName = key.project.title),
-            reorderInteractions = tasksViewModel.reorderInteractions(),
-            interactions = tasksViewModel.listInteractionsFor(listId.uuid),
-            modifier = Modifier.width(ui.taskListWidth),
-        )
+        Project(listId, Modifier.width(ui.taskListWidth))
     }
 }
 

@@ -1,4 +1,4 @@
-package me.dvyy.tasks.tasks.ui.elements.list
+package me.dvyy.tasks.tasks.ui.elements.views
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -17,6 +17,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.Cursors
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
+import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 
 @Composable
 fun Divider(

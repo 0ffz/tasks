@@ -16,7 +16,7 @@ import me.dvyy.syncengine.server.schema.mockService
 import me.dvyy.syncengine.sync.SyncService
 import me.dvyy.tasks.app.ui.AppDesktop
 import me.dvyy.tasks.helpers.loggerNamed
-import me.dvyy.tasks.model.components.Task
+import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.AppSchema
 import me.dvyy.tasks.model.database.commonSyncModule
@@ -74,7 +74,8 @@ class DbConnectionTest : DbTest() {
             queries.get(id) to queries.get(id2)
         }
 
-        val expected = Task(text = "hello world 2", parent = parent) to Task(text = "hello world", parent = parent)
+        val expected =
+            TaskModel(text = "hello world 2", parent = parent) to TaskModel(text = "hello world", parent = parent)
         serverTask shouldBe expected
         clientTask shouldBe expected
     }

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import me.dvyy.syncengine.actions.Action
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
-import me.dvyy.tasks.model.components.Task
+import me.dvyy.tasks.model.components.TaskModel
 
 @Serializable
 data class MoveTaskAction(
@@ -20,4 +20,4 @@ data class MoveTaskAction(
 }
 
 @Serializable
-data class CreateTaskAction(val task: Task, val atEnd: Boolean) : Action
+data class CreateTaskAction(val task: TaskModel, val atEnd: Boolean) : Action

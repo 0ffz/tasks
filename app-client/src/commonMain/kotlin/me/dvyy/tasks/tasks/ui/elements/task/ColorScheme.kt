@@ -1,6 +1,7 @@
 package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
@@ -10,6 +11,12 @@ import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.Highlight.Type
 import org.koin.compose.viewmodel.koinViewModel
+
+@Stable
+interface ColorScheme {
+    val lightAndDark: Boolean
+    fun color(highlight: Highlight): Color
+}
 
 @Serializable
 data class SerializableColorScheme(
@@ -46,10 +53,6 @@ data class SerializableColorScheme(
             Type.Light -> Color(darkInts[6])
         }
     }
-}
-interface ColorScheme {
-    val lightAndDark: Boolean
-    fun color(highlight: Highlight): Color
 }
 
 object EspressoLibreColorScheme : ColorScheme {

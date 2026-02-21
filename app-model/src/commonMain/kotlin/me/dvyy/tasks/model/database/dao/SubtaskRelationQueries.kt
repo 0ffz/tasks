@@ -4,13 +4,13 @@ import me.dvyy.sqlite.Transaction
 import me.dvyy.sqlite.WriteTransaction
 import me.dvyy.sqlite.statement.getUuid
 import me.dvyy.syncengine.jsonactions.JsonDataQueries
-import me.dvyy.tasks.model.components.Task
+import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.rank.RankFunctions
 import kotlin.uuid.Uuid
 
 //TODO filter owner when using get
 class SubtaskRelationQueries(
-    val tasks: JsonDataQueries<Task>,
+    val tasks: JsonDataQueries<TaskModel>,
 ) {
     context(tx: Transaction)
     fun childrenOf(uuid: Uuid): List<Uuid> =

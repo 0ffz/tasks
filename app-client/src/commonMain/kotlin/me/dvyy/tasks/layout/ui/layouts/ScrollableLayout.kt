@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import me.dvyy.tasks.core.ui.components.ColumnOrRow
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
-import me.dvyy.tasks.tasks.ui.elements.list.Divider
+import me.dvyy.tasks.tasks.ui.elements.views.Divider
 
 @Composable
 fun ScrollableLayout(

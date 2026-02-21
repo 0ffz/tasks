@@ -14,7 +14,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.layout.ui.LayoutStructure
-import me.dvyy.tasks.tasks.ui.elements.list.optional
+import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

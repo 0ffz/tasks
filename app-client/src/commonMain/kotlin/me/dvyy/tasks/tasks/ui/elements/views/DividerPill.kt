@@ -1,4 +1,4 @@
-package me.dvyy.tasks.tasks.ui.elements.list
+package me.dvyy.tasks.tasks.ui.elements.views
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box

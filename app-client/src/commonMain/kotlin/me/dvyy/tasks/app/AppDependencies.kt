@@ -10,7 +10,6 @@ import me.dvyy.syncengine.sync.SyncService
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
-import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.auth.data.AuthAPI
@@ -25,6 +24,7 @@ import me.dvyy.tasks.sync.data.KtorSyncService
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.takeout.takeoutModule
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.time.TimeViewModel
 import org.koin.core.KoinApplication
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf

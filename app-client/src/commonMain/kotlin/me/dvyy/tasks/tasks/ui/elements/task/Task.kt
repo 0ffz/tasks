@@ -2,7 +2,6 @@ package me.dvyy.tasks.tasks.ui.elements.task
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,37 +9,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
-import me.dvyy.tasks.tasks.ui.TaskInteractions
-import me.dvyy.tasks.tasks.ui.state.TaskUiState
+import me.dvyy.tasks.tasks.ui.elements.task.properties.TaskOptions
+import me.dvyy.tasks.tasks.ui.elements.task.text.TaskCheckBox
+import me.dvyy.tasks.tasks.ui.elements.task.text.TaskHighlight
+import me.dvyy.tasks.tasks.ui.elements.task.text.TaskTextField
+import me.dvyy.tasks.tasks.ui.state.TaskState
 
 @Composable
 fun Task(
-    task: TaskUiState,
-    setTask: (TaskUiState) -> Unit,
-    selected: Boolean,
-    interactions: TaskInteractions,
+    task: TaskState,
     focusRequested: Boolean = false,
-    date: LocalDate? = null,
     forceShowCheckbox: Boolean = false,
     overrideCheckboxIcon: ImageVector? = null,
     overrideCheckboxCompletedIcon: ImageVector? = null,
 ) {
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
-    val selectedState by rememberUpdatedState(selected)
+    val selectedState by rememberUpdatedState(task.selected)
     LaunchedEffect(task) {
         snapshotFlow { selectedState }
             .drop(1)
             .filter { !it } // Listen to deselect
             .collect {
-                if (task.text.isEmpty()) interactions.onDelete()
+                if (task.uiState.text.isEmpty()) task.mutate.onDelete()
             }
     }
 
@@ -52,50 +48,31 @@ fun Task(
             )
             .heightIn(min = ui.tasks.height)
             .focusProperties { canFocus = false }
-            .clickableWithoutRipple {
-                interactions.onSelect()
-            } // Consume click so background (deselect) doesn't get it
-            .onPreviewKeyEvent(interactions::onKeyEvent)
+            .clickableWithoutRipple { task.mutate.onSelect() } // Consume click so deselect doesn't get called
+            .onPreviewKeyEvent(task.mutate::onKeyEvent)
     ) {
-        TaskSelectedSurface(
-            selected,
-            task.highlight,
-        ) {
+        TaskSelectedSurface(task.selected, task.uiState.highlight) {
             Column {
                 Row(
                     verticalAlignment = Alignment.Top,
                     modifier = Modifier.padding(start = ui.horizontalTaskTextPadding),
                 ) {
                     Box(Modifier.weight(1f, true), contentAlignment = Alignment.CenterStart) {
-                        if (!selected) TaskHighlight(task.text, task.highlight, task.completed)
-                        TaskTextField(task, selected, setTask, interactions, focusRequested)
+                        if (!task.selected) TaskHighlight(task.uiState)
+                        TaskTextField(task, focusRequested)
                     }
                     val responsive = LocalUIState.current
 
-                    if (forceShowCheckbox || responsive.alwaysShowCheckbox || isHovered || selected)
-                        TaskCheckBox(
-                            selected,
-                            task,
-                            setTask,
-                            icon = overrideCheckboxIcon,
-                            completedIcon = overrideCheckboxCompletedIcon
-                        )
+                    if (forceShowCheckbox || responsive.alwaysShowCheckbox || isHovered || task.selected)
+                        TaskCheckBox(task, icon = overrideCheckboxIcon, completedIcon = overrideCheckboxCompletedIcon)
                 }
                 AnimatedVisibility(
-                    selected,
+                    task.selected,
                     enter = fadeIn(tween(delayMillis = 100)) + expandVertically(),
                     exit = fadeOut(tween(durationMillis = 100)) + shrinkVertically(),
-                    modifier = Modifier
-                        .pointerInput(Unit) {
-                            detectDragGestures { _, _ -> }
-                        }
+                    modifier = Modifier.disableDragGestures()
                 ) {
-                    TaskOptions(
-                        task = task,
-                        setTask = setTask,
-                        initialDate = date,
-                        interactions = interactions
-                    )
+                    TaskOptions(task)
                 }
             }
         }

@@ -21,7 +21,7 @@ import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.settings.ui.RowOrBox
 import me.dvyy.tasks.settings.ui.SettingsScreen
-import me.dvyy.tasks.tasks.ui.elements.list.optional
+import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import org.koin.compose.viewmodel.koinViewModel
 
 sealed interface AppScreen {

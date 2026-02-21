@@ -25,4 +25,8 @@ class AppDatabase(
     suspend fun mutate(mutator: Action) {
         actions.invoke(mutator)
     }
+
+    fun launchMutate(mutator: Action) {
+        actions.invokeAsync(mutator)
+    }
 }

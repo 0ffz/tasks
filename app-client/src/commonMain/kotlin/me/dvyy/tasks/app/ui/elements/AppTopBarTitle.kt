@@ -9,7 +9,7 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextOverflow
-import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.time.TimeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

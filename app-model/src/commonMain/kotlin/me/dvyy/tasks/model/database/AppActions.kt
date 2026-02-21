@@ -6,7 +6,7 @@ import me.dvyy.syncengine.jsonactions.JsonActions
 import me.dvyy.syncengine.jsonactions.JsonDataQueries
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.asTask
-import me.dvyy.tasks.model.components.Task
+import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import kotlin.uuid.Uuid
@@ -28,7 +28,7 @@ class TaskActions(
     private val db: Database,
 ) {
     val json = JsonActions(db, appQueries.tasks, actions)
-    suspend fun create(task: Task, atEnd: Boolean = true) {
+    suspend fun create(task: TaskModel, atEnd: Boolean = true) {
         actions.invoke(CreateTaskAction(task, atEnd))
     }
 
@@ -36,7 +36,7 @@ class TaskActions(
         actions(MoveTaskAction(task.asTask(), toList))
     }
 
-    suspend fun update(id: Uuid, new: Task) {
+    suspend fun update(id: Uuid, new: TaskModel) {
         json.patch(id, new)
     }
 

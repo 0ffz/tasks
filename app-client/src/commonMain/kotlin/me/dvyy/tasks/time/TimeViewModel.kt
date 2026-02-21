@@ -1,4 +1,4 @@
-package me.dvyy.tasks.app.ui
+package me.dvyy.tasks.time
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,4 @@
-package me.dvyy.tasks.tasks.ui.elements.list
+package me.dvyy.tasks.tasks.ui.elements.helpers
 
 import androidx.compose.foundation.gestures.Orientation
 

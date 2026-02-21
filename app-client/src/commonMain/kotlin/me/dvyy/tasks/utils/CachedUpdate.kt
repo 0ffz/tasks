@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.onEach
 
 // from https://stackoverflow.com/questions/76193549/how-to-use-database-as-source-of-truth-for-text-state-while-updating-textinput-q
 @Composable
-fun <T> CachedUpdate(
+fun <T, R> CachedUpdate(
     key: Any,
     value: T,
     onValueChanged: (T) -> Unit,
     debounceMillis: Long = 300,
-    content: @Composable (cached: T, setCached: (T) -> Unit) -> Unit,
-) {
+    content: @Composable (cached: T, setCached: (T) -> Unit) -> R,
+): R {
     // this will run whenever a new value comes in from the outside (e.g. from DB)
     val cached = remember(key) { mutableStateOf(value) }
     val toPush = remember { mutableStateOf<T?>(null) }
@@ -41,7 +41,7 @@ fun <T> CachedUpdate(
         if (!awaitingPush) cached.value = value
     }
 
-    content(cached.value) {
+    return content(cached.value) {
         cached.value = it
         toPush.value = it
     }

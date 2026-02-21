@@ -8,7 +8,7 @@ import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import me.dvyy.tasks.app.ui.TimeViewModel
+import me.dvyy.tasks.time.TimeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

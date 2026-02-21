@@ -7,11 +7,11 @@ import me.dvyy.tasks.model.Highlight
 import kotlin.uuid.Uuid
 
 @Serializable
-data class Task(
+data class TaskModel(
     val text: String,
     @EncodeDefault(Mode.ALWAYS)
     val done: Boolean = false,
     val highlight: Highlight? = null,
-    val parent: Uuid,
+    val parent: Uuid? = null,
     val rank: String? = null,
 )
