@@ -26,7 +26,7 @@ val TasksView = view("tasks", NotesTable) {
     text("highlight")
     text("rank")
 }
-val ProjectsView = view("projects", NotesTable) {
+val ProjectsView = view("projects", NotesTable, where = "data ->> '$.type' = 'project'") {
     text("title")
 }
 

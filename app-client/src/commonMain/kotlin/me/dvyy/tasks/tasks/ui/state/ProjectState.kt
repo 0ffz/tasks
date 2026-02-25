@@ -1,12 +1,13 @@
 package me.dvyy.tasks.tasks.ui.state
 
 import androidx.compose.runtime.Stable
+import kotlinx.collections.immutable.ImmutableList
 import me.dvyy.tasks.model.TaskId
 
 @Stable
 data class ProjectState(
     val header: ProjectHeaderState,
-    val children: List<TaskId>,
+    val children: ImmutableList<TaskId>,
     val mutate: ProjectMutations,
 )
 

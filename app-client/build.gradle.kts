@@ -45,6 +45,9 @@ kotlin {
 //                implementation("org.jetbrains.compose.material3:material3:1.9.0-beta03")
                 implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
                 implementation("org.jetbrains.compose.ui:ui:1.10.0-rc02")
+                implementation("io.github.theapache64:rebugger:1.0.1")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.serialization.cbor)

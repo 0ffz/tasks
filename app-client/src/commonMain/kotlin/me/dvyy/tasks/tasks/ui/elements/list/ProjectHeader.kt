@@ -32,14 +32,14 @@ fun ProjectHeader(
     addTask: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val pd = UI.padding
+    UI.padding
     val color = when {
         colored -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.onSurface
     }
     val colorFaded = color.fade(alpha = 0.6f)
     Row(
-        modifier.padding(horizontal = pd.md, vertical = pd.sm),
+        modifier,//padding(horizontal = pd.md, vertical = pd.sm),
         verticalAlignment = Alignment.Bottom,
     ) {
         when (header) {
@@ -94,7 +94,7 @@ fun ProjectHeader(
     }
 
     // == Loading indicator and divider
-    if (showDivider) Box(Modifier.padding(horizontal = pd.md)) {
+    if (showDivider) Box(Modifier/*.padding(horizontal = pd.md)*/) {
         if (!loading) HorizontalDivider(
             thickness = 2.dp,
             color = color

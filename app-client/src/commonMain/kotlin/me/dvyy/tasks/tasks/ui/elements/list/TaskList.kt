@@ -3,16 +3,15 @@ package me.dvyy.tasks.tasks.ui.elements.list
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.theapache64.rebugger.Rebugger
+import kotlinx.collections.immutable.ImmutableList
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.dataOrNull
 import me.dvyy.tasks.core.ui.isOfType
@@ -47,7 +46,7 @@ fun Project(
         }
     )
     Column(
-        modifier.padding(top = 6.dp).fillMaxWidth()
+        modifier.padding(top = 6.dp, start = 6.dp, end = 6.dp).fillMaxWidth()
     ) {
         // == Header
         ProjectHeader(state.header, list, displayOptions.coloredHeader, addTask = {
@@ -75,31 +74,39 @@ fun Project(
 @Composable
 private fun Tasks(
     list: ListId,
-    ids: List<TaskId>,
+    ids: ImmutableList<TaskId>,
     viewModel: TasksViewModel = viewModel(),
 ) {
-    Column(Modifier.padding(horizontal = 6.dp)) {
+    //TODO double check what this does
+    val focusManager = LocalFocusManager.current
+    val keyboardOpen by keyboardAsState()
+    LaunchedEffect(keyboardOpen) {
+        if (!keyboardOpen) {
+            focusManager.clearFocus()
+        }
+    }
+    Column {
+        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
         for (id in ids) {
-            val task = viewModel.rememberUpdatedTaskState(list, id) ?: return@Column
-            val focusManager = LocalFocusManager.current
-            val keyboardOpen by keyboardAsState()
-            LaunchedEffect(keyboardOpen) {
-                if (!keyboardOpen) {
-                    focusManager.clearFocus()
-                }
+            key(id) {
+                TaskFromId(list, id)
+                HorizontalDivider()
             }
-
-            ReorderableTask(key = id, onDropTask = { task.mutate.dropTaskOnThis(it) }) {
-                CachedUpdate(task, task.uiState, task.setTask) { uiState, update ->
-                    val caching = task.copy(uiState = uiState, setTask = { update(it) })
-                    Task(caching, focusRequested = task.selected)
-                }
-            }
-            HorizontalDivider()
         }
     }
 }
 
+@Composable
+private fun TaskFromId(list: ListId, id: TaskId, viewModel: TasksViewModel = viewModel()) {
+    val task = remember(list, id) { viewModel.watchTask(list, id) }.collectAsState().value ?: return
+    Rebugger(mapOf("task" to task), composableName = "Task $id")
+    ReorderableTask(key = id, onDropTask = { task.mutate.dropTaskOnThis(it) }) {
+        CachedUpdate(id, task.uiState, task.setTask) { uiState, update ->
+            val caching = task.copy(uiState = uiState, setTask = { update(it) })
+            Task(caching, focusRequested = task.selected)
+        }
+    }
+}
 //@OptIn(ExperimentalFoundationApi::class)
 //@Composable
 //fun TaskList(

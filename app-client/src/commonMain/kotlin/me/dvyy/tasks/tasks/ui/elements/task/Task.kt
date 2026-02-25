@@ -31,12 +31,12 @@ fun Task(
     var isHovered by remember { mutableStateOf(false) }
     val ui = LocalUIState.current
     val selectedState by rememberUpdatedState(task.selected)
-    LaunchedEffect(task) {
+    LaunchedEffect(task.uiState) {
         snapshotFlow { selectedState }
             .drop(1)
             .filter { !it } // Listen to deselect
             .collect {
-                if (task.uiState.text.isEmpty()) task.mutate.onDelete()
+//                if (task.uiState.text.isEmpty()) task.mutate.onDelete()
             }
     }
 
@@ -49,7 +49,7 @@ fun Task(
             .heightIn(min = ui.tasks.height)
             .focusProperties { canFocus = false }
             .clickableWithoutRipple { task.mutate.onSelect() } // Consume click so deselect doesn't get called
-            .onPreviewKeyEvent(task.mutate::onKeyEvent)
+            .onPreviewKeyEvent { task.mutate.onKeyEvent(it, task.uiState) }
     ) {
         TaskSelectedSurface(task.selected, task.uiState.highlight) {
             Column {

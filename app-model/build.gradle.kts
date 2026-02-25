@@ -31,6 +31,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                compileOnly("com.github.skydoves:compose-stable-marker:1.0.7")
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)

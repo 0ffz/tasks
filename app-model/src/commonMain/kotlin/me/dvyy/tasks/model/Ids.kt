@@ -1,5 +1,6 @@
 package me.dvyy.tasks.model
 
+import androidx.compose.runtime.Stable
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -12,6 +13,7 @@ sealed interface EntityId {
 
 @Serializable
 @JvmInline
+@Stable
 value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
     companion object {
         fun new(): TaskId = TaskId(Uuid.random())
@@ -20,8 +22,8 @@ value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
 
 @Serializable
 @JvmInline
+@Stable
 value class ListId(override val uuid: @Contextual Uuid) : EntityId {
-
     val isDate: Boolean get() = uuid.toLongs { top, _ -> top == TOP_BITS }
     val date: LocalDate?
         get() = if (isDate) LocalDate.fromEpochDays(uuid.toLongs { _, bottom -> bottom.toInt() })

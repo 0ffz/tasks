@@ -45,7 +45,7 @@ data class TaskState(
 interface TaskMutations {
     fun moveTo(date: LocalDate) {}
     fun onDelete() {}
-    fun onKeyEvent(event: KeyEvent): Boolean = false
+    fun onKeyEvent(event: KeyEvent, uiState: TaskUiState): Boolean = false
     fun onSelect() {}
     fun dropTaskOnThis(other: TaskId)
 }

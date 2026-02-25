@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -36,8 +38,8 @@ class TasksViewModel(
         val mutations = projectMutations(list)
 
         return combine(
-            watchChildren(list.uuid),
-            watchProjectTitle(list.uuid),
+            watchChildren(list.uuid).distinctUntilChanged(),
+            watchProjectTitle(list.uuid).distinctUntilChanged(),
         ) { children, model ->
             val header = when {
                 list.isDate -> ProjectHeaderState.Date(date = list.date!!)
@@ -46,11 +48,11 @@ class TasksViewModel(
                     onRename = { renameProject(list, it) }
                 )
             }
-            ProjectState(header, children, mutations)
+            ProjectState(header, children.toImmutableList(), mutations)
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5_000),
-            ProjectState(ProjectHeaderState.Loading, emptyList(), mutations)
+            ProjectState(ProjectHeaderState.Loading, persistentListOf(), mutations)
         )
     }
 
@@ -66,9 +68,10 @@ class TasksViewModel(
     fun watchTask(list: ListId, id: TaskId): StateFlow<TaskState?> {
         val mutations = taskMutations(list, id)
         return combine(
-            selectedTask.map { it?.task == id.uuid },
-            watchTaskUiState(id)
+            selectedTask.map { it?.task == id.uuid }.distinctUntilChanged(),
+            watchTaskUiState(id).distinctUntilChanged()
         ) { selected, ui ->
+            println("Sending task $id")
             if (ui == null) return@combine null
             TaskState(uiState = ui, selected = selected, setTask = { mutateTask(id, it) }, mutate = mutations)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -123,11 +126,11 @@ class TasksViewModel(
             }
         }
 
-        override fun onKeyEvent(event: KeyEvent): Boolean {
+        override fun onKeyEvent(event: KeyEvent, uiState: TaskUiState): Boolean {
             if (event.type == KeyEventType.KeyUp) return false
             return when {
                 event.key == Key.Enter -> {
-                    selectNextTaskOrNew()
+                    if (uiState.text.isNotEmpty()) selectNextTaskOrNew()
                     true
                 }
 
@@ -139,15 +142,15 @@ class TasksViewModel(
     }
 
     fun createAndSelectNewTask(list: Uuid, atEnd: Boolean = true) = viewModelScope.launch {
-        val isLastEmpty = db.read {
-            val task =
-                (if (atEnd) rank.getLastTaskInList(list) else rank.getFirstTaskInList(list)) ?: return@read false
-            tasks.get(task)?.text?.isEmpty() == true
-        }
-        if (!isLastEmpty) {
-            db.mutate.tasks.create(TaskModel(text = "", done = false, parent = list), atEnd = atEnd)
-            delay(0.03.seconds)
-        }
+//        val isLastEmpty = db.read {
+//            val task =
+//                (if (atEnd) rank.getLastTaskInList(list) else rank.getFirstTaskInList(list)) ?: return@read false
+//            tasks.get(task)?.text?.isEmpty() == true
+//        }
+//        if (!isLastEmpty) {
+        db.mutate.tasks.create(TaskModel(text = "", done = false, parent = list), atEnd = atEnd)
+        delay(0.03.seconds)
+//        }
         db.read {
             val task = (if (atEnd) rank.getLastTaskInList(list) else rank.getFirstTaskInList(list)) ?: return@read
             selectTask(TaskInList(list, task))
