@@ -5,6 +5,7 @@ import me.dvyy.syncengine.actions.Action
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.components.TaskModel
+import kotlin.uuid.Uuid
 
 @Serializable
 data class MoveTaskAction(
@@ -20,4 +21,4 @@ data class MoveTaskAction(
 }
 
 @Serializable
-data class CreateTaskAction(val task: TaskModel, val atEnd: Boolean) : Action
+data class CreateTaskAction(val uuid: Uuid, val task: TaskModel, val atEnd: Boolean) : Action

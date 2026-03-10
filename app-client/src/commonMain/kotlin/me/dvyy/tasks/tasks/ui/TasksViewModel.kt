@@ -7,7 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.collections.immutable.persistentListOf
+import app.cash.molecule.RecompositionMode
+import app.cash.molecule.launchMolecule
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -37,7 +38,19 @@ class TasksViewModel(
     fun watchList(list: ListId): StateFlow<ProjectState> {
         val mutations = projectMutations(list)
 
-        return combine(
+        return viewModelScope.launchMolecule(RecompositionMode.Immediate) {
+            val children by remember { watchChildren(list.uuid) }.collectAsState(listOf())
+            val model by remember { watchProjectTitle(list.uuid) }.collectAsState(null)
+            val header = when {
+                list.isDate -> ProjectHeaderState.Date(date = list.date!!)
+                else -> ProjectHeaderState.Named(
+                    displayName = model?.title ?: "Untitled",
+                    onRename = { renameProject(list, it) }
+                )
+            }
+            ProjectState(header, children.toImmutableList(), mutations)
+        }
+        /*return combine(
             watchChildren(list.uuid).distinctUntilChanged(),
             watchProjectTitle(list.uuid).distinctUntilChanged(),
         ) { children, model ->
@@ -53,7 +66,7 @@ class TasksViewModel(
             viewModelScope,
             SharingStarted.WhileSubscribed(5_000),
             ProjectState(ProjectHeaderState.Loading, persistentListOf(), mutations)
-        )
+        )*/
     }
 
 
@@ -71,7 +84,7 @@ class TasksViewModel(
             selectedTask.map { it?.task == id.uuid }.distinctUntilChanged(),
             watchTaskUiState(id).distinctUntilChanged()
         ) { selected, ui ->
-            println("Sending task $id")
+            println("Sending task $id, state $ui")
             if (ui == null) return@combine null
             TaskState(uiState = ui, selected = selected, setTask = { mutateTask(id, it) }, mutate = mutations)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)

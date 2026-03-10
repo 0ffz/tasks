@@ -7,7 +7,6 @@ import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import me.dvyy.tasks.model.rank.RankFunctions
-import kotlin.uuid.Uuid
 
 fun MutableReducers.taskReducers(db: AppQueries) {
     reduce<MoveTaskAction> {
@@ -18,12 +17,12 @@ fun MutableReducers.taskReducers(db: AppQueries) {
         }
         if (it.toTask != null) db.rank.moveToTask(it.task.uuid, it.toTask.uuid)
     }
-    reduce<CreateTaskAction> { (task, atEnd) ->
+    reduce<CreateTaskAction> { (uuid, task, atEnd) ->
         val list = task.parent ?: return@reduce
         val rank =
             (if (atEnd) db.rank.getLastRankInList(list)?.let { RankFunctions.getRankAfter(it) }
             else db.rank.getFirstRankInList(list)?.let { RankFunctions.getRankBefore(it) })
                 ?: RankFunctions.middleChar.toString()
-        db.tasks.create(Uuid.random(), Json.encodeToJsonElement(task.copy(rank = rank)))
+        db.tasks.create(uuid, Json.encodeToJsonElement(task.copy(rank = rank)))
     }
 }

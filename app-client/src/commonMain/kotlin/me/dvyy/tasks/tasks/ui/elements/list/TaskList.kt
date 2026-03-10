@@ -10,7 +10,6 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.theapache64.rebugger.Rebugger
 import kotlinx.collections.immutable.ImmutableList
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.dataOrNull
@@ -86,7 +85,7 @@ private fun Tasks(
         }
     }
     Column {
-        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
+//        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
         for (id in ids) {
             key(id) {
                 TaskFromId(list, id)
@@ -99,7 +98,7 @@ private fun Tasks(
 @Composable
 private fun TaskFromId(list: ListId, id: TaskId, viewModel: TasksViewModel = viewModel()) {
     val task = remember(list, id) { viewModel.watchTask(list, id) }.collectAsState().value ?: return
-    Rebugger(mapOf("task" to task), composableName = "Task $id")
+//    Rebugger(mapOf("task" to task), composableName = "Task $id")
     ReorderableTask(key = id, onDropTask = { task.mutate.dropTaskOnThis(it) }) {
         CachedUpdate(id, task.uiState, task.setTask) { uiState, update ->
             val caching = task.copy(uiState = uiState, setTask = { update(it) })

@@ -23,7 +23,7 @@ data class ProjectWithId(
 
 class Projects {
     context(tx: Transaction)
-    fun getAll(): List<ProjectWithId> = tx.select("SELECT id, title FROM projects").map {
+    fun getAll(): List<ProjectWithId> = tx.select("SELECT id, title FROM projects ORDER BY id").map {
         ProjectWithId(getUuid(0), getText(1))
     }
 

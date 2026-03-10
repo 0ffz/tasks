@@ -29,7 +29,7 @@ class TaskActions(
 ) {
     val json = JsonActions(db, appQueries.tasks, actions)
     suspend fun create(task: TaskModel, atEnd: Boolean = true) {
-        actions.invoke(CreateTaskAction(task, atEnd))
+        actions.invoke(CreateTaskAction(Uuid.random(), task, atEnd))
     }
 
     suspend fun move(task: Uuid, toList: ListId) {

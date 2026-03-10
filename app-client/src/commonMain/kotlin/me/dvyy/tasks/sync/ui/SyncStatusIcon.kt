@@ -1,25 +1,17 @@
 package me.dvyy.tasks.sync.ui
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.PublishedWithChanges
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncDisabled
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.onEach
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun SyncIndicator(
@@ -27,53 +19,50 @@ fun SyncIndicator(
 ) {
     val state by sync.syncState.collectAsState()
     val icon = when (state) {
-        is SyncState.Error -> Icons.Outlined.SyncProblem
-        is SyncState.Disconnected -> Icons.Outlined.SyncDisabled
+        is SyncUiState.Error -> Icons.Outlined.SyncProblem
+        is SyncUiState.Disabled -> Icons.Outlined.SyncDisabled
         else -> Icons.Outlined.Sync
     }
     Crossfade(state) {
         val color =
-            if (state is SyncState.Connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            if (state is SyncUiState.Connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
         IconButton(
-            onClick = {
-                TODO()
-//                if (state == SyncState.Connected) sync.stopSyncJob() else sync.startSyncJob()
-            },
+            onClick = { sync.toggleSync() },
         ) {
             Icon(icon, contentDescription = "Sync", tint = color)
         }
     }
 }
 
-@Composable
-fun SyncStatusIcon(
-    sync: SyncViewModel = koinViewModel(),
-) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(1000))
-    )
-    var syncState: SyncState by remember { mutableStateOf(SyncState.UnSynced) }
-    LaunchedEffect(Unit) {
-        sync.syncState.onEach {
-            syncState = it
-        }.debounce(2.seconds).collect {
-            syncState = SyncState.UnSynced
-        }
-    }
-
-    Crossfade(syncState) {
-        val icon = when (it) {
-            is SyncState.Error -> Icons.Outlined.SyncProblem
-            is SyncState.Success -> Icons.Outlined.PublishedWithChanges
-            else -> Icons.Outlined.Sync
-        }
-        Icon(
-            icon,
-            contentDescription = "Sync",
-            modifier = Modifier.rotate(if (syncState is SyncState.InProgress) -rotation else 0f)
-        )
-    }
-}
+//@Composable
+//fun SyncStatusIcon(
+//    sync: SyncViewModel = koinViewModel(),
+//) {
+//    val infiniteTransition = rememberInfiniteTransition()
+//    val rotation by infiniteTransition.animateFloat(
+//        initialValue = 0f,
+//        targetValue = 360f,
+//        animationSpec = infiniteRepeatable(tween(1000))
+//    )
+//    var syncState: SyncUiState by remember { mutableStateOf(SyncUiState.UnSynced) }
+//    LaunchedEffect(Unit) {
+//        sync.syncState.onEach {
+//            syncState = it
+//        }.debounce(2.seconds).collect {
+//            syncState = SyncUiState.UnSynced
+//        }
+//    }
+//
+//    Crossfade(syncState) {
+//        val icon = when (it) {
+//            is SyncUiState.Error -> Icons.Outlined.SyncProblem
+//            is SyncUiState.Success -> Icons.Outlined.PublishedWithChanges
+//            else -> Icons.Outlined.Sync
+//        }
+//        Icon(
+//            icon,
+//            contentDescription = "Sync",
+//            modifier = Modifier.rotate(if (syncState is SyncUiState.InProgress) -rotation else 0f)
+//        )
+//    }
+//}
