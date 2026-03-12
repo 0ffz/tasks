@@ -13,6 +13,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.asTask
@@ -127,6 +128,11 @@ class TasksViewModel(
     }
 
     private fun taskMutations(list: ListId, task: TaskId) = object : TaskMutations {
+        override fun moveTo(date: LocalDate) {
+            viewModelScope.launch {
+                db.mutate(MoveTaskAction(task, toList = ListId.forDate(date)))
+            }
+        }
         override fun dropTaskOnThis(other: TaskId) {
             viewModelScope.launch {
                 db.mutate(MoveTaskAction(other, toList = list, toTask = task))
