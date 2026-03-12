@@ -6,6 +6,7 @@ import me.dvyy.sqlite.Database
 import me.dvyy.syncengine.reducers.Reducers
 import me.dvyy.syncengine.schema.Schema
 import me.dvyy.syncengine.server.schema.SyncServer
+import me.dvyy.syncengine.server.schema.WorkspaceRepository
 import me.dvyy.tasks.config.JWTConfig
 import me.dvyy.tasks.config.LDAPConfig
 import me.dvyy.tasks.model.database.commonSyncModule
@@ -22,10 +23,16 @@ fun Application.module() {
     val koin = koinApplication {
         modules(commonSyncModule())
     }.koin
-    val reducers = koin.get<Reducers>()
-    val schema = koin.get<Schema>()
+    koin.get<Reducers>()
+    koin.get<Schema>()
     val userRepository = UserRepository(database, ServerQueries())
-    val syncServer = SyncServer.of(database, reducers, schema)
+    val syncServer = SyncServer(
+        database,
+        WorkspaceRepository(
+            database,
+            stopTimeoutMillis = environment.config.property("database.stopTimeoutMillis").getString().toLong()
+        )
+    )
     runBlocking {
         userRepository.initialize()
         syncServer.initialize()

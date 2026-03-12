@@ -1,5 +1,6 @@
 package me.dvyy.tasks.plugins
 
+import co.touchlab.kermit.Logger
 import io.ktor.http.*
 import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.*
@@ -34,8 +35,8 @@ fun Application.configureRouting(
                 call.respond(HttpStatusCode.OK)
             }
             webSocket("/sync") {
-                val session =
-                    call.principal<UserSession>() ?: return@webSocket call.respond(HttpStatusCode.Unauthorized)
+                val session = call.principal<UserSession>()
+                    ?: return@webSocket call.respond(HttpStatusCode.Unauthorized)
                 runCatching {
                     val initialRequest = receiveDeserialized<SyncRequest>()
                     syncServer.streamingSync(session.identity, initialRequest, incoming.consumeAsFlow().map {
@@ -44,7 +45,7 @@ fun Application.configureRouting(
                         sendSerialized<SyncResult>(it)
                     }
                 }.onFailure {
-                    println(it.stackTraceToString())
+                    Logger.e(it) { "Sync failed for user id ${session.identity}" }
                 }
             }
         }

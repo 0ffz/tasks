@@ -11,7 +11,7 @@ import me.dvyy.syncengine.client.sync.SyncClient
 import me.dvyy.syncengine.jsonactions.actions.JsonCreateAction
 import me.dvyy.syncengine.jsonactions.actions.JsonPatchAction
 import me.dvyy.syncengine.reducers.Reducers
-import me.dvyy.syncengine.server.schema.SyncServer
+import me.dvyy.syncengine.server.schema.Workspace
 import me.dvyy.syncengine.server.schema.mockService
 import me.dvyy.syncengine.sync.SyncService
 import me.dvyy.tasks.app.ui.AppDesktop
@@ -39,7 +39,7 @@ class DbConnectionTest : DbTest() {
     @Test
     fun testDbConnection() = runTest {
         // Server
-        val server = SyncServer.of(serverDatabase, reducers, AppSchema)
+        val server = Workspace.of(serverDatabase, reducers, AppSchema)
         val mockSyncService = server.mockService(user = 0)
 
         // Client
@@ -83,7 +83,7 @@ class DbConnectionTest : DbTest() {
     @Test
     fun applicationTest() = runTest {
         val serverLogger = loggerNamed("Server")
-        val server = SyncServer.of(serverDatabase, reducers, AppSchema, serverLogger)
+        val server = Workspace.of(serverDatabase, reducers, AppSchema, serverLogger)
         server.initialize()
         application {
             AppDesktop(overrides = module {
