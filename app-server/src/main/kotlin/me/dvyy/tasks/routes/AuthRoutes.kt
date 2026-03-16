@@ -1,5 +1,6 @@
 package me.dvyy.tasks.routes
 
+import co.touchlab.kermit.Logger
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
@@ -20,13 +21,15 @@ fun Route.login(
     jwtConfig: JWTConfig,
 ) = post("/login") {
     val user = call.receive<AuthRequest>()
-
     val userPrincipal = ldapAuthenticate(
         UserPasswordCredential(user.username, user.password),
         ldapConfig.connection,
         ldapConfig.userDNFormat
     )
-        ?: return@post call.respond(HttpStatusCode.Conflict, "Invalid credentials")
+        ?: run {
+            Logger.d { "Invalid credentials" }
+            return@post call.respond(HttpStatusCode.Conflict, "Invalid credentials")
+        }
 
     val userId = userRepository.getOrCreateUserId(userPrincipal.name)
 

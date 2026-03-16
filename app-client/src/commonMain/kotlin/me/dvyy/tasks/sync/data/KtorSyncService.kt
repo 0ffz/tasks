@@ -8,6 +8,7 @@ import me.dvyy.syncengine.sync.SyncRequest
 import me.dvyy.syncengine.sync.SyncResult
 import me.dvyy.syncengine.sync.SyncService
 import me.dvyy.tasks.auth.data.AppHTTP
+import me.dvyy.tasks.utils.UiLogger
 import kotlin.uuid.Uuid
 
 class KtorSyncService(
@@ -16,7 +17,7 @@ class KtorSyncService(
     override suspend fun sync(uuid: Uuid, initialRequest: SyncRequest, request: Flow<SyncRequest>): Flow<SyncResult> =
         if (http.config == null) emptyFlow() else
         flow {
-            println(http.config)
+            UiLogger.v { http.config.toString() }
             http.client.webSocket("/sync") {
                 sendSerialized(initialRequest)
                 launch {

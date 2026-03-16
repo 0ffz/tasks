@@ -22,6 +22,7 @@ import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.tasks.ui.elements.task.Task
 import me.dvyy.tasks.tasks.ui.state.ProjectState
 import me.dvyy.tasks.utils.CachedUpdate
+import me.dvyy.tasks.utils.UiLogger
 import me.dvyy.tasks.utils.keyboardAsState
 
 @Composable
@@ -37,7 +38,7 @@ fun Project(
         target = remember(list) {
             object : DragAndDropTarget {
                 override fun onDrop(event: DragAndDropEvent): Boolean {
-                    println("reordering $event")
+                    UiLogger.v { "reordering $event" }
                     state.mutate.moveTask(event.dataOrNull<TaskId>() ?: return false)
                     return true
                 }

@@ -24,6 +24,7 @@ import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.NotesTable
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import me.dvyy.tasks.tasks.ui.state.*
+import me.dvyy.tasks.utils.UiLogger
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
@@ -85,7 +86,7 @@ class TasksViewModel(
             selectedTask.map { it?.task == id.uuid }.distinctUntilChanged(),
             watchTaskUiState(id).distinctUntilChanged()
         ) { selected, ui ->
-            println("Sending task $id, state $ui")
+            UiLogger.v { "Sending task $id, state $ui" }
             if (ui == null) return@combine null
             TaskState(uiState = ui, selected = selected, setTask = { mutateTask(id, it) }, mutate = mutations)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)

@@ -30,6 +30,7 @@ dependencies {
     implementation("me.dvyy.syncengine:server")
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.cbor)
+    implementation(libs.kotlinx.coroutines.slf4j)
 
     implementation(libs.kermit)
     implementation(libs.ktor.server.core)
@@ -48,7 +49,7 @@ dependencies {
     implementation(libs.ktor.server.config.yaml)
     implementation(libs.ktor.server.websockets)
     implementation(libs.koin.core)
-
+    implementation(libs.koin.ktor)
 }
 
 jib {

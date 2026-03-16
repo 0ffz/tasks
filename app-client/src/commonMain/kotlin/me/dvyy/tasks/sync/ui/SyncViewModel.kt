@@ -60,6 +60,12 @@ class SyncViewModel(
         syncEnabled.update { false }
     }
 
+    fun clearLocalActions() {
+        viewModelScope.launch {
+            syncClient.clearLocalActions()
+        }
+    }
+
     private suspend fun reconnectWithBackoff() {
         var currentDelay = 1000L
         val maxDelay = 60000L

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -64,6 +65,17 @@ fun SettingsSyncTab(
     ) {
         LeadingIcon(Icons.AutoMirrored.Outlined.Logout, contentDescription = "Account") {
             Text(text = "Logout")
+        }
+    }
+    FilledTonalButton(
+        onClick = { sync.clearLocalActions() },
+        colors = ButtonDefaults.filledTonalButtonColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
+        )
+    ) {
+        LeadingIcon(Icons.Outlined.ClearAll, contentDescription = "Clear") {
+            Text(text = "Clear local actions")
         }
     }
 }

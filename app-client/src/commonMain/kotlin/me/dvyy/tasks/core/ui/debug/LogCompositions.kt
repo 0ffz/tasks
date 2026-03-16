@@ -3,6 +3,7 @@ package me.dvyy.tasks.core.ui.debug
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import me.dvyy.tasks.utils.UiLogger
 
 class Ref(var value: Int)
 
@@ -13,5 +14,5 @@ class Ref(var value: Int)
 inline fun LogCompositions(msg: String) {
     val ref = remember { Ref(0) }
     SideEffect { ref.value++ }
-    println("Compositions: $msg ${ref.value}")
+    UiLogger.v { "Compositions: $msg ${ref.value}" }
 }
