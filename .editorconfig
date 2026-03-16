@@ -1,0 +1,5 @@
+[*.kt]
+max_line_length = off
+
+[*.xml]
+max_line_length = off
