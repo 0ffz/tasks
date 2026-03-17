@@ -1,15 +1,19 @@
 package me.dvyy.tasks.tasks.ui.elements.task.text
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.task.disableDragGestures
 import me.dvyy.tasks.tasks.ui.state.TaskState
@@ -26,8 +30,9 @@ fun TaskCheckBox(
         border = null,
         modifier = Modifier.height(UI.tasks.height).disableDragGestures()
     ) {
+        val textColor by animateColorAsState(MaterialTheme.colorScheme.onSurface.fade(if (task.uiState.completed) 0.3f else 1f))
         when {
-            task.uiState.completed -> Icon(completedIcon ?: Icons.Outlined.TaskAlt, contentDescription = "Completed")
+            task.uiState.completed -> Icon(completedIcon ?: Icons.Outlined.TaskAlt, contentDescription = "Completed", tint = textColor)
             else -> Icon(icon ?: Icons.Outlined.RadioButtonUnchecked, contentDescription = "Mark as completed")
         }
     }

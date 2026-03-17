@@ -1,17 +1,29 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinx.serialization)
+//    alias(libs.plugins.stability.analyzer)
 }
 composeCompiler {
-    stabilityConfigurationFile = rootProject.file("compose_compiler_config.conf")
+    stabilityConfigurationFiles.addAll(project.layout.projectDirectory.file("compose_compiler_config.conf"))
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "me.dvyy.tasks.dev"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+//        sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+//
+//        compilerOptions {
+//            jvmTarget.set(JvmTarget.JVM_11)
+//        }
+        androidResources {
+            enable = true
+        }
+    }
     applyDefaultHierarchyTemplate()
-    androidTarget()
     compilerOptions {
         freeCompilerArgs.addAll("-Xexpect-actual-classes")
         freeCompilerArgs.add("-Xcontext-parameters")
@@ -46,8 +58,8 @@ kotlin {
                 implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
                 implementation("org.jetbrains.compose.ui:ui:1.10.0-rc02")
                 implementation("io.github.theapache64:rebugger:1.0.1")
-                implementation("app.cash.molecule:molecule-runtime:2.2.0")
-
+//                implementation("app.cash.molecule:molecule-runtime:2.2.0")
+                implementation("com.mohamedrejeb.dnd:compose-dnd:0.3.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
@@ -63,7 +75,7 @@ kotlin {
                 implementation(libs.multiplatform.settings)
                 implementation(libs.multiplatform.settings.no.arg)
                 implementation(libs.multiplatform.settings.serialization)
-                implementation("org.jetbrains.compose.components:components-resources:1.10.0-rc02")
+                implementation(libs.components.resources)
                 implementation(libs.material3.window.sizeclass.multiplatform)
                 implementation(libs.navigation.compose)
 //                implementation(libs.lifecycle.viewmodel)
@@ -77,7 +89,7 @@ kotlin {
                 implementation("me.dvyy.syncengine:core")
                 implementation("me.dvyy.syncengine:client")
                 implementation("me.dvyy.syncengine:json-actions")
-                implementation("me.dvyy:sqlite-kt:0.0.2-alpha.6")
+                implementation("me.dvyy:sqlite-kt:0.0.3-alpha.2")
             }
         }
         val jvmMain by creating {
@@ -114,24 +126,9 @@ kotlin {
     }
 }
 
-
-android {
-    namespace = "me.dvyy"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-dependencies {
-    implementation(libs.androidx.foundation.android)
-}
+//dependencies {
+//    implementation(libs.androidx.foundation.android)
+//}
 
 //sqldelight {
 //    databases {

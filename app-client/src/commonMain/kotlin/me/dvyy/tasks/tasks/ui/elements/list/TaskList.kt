@@ -1,9 +1,20 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
@@ -98,9 +109,17 @@ private fun Tasks(
 
 @Composable
 private fun TaskFromId(list: ListId, id: TaskId, viewModel: TasksViewModel = viewModel()) {
-    val task = remember(list, id) { viewModel.watchTask(list, id) }.collectAsState().value ?: return
+    val task = remember(list, id) { viewModel.watchTask(list, id) }.collectAsState().value
+    if (task == null) {
+        Box(Modifier.fillMaxWidth().height(UI.tasks.height)) {}
+        return
+    }
 //    Rebugger(mapOf("task" to task), composableName = "Task $id")
-    ReorderableTask(key = id, onDropTask = { task.mutate.dropTaskOnThis(it) }) {
+    ReorderableTask(
+        enabled = !task.selected,
+        key = id,
+        onDropTask = { task.mutate.dropTaskOnThis(it) }
+    ) {
         CachedUpdate(id, task.uiState, task.setTask) { uiState, update ->
             val caching = task.copy(uiState = uiState, setTask = { update(it) })
             Task(caching, focusRequested = task.selected)

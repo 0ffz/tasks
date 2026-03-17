@@ -1,15 +1,26 @@
 package me.dvyy.tasks.plugins
 
 import co.touchlab.kermit.Logger
-import io.ktor.http.*
-import io.ktor.serialization.*
-import io.ktor.serialization.kotlinx.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.websocket.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.deserialize
+import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.call
+import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.principal
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.uri
+import io.ktor.server.response.respond
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import io.ktor.server.websocket.WebSockets
+import io.ktor.server.websocket.converter
+import io.ktor.server.websocket.receiveDeserialized
+import io.ktor.server.websocket.sendSerialized
+import io.ktor.server.websocket.webSocket
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.slf4j.MDCContext
@@ -71,8 +82,9 @@ fun Application.configureRouting(
                             sendSerialized<SyncResult>(it)
                         }
                     }.onFailure {
-                        Logger.e(it) { "Sync failed for user id ${session.identity}" }
+                        Logger.e(it) { "Sync failed" }
                     }
+                    Logger.i { "Sync session complete" }
                 }
             }
         }

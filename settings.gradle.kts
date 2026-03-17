@@ -5,7 +5,7 @@ pluginManagement {
         mavenLocal()
         maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
-    includeBuild("../sqlite-kt")
+//    includeBuild("../sqlite-kt")
 }
 
 plugins {
@@ -18,4 +18,4 @@ rootProject.name = "tasks"
 include("app-client", "app-model", "app-server", "tests")
 include("targets:desktop", "targets:android")
 includeBuild("../syncengine")
-includeBuild("../sqlite-kt")
+//includeBuild("../sqlite-kt")

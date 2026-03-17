@@ -8,11 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun NonlazyGrid(
+inline fun NonlazyGrid(
     columns: Int,
     itemCount: Int,
     modifier: Modifier = Modifier,
-    content: @Composable (Int) -> Unit
+    content: @Composable (Int) -> Unit,
 ) {
     Column(modifier = modifier) {
         var rows = (itemCount / columns)

@@ -4,14 +4,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cash.molecule.RecompositionMode
-import app.cash.molecule.launchMolecule
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.ListId
@@ -23,8 +33,15 @@ import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.NotesTable
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
-import me.dvyy.tasks.tasks.ui.state.*
+import me.dvyy.tasks.tasks.ui.state.ProjectHeaderState
+import me.dvyy.tasks.tasks.ui.state.ProjectMutations
+import me.dvyy.tasks.tasks.ui.state.ProjectState
+import me.dvyy.tasks.tasks.ui.state.TaskMutations
+import me.dvyy.tasks.tasks.ui.state.TaskState
+import me.dvyy.tasks.tasks.ui.state.TaskUiState
 import me.dvyy.tasks.utils.UiLogger
+import me.dvyy.tasks.utils.combinedStateFlow
+import me.dvyy.tasks.utils.defaults
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
@@ -40,9 +57,11 @@ class TasksViewModel(
     fun watchList(list: ListId): StateFlow<ProjectState> {
         val mutations = projectMutations(list)
 
-        return viewModelScope.launchMolecule(RecompositionMode.Immediate) {
-            val children by remember { watchChildren(list.uuid) }.collectAsState(listOf())
-            val model by remember { watchProjectTitle(list.uuid) }.collectAsState(null)
+        return viewModelScope.combinedStateFlow(
+            watchChildren(list.uuid) defaults listOf(),
+            watchProjectTitle(list.uuid) defaults null,
+        ) { children, model ->
+            UiLogger.v { "Sending task list: $children" }
             val header = when {
                 list.isDate -> ProjectHeaderState.Date(date = list.date!!)
                 else -> ProjectHeaderState.Named(
@@ -82,6 +101,7 @@ class TasksViewModel(
 
     fun watchTask(list: ListId, id: TaskId): StateFlow<TaskState?> {
         val mutations = taskMutations(list, id)
+//        return MutableStateFlow(null)
         return combine(
             selectedTask.map { it?.task == id.uuid }.distinctUntilChanged(),
             watchTaskUiState(id).distinctUntilChanged()
@@ -134,6 +154,7 @@ class TasksViewModel(
                 db.mutate(MoveTaskAction(task, toList = ListId.forDate(date)))
             }
         }
+
         override fun dropTaskOnThis(other: TaskId) {
             viewModelScope.launch {
                 db.mutate(MoveTaskAction(other, toList = list, toTask = task))
@@ -150,7 +171,12 @@ class TasksViewModel(
             if (event.type == KeyEventType.KeyUp) return false
             return when {
                 event.key == Key.Enter -> {
-                    if (uiState.text.isNotEmpty()) selectNextTaskOrNew()
+                    selectNext(uiState)
+                    true
+                }
+
+                event.key == Key.Escape -> {
+                    selectTask(null)
                     true
                 }
 
@@ -159,6 +185,10 @@ class TasksViewModel(
         }
 
         override fun onSelect() = selectedTask.update { TaskInList(list.uuid, task.uuid) }
+
+        override fun selectNext(uiState: TaskUiState) {
+            if (uiState.text.isNotEmpty()) selectNextTaskOrNew()
+        }
     }
 
     fun createAndSelectNewTask(list: Uuid, atEnd: Boolean = true) = viewModelScope.launch {

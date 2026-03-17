@@ -1,8 +1,10 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-    kotlin("android")
+//    kotlin("android")
 }
 
 
@@ -23,19 +25,22 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
 }
 
-val androidKeystoreFile: String? by project
-val androidKeystorePassword: String? by project
+val keystoreProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
+}
+val androidKeystoreFile: String? by keystoreProperties
+val androidKeystorePassword: String? by keystoreProperties
 
 android {
     buildFeatures {
         compose = true
     }
-    compileSdk = 35
+    compileSdk = 36
     namespace = "me.dvyy"
     defaultConfig {
-        applicationId = "me.dvyy"
+        applicationId = "me.dvyy.dev"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = version.toString()
 //        setProperty("archivesBaseName", "Tasks-$version")

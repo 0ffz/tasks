@@ -40,7 +40,7 @@ value class ListId(override val uuid: @Contextual Uuid) : EntityId {
         }
 
         fun forDate(date: LocalDate): ListId =
-            ListId(Uuid.fromLongs(TOP_BITS, date.toEpochDays().toLong() or UUIDv4_VAR))
+            ListId(Uuid.fromLongs(TOP_BITS, date.toEpochDays() or UUIDv4_VAR))
     }
 }
 

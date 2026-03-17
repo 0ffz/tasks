@@ -1,19 +1,22 @@
 package me.dvyy.tasks.sync.ui
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cash.molecule.RecompositionMode
-import app.cash.molecule.launchMolecule
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dvyy.syncengine.client.sync.SyncClient
 import me.dvyy.syncengine.client.sync.SyncStatus
+import me.dvyy.tasks.utils.combinedStateFlow
 
 @OptIn(FlowPreview::class)
 class SyncViewModel(
@@ -23,10 +26,9 @@ class SyncViewModel(
         .map { syncClient.getQueuedActionCount() }
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
     private val syncEnabled = MutableStateFlow(true)
-    val syncState = viewModelScope.launchMolecule(RecompositionMode.Immediate) {
-        val status by syncClient.status.collectAsState()
-        val enabled by syncEnabled.collectAsState()
-        return@launchMolecule when {
+
+    val syncState = viewModelScope.combinedStateFlow(syncClient.status, syncEnabled) { status, enabled ->
+        when {
             !enabled -> SyncUiState.Disabled
             status is SyncStatus.Connected -> SyncUiState.Connected
             else -> SyncUiState.Connecting

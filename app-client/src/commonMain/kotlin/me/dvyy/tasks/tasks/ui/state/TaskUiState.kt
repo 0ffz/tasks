@@ -34,7 +34,7 @@ data class TaskState(
     val setTask: (TaskUiState) -> Unit,
     val mutate: TaskMutations,
 ) {
-    val keyboardActions: KeyboardActions get() = KeyboardActions()
+    val keyboardActions: KeyboardActions get() = KeyboardActions(onNext = { mutate.selectNext(uiState) })
     val keyboardOptions: KeyboardOptions get() = KeyboardOptions(imeAction = ImeAction.Next)
 
     inline fun updateUi(update: (TaskUiState) -> TaskUiState) {
@@ -48,6 +48,7 @@ interface TaskMutations {
     fun onKeyEvent(event: KeyEvent, uiState: TaskUiState): Boolean = false
     fun onSelect() {}
     fun dropTaskOnThis(other: TaskId)
+    fun selectNext(uiState: TaskUiState) {}
 }
 
 class ReorderableItemState {

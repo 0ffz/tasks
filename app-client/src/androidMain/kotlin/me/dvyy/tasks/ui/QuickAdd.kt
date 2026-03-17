@@ -3,10 +3,10 @@ package me.dvyy.tasks.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.TimeViewModel
 import me.dvyy.tasks.app.ui.rememberAppUIState
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.time.TimeViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
 

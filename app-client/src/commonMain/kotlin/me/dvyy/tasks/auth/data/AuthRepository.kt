@@ -1,5 +1,6 @@
 package me.dvyy.tasks.auth.data
 
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import me.dvyy.tasks.sync.data.LoginInfo
@@ -25,6 +26,7 @@ class AuthRepository(
         username: String,
         password: String,
     ): AuthResult = withContext(loginDispatcher) {
+        Logger.i { "Logging in to $url" }
         val result = authAPI.login(username, password, serverUrl = url)
         when (result) {
             is AuthResult.Success -> {
