@@ -17,13 +17,15 @@ import me.dvyy.tasks.sync.ui.SyncIndicator
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun TopBarContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) = PlatformTopBarContainer {
-    Column(modifier) {
-        Box(Modifier.height(UI.tabHeight)) {
-            content()
+fun TopBarContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) = PlatformTopBarContainer(
+    Modifier,
+    {
+        Column(modifier) {
+            Box(Modifier.height(UI.tabHeight)) {
+                content()
+            }
         }
-    }
-}
+    })
 
 @Composable
 fun LeftNavigationRail(

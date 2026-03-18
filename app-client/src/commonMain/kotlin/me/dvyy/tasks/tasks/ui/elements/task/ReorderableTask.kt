@@ -19,6 +19,7 @@ import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.asTask
+import me.dvyy.tasks.utils.Dragged
 import me.dvyy.tasks.utils.LocalDragAndDropState
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,10 +48,16 @@ fun ReorderableTask(
 //        )
     Box(
         Modifier.dropTarget(key, LocalDragAndDropState.current, onDrop = {
-            val task = it.data.asTask()
-            if (task != key) {
-                Logger.i { "Dropping task ${it.data} on ${key.uuid}" }
-                onDropTask(task)
+            when (val task = it.data) {
+                is Dragged.Task -> {
+                    val task = task.uuid.asTask()
+                    if (task != key) {
+                        Logger.i { "Dropping task ${it.data} on ${key.uuid}" }
+                        onDropTask(task)
+                    }
+                }
+
+                else -> {}
             }
         }),
 //        contentAlignment = Alignment.CenterStart
@@ -59,7 +66,7 @@ fun ReorderableTask(
             enabled = enabled,
             dropAnimationSpec = snap(0),
             dropStrategy = LeftDistance,
-            state = LocalDragAndDropState.current, key = key, data = key.uuid,
+            state = LocalDragAndDropState.current, key = key, data = Dragged.Task(key.uuid),
 //            draggableContent = {
 //                 Box(Modifier.size(20.dp).background(Color.Red))
 //            }

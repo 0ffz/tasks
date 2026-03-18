@@ -59,7 +59,7 @@ kotlin {
                 implementation("org.jetbrains.compose.ui:ui:1.10.0-rc02")
                 implementation("io.github.theapache64:rebugger:1.0.1")
 //                implementation("app.cash.molecule:molecule-runtime:2.2.0")
-                implementation("com.mohamedrejeb.dnd:compose-dnd:0.3.0")
+//                implementation("com.mohamedrejeb.dnd:compose-dnd:0.3.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)

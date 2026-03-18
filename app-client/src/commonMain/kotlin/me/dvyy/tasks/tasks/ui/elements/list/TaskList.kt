@@ -1,20 +1,11 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
@@ -96,14 +87,20 @@ private fun Tasks(
             focusManager.clearFocus()
         }
     }
-    Column {
+    LazyColumn {
+//    Column {
 //        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
-        for (id in ids) {
-            key(id) {
-                TaskFromId(list, id)
-                HorizontalDivider()
-            }
+        items(ids) { id ->
+            TaskFromId(list, id)
+            HorizontalDivider()
+
         }
+//        for (id in ids) {
+//            key(id) {
+//                TaskFromId(list, id)
+//                HorizontalDivider()
+//            }
+//        }
     }
 }
 

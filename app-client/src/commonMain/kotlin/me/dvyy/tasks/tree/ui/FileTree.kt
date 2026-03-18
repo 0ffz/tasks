@@ -3,33 +3,27 @@ package me.dvyy.tasks.tree.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import com.mohamedrejeb.compose.dnd.drag.DraggableItem
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
-import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.utils.Dragged
+import me.dvyy.tasks.utils.LocalDragAndDropState
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.uuid.Uuid
 
 @Composable
 fun FileList(
@@ -63,44 +57,48 @@ fun FileEntry(
 //            }
 //        }
 //    }
-    Box(
-        modifier = Modifier.fillMaxWidth()
-            .platformDragAndDropSource({
+
+    if (file is FileStructure.File) DraggableItem(
+        key = remember { Uuid.random() },
+//                        requireFirstDownUnconsumed = true,
+        data = Dragged.Layout(file.opensLayout),
+        onDragStart = { file.onStartDrag() },
+        state = LocalDragAndDropState.current
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth()
+                .clickable {
+                    when (file) {
+                        is FileStructure.Folder -> open = !open
+                        is FileStructure.File -> {
+                            layout.openInActiveView(file)
+                            file.onClick()
+                        }
+
+                        else -> {}
+                    }
+                }
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(UI.padding.sm)
+            ) {
                 when (file) {
-                    is FileStructure.Folder -> open = !open
                     is FileStructure.File -> {
-                        layout.openInActiveView(file)
-                        file.onClick()
+                        file.opensLayout.tabLabel(Location.Sidebar)
                     }
 
-                    else -> {}
-                }
-            }) {
-                if (file is FileStructure.File) {
-                    file.onStartDrag()
-                    MultiplatformDragAndDropData(file.opensLayout, it)
-                } else null
-            }
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(UI.padding.sm)
-        ) {
-            when (file) {
-                is FileStructure.File -> {
-                    file.opensLayout.tabLabel(Location.Sidebar)
-                }
+                    is FileStructure.Folder -> {
+                        Icon(Icons.Rounded.Folder, "Folder")
+                        Spacer(Modifier.width(UI.padding.sm))
+                        Text(file.name)
+                        Spacer(Modifier.weight(1f))
+                        val rotation by animateFloatAsState(if (open) 180f else 0f)
+                        Icon(Icons.Rounded.ArrowDropDown, "Toggle", modifier = Modifier.rotate(rotation))
+                    }
 
-                is FileStructure.Folder -> {
-                    Icon(Icons.Rounded.Folder, "Folder")
-                    Spacer(Modifier.width(UI.padding.sm))
-                    Text(file.name)
-                    Spacer(Modifier.weight(1f))
-                    val rotation by animateFloatAsState(if (open) 180f else 0f)
-                    Icon(Icons.Rounded.ArrowDropDown, "Toggle", modifier = Modifier.rotate(rotation))
+                    is FileStructure.Element -> file.content()
                 }
-
-                is FileStructure.Element -> file.content()
             }
         }
     }

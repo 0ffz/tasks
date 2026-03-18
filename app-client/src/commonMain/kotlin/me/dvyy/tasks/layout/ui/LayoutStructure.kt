@@ -74,6 +74,7 @@ sealed interface LayoutStructure {
     sealed interface Single : LayoutStructure {
         val icon get() = Icons.Outlined.QuestionMark
         val text get() = "Untitled"
+        val hasDropTargets get() = true
 
         enum class Location {
             Selected, TabList, Sidebar
@@ -133,9 +134,9 @@ sealed interface LayoutStructure {
 
         @Serializable
         data object FileTree : Single {
-            override val icon get() = AppIcons.Folder
-            override val text get() = "File tree"
-
+            override val icon = AppIcons.Folder
+            override val text = "File tree"
+            override val hasDropTargets: Boolean = false
             @Composable
             override fun content() {
                 AppFileTree()

@@ -1,15 +1,11 @@
 package me.dvyy.tasks.tasks.ui.elements.views
 
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
@@ -34,7 +30,7 @@ fun WeekView(
         val columns = if (UI.isSmall) 1 else takeDays
         val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
 
-        val scrollState = rememberScrollState()
+        rememberScrollState()
 //        val datesScrollable = Modifier.
 //            /*.optional(UI.isSmall) { */verticalScroll(
 //            scrollState,
@@ -47,7 +43,7 @@ fun WeekView(
             itemCount = takeDays,
             modifier = Modifier
 //                .fillMaxSize()
-                .verticalScroll(scrollState)
+//                .verticalScroll(scrollState)
 //                .then(datesScrollable)
 //                .padding(it),
         ) { dayIndex ->

@@ -61,6 +61,12 @@ fun SettingsBulkAddTab(
             }) {
                 Text("Export tasks")
             }
+
+            TextButton(onClick = {
+                takeout.migrateOldDatabase()
+            }) {
+                Text("Migrate tasks v1")
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import me.dvyy.tasks.time.TimeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -22,7 +23,7 @@ expect fun PlatformSpecificTopBarActions()
 
 
 @Composable
-expect fun PlatformTopBarContainer(content: @Composable () -> Unit)
+expect fun PlatformTopBarContainer(modifier: Modifier, content: @Composable () -> Unit)
 
 @Composable
 fun WeekViewActions(time: TimeViewModel = koinViewModel()) {

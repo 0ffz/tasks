@@ -3,6 +3,7 @@ package me.dvyy.tasks.takeout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.absolutePath
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.dialogs.openFileSaver
@@ -30,5 +31,12 @@ class TakeoutViewModel(
             ?.use { sink ->
                 repository.export(sink)
             }
+    }
+
+    fun migrateOldDatabase() = viewModelScope.launch {
+        val path = FileKit.openFilePicker(type = FileKitType.File("db"))?.absolutePath() ?: return@launch
+        FileKit.openFileSaver("tasks_export", extension = "json")?.sink()?.buffered()?.use {
+            repository.migrateOldDb(path, it)
+        }
     }
 }

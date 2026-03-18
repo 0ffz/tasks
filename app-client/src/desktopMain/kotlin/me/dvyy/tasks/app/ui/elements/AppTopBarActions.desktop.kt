@@ -19,7 +19,7 @@ import me.dvyy.tasks.app.ui.topbar.WindowButton
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-actual fun PlatformSpecificTopBarActions() = PlatformTopBarContainer {
+actual fun PlatformSpecificTopBarActions() = PlatformTopBarContainer(Modifier, {
     Row(Modifier.height(UI.tabHeight)) {
         val viewModel: TopbarViewModel = koinViewModel()
 
@@ -34,14 +34,14 @@ actual fun PlatformSpecificTopBarActions() = PlatformTopBarContainer {
             viewModel.closeWindow()
         }
     }
-}
+})
 
 @Composable
-actual fun PlatformTopBarContainer(content: @Composable () -> Unit) {
+actual fun PlatformTopBarContainer(modifier: Modifier, content: @Composable () -> Unit) {
     val viewModel: TopbarViewModel = koinViewModel()
 
     viewModel.windowScope.BetterWindowDraggableArea(
-        Modifier.pointerInput(Unit) {
+        modifier.pointerInput(Unit) {
             detectTapGestures(onDoubleTap = { viewModel.toggleMaximized() })
         }
     ) {

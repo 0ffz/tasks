@@ -5,40 +5,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.VerticalDivider
-import androidx.compose.material3.surfaceColorAtElevation
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -52,6 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
+import co.touchlab.kermit.Logger
+import com.mohamedrejeb.compose.dnd.drag.DraggableItem
+import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import kotlinx.coroutines.flow.collectLatest
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
@@ -59,15 +33,17 @@ import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.elements.AppDrawerIconButton
 import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
-import me.dvyy.tasks.core.ui.MultiplatformDragAndDropData
+import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onMiddleMouseClick
-import me.dvyy.tasks.core.ui.platformDragAndDropSource
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
+import me.dvyy.tasks.utils.Dragged
+import me.dvyy.tasks.utils.LocalDragAndDropState
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.uuid.Uuid
 
 @Composable
 fun FixedEndLayout(
@@ -144,13 +120,11 @@ fun TabbedLayout(
                         AppDrawerIconButton()
                     }
                     if (structure in topRow)
-                        PlatformTopBarContainer {
-                            if (topRight != structure)
+                        if (topRight != structure)
+                            Tabs(structure, onLayoutUpdate, layoutViewModel)
+                        else FixedEndLayout(end = { AppTopBarActions() }) {
+                            Row {
                                 Tabs(structure, onLayoutUpdate, layoutViewModel)
-                            else FixedEndLayout(end = { AppTopBarActions() }) {
-                                Row {
-                                    Tabs(structure, onLayoutUpdate, layoutViewModel)
-                                }
                             }
                         }
                     else Tabs(structure, onLayoutUpdate, layoutViewModel)
@@ -178,7 +152,8 @@ fun TabbedLayout(
                         }
                     }
                 }
-                DropTarget(structure, onLayoutUpdate)
+                if (structure.tabs.getOrNull(structure.selected)?.hasDropTargets != false)
+                    DropTarget(structure, onLayoutUpdate)
             }
         }
     }
@@ -241,57 +216,69 @@ private fun Tabs(
                 }
             } else structure.tabs.forEachIndexed { index, tab ->
                 Box(
-                    Modifier.platformDragAndDropSource(onClick = {
+                    Modifier.clickableWithoutRipple {
                         onTabbedUpdate(structure.copy(selected = index))
-                    }) {
-                        closeTab(index)
-                        MultiplatformDragAndDropData(tab, it)
                     }.onMiddleMouseClick {
                         closeTab(index)
                     }.widthIn(
                         max = (this@BoxWithConstraints.maxWidth / structure.tabs.size)
                             .coerceIn(minTabWidth, maxTabWidth)
-                    )
+                    ).dropTarget(remember { Uuid.random() }, LocalDragAndDropState.current, onDrop = {
+                        Logger.i { "Dropped ${it.data} on $index" }
+                        onTabbedUpdate(structure.copy(selected = index))
+                    }),
                 ) {
-                    FixedEndLayout(
-                        Modifier.padding(ui.tabPadding).height(ui.tabHeight),
-                        end = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Spacer(Modifier.width(UI.padding.sm))
-                                IconButton(onClick = {
-                                    closeTab(index)
-                                }, modifier = Modifier.size(UI.size.lg)) {
-                                    Icon(
-                                        AppIcons.Close,
-                                        "Close tab",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                    DraggableItem(
+                        key = remember { Uuid.random() },
+//                        requireFirstDownUnconsumed = true,
+                        data = Dragged.Layout(tab),
+                        onDragStart = { closeTab(index) },
+                        state = LocalDragAndDropState.current
+                    ) {
+                        Surface {
+                            FixedEndLayout(
+                                Modifier.padding(ui.tabPadding).height(ui.tabHeight),
+                                end = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Spacer(Modifier.width(UI.padding.sm))
+                                        IconButton(onClick = {
+                                            closeTab(index)
+                                        }, modifier = Modifier.size(UI.size.lg)) {
+                                            Icon(
+                                                AppIcons.Close,
+                                                "Close tab",
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+                                }
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    tab.tabLabel(if (index == structure.selected) Location.Selected else Location.TabList)
                                 }
                             }
-                        }
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            tab.tabLabel(if (index == structure.selected) Location.Selected else Location.TabList)
+                            if (index == structure.selected) Surface(
+                                modifier = Modifier
+                                    .height(UI.size.xsm)
+                                    .fillMaxWidth()
+                                    .align(Alignment.BottomCenter),
+                                color = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                            ) { }
+                            HoverBox(
+                                Modifier.fillMaxSize(),
+                                onDropped = { new -> onTabbedUpdate(structure.withTab(new, atIndex = index)) }
+                            )
                         }
                     }
-                    if (index == structure.selected) Surface(
-                        modifier = Modifier
-                            .height(UI.size.xsm)
-                            .fillMaxWidth()
-                            .align(Alignment.BottomCenter),
-                        color = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                    ) { }
-                    HoverBox(
-                        Modifier.fillMaxSize(),
-                        onDropped = { new -> onTabbedUpdate(structure.withTab(new, atIndex = index)) }
-                    )
                 }
             }
         }
-        HoverBox(
-            Modifier.fillMaxSize().weight(1f),
-            onDropped = { new -> onTabbedUpdate(structure.withTab(new)) }
-        )
+        PlatformTopBarContainer(Modifier.fillMaxSize().weight(1f), {
+            HoverBox(
+                Modifier.fillMaxSize(),
+                onDropped = { new -> onTabbedUpdate(structure.withTab(new)) }
+            )
+        })
     }
 
     if (maxWidth < minTabWidth * structure.tabs.size) Box(

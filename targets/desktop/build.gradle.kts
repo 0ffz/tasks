@@ -114,7 +114,7 @@ tasks {
     // Appimage
     val downloadAppImageBuilder by registering(Download::class) {
         onlyIf { !appImageTool.exists() }
-        src("https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage")
+        src("https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage")
         dest(appImageTool)
         doLast {
             providers.exec { commandLine("chmod", "+x", appImageTool) }
