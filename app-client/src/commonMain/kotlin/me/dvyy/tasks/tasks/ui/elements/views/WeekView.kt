@@ -1,6 +1,7 @@
 package me.dvyy.tasks.tasks.ui.elements.views
 
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.elements.helpers.NonlazyGrid
+import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.tasks.ui.elements.list.Project
 import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 import me.dvyy.tasks.time.TimeViewModel
@@ -30,12 +32,8 @@ fun WeekView(
         val columns = if (UI.isSmall) 1 else takeDays
         val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
 
-        rememberScrollState()
-//        val datesScrollable = Modifier.
-//            /*.optional(UI.isSmall) { */verticalScroll(
-//            scrollState,
-////            flingBehavior = rememberSnapFlingBehavior(scrollState)
-//        )/* }*/
+        val scrollState = rememberScrollState()
+        val datesScrollable = Modifier.optional(UI.isSmall) { verticalScroll(scrollState) }
         val today by time.today.collectAsState()
 
         NonlazyGrid(
@@ -44,7 +42,7 @@ fun WeekView(
             modifier = Modifier
 //                .fillMaxSize()
 //                .verticalScroll(scrollState)
-//                .then(datesScrollable)
+                .then(datesScrollable)
 //                .padding(it),
         ) { dayIndex ->
             val day = weekStart.plus(DatePeriod(days = dayIndex))
@@ -53,7 +51,10 @@ fun WeekView(
 
             Project(
                 listId,
-                displayOptions = rememberProjectDisplayOptions(coloredHeader = isToday),
+                displayOptions = rememberProjectDisplayOptions(
+                    coloredHeader = isToday,
+                    fullHeight = !UI.isSmall,
+                ),
 //                modifier = Modifier.onGloballyPositioned { coords -> scrollToPosition = coords.positionInRoot().y }
             )
 

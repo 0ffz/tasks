@@ -15,14 +15,14 @@ data class ProjectDisplayOptions(
 @Composable
 fun rememberProjectDisplayOptions(
     scrollable: Boolean = true,
-    fullHeight: Boolean? = null,
+    fullHeight: Boolean = false,
     coloredHeader: Boolean = false,
 ): ProjectDisplayOptions {
     val ui = LocalUIState.current
     return remember(ui, scrollable, fullHeight, coloredHeader) {
         ProjectDisplayOptions(
             scrollable = scrollable,
-            fullHeight = fullHeight ?: !ui.isSmall,
+            fullHeight = fullHeight,
             coloredHeader = coloredHeader
         )
     }

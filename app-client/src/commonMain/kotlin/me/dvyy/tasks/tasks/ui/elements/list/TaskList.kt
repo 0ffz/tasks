@@ -56,7 +56,7 @@ fun Project(
         })
 
         // == Task list
-        Tasks(list, state.children)
+        Tasks(list, state.children, lazyColumn = displayOptions.fullHeight)
 
         // == Empty task slot for adding task below
         Column(Modifier.clickableWithoutRipple {
@@ -77,7 +77,7 @@ fun Project(
 private fun Tasks(
     list: ListId,
     ids: ImmutableList<TaskId>,
-    viewModel: TasksViewModel = viewModel(),
+    lazyColumn: Boolean = false,
 ) {
     //TODO double check what this does
     val focusManager = LocalFocusManager.current
@@ -87,20 +87,20 @@ private fun Tasks(
             focusManager.clearFocus()
         }
     }
-    LazyColumn {
-//    Column {
+    if (lazyColumn) LazyColumn {
 //        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
         items(ids, key = { it }) { id ->
             TaskFromId(list, id)
             HorizontalDivider()
 
         }
-//        for (id in ids) {
-//            key(id) {
-//                TaskFromId(list, id)
-//                HorizontalDivider()
-//            }
-//        }
+    } else Column {
+        for (id in ids) {
+            key(id) {
+                TaskFromId(list, id)
+                HorizontalDivider()
+            }
+        }
     }
 }
 

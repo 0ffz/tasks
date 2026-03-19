@@ -30,6 +30,7 @@ import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.model.asList
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.Project
+import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 
 @Composable
 fun AllProjectsView(
@@ -42,7 +43,14 @@ fun AllProjectsView(
     val projects by tasksViewModel.projects.collectAsState(listOf())
     ProjectLayout(modifier, horizontal, staggered, projects, { it.id }) { key ->
         val listId = key.id.asList()
-        Project(listId, Modifier.width(ui.taskListWidth))
+        Project(
+            listId,
+            Modifier.width(ui.taskListWidth),
+            displayOptions = rememberProjectDisplayOptions(
+                scrollable = horizontal,
+                fullHeight = horizontal,
+            )
+        )
     }
 }
 
