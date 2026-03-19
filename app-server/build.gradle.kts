@@ -37,7 +37,6 @@ dependencies {
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.serialization.protobuf)
     implementation(libs.ktor.server.cors)
-    implementation(libs.ktor.server.forwarded.header)
     implementation(libs.ktor.server.content.negotiation.jvm)
 
     implementation(libs.kotlinx.datetime)

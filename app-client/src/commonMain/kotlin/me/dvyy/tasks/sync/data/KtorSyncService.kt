@@ -17,8 +17,9 @@ class KtorSyncService(
     override suspend fun sync(uuid: Uuid, initialRequest: SyncRequest, request: Flow<SyncRequest>): Flow<SyncResult> {
         return if (http.config == null) emptyFlow() else
             flow {
-                Logger.d { "Establishing sync connection to url: ${http.config?.url}" }
-                http.client.webSocket("wss://tasks-dev.h.dvyy.me/sync") {
+                val syncRoute = "${http.config!!.websocketUrl}/sync"
+                Logger.d { "Establishing sync connection to url: $syncRoute" }
+                http.client.webSocket(syncRoute) {
                     sendSerialized(initialRequest)
                     launch {
                         request.collect { sendSerialized<SyncRequest>(it) }
