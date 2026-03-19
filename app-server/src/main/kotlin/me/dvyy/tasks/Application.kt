@@ -1,6 +1,7 @@
 package me.dvyy.tasks
 
 import co.touchlab.kermit.Logger
+import com.sun.security.auth.module.UnixSystem
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import me.dvyy.sqlite.Database
@@ -18,6 +19,7 @@ import org.koin.dsl.module
 import org.koin.ktor.ext.get
 import org.koin.ktor.plugin.Koin
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -25,10 +27,23 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     Logger.setLogWriters(listOf(LogbackLogWriter))
+    val cwd = Path(".")
+    if (!cwd.toFile().canWrite()) {
+        val system = UnixSystem()
+        val user = system.uid
+        val group = system.gid
+        Logger.e { "No write permissions to /data, running as $user:$group" }
+        error("Failed to start")
+    }
     install(Koin) {
         modules(commonSyncModule(), module {
             single<Logger> { Logger }
-            single { Database(environment.config.property("database.path").getString()) }
+            single {
+                val dbPath = environment.config.property("database.path").getString()
+                val absolute = Path(dbPath).absolutePathString()
+                Logger.i { "Opening database at $absolute" }
+                Database(absolute)
+            }
             single {
                 WorkspaceRepository(
                     get(),

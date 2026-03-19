@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.serialization.protobuf)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.forwarded.header)
     implementation(libs.ktor.server.content.negotiation.jvm)
 
     implementation(libs.kotlinx.datetime)
@@ -53,11 +54,14 @@ dependencies {
 }
 
 jib {
-    to.image = "ghcr.io/0ffz/tasks-server"
+    to.image = "ghcr.io/0ffz/tasks-server:develop"
     container {
         ports = listOf("4000")
         mainClass = "io.ktor.server.netty.EngineMain"
         creationTime = "USE_CURRENT_TIMESTAMP"
+        user = "1000:1000"
+        workingDirectory = "/data"
+        volumes = listOf("/data")
 
         // good defaults intended for Java 8 (>= 8u191) containers
 //        jvmFlags = listOf(
@@ -72,7 +76,6 @@ jib {
 //        )
     }
 }
-
 sqliteKt {
     register("server") {
         packageName = "me.dvyy.tasks.server.database"

@@ -90,7 +90,7 @@ private fun Tasks(
     LazyColumn {
 //    Column {
 //        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
-        items(ids) { id ->
+        items(ids, key = { it }) { id ->
             TaskFromId(list, id)
             HorizontalDivider()
 

@@ -3,6 +3,7 @@ package me.dvyy.tasks.auth.ui
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.auth.data.AuthRepository
@@ -20,6 +21,7 @@ class AuthViewModel(
                 null -> loginState.value = LoginState.NoLogin
                 else -> loginState.value = LoginState.Success(config.username, config.url)
             }
+            Logger.i { "AuthViewModel initialized, state: ${loginState.value}" }
         }
     }
 

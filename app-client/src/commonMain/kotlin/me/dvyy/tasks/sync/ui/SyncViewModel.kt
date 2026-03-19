@@ -3,17 +3,11 @@ package me.dvyy.tasks.sync.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import me.dvyy.syncengine.client.sync.SyncClient
 import me.dvyy.syncengine.client.sync.SyncStatus
 import me.dvyy.tasks.utils.combinedStateFlow
@@ -37,16 +31,30 @@ class SyncViewModel(
 
     init {
         viewModelScope.launch {
-            combine(syncClient.status, syncEnabled) { status, enabled -> status to enabled }
-                .collectLatest { (status, enabled) ->
-                    Logger.v { "Sync status: $status" }
-                    if (status !is SyncStatus.Connected && enabled) {
-                        syncClient.startSyncJob(context = Dispatchers.IO).join()
-                    }
+            syncEnabled.collectLatest {
+                Logger.d { "Sync toggled: $it" }
+                if (!it) {
+                    syncClient.stopSyncJob()
+                    return@collectLatest
                 }
+                reconnectWithBackoff()
+            }
+//            combine(syncClient.status, syncEnabled) { status, enabled -> status to enabled }
+//                .collectLatest { (status, enabled) ->
+//                    Logger.v { "Sync status: $status" }
+//                    if (status !is SyncStatus.Connected && enabled) {
+//                        reconnectWithBackoff()
+////                        supervisorScope {
+////                            syncClient.startSyncJob(scope = viewModelScope).join()
+////                        }
+//                    }
+//                }
         }
         viewModelScope.launch {
-            syncEnabled.collectLatest { if (!it) syncClient.stopSyncJob() }
+            syncState.collectLatest {
+                Logger.d { "Sync state: $it" }
+            }
+//            syncEnabled.collectLatest { if (!it) syncClient.stopSyncJob() }
         }
     }
 
@@ -72,15 +80,17 @@ class SyncViewModel(
         var currentDelay = 1000L
         val maxDelay = 60000L
         while (true) {
-            try {
-                syncClient.startSyncJob(context = Dispatchers.IO).join()
-                Logger.v { "Reconnecting to server with delay $currentDelay ms..." }
-            } catch (e: Exception) {
-                delay(currentDelay)
-                currentDelay = (currentDelay * 2).coerceAtMost(maxDelay)
-                Logger.v { "Failed to connect to server, retrying in $currentDelay ms..." }
-                throw e
+            supervisorScope {
+                syncClient.startSyncJob(viewModelScope).join()
             }
+            syncClient.stopSyncJob()
+            Logger.v { "Reconnecting to server with delay $currentDelay ms..." }
+            delay(currentDelay)
+            currentDelay = (currentDelay * 2).coerceAtMost(maxDelay)
+//            try {
+//            } catch (e: Exception) {
+//                Logger.v { "Failed to connect to server, retrying in $currentDelay ms..." }
+//            }
         }
     }
 }

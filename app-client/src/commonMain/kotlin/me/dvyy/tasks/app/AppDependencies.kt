@@ -38,13 +38,15 @@ import org.koin.dsl.module
 fun createAppKoinApplication(configure: KoinApplication.() -> Unit = {}, overrides: Module = module {}) =
     koinApplication {
         configure()
-    modules(appModule(), overrides)
-}.also {
-    runBlocking {
-        //TODO loading screen
-        it.koin.get<SyncClient>().initialize()
+        modules(appModule(), overrides)
+    }.also {
+        runBlocking {
+            //TODO loading screen
+            it.koin.get<SyncClient>().initialize()
+            //FIXME does calling here remove once we leave this scope?
+            it.koin.get<AuthViewModel>()
+        }
     }
-}
 
 fun appModule() = module(createdAtStart = true) {
     includes(
@@ -82,7 +84,7 @@ fun syncModule() = module(createdAtStart = true) {
     viewModelOf(::SyncViewModel)
 }
 
-fun viewModelsModule() = module(createdAtStart = true) {
+fun viewModelsModule() = module {
     viewModelOf(::TimeViewModel)
     viewModel { TasksViewModel(db = get<AppDatabase>()) }
     viewModelOf(::AuthViewModel)
