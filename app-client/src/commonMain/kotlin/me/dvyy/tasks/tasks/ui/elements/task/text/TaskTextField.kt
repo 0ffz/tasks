@@ -58,7 +58,7 @@ fun TaskTextField(
     } else BasicTextField(
         value = TextFieldValue(task.uiState.text, selection),
         readOnly = task.uiState.completed,
-        singleLine = !task.selected,
+        singleLine = false,
         onValueChange = { new ->
             task.updateUi { it.copy(text = new.text) }
             selection = new.selection

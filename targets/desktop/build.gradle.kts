@@ -16,6 +16,7 @@ plugins {
 tasks.withType<ComposeHotRun>().configureEach {
     mainClass.set("MainKt")
 }
+
 kotlin {
     jvmToolchain(21)
 }
