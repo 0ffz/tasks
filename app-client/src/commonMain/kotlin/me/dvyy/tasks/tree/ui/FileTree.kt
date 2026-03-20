@@ -16,10 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import com.mohamedrejeb.compose.dnd.drag.DraggableItem
+import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.model.asTask
+import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.utils.Dragged
 import me.dvyy.tasks.utils.LocalDragAndDropState
 import org.koin.compose.viewmodel.koinViewModel
@@ -65,6 +69,7 @@ fun FileEntry(
         onDragStart = { file.onStartDrag() },
         state = LocalDragAndDropState.current
     ) {
+        val onDropTask = file.onDropTask
         Surface(
             modifier = Modifier.fillMaxWidth()
                 .clickable {
@@ -77,6 +82,12 @@ fun FileEntry(
 
                         else -> {}
                     }
+                }
+                .optional(onDropTask != null) {
+                    dropTarget(remember { Uuid.random() }, LocalDragAndDropState.current, onDrop = {
+                        val task = (it.data as? Dragged.Task)?.uuid ?: return@dropTarget
+                        file.onDropTask?.let { it1 -> it1(task.asTask()) }
+                    })
                 }
         ) {
             Row(
@@ -120,6 +131,7 @@ sealed interface FileStructure {
         val opensLayout: LayoutStructure.Single,
         val onClick: () -> Unit = {},
         val onStartDrag: () -> Unit = {},
+        val onDropTask: ((TaskId) -> Unit)? = null,
     ) : FileStructure
 
     data class Folder(

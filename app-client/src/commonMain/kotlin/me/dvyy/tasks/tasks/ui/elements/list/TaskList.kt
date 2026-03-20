@@ -56,7 +56,7 @@ fun Project(
         })
 
         // == Task list
-        Tasks(list, state.children, lazyColumn = displayOptions.fullHeight)
+        Tasks(list, state.children, lazyColumn = displayOptions.scrollable && displayOptions.fullHeight)
 
         // == Empty task slot for adding task below
         Column(Modifier.clickableWithoutRipple {
@@ -89,14 +89,14 @@ private fun Tasks(
     }
     if (lazyColumn) LazyColumn {
 //        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
-        items(ids, key = { it }) { id ->
+        items(ids, key = { it.uuid }) { id ->
             TaskFromId(list, id)
             HorizontalDivider()
 
         }
     } else Column {
         for (id in ids) {
-            key(id) {
+            key(id.uuid) {
                 TaskFromId(list, id)
                 HorizontalDivider()
             }

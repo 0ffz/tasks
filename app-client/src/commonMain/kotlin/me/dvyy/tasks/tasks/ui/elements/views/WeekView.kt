@@ -14,7 +14,6 @@ import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.elements.helpers.NonlazyGrid
-import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.tasks.ui.elements.list.Project
 import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 import me.dvyy.tasks.time.TimeViewModel
@@ -33,7 +32,7 @@ fun WeekView(
         val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
 
         val scrollState = rememberScrollState()
-        val datesScrollable = Modifier.optional(UI.isSmall) { verticalScroll(scrollState) }
+        val datesScrollable = /*Modifier.optional(UI.isSmall) { */Modifier.verticalScroll(scrollState)
         val today by time.today.collectAsState()
 
         NonlazyGrid(
@@ -53,6 +52,7 @@ fun WeekView(
                 listId,
                 displayOptions = rememberProjectDisplayOptions(
                     coloredHeader = isToday,
+                    scrollable = false,
                     fullHeight = !UI.isSmall,
                 ),
 //                modifier = Modifier.onGloballyPositioned { coords -> scrollToPosition = coords.positionInRoot().y }

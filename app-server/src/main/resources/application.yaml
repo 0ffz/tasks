@@ -6,9 +6,9 @@ ktor:
     host: "$HOST:0.0.0.0"
     port: "$PORT:4000"
 database:
-  path: "database.db"
-  workspacesFolder: "workspaces"
-  stopTimeoutMillis: 10000
+  path: "$TASKS_DB_PATH:database.db"
+  workspacesFolder: "$TASKS_WORKSPACES_PATH:workspaces"
+  stopTimeoutMillis: "$TASKS_WORKSPACE_CLOSE_TIMEOUT:10000"
 ldap:
   serverURL: "$LDAP_SERVER_URL:ldap://localhost:3890"
   userDNFormat: "$LDAP_USER_DN_FORMAT:cn=%s,ou=people,dc=example,dc=com"

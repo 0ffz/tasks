@@ -23,9 +23,8 @@ fun SyncIndicator(
         is SyncUiState.Disabled -> Icons.Outlined.SyncDisabled
         else -> Icons.Outlined.Sync
     }
-    Crossfade(state) {
-        val color =
-            if (state is SyncUiState.Connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    Crossfade(state) { state ->
+        val color = if (state is SyncUiState.Connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
         IconButton(
             onClick = { sync.toggleSync() },
         ) {

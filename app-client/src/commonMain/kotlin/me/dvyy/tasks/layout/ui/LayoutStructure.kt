@@ -149,6 +149,7 @@ sealed interface LayoutStructure {
         data class Projects(
             val staggered: Boolean = false,
             val horizontal: Boolean = false,
+            val projects: List<ListId>? = null,
         ) : Single {
             override val icon
                 get() = when {
@@ -167,6 +168,7 @@ sealed interface LayoutStructure {
             override fun content() {
                 AllProjectsView(
                     horizontal = horizontal,
+                    projects = projects,
                     staggered = staggered,
                     modifier = if (staggered) Modifier.fillMaxHeight() else Modifier
                 )

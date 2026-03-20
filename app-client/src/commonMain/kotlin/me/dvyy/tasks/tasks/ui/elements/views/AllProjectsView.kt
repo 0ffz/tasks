@@ -27,6 +27,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.asList
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.Project
@@ -35,14 +36,14 @@ import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 @Composable
 fun AllProjectsView(
     modifier: Modifier = Modifier,
+    projects: List<ListId>? = null,
     tasksViewModel: TasksViewModel = viewModel(),
     horizontal: Boolean,
     staggered: Boolean,
 ) {
     val ui = LocalUIState.current
-    val projects by tasksViewModel.projects.collectAsState(listOf())
-    ProjectLayout(modifier, horizontal, staggered, projects, { it.id }) { key ->
-        val listId = key.id.asList()
+    val projects = projects ?: tasksViewModel.projects.collectAsState().value.map { it.id.asList() }
+    ProjectLayout(modifier, horizontal, staggered, projects, key = { it.uuid }) { listId ->
         Project(
             listId,
             Modifier.width(ui.taskListWidth),

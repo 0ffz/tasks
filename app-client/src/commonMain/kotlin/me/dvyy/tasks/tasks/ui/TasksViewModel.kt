@@ -4,24 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import me.dvyy.tasks.model.ListId
@@ -33,12 +21,7 @@ import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.NotesTable
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
-import me.dvyy.tasks.tasks.ui.state.ProjectHeaderState
-import me.dvyy.tasks.tasks.ui.state.ProjectMutations
-import me.dvyy.tasks.tasks.ui.state.ProjectState
-import me.dvyy.tasks.tasks.ui.state.TaskMutations
-import me.dvyy.tasks.tasks.ui.state.TaskState
-import me.dvyy.tasks.tasks.ui.state.TaskUiState
+import me.dvyy.tasks.tasks.ui.state.*
 import me.dvyy.tasks.utils.UiLogger
 import me.dvyy.tasks.utils.combinedStateFlow
 import me.dvyy.tasks.utils.defaults
@@ -52,8 +35,11 @@ class TasksViewModel(
 
     val projects = db.watch(NotesTable.name) {
         projects.getAll()
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), listOf())
 
+    //    fun watchProjects(ids: List<ListId>): StateFlow<List<ProjectWithId>> {
+//
+//    }
     fun watchList(list: ListId): StateFlow<ProjectState> {
         val mutations = projectMutations(list)
 

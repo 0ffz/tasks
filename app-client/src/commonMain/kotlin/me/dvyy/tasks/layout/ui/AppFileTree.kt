@@ -8,11 +8,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.model.asList
+import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
@@ -22,6 +27,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun AppFileTree(
     tasks: TasksViewModel = koinViewModel(),
+    db: AppDatabase = koinInject(),
     app: AppState = koinInject(),
 ) = Column(
     Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp).verticalScroll(rememberScrollState()),
@@ -34,10 +40,14 @@ fun AppFileTree(
     }
     Text("Calendar", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
-    fun file(layout: LayoutStructure.Single) = FileStructure.File(
+    fun file(
+        layout: LayoutStructure.Single,
+        onDropTask: ((TaskId) -> Unit)? = null,
+    ) = FileStructure.File(
         opensLayout = layout,
         onClick = ::closeDrawer,
         onStartDrag = ::closeDrawer,
+        onDropTask = onDropTask,
     )
 
     FileList(
@@ -60,11 +70,13 @@ fun AppFileTree(
             add(FileStructure.Element { HorizontalDivider() })
 
             //TODO add back project list
-//            val projects by tasks.projects.collectAsState()
-//
-//            projects.forEach { key ->
-//                add(file(LayoutStructure.Single.Project(key)))
-//            }
+            val projects by tasks.projects.collectAsState()
+            val scope = rememberCoroutineScope()
+            projects.forEach { key ->
+                add(file(LayoutStructure.Single.Project(key.id.asList()), onDropTask = {
+                    scope.launch { db.mutate.tasks.move(it.uuid, key.id.asList()) }
+                }))
+            }
         }
     )
 

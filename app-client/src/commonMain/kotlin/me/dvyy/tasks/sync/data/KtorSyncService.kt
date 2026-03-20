@@ -19,14 +19,18 @@ class KtorSyncService(
             flow {
                 val syncRoute = "${http.config!!.websocketUrl}/sync"
                 Logger.d { "Establishing sync connection to url: $syncRoute" }
-                http.client.webSocket(syncRoute) {
-                    sendSerialized(initialRequest)
-                    launch {
-                        request.collect { sendSerialized<SyncRequest>(it) }
+                runCatching {
+                    http.client.webSocket(syncRoute) {
+                        sendSerialized(initialRequest)
+                        launch {
+                            request.collect { sendSerialized<SyncRequest>(it) }
+                        }
+                        emitAll(incoming.consumeAsFlow().map {
+                            converter!!.deserialize<SyncResult>(it)
+                        })
                     }
-                    emitAll(incoming.consumeAsFlow().map {
-                        converter!!.deserialize<SyncResult>(it)
-                    })
+                }.onFailure {
+                    Logger.e(it) { "Sync websocket errored!" }
                 }
             }
     }

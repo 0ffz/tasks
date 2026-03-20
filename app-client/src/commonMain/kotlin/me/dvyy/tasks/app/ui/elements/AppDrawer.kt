@@ -21,6 +21,7 @@ import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.sync.ui.SyncIndicator
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -55,6 +56,7 @@ fun AppDrawer(
                                 }
                             }
                             Spacer(Modifier.weight(1f))
+                            SyncIndicator()
                             SettingsButton()
                         }
                     }
