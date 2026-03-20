@@ -188,20 +188,20 @@ class DragAndDropState<T>(
 
         val dragAmount = offset - dragStartOffset
         val newTopLeft = dragStartPositionInRoot + dragAmount
-        val hoveredDropTargets =
-            dropTargetMap.values
-                .filter {
-                    MathUtils.isRectangleIntersected(
-                        topLeft1 = newTopLeft,
-                        size1 = currentDraggableItem.size,
-                        topLeft2 = it.topLeft,
-                        size2 = it.size,
-                    ) &&
-                            (dropTargetIds.isEmpty() || it.key in dropTargetIds)
-                }.groupBy { it.zIndex }
-                .maxByOrNull { it.key }
-                ?.value
-                .orEmpty()
+
+        val newDraggedItemState = (draggedItem ?: return@coroutineScope).copy(dragAmount = dragAmount)
+        val hoveredDropTargets = dropTargetMap.values
+            .filter {
+                MathUtils.isRectangleIntersected(
+                    topLeft1 = newTopLeft,
+                    size1 = currentDraggableItem.size,
+                    topLeft2 = it.topLeft,
+                    size2 = it.size,
+                ) && (dropTargetIds.isEmpty() || it.key in dropTargetIds) && it.shouldStartDragAndDrop(newDraggedItemState)
+            }.groupBy { it.zIndex }
+            .maxByOrNull { it.key }
+            ?.value
+            .orEmpty()
 
         val hoveredDropTarget =
             currentDraggableItem.dropStrategy.getHoveredDropTarget(
@@ -209,10 +209,6 @@ class DragAndDropState<T>(
                 draggedItemSize = currentDraggableItem.size,
                 dropTargets = hoveredDropTargets,
             )
-
-        val newDraggedItemState = draggedItem?.copy(
-            dragAmount = dragAmount,
-        )
 
         if (hoveredDropTarget?.key != hoveredDropTargetKey && newDraggedItemState != null) {
             dropTargetMap.values

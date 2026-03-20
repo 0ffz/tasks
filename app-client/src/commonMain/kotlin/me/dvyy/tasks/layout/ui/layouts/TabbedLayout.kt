@@ -223,10 +223,13 @@ private fun Tabs(
                     }.widthIn(
                         max = (this@BoxWithConstraints.maxWidth / structure.tabs.size)
                             .coerceIn(minTabWidth, maxTabWidth)
-                    ).dropTarget(remember { Uuid.random() }, LocalDragAndDropState.current, onDrop = {
+                    ).dropTarget(
+                        remember { Uuid.random() }, LocalDragAndDropState.current,
+                        shouldStartDragAndDrop = { it.data is Dragged.Layout },
+                    ) {
                         Logger.i { "Dropped ${it.data} on $index" }
                         onTabbedUpdate(structure.copy(selected = index))
-                    }),
+                    },
                 ) {
                     DraggableItem(
                         key = remember { Uuid.random() },

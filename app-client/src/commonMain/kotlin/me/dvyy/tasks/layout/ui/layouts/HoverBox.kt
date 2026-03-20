@@ -30,6 +30,7 @@ fun HoverBox(
         onDragEnter = {
             dragTargetVisible = true
         },
+        shouldStartDragAndDrop = { it.data is Dragged.Layout },
         onDragExit = { dragTargetVisible = false },
         onDrop = {
             dragTargetVisible = false

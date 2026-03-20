@@ -84,10 +84,14 @@ fun FileEntry(
                     }
                 }
                 .optional(onDropTask != null) {
-                    dropTarget(remember { Uuid.random() }, LocalDragAndDropState.current, onDrop = {
+                    dropTarget(
+                        remember { Uuid.random() },
+                        LocalDragAndDropState.current,
+                        shouldStartDragAndDrop = { it.data is Dragged.Task },
+                    ) {
                         val task = (it.data as? Dragged.Task)?.uuid ?: return@dropTarget
                         file.onDropTask?.let { it1 -> it1(task.asTask()) }
-                    })
+                    }
                 }
         ) {
             Row(

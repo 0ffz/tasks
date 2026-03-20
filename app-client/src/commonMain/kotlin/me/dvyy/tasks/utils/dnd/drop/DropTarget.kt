@@ -54,9 +54,10 @@ fun <T> Modifier.dropTarget(
     dropAlignment: Alignment = Alignment.Center,
     dropOffset: Offset = Offset.Zero,
     dropAnimationEnabled: Boolean = false,
-    onDrop: (state: DraggedItemState<T>) -> Unit = {},
+    shouldStartDragAndDrop: (state: DraggedItemState<T>) -> Boolean = { true },
     onDragEnter: (state: DraggedItemState<T>) -> Unit = {},
     onDragExit: (state: DraggedItemState<T>) -> Unit = {},
+    onDrop: (state: DraggedItemState<T>) -> Unit = {},
 ): Modifier =
     this then DropTargetNodeElement(
         key = key,
@@ -65,6 +66,7 @@ fun <T> Modifier.dropTarget(
         dropAlignment = dropAlignment,
         dropOffset = dropOffset,
         dropAnimationEnabled = dropAnimationEnabled,
+        shouldStartDragAndDrop = shouldStartDragAndDrop,
         onDrop = onDrop,
         onDragEnter = onDragEnter,
         onDragExit = onDragExit,
@@ -77,6 +79,7 @@ private data class DropTargetNodeElement<T>(
     val dropAlignment: Alignment,
     val dropOffset: Offset,
     val dropAnimationEnabled: Boolean,
+    val shouldStartDragAndDrop: (state: DraggedItemState<T>) -> Boolean,
     val onDrop: (state: DraggedItemState<T>) -> Unit,
     val onDragEnter: (state: DraggedItemState<T>) -> Unit,
     val onDragExit: (state: DraggedItemState<T>) -> Unit,
@@ -91,6 +94,7 @@ private data class DropTargetNodeElement<T>(
                 dropAlignment = dropAlignment,
                 dropOffset = dropOffset,
                 dropAnimationEnabled = dropAnimationEnabled,
+                shouldStartDragAndDrop = shouldStartDragAndDrop,
                 onDrop = onDrop,
                 onDragEnter = onDragEnter,
                 onDragExit = onDragExit,
@@ -109,6 +113,7 @@ private data class DropTargetNodeElement<T>(
             dropTargetState.dropAlignment = dropAlignment
             dropTargetState.dropOffset = dropOffset
             dropTargetState.dropAnimationEnabled = dropAnimationEnabled
+            dropTargetState.shouldStartDragAndDrop = shouldStartDragAndDrop
             dropTargetState.onDrop = onDrop
             dropTargetState.onDragEnter = onDragEnter
             dropTargetState.onDragExit = onDragExit

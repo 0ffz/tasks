@@ -31,6 +31,7 @@ class DropTargetState<T> internal constructor(
     internal var dropOffset: Offset,
     internal var dropAnimationEnabled: Boolean,
 
+    internal var shouldStartDragAndDrop: (state: DraggedItemState<T>) -> Boolean,
     internal var onDrop: (state: DraggedItemState<T>) -> Unit,
     internal var onDragEnter: (state: DraggedItemState<T>) -> Unit,
     internal var onDragExit: (state: DraggedItemState<T>) -> Unit,

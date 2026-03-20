@@ -1,9 +1,10 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
@@ -206,9 +207,7 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-                Column(Modifier.verticalScroll(rememberScrollState())) {
-                    Project(key, displayOptions = rememberProjectDisplayOptions(scrollable = false))
-                }
+                Project(key, displayOptions = rememberProjectDisplayOptions(scrollable = true, fullHeight = true))
             }
 
             companion object {
