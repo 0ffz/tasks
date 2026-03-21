@@ -19,6 +19,7 @@ import me.dvyy.tasks.model.components.ProjectModel
 import me.dvyy.tasks.model.components.TaskInList
 import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.AppDatabase
+import me.dvyy.tasks.model.database.ChildOfTable
 import me.dvyy.tasks.model.database.NotesTable
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
 import me.dvyy.tasks.tasks.ui.state.*
@@ -81,8 +82,8 @@ class TasksViewModel(
         projects.crud.get(list)
     }
 
-    private fun watchChildren(list: Uuid) = db.watch(NotesTable.name) {
-        rank.childrenOf(list).map { it.asTask() }
+    private fun watchChildren(list: Uuid) = db.watch(ChildOfTable.name) {
+        childOf.childrenOf(list).map { it.asTask() }
     }
 
     fun watchTask(list: ListId, id: TaskId): StateFlow<TaskState?> {
@@ -113,7 +114,7 @@ class TasksViewModel(
 
     fun selectNextTaskOrNew() = viewModelScope.launch {
         val curr = selectedTask.value ?: return@launch
-        val next = db.read { rank.getAfter(curr.task) }
+        val next = db.read { childOf.getAfter(curr.task) }
         if (next != null) selectedTask.emit(curr.copy(task = next))
         else createAndSelectNewTask(curr.list)
     }
@@ -184,11 +185,11 @@ class TasksViewModel(
 //            tasks.get(task)?.text?.isEmpty() == true
 //        }
 //        if (!isLastEmpty) {
-        db.mutate.tasks.create(TaskModel(text = "", done = false, parent = list), atEnd = atEnd)
+        db.mutate.tasks.create(TaskModel(text = "", done = false), parent = list, atEnd = atEnd)
         delay(0.03.seconds)
 //        }
         db.read {
-            val task = (if (atEnd) rank.getLastTaskInList(list) else rank.getFirstTaskInList(list)) ?: return@read
+            val task = (if (atEnd) childOf.getLastTaskInList(list) else childOf.getFirstTaskInList(list)) ?: return@read
             selectTask(TaskInList(list, task))
         }
     }

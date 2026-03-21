@@ -18,6 +18,7 @@ class AppActions(
 ) {
     val tasks = TaskActions(actions, appQueries, db)
     val projects = jsonActions(appQueries.projects.crud)
+    val childOf = jsonActions(appQueries.projects.crud)
 
     private fun <T> jsonActions(dao: JsonDataQueries<T>) = JsonActions(db, dao, actions)
 }
@@ -28,8 +29,8 @@ class TaskActions(
     private val db: Database,
 ) {
     val json = JsonActions(db, appQueries.tasks, actions)
-    suspend fun create(task: TaskModel, atEnd: Boolean = true) {
-        actions.invoke(CreateTaskAction(Uuid.random(), task, atEnd))
+    suspend fun create(task: TaskModel, parent: Uuid, atEnd: Boolean = true) {
+        actions.invoke(CreateTaskAction(Uuid.random(), task, parent, atEnd))
     }
 
     suspend fun move(task: Uuid, toList: ListId) {

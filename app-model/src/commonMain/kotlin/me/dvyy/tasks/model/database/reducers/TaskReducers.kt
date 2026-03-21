@@ -1,28 +1,28 @@
 package me.dvyy.tasks.model.database.reducers
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
+import co.touchlab.kermit.Logger
 import me.dvyy.syncengine.reducers.MutableReducers
 import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
 import me.dvyy.tasks.model.database.actions.MoveTaskAction
-import me.dvyy.tasks.model.rank.RankFunctions
 
 fun MutableReducers.taskReducers(db: AppQueries) {
     reduce<MoveTaskAction> {
         if (it.toList != null && it.toTask == null) {
-            db.rank.moveTaskToList(it.task.uuid, it.toList.uuid)
-            val nextRank = db.rank.getRankAfterLast(it.toList.uuid)
-            db.rank.setRank(it.task.uuid, nextRank)
+            db.childOf.moveTaskToList(it.task.uuid, it.toList.uuid)
+            val nextRank = db.childOf.getRankAfterLast(it.toList.uuid)
+            db.childOf.setRank(it.task.uuid, nextRank)
         }
-        if (it.toTask != null) db.rank.moveToTask(it.task.uuid, it.toTask.uuid)
+        if (it.toTask != null) db.childOf.moveToTask(it.task.uuid, it.toTask.uuid)
     }
-    reduce<CreateTaskAction> { (uuid, task, atEnd) ->
-        val list = task.parent ?: return@reduce
-        val rank =
-            (if (atEnd) db.rank.getLastRankInList(list)?.let { RankFunctions.getRankAfter(it) }
-            else db.rank.getFirstRankInList(list)?.let { RankFunctions.getRankBefore(it) })
-                ?: RankFunctions.middleChar.toString()
-        db.tasks.create(uuid, Json.encodeToJsonElement(task.copy(rank = rank)))
+    reduce<CreateTaskAction> {
+        val list = it.parent
+//        val rank =
+//            (if (it.atEnd) db.childOf.getLastRankInList(list)?.let { RankFunctions.getRankAfter(it) }
+//            else db.childOf.getFirstRankInList(list)?.let { RankFunctions.getRankBefore(it) })
+//                ?: RankFunctions.middleChar.toString()
+        db.tasks.create(it.uuid, it.task)
+        Logger.w { "TODO: Implement atEnd" }
+        db.childOf.moveTaskToList(it.uuid, list) //TODO atEnd
     }
 }

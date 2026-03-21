@@ -1,31 +1,26 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import kotlinx.collections.immutable.ImmutableList
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.core.ui.dataOrNull
-import me.dvyy.tasks.core.ui.isOfType
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
+import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.tasks.ui.elements.task.Task
 import me.dvyy.tasks.tasks.ui.state.ProjectState
-import me.dvyy.tasks.utils.CachedUpdate
-import me.dvyy.tasks.utils.UiLogger
-import me.dvyy.tasks.utils.keyboardAsState
+import me.dvyy.tasks.utils.*
 
 @Composable
 fun Project(
@@ -35,16 +30,14 @@ fun Project(
     displayOptions: ProjectDisplayOptions = rememberProjectDisplayOptions(),
     state: ProjectState = tasksViewModel.rememberUpdatedProjectState(list),
 ) {
-    val listDropTarget = Modifier.dragAndDropTarget(
-        shouldStartDragAndDrop = { it.isOfType<TaskId>() },
-        target = remember(list) {
-            object : DragAndDropTarget {
-                override fun onDrop(event: DragAndDropEvent): Boolean {
-                    UiLogger.v { "reordering $event" }
-                    state.mutate.moveTask(event.dataOrNull<TaskId>() ?: return false)
-                    return true
-                }
-            }
+    val listDropTarget = Modifier.dropTarget(
+        key = remember { list.uuid },
+        state = LocalDragAndDropState.current,
+        shouldStartDragAndDrop = { it.data is Dragged.Task },
+        onDrop = {
+            val task = (it.data as? Dragged.Task ?: return@dropTarget).uuid.asTask()
+            UiLogger.v { "Reordering ${it.data}" }
+            state.mutate.moveTask(task)
         }
     )
     Column(

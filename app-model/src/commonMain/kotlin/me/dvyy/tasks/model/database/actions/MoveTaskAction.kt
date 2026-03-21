@@ -21,4 +21,10 @@ data class MoveTaskAction(
 }
 
 @Serializable
-data class CreateTaskAction(val uuid: Uuid, val task: TaskModel, val atEnd: Boolean) : Action
+data class CreateTaskAction(
+    val uuid: Uuid,
+    val task: TaskModel,
+    val parent: Uuid,
+//    val preferRank: String? = null,
+    val atEnd: Boolean,
+) : Action

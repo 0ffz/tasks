@@ -17,7 +17,13 @@ import me.dvyy.tasks.model.database.reducers.taskReducers
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
-val NotesTable = jsonTable("notes")
+val NotesTable = jsonTable("notes") {
+    index("parent", "data ->> 'parent'")
+}
+
+val ChildOfTable = jsonTable("child_of_json") {
+    index("parent_rank", "data ->> 'parent', data ->> 'rank'", unique = true)
+}
 
 val TasksView = view("tasks", NotesTable) {
     text("text")
@@ -26,13 +32,19 @@ val TasksView = view("tasks", NotesTable) {
     text("highlight")
     text("rank")
 }
+
+val ChildOfView = view("child_of", ChildOfTable) {
+    text("parent")
+    text("rank")
+}
+
 val ProjectsView = view("projects", NotesTable, where = "data ->> '$.type' = 'project'") {
     text("title")
 }
 
 val AppSchema = schema(
-    shared = setOf(NotesTable),
-    views = setOf(TasksView, ProjectsView),
+    shared = setOf(NotesTable, ChildOfTable),
+    views = setOf(TasksView, ProjectsView, ChildOfView),
     protocol = syncProtocol {
         // Json actions
         action<DeleteRowAction>(1)

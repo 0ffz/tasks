@@ -19,7 +19,7 @@ class SyncViewModel(
     val queuedActionCount = syncClient.changesMade
         .map { syncClient.getQueuedActionCount() }
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
-    private val syncEnabled = MutableStateFlow(true)
+    private val syncEnabled = MutableStateFlow(false)
 
     val syncState = viewModelScope.combinedStateFlow(syncClient.status, syncEnabled) { status, enabled ->
         when {
