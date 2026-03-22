@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.asList
 import me.dvyy.tasks.model.database.AppDatabase
+import me.dvyy.tasks.model.database.Projects
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
@@ -43,11 +45,13 @@ fun AppFileTree(
     fun file(
         layout: LayoutStructure.Single,
         onDropTask: ((TaskId) -> Unit)? = null,
+        onDropList: ((ListId) -> Unit)? = null,
     ) = FileStructure.File(
         opensLayout = layout,
         onClick = ::closeDrawer,
         onStartDrag = ::closeDrawer,
         onDropTask = onDropTask,
+        onDropList = onDropList,
     )
 
     FileList(
@@ -64,8 +68,8 @@ fun AppFileTree(
 
     FileList(
         buildList {
-            add(file(LayoutStructure.Single.Projects(staggered = true)))
-            add(file(LayoutStructure.Single.Projects(staggered = false)))
+//            add(file(LayoutStructure.Single.Projects(staggered = true)))
+//            add(file(LayoutStructure.Single.Projects(staggered = false)))
             add(file(LayoutStructure.Single.Projects(horizontal = true)))
             add(FileStructure.Element { HorizontalDivider() })
 
@@ -74,7 +78,9 @@ fun AppFileTree(
             val scope = rememberCoroutineScope()
             projects.forEach { key ->
                 add(file(LayoutStructure.Single.Project(key.id.asList()), onDropTask = {
-                    scope.launch { db.mutate.tasks.move(it.uuid, key.id.asList()) }
+                    scope.launch { db.mutate.childOf.move(it.uuid, toParent = key.id) }
+                }, onDropList = {
+                    scope.launch { db.mutate.childOf.move(it.uuid, Projects.projectRoot, atChild = key.id) }
                 }))
             }
         }
@@ -84,6 +90,6 @@ fun AppFileTree(
         onClick = { tasks.createProject() },
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Text("Create project")
+        Text("Create project", maxLines = 1)
     }
 }

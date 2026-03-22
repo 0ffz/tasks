@@ -60,7 +60,6 @@ class ChildOfQueries(
     fun getRankAfterLast(list: Uuid): String = RankFunctions.getRankAfter(
         getLastRankInList(list) ?: RankFunctions.FIRST_CHAR.toString()
     )
-
     context(tx: WriteTransaction)
     fun moveToTask(task: Uuid, target: Uuid) {
         val taskRank = getRankFor(task) ?: return

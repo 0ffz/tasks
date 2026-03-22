@@ -35,7 +35,6 @@ import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 /**
  * Mark this composable as a drop target.
  *
- * @param key The key used to identify the drop target.
  * @param zIndex The z-index of the drop target.
  * @param state The drag and drop state.
  * @param dropAlignment The alignment of the dropped item.
@@ -48,7 +47,6 @@ import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
  * Accepts the dragged item state as a parameter.
  */
 fun <T> Modifier.dropTarget(
-    key: Any,
     state: DragAndDropState<T>,
     zIndex: Float = 0f,
     dropAlignment: Alignment = Alignment.Center,
@@ -60,7 +58,6 @@ fun <T> Modifier.dropTarget(
     onDrop: (state: DraggedItemState<T>) -> Unit = {},
 ): Modifier =
     this then DropTargetNodeElement(
-        key = key,
         state = state,
         zIndex = zIndex,
         dropAlignment = dropAlignment,
@@ -73,7 +70,6 @@ fun <T> Modifier.dropTarget(
     )
 
 private data class DropTargetNodeElement<T>(
-    val key: Any,
     val state: DragAndDropState<T>,
     val zIndex: Float,
     val dropAlignment: Alignment,
@@ -87,7 +83,6 @@ private data class DropTargetNodeElement<T>(
     override fun create(): DropTargetNode<T> =
         DropTargetNode(
             dropTargetState = DropTargetState(
-                key = key,
                 zIndex = zIndex,
                 size = Size.Zero,
                 topLeft = Offset.Zero,
@@ -105,10 +100,6 @@ private data class DropTargetNodeElement<T>(
     override fun update(node: DropTargetNode<T>) {
         node.apply {
             this.state = state
-
-            val isKeyChanged = dropTargetState.key != key
-
-            dropTargetState.key = key
             dropTargetState.zIndex = zIndex
             dropTargetState.dropAlignment = dropAlignment
             dropTargetState.dropOffset = dropOffset
@@ -117,17 +108,11 @@ private data class DropTargetNodeElement<T>(
             dropTargetState.onDrop = onDrop
             dropTargetState.onDragEnter = onDragEnter
             dropTargetState.onDragExit = onDragExit
-
-            if (isKeyChanged) {
-                onDetach()
-                onAttach()
-            }
         }
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "DropTarget"
-        properties["key"] = key
         properties["state"] = state
         properties["zIndex"] = zIndex
         properties["dropAlignment"] = dropAlignment
@@ -145,9 +130,7 @@ private data class DropTargetNode<T>(
 ) : Modifier.Node(),
     LayoutAwareModifierNode,
     CompositionLocalConsumerModifierNode {
-
-    private val key get() = dropTargetState.key
-
+    private var key: Long = -1
     private var isShadow = false
 
     override fun onAttach() {
@@ -156,8 +139,8 @@ private data class DropTargetNode<T>(
         if (isShadow) {
             return
         }
-
-        state.addDropTarget(dropTargetState)
+        key = state.getKey()
+        state.addDropTarget(key, dropTargetState)
     }
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
@@ -165,13 +148,12 @@ private data class DropTargetNode<T>(
             return
         }
 
-        state.addDropTarget(dropTargetState)
+        state.addDropTarget(key, dropTargetState)
 
         val size = coordinates.size.toSize()
         dropTargetState.size = size
         if (isAttached) {
             val topLeft = coordinates.positionInRoot()
-
             dropTargetState.topLeft = topLeft
         }
     }

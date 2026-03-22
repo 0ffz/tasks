@@ -13,7 +13,6 @@ import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.utils.Dragged
 import me.dvyy.tasks.utils.LocalDragAndDropState
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -25,7 +24,6 @@ fun HoverBox(
     var dragTargetVisible by remember { mutableStateOf(false) }
 
     val hoverable = Modifier.dropTarget(
-        key = remember { Uuid.random() },
         state = LocalDragAndDropState.current,
         onDragEnter = {
             dragTargetVisible = true

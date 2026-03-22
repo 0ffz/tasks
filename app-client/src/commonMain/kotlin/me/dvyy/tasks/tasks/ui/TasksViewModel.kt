@@ -21,7 +21,7 @@ import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.ChildOfTable
 import me.dvyy.tasks.model.database.NotesTable
-import me.dvyy.tasks.model.database.actions.MoveTaskAction
+import me.dvyy.tasks.model.database.Projects
 import me.dvyy.tasks.tasks.ui.state.*
 import me.dvyy.tasks.utils.UiLogger
 import me.dvyy.tasks.utils.combinedStateFlow
@@ -34,7 +34,7 @@ class TasksViewModel(
 ) : ViewModel() {
     val selectedTask = MutableStateFlow<TaskInList?>(null)
 
-    val projects = db.watch(NotesTable.name) {
+    val projects = db.watch(NotesTable.name, ChildOfTable.name) {
         projects.getAll()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), listOf())
 
@@ -131,20 +131,22 @@ class TasksViewModel(
         }
 
         override fun moveTask(dragged: TaskId) {
-            db.launchMutate(MoveTaskAction(dragged, list))
+            viewModelScope.launch {
+                db.mutate.childOf.move(dragged.uuid, toParent = list.uuid)
+            }
         }
     }
 
     private fun taskMutations(list: ListId, task: TaskId) = object : TaskMutations {
         override fun moveTo(date: LocalDate) {
             viewModelScope.launch {
-                db.mutate(MoveTaskAction(task, toList = ListId.forDate(date)))
+                db.mutate.childOf.move(task.uuid, toParent = ListId.forDate(date).uuid)
             }
         }
 
         override fun dropTaskOnThis(other: TaskId) {
             viewModelScope.launch {
-                db.mutate(MoveTaskAction(other, toList = list, toTask = task))
+                db.mutate.childOf.move(other.uuid, toParent = list.uuid, atChild = task.uuid)
             }
         }
 
@@ -194,8 +196,14 @@ class TasksViewModel(
         }
     }
 
+//    context(tx: Transaction)
+//    fun getProjects(): List<Uuid> {
+//        return tx.select("SELECT id FROM notes WHERE data ->> 'type' = 'project'").map { getUuid(0) }
+//    }
+
     fun createProject() = viewModelScope.launch {
-        db.mutate.projects.create(ProjectModel("New Project"))
+        val id = db.mutate.projects.create(ProjectModel("New Project"))
+        db.mutate.childOf.move(id, toParent = Projects.projectRoot)
     }
 
     //TODO Is this breaking any compose practices? These could technically be emitted as flows but

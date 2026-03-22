@@ -20,12 +20,11 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
-import co.touchlab.kermit.Logger
 import com.mohamedrejeb.compose.dnd.drag.DraggableItem
-import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import kotlinx.coroutines.flow.collectLatest
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
@@ -135,7 +134,7 @@ fun TabbedLayout(
 
             Surface {
                 structure.tabs.getOrNull(structure.selected)?.let {
-                    Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(new) })
+                    Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(structure.copy(tabs = listOf(new))) })
                 } ?: run {
                     Column(
                         Modifier.fillMaxSize(),
@@ -152,8 +151,8 @@ fun TabbedLayout(
                         }
                     }
                 }
-                if (structure.tabs.getOrNull(structure.selected)?.hasDropTargets != false)
-                    DropTarget(structure, onLayoutUpdate)
+//                if (structure.tabs.getOrNull(structure.selected)?.hasDropTargets != false)
+//                    DropTarget(structure, onLayoutUpdate)
             }
         }
     }
@@ -212,67 +211,24 @@ private fun Tabs(
                     Modifier.padding(ui.tabPadding),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    structure.tabs.firstOrNull()?.tabLabel(Location.TabList)
+                    (structure.tabs.firstOrNull() as? LayoutStructure.Single)?.tabLabel(Location.TabList)
                 }
             } else structure.tabs.forEachIndexed { index, tab ->
                 Box(
-                    Modifier.clickableWithoutRipple {
-                        onTabbedUpdate(structure.copy(selected = index))
-                    }.onMiddleMouseClick {
-                        closeTab(index)
-                    }.widthIn(
+                    Modifier.widthIn(
                         max = (this@BoxWithConstraints.maxWidth / structure.tabs.size)
                             .coerceIn(minTabWidth, maxTabWidth)
-                    ).dropTarget(
-                        remember { Uuid.random() }, LocalDragAndDropState.current,
-                        shouldStartDragAndDrop = { it.data is Dragged.Layout },
-                    ) {
-                        Logger.i { "Dropped ${it.data} on $index" }
-                        onTabbedUpdate(structure.copy(selected = index))
-                    },
+                    )
                 ) {
-                    DraggableItem(
-                        key = remember { Uuid.random() },
-//                        requireFirstDownUnconsumed = true,
-                        data = Dragged.Layout(tab),
-                        onDragStart = { closeTab(index) },
-                        state = LocalDragAndDropState.current
-                    ) {
-                        Surface {
-                            FixedEndLayout(
-                                Modifier.padding(ui.tabPadding).height(ui.tabHeight),
-                                end = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Spacer(Modifier.width(UI.padding.sm))
-                                        IconButton(onClick = {
-                                            closeTab(index)
-                                        }, modifier = Modifier.size(UI.size.lg)) {
-                                            Icon(
-                                                AppIcons.Close,
-                                                "Close tab",
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
-                                    }
-                                }
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    tab.tabLabel(if (index == structure.selected) Location.Selected else Location.TabList)
-                                }
-                            }
-                            if (index == structure.selected) Surface(
-                                modifier = Modifier
-                                    .height(UI.size.xsm)
-                                    .fillMaxWidth()
-                                    .align(Alignment.BottomCenter),
-                                color = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                            ) { }
-                            HoverBox(
-                                Modifier.fillMaxSize(),
-                                onDropped = { new -> onTabbedUpdate(structure.withTab(new, atIndex = index)) }
-                            )
-                        }
-                    }
+                    LayoutTab(
+                        tab,
+                        selected = index == structure.selected,
+                        onDropLayout = { new -> onTabbedUpdate(structure.withTab(new, atIndex = index)) },
+                        onSelect = {
+                            onTabbedUpdate(structure.copy(selected = index))
+                        },
+                        onClose = { closeTab(index) }
+                    )
                 }
             }
         }
@@ -291,4 +247,74 @@ private fun Tabs(
             )
         ).align(Alignment.CenterEnd)
     )
+}
+
+@Composable
+fun LayoutTab(
+    tab: LayoutStructure,
+    modifier: Modifier = Modifier,
+    selected: Boolean,
+    showCloseButton: Boolean = true,
+    onDropLayout: (LayoutStructure.Single) -> Unit = {},
+    onSelect: () -> Unit = {},
+    onClose: () -> Unit = {},
+) {
+    val ui = UI
+    Box(
+        modifier.clickableWithoutRipple { onSelect() }
+            .onMiddleMouseClick { onClose() },
+        /*.dropTarget(
+                    LocalDragAndDropState.current,
+                    shouldStartDragAndDrop = { it.data is Dragged.Layout },
+                ) {
+                    Logger.i { "Dropped ${it.data} on $index" }
+                    onTabbedUpdate(structure.copy(selected = index))
+                }*/
+    ) {
+        DraggableItem(
+            key = remember { Uuid.random() },
+//                        requireFirstDownUnconsumed = true,
+            data = Dragged.Layout(tab),
+            onDragStart = { onClose() },
+            state = LocalDragAndDropState.current
+        ) {
+            FixedEndLayout(
+                Modifier.height(ui.tabHeight),
+                end = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(Modifier.width(UI.padding.sm))
+                        if (showCloseButton) IconButton(onClick = {
+                            onClose()
+                        }, modifier = Modifier.size(UI.size.lg)) {
+                            Icon(
+                                AppIcons.Close,
+                                "Close tab",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(ui.tabPadding)) {
+                    (tab as? LayoutStructure.Single)?.tabLabel(if (selected) Location.Selected else Location.TabList)
+                        ?: Text(
+                            "Custom Layout",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                }
+            }
+            if (selected) Surface(
+                modifier = Modifier
+                    .height(UI.size.xsm)
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter),
+                color = if (true/*isActive*/) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+            ) { }
+            HoverBox(
+                Modifier.fillMaxSize(),
+                onDropped = { new -> onDropLayout(new) }
+            )
+        }
+    }
 }

@@ -6,15 +6,14 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.time.TimeViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppTopBarActions() = Row {
-    WeekViewActions()
     PlatformSpecificTopBarActions()
 }
 
@@ -27,13 +26,13 @@ expect fun PlatformTopBarContainer(modifier: Modifier, content: @Composable () -
 
 @Composable
 fun WeekViewActions(time: TimeViewModel = koinViewModel()) {
-    IconButton(onClick = { time.goToThisWeek() }) {
+    BoxButton(onClick = { time.goToThisWeek() }) {
         Icon(Icons.Outlined.Today, contentDescription = "Today")
     }
-    IconButton(onClick = { time.goToPreviousWeek() }) {
+    BoxButton(onClick = { time.goToPreviousWeek() }) {
         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Previous")
     }
-    IconButton(onClick = { time.goToNextWeek() }) {
+    BoxButton(onClick = { time.goToNextWeek() }) {
         Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = "Next")
     }
 }

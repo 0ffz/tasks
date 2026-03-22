@@ -21,7 +21,6 @@ import androidx.compose.ui.geometry.Size
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 
 class DropTargetState<T> internal constructor(
-    key: Any,
     zIndex: Float,
 
     size: Size,
@@ -36,9 +35,6 @@ class DropTargetState<T> internal constructor(
     internal var onDragEnter: (state: DraggedItemState<T>) -> Unit,
     internal var onDragExit: (state: DraggedItemState<T>) -> Unit,
 ) {
-    var key: Any = key
-        internal set
-
     var zIndex: Float = zIndex
         internal set
 

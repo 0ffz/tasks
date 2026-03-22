@@ -2,20 +2,18 @@ package me.dvyy.tasks.model.database.actions
 
 import kotlinx.serialization.Serializable
 import me.dvyy.syncengine.actions.Action
-import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.components.TaskModel
 import kotlin.uuid.Uuid
 
 @Serializable
-data class MoveTaskAction(
-    val task: TaskId,
-    val toList: ListId? = null,
-    val toTask: TaskId? = null,
+data class MoveChildAction(
+    val item: Uuid,
+    val toParent: Uuid? = null,
+    val atChild: Uuid? = null,
 ) : Action {
     override fun reduce(previous: Action): Action? {
-        if (previous !is MoveTaskAction) return null
-        if (previous.task == task) return this
+        if (previous !is MoveChildAction) return null
+        if (previous.item == item) return this
         return null
     }
 }

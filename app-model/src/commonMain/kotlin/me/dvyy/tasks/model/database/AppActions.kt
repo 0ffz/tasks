@@ -4,11 +4,9 @@ import me.dvyy.sqlite.Database
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.jsonactions.JsonActions
 import me.dvyy.syncengine.jsonactions.JsonDataQueries
-import me.dvyy.tasks.model.ListId
-import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
-import me.dvyy.tasks.model.database.actions.MoveTaskAction
+import me.dvyy.tasks.model.database.actions.MoveChildAction
 import kotlin.uuid.Uuid
 
 class AppActions(
@@ -18,9 +16,23 @@ class AppActions(
 ) {
     val tasks = TaskActions(actions, appQueries, db)
     val projects = jsonActions(appQueries.projects.crud)
-    val childOf = jsonActions(appQueries.projects.crud)
-
+    val childOf = ChildActions(actions, appQueries, db)
     private fun <T> jsonActions(dao: JsonDataQueries<T>) = JsonActions(db, dao, actions)
+}
+
+class ChildActions(
+    private val actions: Actions,
+    private val appQueries: AppQueries,
+    private val db: Database,
+) {
+    suspend fun move(item: Uuid, toParent: Uuid, atChild: Uuid? = null) {
+        // Don't invoke action if moving to the same position
+        val currentParent = db.read { appQueries.childOf.getRankFor(item)?.parent }
+        if (currentParent == toParent && atChild == null || atChild == item) return
+        actions.invoke(
+            MoveChildAction(item, toParent, atChild)
+        )
+    }
 }
 
 class TaskActions(
@@ -30,11 +42,7 @@ class TaskActions(
 ) {
     val json = JsonActions(db, appQueries.tasks, actions)
     suspend fun create(task: TaskModel, parent: Uuid, atEnd: Boolean = true) {
-        actions.invoke(CreateTaskAction(Uuid.random(), task, parent, atEnd))
-    }
-
-    suspend fun move(task: Uuid, toList: ListId) {
-        actions(MoveTaskAction(task.asTask(), toList))
+        actions.invoke(CreateTaskAction(Uuid.generateV7(), task, parent, atEnd))
     }
 
     suspend fun update(id: Uuid, new: TaskModel) {

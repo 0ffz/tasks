@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.state.ProjectHeaderState
@@ -31,76 +30,93 @@ fun ProjectHeader(
     showDivider: Boolean = true,
     addTask: () -> Unit,
     modifier: Modifier = Modifier,
-) {
-    UI.padding
-    val color = when {
-        colored -> MaterialTheme.colorScheme.primary
-        else -> MaterialTheme.colorScheme.onSurface
-    }
-    val colorFaded = color.fade(alpha = 0.6f)
-    Row(
-        modifier,//padding(horizontal = pd.md, vertical = pd.sm),
-        verticalAlignment = Alignment.Bottom,
-    ) {
-        when (header) {
-            is ProjectHeaderState.Date -> {
-                val date = header.date
-                Text(
-                    "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)} ${date.day}",
-                    Modifier.weight(1f, true),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = color,
-                    maxLines = 1,
-                )
-                Text(
-                    date.dayOfWeek.name.lowercase().capitalize().take(3),
-                    style = MaterialTheme.typography.headlineSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Clip,
-                    color = colorFaded
-                )
-
+) = BoxWithConstraints {
+    val width = maxWidth
+    Column {
+        val color = when {
+            colored -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.onSurface
+        }
+        val colorFaded = color.fade(alpha = 0.6f)
+        Row(
+            modifier,//padding(horizontal = pd.md, vertical = pd.sm),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            val monthTextStyle = when {
+                width < 140.dp -> MaterialTheme.typography.titleLargeEmphasized
+                width < 180.dp -> MaterialTheme.typography.headlineSmallEmphasized
+                else -> MaterialTheme.typography.headlineMedium
             }
-
-            is ProjectHeaderState.Named -> {
-                CachedUpdate(listId, header.displayName, header.onRename) { name, setName ->
-                    BasicTextField(
-                        name,
-                        onValueChange = { setName(it) },
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                        modifier = Modifier.weight(1f, true),
-                        textStyle = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = color,
-                        ),
+            when (header) {
+                is ProjectHeaderState.Date -> {
+                    val weekdayTextStyle = when {
+                        width < 140.dp -> MaterialTheme.typography.titleLarge
+                        else -> MaterialTheme.typography.headlineSmall
+                    }
+                    val date = header.date
+                    val text = when {
+                        width < 130.dp -> "${date.day}"
+                        width < 160.dp -> "${date.month.name.take(1)}${date.day}"
+                        else -> "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)} ${date.day}"
+                    }
+                    if (width > 100.dp) Text(
+                        text,
+                        Modifier.weight(1f, true),
+                        style = monthTextStyle,
+                        fontWeight = FontWeight.Bold,
+                        color = color,
                         maxLines = 1,
                     )
+                    Text(
+                        date.dayOfWeek.name.lowercase().capitalize().take(3),
+                        style = weekdayTextStyle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible,
+                        modifier = if (width > 100.dp) Modifier else Modifier.weight(1f, true),
+                        color = colorFaded
+                    )
+
+                }
+
+                is ProjectHeaderState.Named -> {
+                    CachedUpdate(listId, header.displayName, header.onRename) { name, setName ->
+                        BasicTextField(
+                            name,
+                            onValueChange = { setName(it) },
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                            modifier = Modifier.weight(1f, true),
+                            textStyle = monthTextStyle.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = color,
+                            ),
+                            maxLines = 1,
+                        )
+                    }
+                }
+
+                else -> {
+                    //TODO show loading progress indicator
                 }
             }
-
-            else -> {
-                //TODO show loading progress indicator
+            // == Add task to top button
+            IconButton(onClick = addTask, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Add task to top",
+                    tint = colorFaded,
+                )
             }
         }
-        // == Add task to top button
-        IconButton(onClick = addTask, modifier = Modifier.size(32.dp)) {
-            Icon(
-                imageVector = Icons.Rounded.Add,
-                contentDescription = "Add task to top",
-                tint = colorFaded,
-            )
-        }
-    }
 
-    // == Loading indicator and divider
-    if (showDivider) Box(Modifier/*.padding(horizontal = pd.md)*/) {
-        if (!loading) HorizontalDivider(
-            thickness = 2.dp,
-            color = color
-        )
-        AnimatedVisibility(loading, enter = fadeIn(), exit = fadeOut()) {
-            LinearProgressIndicator(Modifier.height(2.dp).fillMaxWidth())
+        // == Loading indicator and divider
+        if (showDivider) {
+            if (!loading) HorizontalDivider(
+                thickness = 2.dp,
+                color = color
+            )
+            AnimatedVisibility(loading, enter = fadeIn(), exit = fadeOut()) {
+                LinearProgressIndicator(Modifier.height(2.dp).fillMaxWidth())
+            }
         }
     }
 }

@@ -54,13 +54,13 @@ class DbConnectionTest : DbTest() {
         client.initialize()
         server.initialize()
 
-        val parent = Uuid.random()
+        val parent = Uuid.generateV7()
         val json =
             Json.decodeFromString<JsonElement>("""{ "text":  "hello world", "parent":  "${parent.toHexString()}" }""")
         val json2 = Json.decodeFromString<JsonElement>("""{ "text":  "hello world 2" }""")
 
-        val id = Uuid.random()
-        val id2 = Uuid.random()
+        val id = Uuid.generateV7()
+        val id2 = Uuid.generateV7()
         client(JsonCreateAction(table = "notes", id = id, data = json))
         client(JsonCreateAction(table = "notes", id = id2, data = json))
         client(JsonPatchAction(table = "notes", id = id, patch = json2))

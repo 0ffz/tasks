@@ -1,5 +1,6 @@
 package me.dvyy.tasks.tasks.ui.elements.views
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -27,22 +28,19 @@ fun WeekView(
     startAtToday: Boolean = false,
     takeDays: Int = 7,
 ) {
-    Scaffold(snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = app.snackbarHostState) }
+    ) {
         val columns = if (UI.isSmall) 1 else takeDays
         val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
 
         val scrollState = rememberScrollState()
-        val datesScrollable = /*Modifier.optional(UI.isSmall) { */Modifier.verticalScroll(scrollState)
         val today by time.today.collectAsState()
 
         NonlazyGrid(
             columns = columns,
             itemCount = takeDays,
-            modifier = Modifier
-//                .fillMaxSize()
-//                .verticalScroll(scrollState)
-                .then(datesScrollable)
-//                .padding(it),
+            modifier = Modifier.verticalScroll(scrollState).padding(it)
         ) { dayIndex ->
             val day = weekStart.plus(DatePeriod(days = dayIndex))
             val isToday = day == today

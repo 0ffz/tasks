@@ -16,7 +16,7 @@ sealed interface EntityId {
 @Stable
 value class TaskId(override val uuid: @Contextual Uuid) : EntityId {
     companion object {
-        fun new(): TaskId = TaskId(Uuid.random())
+        fun new(): TaskId = TaskId(Uuid.generateV7())
     }
 }
 
@@ -31,7 +31,7 @@ value class ListId(override val uuid: @Contextual Uuid) : EntityId {
 
     companion object {
         fun newProject(): ListId {
-            val uuid = Uuid.random()
+            val uuid = Uuid.generateV7()
             // Avoid clashes with TOP_BITS, that one combination is reserved for date lists
             return uuid.toLongs { top, bottom ->
                 val topFixed = if (top == TOP_BITS) TOP_BITS + 1 else top

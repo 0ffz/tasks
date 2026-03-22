@@ -13,7 +13,7 @@ class AppQueries {
     val notes = JsonDataQueries(JsonObject.serializer(), NotesTable)
     val tasks = JsonDataQueries(TaskModel.serializer(), NotesTable)
     val childOf = ChildOfQueries(ChildOfTable, ChildOfView)
-    val projects = Projects()
+    val projects = Projects(childOf)
 //    val rank = SubtaskRelationQueries(tasks)
 }
 
@@ -22,11 +22,23 @@ data class ProjectWithId(
     val title: String,
 )
 
-class Projects {
+class Projects(
+    private val childOf: ChildOfQueries,
+) {
+
     context(tx: Transaction)
-    fun getAll(): List<ProjectWithId> = tx.select("SELECT id, title FROM projects ORDER BY id").map {
-        ProjectWithId(getUuid(0), getText(1))
+    fun getAll(): List<ProjectWithId> {
+        //TODO rewrite as join/create api for ordering by rank
+        return childOf.childrenOf(projectRoot).mapNotNull {
+            tx.select("SELECT id, title FROM projects WHERE id = ?", it).firstOrNull {
+                ProjectWithId(getUuid(0), getText(1))
+            }
+        }
     }
 
     val crud = JsonDataQueries(ProjectModel.serializer(), NotesTable)
+
+    companion object {
+        val projectRoot = Uuid.parse("4fcf8cc9-e53c-496e-b515-a11c3227230d")
+    }
 }

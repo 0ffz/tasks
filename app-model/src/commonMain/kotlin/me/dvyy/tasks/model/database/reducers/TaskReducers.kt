@@ -4,16 +4,16 @@ import co.touchlab.kermit.Logger
 import me.dvyy.syncengine.reducers.MutableReducers
 import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
-import me.dvyy.tasks.model.database.actions.MoveTaskAction
+import me.dvyy.tasks.model.database.actions.MoveChildAction
 
 fun MutableReducers.taskReducers(db: AppQueries) {
-    reduce<MoveTaskAction> {
-        if (it.toList != null && it.toTask == null) {
-            db.childOf.moveTaskToList(it.task.uuid, it.toList.uuid)
-            val nextRank = db.childOf.getRankAfterLast(it.toList.uuid)
-            db.childOf.setRank(it.task.uuid, nextRank)
+    reduce<MoveChildAction> {
+        if (it.toParent != null && it.atChild == null) {
+            db.childOf.moveTaskToList(it.item, it.toParent)
+            val nextRank = db.childOf.getRankAfterLast(it.toParent)
+            db.childOf.setRank(it.item, nextRank)
         }
-        if (it.toTask != null) db.childOf.moveToTask(it.task.uuid, it.toTask.uuid)
+        if (it.atChild != null) db.childOf.moveToTask(it.item, it.atChild)
     }
     reduce<CreateTaskAction> {
         val list = it.parent

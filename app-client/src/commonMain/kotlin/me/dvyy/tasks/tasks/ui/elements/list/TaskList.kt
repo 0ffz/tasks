@@ -31,12 +31,11 @@ fun Project(
     state: ProjectState = tasksViewModel.rememberUpdatedProjectState(list),
 ) {
     val listDropTarget = Modifier.dropTarget(
-        key = remember { list.uuid },
         state = LocalDragAndDropState.current,
         shouldStartDragAndDrop = { it.data is Dragged.Task },
         onDrop = {
-            val task = (it.data as? Dragged.Task ?: return@dropTarget).uuid.asTask()
             UiLogger.v { "Reordering ${it.data}" }
+            val task = (it.data as? Dragged.Task ?: return@dropTarget).uuid.asTask()
             state.mutate.moveTask(task)
         }
     )

@@ -11,7 +11,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DropTarget(
-    structure: LayoutStructure.Tabbed,
+    structure: LayoutStructure.Single,
     onLayoutUpdate: (LayoutStructure) -> Unit,
     layoutViewModel: LayoutViewModel = koinViewModel(),
 ) = Box {
@@ -24,27 +24,31 @@ fun DropTarget(
         Modifier.fillMaxSize(),
         hoverableModifier = { Modifier.align(Alignment.Center).fillMaxSize(0.33f) },
         onDropped = { new ->
-            val tabbed = structure.withTab(new)
-            update(tabbed, tabbed)
+//            val tabbed = structure.withTab(new)
+            update(new, new)
         })
 
     Column(Modifier.fillMaxSize()) {
         HoverBox(Modifier.weight(1f), onDropped = { new ->
-            val newTab = LayoutStructure.Tabbed(listOf(new))
+//            val newTab = LayoutStructure.Tabbed(listOf(new))
+            val newTab = new
             update(newTab, LayoutStructure.Split(newTab, structure, orientation = Orientation.Vertical))
         }, hoverableModifier = { Modifier.align(Alignment.TopCenter).fillMaxWidth().fillMaxHeight(0.75f) })
         HoverBox(Modifier.weight(1f), onDropped = { new ->
-            val newTab = LayoutStructure.Tabbed(listOf(new))
+//            val newTab = LayoutStructure.Tabbed(listOf(new))
+            val newTab = new
             update(newTab, LayoutStructure.Split(structure, newTab, orientation = Orientation.Vertical))
         }, hoverableModifier = { Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(0.75f) })
     }
     Row(Modifier.fillMaxSize()) {
         HoverBox(Modifier.weight(1f), onDropped = { new ->
-            val newTab = LayoutStructure.Tabbed(listOf(new))
+//            val newTab = LayoutStructure.Tabbed(listOf(new))
+            val newTab = new
             update(newTab, LayoutStructure.Split(newTab, structure, orientation = Orientation.Horizontal))
         }, hoverableModifier = { Modifier.align(Alignment.CenterStart).fillMaxHeight().fillMaxWidth(0.75f) })
         HoverBox(Modifier.weight(1f), onDropped = { new ->
-            val newTab = LayoutStructure.Tabbed(listOf(new))
+//            val newTab = LayoutStructure.Tabbed(listOf(new))
+            val newTab = new
             update(newTab, LayoutStructure.Split(structure, newTab, orientation = Orientation.Horizontal))
         }, hoverableModifier = { Modifier.align(Alignment.CenterEnd).fillMaxHeight().fillMaxWidth(0.75f) })
     }

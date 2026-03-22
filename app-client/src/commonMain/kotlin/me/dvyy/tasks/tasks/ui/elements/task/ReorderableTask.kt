@@ -47,7 +47,7 @@ fun ReorderableTask(
 //            }
 //        )
     Box(
-        Modifier.dropTarget(key, LocalDragAndDropState.current, onDrop = {
+        Modifier.dropTarget(LocalDragAndDropState.current, onDrop = {
             when (val task = it.data) {
                 is Dragged.Task -> {
                     val task = task.uuid.asTask()

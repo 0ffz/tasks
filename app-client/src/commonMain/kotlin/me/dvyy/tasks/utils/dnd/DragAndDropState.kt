@@ -26,7 +26,6 @@ import com.mohamedrejeb.compose.dnd.drag.DraggableItem
 import com.mohamedrejeb.compose.dnd.drag.DraggableItemState
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.drop.DropTargetState
-import com.mohamedrejeb.compose.dnd.utils.MathUtils
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -72,23 +71,25 @@ class DragAndDropState<T>(
     /**
      * Map of [DropTargetState] by key
      */
-    private val dropTargetMap = mutableMapOf<Any, DropTargetState<T>>()
+    private val dropTargetMap = mutableMapOf<Long, DropTargetState<T>>()
+
+    private var currId = 0L
 
     /**
      * Key of the [DropTargetState] that is currently hovered
      */
-    var hoveredDropTargetKey by mutableStateOf<Any>("")
+    var hoveredDropTargetKey by mutableStateOf<Long>(-1)
         internal set
+
+    internal fun getKey(): Long = currId++
 
     /**
      * Add or update [DropTargetState] in [dropTargetMap]
+     *
+     * @return Id that can be used to remove target
      */
-    internal fun addDropTarget(dropTargetState: DropTargetState<T>) {
-        if (dropTargetMap[dropTargetState.key] == dropTargetState) {
-            return
-        }
-
-        dropTargetMap[dropTargetState.key] = dropTargetState
+    internal fun addDropTarget(key: Long, dropTargetState: DropTargetState<T>) {
+        dropTargetMap[key] = dropTargetState
     }
 
     internal fun removeDropTarget(key: Any) {
@@ -183,44 +184,26 @@ class DragAndDropState<T>(
     internal suspend fun handleDrag(
         offset: Offset,
     ) = coroutineScope {
-        val currentDraggableItem = currentDraggableItem ?: return@coroutineScope
-        val dropTargetIds = currentDraggableItem.dropTargets
+        currentDraggableItem ?: return@coroutineScope
 
         val dragAmount = offset - dragStartOffset
         val newTopLeft = dragStartPositionInRoot + dragAmount
 
         val newDraggedItemState = (draggedItem ?: return@coroutineScope).copy(dragAmount = dragAmount)
-        val hoveredDropTargets = dropTargetMap.values
-            .filter {
-                MathUtils.isRectangleIntersected(
-                    topLeft1 = newTopLeft,
-                    size1 = currentDraggableItem.size,
-                    topLeft2 = it.topLeft,
-                    size2 = it.size,
-                ) && (dropTargetIds.isEmpty() || it.key in dropTargetIds) && it.shouldStartDragAndDrop(newDraggedItemState)
-            }.groupBy { it.zIndex }
-            .maxByOrNull { it.key }
-            ?.value
-            .orEmpty()
+        val hoveredDropTarget = dropTargetMap.entries.find { (_, it) ->
+            it.topLeft.x <= offset.x && offset.x <= it.topLeft.x + it.size.width &&
+                    it.topLeft.y <= offset.y && offset.y <= it.topLeft.y + it.size.height &&
+                    it.shouldStartDragAndDrop(newDraggedItemState)
+        }
 
-        val hoveredDropTarget =
-            currentDraggableItem.dropStrategy.getHoveredDropTarget(
-                draggedItemTopLeft = newTopLeft,
-                draggedItemSize = currentDraggableItem.size,
-                dropTargets = hoveredDropTargets,
-            )
-
-        if (hoveredDropTarget?.key != hoveredDropTargetKey && newDraggedItemState != null) {
-            dropTargetMap.values
-                .find { it.key == hoveredDropTargetKey }
-                ?.onDragExit
-                ?.invoke(newDraggedItemState)
-            hoveredDropTarget?.onDragEnter?.invoke(newDraggedItemState)
+        if (hoveredDropTarget?.key != hoveredDropTargetKey) {
+            dropTargetMap[hoveredDropTargetKey]?.onDragExit?.invoke(newDraggedItemState)
+            hoveredDropTarget?.value?.onDragEnter?.invoke(newDraggedItemState)
         }
 
         dragPosition.value = newTopLeft
 
-        hoveredDropTargetKey = hoveredDropTarget?.key ?: ""
+        hoveredDropTargetKey = hoveredDropTarget?.key ?: -1
         draggedItem = newDraggedItemState
     }
 
@@ -233,7 +216,7 @@ class DragAndDropState<T>(
     internal suspend fun handleDragEnd() = coroutineScope {
         val currentDraggableItem = currentDraggableItem ?: return@coroutineScope
 
-        val dropTarget = dropTargetMap.values.find { it.key == hoveredDropTargetKey }
+        val dropTarget = dropTargetMap[hoveredDropTargetKey]
 
         if (dropTarget == null || dropTarget.dropAnimationEnabled) {
             val draggedItem = draggableItemMap[currentDraggableItem.key]
@@ -305,7 +288,7 @@ class DragAndDropState<T>(
     private suspend fun clearDragState() {
         currentDraggableItem = null
         draggedItem = null
-        hoveredDropTargetKey = ""
+        hoveredDropTargetKey = -1
         dragStartOffset = Offset.Zero
         dragStartPositionInRoot = Offset.Zero
         dragPosition.value = Offset.Zero

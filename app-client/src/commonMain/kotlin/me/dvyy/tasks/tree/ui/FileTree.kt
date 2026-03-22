@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +20,7 @@ import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
@@ -70,7 +70,8 @@ fun FileEntry(
         state = LocalDragAndDropState.current
     ) {
         val onDropTask = file.onDropTask
-        Surface(
+        val onDropList = file.onDropList
+        Box(
             modifier = Modifier.fillMaxWidth()
                 .clickable {
                     when (file) {
@@ -83,14 +84,17 @@ fun FileEntry(
                         else -> {}
                     }
                 }
-                .optional(onDropTask != null) {
+                .optional(onDropTask != null || onDropList != null) {
                     dropTarget(
-                        remember { Uuid.random() },
                         LocalDragAndDropState.current,
-                        shouldStartDragAndDrop = { it.data is Dragged.Task },
-                    ) {
-                        val task = (it.data as? Dragged.Task)?.uuid ?: return@dropTarget
-                        file.onDropTask?.let { it1 -> it1(task.asTask()) }
+                        shouldStartDragAndDrop = { it.data is Dragged.Task || it.data is Dragged.Layout },
+                    ) { state ->
+                        val task = (state.data as? Dragged.Task)?.uuid
+                        val list = ((state.data as? Dragged.Layout)?.layout as? LayoutStructure.Single.Project)?.key
+                        when {
+                            task != null -> file.onDropTask?.let { it(task.asTask()) }
+                            list != null -> file.onDropList?.let { it(list) }
+                        }
                     }
                 }
         ) {
@@ -136,6 +140,7 @@ sealed interface FileStructure {
         val onClick: () -> Unit = {},
         val onStartDrag: () -> Unit = {},
         val onDropTask: ((TaskId) -> Unit)? = null,
+        val onDropList: ((ListId) -> Unit)? = null,
     ) : FileStructure
 
     data class Folder(

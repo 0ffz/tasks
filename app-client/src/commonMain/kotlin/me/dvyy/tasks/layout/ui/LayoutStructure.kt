@@ -1,8 +1,8 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -27,6 +27,7 @@ import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.dialogs.AppDialog
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
+import me.dvyy.tasks.app.ui.elements.WeekViewActions
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
@@ -76,6 +77,7 @@ sealed interface LayoutStructure {
         val icon get() = Icons.Outlined.QuestionMark
         val text get() = "Untitled"
         val hasDropTargets get() = true
+        val showsTopBar get() = true
 
         enum class Location {
             Selected, TabList, Sidebar
@@ -95,6 +97,10 @@ sealed interface LayoutStructure {
 
         @Composable
         fun tabLabel(selected: Location) = DefaultTabLabel(icon, text)
+
+        @Composable
+        fun trailingOptions() {
+        }
 
         @Composable
         fun content()
@@ -128,6 +134,10 @@ sealed interface LayoutStructure {
                 }
 
             @Composable
+            override fun trailingOptions() {
+                WeekViewActions()
+            }
+            @Composable
             override fun content() {
                 me.dvyy.tasks.tasks.ui.elements.views.WeekView(startAtToday = startAtToday, takeDays = takeDays)
             }
@@ -138,6 +148,7 @@ sealed interface LayoutStructure {
             override val icon = AppIcons.Folder
             override val text = "File tree"
             override val hasDropTargets: Boolean = false
+            override val showsTopBar: Boolean = false
             @Composable
             override fun content() {
                 AppFileTree()
@@ -158,12 +169,7 @@ sealed interface LayoutStructure {
                     staggered -> AppIcons.Dashboard
                     else -> AppIcons.GridView
                 }
-            override val text
-                get() = when {
-                    horizontal -> "Horizontal"
-                    staggered -> "Staggered"
-                    else -> "Grid"
-                }
+            override val text get() = "All Projects"
 
             @Composable
             override fun content() {
@@ -192,9 +198,10 @@ sealed interface LayoutStructure {
                     else -> AppIcons.Description
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    DefaultTabLabel(icon, title ?: "Untitled")
+                    Box(Modifier.weight(1f)) {
+                        DefaultTabLabel(icon, title ?: "Untitled")
+                    }
                     if (location == Location.Sidebar) {
-                        Spacer(Modifier.weight(1f))
                         IconButton(
                             onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
                             modifier = Modifier.size(UI.size.md)
@@ -218,7 +225,7 @@ sealed interface LayoutStructure {
 
     @Serializable
     data class Tabbed(
-        val tabs: List<Single>,
+        val tabs: List<LayoutStructure>,
         val selected: Int = 0,
         val name: String? = null,
         val fullWidth: Boolean = false,

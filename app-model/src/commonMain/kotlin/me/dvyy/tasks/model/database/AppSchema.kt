@@ -12,7 +12,7 @@ import me.dvyy.syncengine.schema.jsonTable
 import me.dvyy.syncengine.schema.schema
 import me.dvyy.syncengine.schema.view
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
-import me.dvyy.tasks.model.database.actions.MoveTaskAction
+import me.dvyy.tasks.model.database.actions.MoveChildAction
 import me.dvyy.tasks.model.database.reducers.taskReducers
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -52,7 +52,7 @@ val AppSchema = schema(
         action<JsonCreateAction>(3)
 
         // Task interactions
-        action<MoveTaskAction>(100)
+        action<MoveChildAction>(100)
         action<CreateTaskAction>(101)
     }
 )
@@ -63,7 +63,7 @@ fun commonSyncModule() = module {
     single<Reducers> {
         reducers {
             val queries = get<AppQueries>()
-            jsonReducers(listOf(queries.tasks))
+            jsonReducers(listOf(queries.tasks, queries.childOf.queries))
             taskReducers(queries)
         }
     }
