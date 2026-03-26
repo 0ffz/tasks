@@ -4,6 +4,7 @@ import me.dvyy.sqlite.Database
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.jsonactions.JsonActions
 import me.dvyy.syncengine.jsonactions.JsonDataQueries
+import me.dvyy.syncengine.jsonactions.actions.DeleteEntityAction
 import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
 import me.dvyy.tasks.model.database.actions.MoveChildAction
@@ -50,6 +51,6 @@ class TaskActions(
     }
 
     suspend fun delete(id: Uuid) {
-        json.delete(id)
+        actions.invoke(DeleteEntityAction(id))
     }
 }

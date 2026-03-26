@@ -64,7 +64,7 @@ fun SingleLayout(
         }
     ) {
         Box(Modifier.padding(it)) {
-            structure.content()
+            structure.cachedContent()
         }
     }
     if (structure.hasDropTargets) DropTarget(structure, onLayoutUpdate)

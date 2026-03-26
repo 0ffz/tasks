@@ -1,16 +1,14 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
-import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.tree.ui.FileStructure
 
 // The scope used here is the scope that is used for the mapping work
@@ -35,27 +33,25 @@ class LayoutViewModel(
 
     val rightSidebar = prefs.serializable<LayoutStructure>(viewModelScope, "rightSidebar", LayoutStructure.Empty)
     val bottomBar = prefs.serializable<LayoutStructure>(viewModelScope, "bottomBar", LayoutStructure.Empty)
-    private val _mainView = prefs.serializable<LayoutStructure>(viewModelScope, "mainView", LayoutStructure.Empty)
+    private val tabs = prefs.serializable<LayoutStructure.Tabbed>(viewModelScope, "tabs", LayoutStructure.Tabbed(emptyList()))
 
-    val mainView = _mainView.map(viewModelScope) {
-        it.takeIf { it is LayoutStructure.Tabbed || it is LayoutStructure.Split } ?: LayoutStructure.Tabbed(listOf(), 0)
-    }
+    val mainView = tabs
 
     val layoutButtonLocations = MutableStateFlow(LayoutButtonLocations())
-    val topRightLayout = mainView.map(viewModelScope) {
+    val topRightLayout = mainView/*.map(viewModelScope) {
         var top = it
         while (top is LayoutStructure.Split) {
             top = if (top.orientation == Orientation.Vertical) top.first else top.second
         }
         top
-    }
-    val topLeftLayout = mainView.map(viewModelScope) {
+    }*/
+    val topLeftLayout = mainView/*.map(viewModelScope) {
         var top = it
         while (top is LayoutStructure.Split) {
             top = if (top.orientation == Orientation.Vertical) top.first else top.first
         }
         top
-    }
+    }*/
 
     fun findTopRow(layout: LayoutStructure): List<LayoutStructure> = when (layout) {
         is LayoutStructure.Split -> {
@@ -79,6 +75,11 @@ class LayoutViewModel(
     val openFilesFlow = openFilesChannel.receiveAsFlow()
 
     init {
+        viewModelScope.launch {
+            openFilesFlow.collectLatest { (content) ->
+                openTab(content)
+            }
+        }
         layoutButtonLocations.update {
             LayoutButtonLocations(
                 left = listOf(LayoutButtons.fileTree),
@@ -95,8 +96,19 @@ class LayoutViewModel(
         _activeLayout.update { layout }
     }
 
+    fun openTab(layout: LayoutStructure) {
+        tabs.update {
+            it.withTab(layout)
+        }
+    }
     fun setMainView(layout: LayoutStructure) {
-        _mainView.update { layout }
+        tabs.update {
+            when (layout) {
+                is LayoutStructure.Tabbed -> layout
+                is LayoutStructure.Empty -> LayoutStructure.Tabbed(listOf())
+                else -> it
+            }
+        }
     }
 
     fun setLeftSidebar(layout: LayoutStructure.Single) {
@@ -116,12 +128,14 @@ class LayoutViewModel(
         LayoutStructure.Split(
             first = LayoutStructure.Split(
                 first = LayoutStructure.Tabbed(
-                    listOf(left.wrap {
+                    listOf(
+                        left/*.wrap {
                         androidx.compose.material3.Surface(
                             tonalElevation = UI.elevation.lv1,
                             modifier = Modifier.fillMaxSize()
                         ) { it() }
-                    }),
+                    }*/
+                    ),
                     fullWidth = true,
                     selectable = false,
                 ),

@@ -18,7 +18,7 @@ import me.dvyy.tasks.utils.LocalDragAndDropState
 @Composable
 fun HoverBox(
     modifier: Modifier = Modifier,
-    onDropped: (LayoutStructure.Single) -> Unit = {},
+    onDropped: (LayoutStructure) -> Unit = {},
     hoverableModifier: BoxScope.() -> Modifier = { Modifier.fillMaxSize() },
 ) {
     var dragTargetVisible by remember { mutableStateOf(false) }
@@ -32,7 +32,7 @@ fun HoverBox(
         onDragExit = { dragTargetVisible = false },
         onDrop = {
             dragTargetVisible = false
-            val layout = (it.data as? Dragged.Layout)?.layout as? LayoutStructure.Single ?: return@dropTarget
+            val layout = (it.data as? Dragged.Layout)?.layout ?: return@dropTarget
             onDropped(layout)
         },
 //        shouldStartDragAndDrop = { it.isOfType<LayoutStructure.Single>() },

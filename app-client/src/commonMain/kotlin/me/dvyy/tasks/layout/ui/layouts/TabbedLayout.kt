@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
 import com.mohamedrejeb.compose.dnd.drag.DraggableItem
-import kotlinx.coroutines.flow.collectLatest
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
@@ -134,7 +133,9 @@ fun TabbedLayout(
 
             Surface {
                 structure.tabs.getOrNull(structure.selected)?.let {
-                    Layout(it, onLayoutUpdate = { new -> onLayoutUpdate(structure.copy(tabs = listOf(new))) })
+                    Layout(it, onLayoutUpdate = { new ->
+                        onLayoutUpdate(structure.withTab(new, atIndex = structure.selected, replace = true))
+                    })
                 } ?: run {
                     Column(
                         Modifier.fillMaxSize(),
@@ -168,7 +169,7 @@ private fun Tabs(
 ) = BoxWithConstraints {
     val ui = LocalUIState.current
     val active by layoutViewModel.activeLayout.collectAsState()
-    val isActive = structure == active
+    structure == active
     val minTabWidth = 150.dp
     val maxTabWidth = 200.dp
 
@@ -176,11 +177,11 @@ private fun Tabs(
         onLayoutUpdate(structure)
         layoutViewModel.setActiveLayout(structure)
     }
-    if (isActive) LaunchedEffect(structure) {
-        layoutViewModel.openFilesFlow.collectLatest { (content) ->
-            onTabbedUpdate(structure.withTab(content))
-        }
-    }
+//    if (isActive) LaunchedEffect(structure) {
+//        layoutViewModel.openFilesFlow.collectLatest { (content) ->
+//            onTabbedUpdate(structure.withTab(content))
+//        }
+//    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -255,7 +256,7 @@ fun LayoutTab(
     modifier: Modifier = Modifier,
     selected: Boolean,
     showCloseButton: Boolean = true,
-    onDropLayout: (LayoutStructure.Single) -> Unit = {},
+    onDropLayout: (LayoutStructure) -> Unit = {},
     onSelect: () -> Unit = {},
     onClose: () -> Unit = {},
 ) {

@@ -13,13 +13,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import co.touchlab.kermit.Logger
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -73,11 +76,14 @@ sealed interface LayoutStructure {
     ) : LayoutStructure
 
     @Serializable
-    sealed interface Single : LayoutStructure {
-        val icon get() = Icons.Outlined.QuestionMark
-        val text get() = "Untitled"
-        val hasDropTargets get() = true
-        val showsTopBar get() = true
+    sealed class Single : LayoutStructure {
+        open val icon: ImageVector get() = Icons.Outlined.QuestionMark
+        open val text: String get() = "Untitled"
+        open val hasDropTargets get() = true
+        open val showsTopBar get() = true
+
+        @Transient
+        val content: @Composable () -> Unit = movableContentOf { content() }
 
         enum class Location {
             Selected, TabList, Sidebar
@@ -96,16 +102,22 @@ sealed interface LayoutStructure {
         }
 
         @Composable
-        fun tabLabel(selected: Location) = DefaultTabLabel(icon, text)
+        open fun tabLabel(selected: Location) = DefaultTabLabel(icon, text)
 
         @Composable
-        fun trailingOptions() {
+        open fun trailingOptions() {
         }
 
         @Composable
-        fun content()
+        fun cachedContent() {
+            Logger.v { "$text had content $content" }
+            content.invoke()
+        }
 
-        data class RichTextView(val file: String) : Single {
+        @Composable
+        abstract fun content()
+
+        data class RichTextView(val file: String) : Single() {
             override val icon get() = AppIcons.Description
             override val text get() = "Rich text"
 
@@ -118,7 +130,7 @@ sealed interface LayoutStructure {
         data class WeekView(
             val startAtToday: Boolean = false,
             val takeDays: Int = 7,
-        ) : Single {
+        ) : Single() {
             override val icon
                 get() = when (takeDays) {
                     7 -> AppIcons.CalendarViewWeek
@@ -137,14 +149,16 @@ sealed interface LayoutStructure {
             override fun trailingOptions() {
                 WeekViewActions()
             }
+
             @Composable
             override fun content() {
                 me.dvyy.tasks.tasks.ui.elements.views.WeekView(startAtToday = startAtToday, takeDays = takeDays)
             }
+
         }
 
         @Serializable
-        data object FileTree : Single {
+        data object FileTree : Single() {
             override val icon = AppIcons.Folder
             override val text = "File tree"
             override val hasDropTargets: Boolean = false
@@ -155,14 +169,14 @@ sealed interface LayoutStructure {
             }
         }
 
-        abstract class Wrap(val wrap: Single): Single by wrap
+        abstract class Wrap : Single()
 
         @Serializable
         data class Projects(
             val staggered: Boolean = false,
             val horizontal: Boolean = false,
             val projects: List<ListId>? = null,
-        ) : Single {
+        ) : Single() {
             override val icon
                 get() = when {
                     horizontal -> AppIcons.HorizontalSplit
@@ -185,7 +199,7 @@ sealed interface LayoutStructure {
         @Serializable
         data class Project(
             val key: ListId,
-        ) : Single {
+        ) : Single() {
             @Composable
             override fun tabLabel(location: Location) {
                 val tasks: TasksViewModel = koinViewModel()
@@ -232,11 +246,14 @@ sealed interface LayoutStructure {
         val selectable: Boolean = true,
     ) : LayoutStructure {
         fun withTab(
-            tab: Single,
+            tab: LayoutStructure,
             select: Boolean = true,
             atIndex: Int = tabs.size,
+            replace: Boolean = false,
         ): Tabbed {
+            if (tab == Empty) return Tabbed(tabs.filterIndexed { index, _ -> index != atIndex })
             return Tabbed(tabs.toMutableList().apply {
+                if (replace) removeAt(atIndex)
                 add(atIndex, tab)
             }, if (select) atIndex else selected)
         }
@@ -246,7 +263,7 @@ sealed interface LayoutStructure {
 //    data class Tab(val name: String, val content: LayoutStructure.Single)
 
     @Serializable
-    data object Empty : Single {
+    data object Empty : Single() {
         @Composable
         override fun content() {
         }
@@ -262,7 +279,7 @@ sealed interface LayoutStructure {
     }
 }
 
-inline fun Single.wrap(crossinline wrap: @Composable (original: @Composable () -> Unit) -> Unit): Single = object : Wrap(this) {
+inline fun Single.wrap(crossinline wrap: @Composable (original: @Composable () -> Unit) -> Unit): Single = object : Wrap() {
     @Composable
     override fun content() {
         wrap { super.content() }
