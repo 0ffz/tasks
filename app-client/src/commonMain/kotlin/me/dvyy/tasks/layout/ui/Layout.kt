@@ -21,18 +21,39 @@ fun Layout(
 //        DropTarget(structure, onLayoutUpdate)
 //    }
     when (structure) {
+        is LayoutStructure.Wrap -> {
+            structure.wrap { Layout(structure.child, onLayoutUpdate) }
+        }
         is LayoutStructure.Scrollable -> ScrollableLayout(structure)
 
         is LayoutStructure.Split -> SplitLayout(structure, onLayoutUpdate)
 
         is LayoutStructure.Tabbed -> TabbedLayout(structure, onLayoutUpdate)
 
+        is LayoutStructure.Empty -> EmptyLayout(onLayoutUpdate)
         is LayoutStructure.Single -> SingleLayout(structure, onLayoutUpdate)
-
-        LayoutStructure.Empty -> Box(Modifier.fillMaxSize())
     }
 }
 
+@Composable
+fun EmptyLayout(
+    onLayoutUpdate: (LayoutStructure) -> Unit,
+) {
+    Column(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            "No tab is open",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        TextButton(onClick = { onLayoutUpdate(LayoutStructure.Single.WeekView()) }) {
+            Text("Open week view")
+        }
+    }
+}
 @Composable
 fun SingleLayout(
     structure: LayoutStructure.Single,
@@ -49,12 +70,12 @@ fun SingleLayout(
                             Modifier.weight(1f),
                             showCloseButton = false,
                             selected = false,
-                            onClose = { onLayoutUpdate(LayoutStructure.Empty) },
+                            onClose = { onLayoutUpdate(LayoutStructure.Remove) },
                             onDropLayout = onLayoutUpdate,
                         )
 //                        WeekViewActions()
                         structure.trailingOptions()
-                        BoxButton(onClick = { onLayoutUpdate(LayoutStructure.Empty) }) {
+                        BoxButton(onClick = { onLayoutUpdate(LayoutStructure.Remove) }) {
                             Icon(AppIcons.Close, "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }

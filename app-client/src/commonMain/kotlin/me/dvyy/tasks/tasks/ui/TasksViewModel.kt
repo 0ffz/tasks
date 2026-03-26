@@ -121,8 +121,8 @@ class TasksViewModel(
 
     fun selectTask(task: TaskInList?) = selectedTask.update { task }
 
-    fun deleteProject(id: Uuid) {
-        TODO()
+    fun deleteProject(id: Uuid) = viewModelScope.launch {
+        db.mutate.delete(id)
     }
 
     private fun projectMutations(list: ListId) = object : ProjectMutations {

@@ -32,8 +32,6 @@ import me.dvyy.tasks.app.ui.dialogs.AppDialog
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.app.ui.elements.WeekViewActions
 import me.dvyy.tasks.core.ui.components.LeadingIcon
-import me.dvyy.tasks.layout.ui.LayoutStructure.Single
-import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Wrap
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.Project
@@ -75,6 +73,12 @@ sealed interface LayoutStructure {
         val mergeWhenEmpty: Boolean = true,
     ) : LayoutStructure
 
+
+    class Wrap(
+        val wrap: @Composable (original: @Composable () -> Unit) -> Unit,
+        val child: LayoutStructure,
+    ) : LayoutStructure
+
     @Serializable
     sealed class Single : LayoutStructure {
         open val icon: ImageVector get() = Icons.Outlined.QuestionMark
@@ -83,7 +87,7 @@ sealed interface LayoutStructure {
         open val showsTopBar get() = true
 
         @Transient
-        val content: @Composable () -> Unit = movableContentOf { content() }
+        private val content: @Composable () -> Unit = movableContentOf { content() }
 
         enum class Location {
             Selected, TabList, Sidebar
@@ -163,13 +167,12 @@ sealed interface LayoutStructure {
             override val text = "File tree"
             override val hasDropTargets: Boolean = false
             override val showsTopBar: Boolean = false
+
             @Composable
             override fun content() {
                 AppFileTree()
             }
         }
-
-        abstract class Wrap : Single()
 
         @Serializable
         data class Projects(
@@ -251,7 +254,11 @@ sealed interface LayoutStructure {
             atIndex: Int = tabs.size,
             replace: Boolean = false,
         ): Tabbed {
-            if (tab == Empty) return Tabbed(tabs.filterIndexed { index, _ -> index != atIndex })
+            if (tab == Remove) return Tabbed(tabs.filterIndexed { index, _ -> index != atIndex })
+            if (atIndex == tabs.size && tabs.lastOrNull() == Empty) return Tabbed(
+                tabs.dropLast(1) + tab,
+                if (select) tabs.lastIndex else selected
+            )
             return Tabbed(tabs.toMutableList().apply {
                 if (replace) removeAt(atIndex)
                 add(atIndex, tab)
@@ -264,6 +271,16 @@ sealed interface LayoutStructure {
 
     @Serializable
     data object Empty : Single() {
+        override val text: String = "No tab open"
+        override val showsTopBar: Boolean = false
+
+        @Composable
+        override fun content() {
+        }
+    }
+
+    @Serializable
+    data object Remove : Single() {
         @Composable
         override fun content() {
         }
@@ -272,16 +289,15 @@ sealed interface LayoutStructure {
     fun tabIfNecessary(tabName: String): Tabbed {
         return when (this) {
             is Tabbed -> this
-            is Empty -> Tabbed(listOf(), 0)
+            is Remove -> Tabbed(listOf(), 0)
             is Single -> Tabbed(listOf(this), 0)
             else -> error("Cannot convert $this to a tabbed layout")
         }
     }
 }
 
-inline fun Single.wrap(crossinline wrap: @Composable (original: @Composable () -> Unit) -> Unit): Single = object : Wrap() {
-    @Composable
-    override fun content() {
-        wrap { super.content() }
-    }
+fun LayoutStructure.wrap(
+    wrap: @Composable (original: @Composable () -> Unit) -> Unit,
+): LayoutStructure.Wrap {
+    return LayoutStructure.Wrap(wrap, this)
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,10 +34,13 @@ import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onMiddleMouseClick
+import me.dvyy.tasks.layout.ui.EmptyLayout
 import me.dvyy.tasks.layout.ui.Layout
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
+import me.dvyy.tasks.layout.ui.LayoutStructure.Single.WeekView
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.utils.Dragged
 import me.dvyy.tasks.utils.LocalDragAndDropState
@@ -136,22 +140,7 @@ fun TabbedLayout(
                     Layout(it, onLayoutUpdate = { new ->
                         onLayoutUpdate(structure.withTab(new, atIndex = structure.selected, replace = true))
                     })
-                } ?: run {
-                    Column(
-                        Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "No tab is open",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        TextButton(onClick = { onLayoutUpdate(structure.withTab(LayoutStructure.Single.WeekView())) }) {
-                            Text("Open week view")
-                        }
-                    }
-                }
+                } ?: EmptyLayout(onLayoutUpdate = { layoutViewModel.openTab(WeekView()) })
 //                if (structure.tabs.getOrNull(structure.selected)?.hasDropTargets != false)
 //                    DropTarget(structure, onLayoutUpdate)
             }
@@ -192,7 +181,7 @@ private fun Tabs(
     ) {
         fun closeTab(index: Int) {
             if (structure.tabs.size == 1) {
-                onTabbedUpdate(LayoutStructure.Empty)
+                onTabbedUpdate(LayoutStructure.Remove)
             } else onTabbedUpdate(
                 structure.copy(
                     tabs = structure.tabs.toMutableList().apply { removeAt(index) },
@@ -232,6 +221,11 @@ private fun Tabs(
                     )
                 }
             }
+        }
+        if (structure.selectable) BoxButton(onClick = {
+            layoutViewModel.openTab(LayoutStructure.Empty)
+        }) {
+            Icon(AppIcons.Add, "Add tab", tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         PlatformTopBarContainer(Modifier.fillMaxSize().weight(1f), {
             HoverBox(

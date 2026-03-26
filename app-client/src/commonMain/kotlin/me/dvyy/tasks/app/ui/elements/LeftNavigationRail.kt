@@ -51,7 +51,7 @@ fun LeftNavigationRail(
                 val isSelected = button.structure == selected
                 LayoutToggleButton(button, isSelected) {
                     layout.setLeftSidebar(
-                        if (isSelected) LayoutStructure.Empty
+                        if (isSelected) LayoutStructure.Remove
                         else button.structure
                     )
                 }
@@ -62,7 +62,7 @@ fun LeftNavigationRail(
                 val isSelected = button.structure == bottomSelected
                 LayoutToggleButton(button, isSelected) {
                     layout.bottomBar.update {
-                        if (isSelected) LayoutStructure.Empty
+                        if (isSelected) LayoutStructure.Remove
                         else button.structure
                     }
                 }

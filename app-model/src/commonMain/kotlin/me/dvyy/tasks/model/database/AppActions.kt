@@ -18,6 +18,12 @@ class AppActions(
     val tasks = TaskActions(actions, appQueries, db)
     val projects = jsonActions(appQueries.projects.crud)
     val childOf = ChildActions(actions, appQueries, db)
+
+
+    suspend fun delete(id: Uuid) {
+        actions.invoke(DeleteEntityAction(id))
+    }
+
     private fun <T> jsonActions(dao: JsonDataQueries<T>) = JsonActions(db, dao, actions)
 }
 

@@ -71,7 +71,7 @@ fun SplitLayout(
                     structure.first,
                     onLayoutUpdate = {
                         onLayoutUpdate(
-                            if (structure.mergeWhenEmpty && it == LayoutStructure.Empty) {
+                            if (structure.mergeWhenEmpty && it == LayoutStructure.Remove) {
                                 layoutViewModel.setActiveLayout(structure.second)
                                 structure.second
                             } else structure.copy(first = it)
@@ -84,7 +84,7 @@ fun SplitLayout(
                 structure.second,
                 onLayoutUpdate = {
                     onLayoutUpdate(
-                        if (structure.mergeWhenEmpty && it == LayoutStructure.Empty) {
+                        if (structure.mergeWhenEmpty && it == LayoutStructure.Remove) {
                             layoutViewModel.setActiveLayout(structure.first)
                             structure.first
                         } else structure.copy(second = it)

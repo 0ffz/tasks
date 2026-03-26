@@ -1,6 +1,8 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
+import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.tree.ui.FileStructure
 
 // The scope used here is the scope that is used for the mapping work
@@ -28,11 +31,11 @@ class LayoutViewModel(
         prefs.serializable<LayoutStructure.Single>(viewModelScope, "leftSidebar", LayoutButtons.fileTree.structure)
     val leftSidebar = _leftSidebar.asStateFlow()
     val mobileLeftSidebar = _leftSidebar.map(viewModelScope) {
-        it.takeIf { it != LayoutStructure.Empty } ?: LayoutButtons.fileTree.structure
+        it.takeIf { it != LayoutStructure.Remove } ?: LayoutButtons.fileTree.structure
     }
 
-    val rightSidebar = prefs.serializable<LayoutStructure>(viewModelScope, "rightSidebar", LayoutStructure.Empty)
-    val bottomBar = prefs.serializable<LayoutStructure>(viewModelScope, "bottomBar", LayoutStructure.Empty)
+    val rightSidebar = prefs.serializable<LayoutStructure>(viewModelScope, "rightSidebar", LayoutStructure.Remove)
+    val bottomBar = MutableStateFlow<LayoutStructure>(LayoutStructure.Remove)//prefs.serializable<LayoutStructure>(viewModelScope, "bottomBar", LayoutStructure.Remove)
     private val tabs = prefs.serializable<LayoutStructure.Tabbed>(viewModelScope, "tabs", LayoutStructure.Tabbed(emptyList()))
 
     val mainView = tabs
@@ -68,7 +71,7 @@ class LayoutViewModel(
     private val _activeLayout = MutableStateFlow<LayoutStructure?>(null)
 
     val activeLayout: StateFlow<LayoutStructure> = combine(_activeLayout, mainView) { active, main ->
-        active.takeIf { it != LayoutStructure.Empty } ?: main
+        active.takeIf { it != LayoutStructure.Remove } ?: main
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), mainView.value)
 
     private val openFilesChannel = Channel<FileStructure.File>()
@@ -101,11 +104,12 @@ class LayoutViewModel(
             it.withTab(layout)
         }
     }
+
     fun setMainView(layout: LayoutStructure) {
         tabs.update {
             when (layout) {
                 is LayoutStructure.Tabbed -> layout
-                is LayoutStructure.Empty -> LayoutStructure.Tabbed(listOf())
+                is LayoutStructure.Remove -> LayoutStructure.Tabbed(listOf())
                 else -> it
             }
         }
@@ -120,7 +124,7 @@ class LayoutViewModel(
             first = main,
             second = bottom,
             orientation = Orientation.Vertical,
-            secondEnabled = bottom != LayoutStructure.Empty,
+            secondEnabled = bottom != LayoutStructure.Remove,
             mergeWhenEmpty = false,
         )
     }
@@ -128,27 +132,25 @@ class LayoutViewModel(
         LayoutStructure.Split(
             first = LayoutStructure.Split(
                 first = LayoutStructure.Tabbed(
-                    listOf(
-                        left/*.wrap {
-                        androidx.compose.material3.Surface(
-                            tonalElevation = UI.elevation.lv1,
-                            modifier = Modifier.fillMaxSize()
-                        ) { it() }
-                    }*/
-                    ),
+                    listOf(left),
                     fullWidth = true,
                     selectable = false,
-                ),
+                ).wrap {
+                    androidx.compose.material3.Surface(
+                        tonalElevation = UI.elevation.lv1,
+                        modifier = Modifier.fillMaxSize()
+                    ) { it() }
+                },
                 second = main,
                 split = SplitAmount.Fixed(200.dp),
                 orientation = Orientation.Horizontal,
-                firstEnabled = left != LayoutStructure.Empty,
+                firstEnabled = left != LayoutStructure.Remove,
                 mergeWhenEmpty = false,
             ),
             second = bottom,
             orientation = Orientation.Vertical,
             mergeWhenEmpty = false,
-            secondEnabled = bottom != LayoutStructure.Empty,
+            secondEnabled = bottom != LayoutStructure.Remove,
         )
     }
 

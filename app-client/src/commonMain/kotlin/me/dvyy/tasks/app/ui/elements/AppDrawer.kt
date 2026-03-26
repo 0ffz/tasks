@@ -50,7 +50,7 @@ fun AppDrawer(
                                 val isSelected = button.structure == selected
                                 LayoutToggleButton(button, isSelected) {
                                     layout.setLeftSidebar(
-                                        if (isSelected) LayoutStructure.Empty
+                                        if (isSelected) LayoutStructure.Remove
                                         else button.structure
                                     )
                                 }
