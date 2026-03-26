@@ -1,19 +1,14 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -26,6 +21,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.dialogs.AppDialog
@@ -231,7 +227,30 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-                Project(key, displayOptions = rememberProjectDisplayOptions(scrollable = true, fullHeight = true))
+                val tasksViewModel = koinViewModel<TasksViewModel>()
+                val type = tasksViewModel.rememberUpdatedEntityType(key)
+                when (type) {
+                    "project" -> {
+                        Project(key, displayOptions = rememberProjectDisplayOptions(scrollable = true, fullHeight = true))
+                    }
+
+                    "layout" -> {
+                        val stored by remember(key) { tasksViewModel.watchLayout(key.uuid) }.collectAsState(initial = null)
+                        val layoutJson = stored?.layout ?: return
+                        val layout = runCatching { Json.decodeFromJsonElement(LayoutStructure.serializer(), layoutJson) }
+                            .getOrNull()
+                        if (layout == null) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("Error loading layout")
+                            }
+                        } else Layout(layout, onLayoutUpdate = { new ->
+                            tasksViewModel.updateLayout(key.uuid, new)
+                        })
+
+                    }
+
+                    else -> {}
+                }
             }
 
             companion object {

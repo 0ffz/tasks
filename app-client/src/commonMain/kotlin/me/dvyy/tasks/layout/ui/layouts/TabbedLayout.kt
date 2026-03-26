@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.Location
 import me.dvyy.tasks.layout.ui.LayoutStructure.Single.WeekView
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.utils.Dragged
@@ -292,11 +294,17 @@ fun LayoutTab(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(ui.tabPadding)) {
                     (tab as? LayoutStructure.Single)?.tabLabel(if (selected) Location.Selected else Location.TabList)
-                        ?: Text(
-                            "Custom Layout",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                        ?: run {
+                            Text(
+                                "Custom Layout",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            val tasksViewModel = koinViewModel<TasksViewModel>()
+                            BoxButton(onClick = { tasksViewModel.saveLayout(tab) }) {
+                                Icon(AppIcons.Save, "Save layout")
+                            }
+                        }
                 }
             }
             if (selected) Surface(

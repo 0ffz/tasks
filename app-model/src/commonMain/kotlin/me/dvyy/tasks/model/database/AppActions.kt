@@ -17,6 +17,7 @@ class AppActions(
 ) {
     val tasks = TaskActions(actions, appQueries, db)
     val projects = jsonActions(appQueries.projects.crud)
+    val layouts = jsonActions(appQueries.layouts)
     val childOf = ChildActions(actions, appQueries, db)
 
 

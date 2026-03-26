@@ -1,9 +1,6 @@
 package me.dvyy.tasks.model.database
 
-import me.dvyy.syncengine.jsonactions.actions.DeleteEntityAction
-import me.dvyy.syncengine.jsonactions.actions.DeleteRowAction
-import me.dvyy.syncengine.jsonactions.actions.JsonCreateAction
-import me.dvyy.syncengine.jsonactions.actions.JsonPatchAction
+import me.dvyy.syncengine.jsonactions.actions.*
 import me.dvyy.syncengine.jsonactions.reducers.jsonReducers
 import me.dvyy.syncengine.reducers.Reducers
 import me.dvyy.syncengine.reducers.reducers
@@ -52,6 +49,7 @@ val AppSchema = schema(
         action<JsonPatchAction>(2)
         action<JsonCreateAction>(3)
         action<DeleteEntityAction>(4)
+        action<JsonSetAction>(5)
 
         // Task interactions
         action<MoveChildAction>(100)

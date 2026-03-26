@@ -12,10 +12,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.model.components.ProjectModel
+import me.dvyy.tasks.model.components.SavedLayoutModel
 import me.dvyy.tasks.model.components.TaskInList
 import me.dvyy.tasks.model.components.TaskModel
 import me.dvyy.tasks.model.database.AppDatabase
@@ -35,7 +39,7 @@ class TasksViewModel(
     val selectedTask = MutableStateFlow<TaskInList?>(null)
 
     val projects = db.watch(NotesTable.name, ChildOfTable.name) {
-        projects.getAll()
+        projects.getAllSidebar()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), listOf())
 
     //    fun watchProjects(ids: List<ListId>): StateFlow<List<ProjectWithId>> {
@@ -81,6 +85,8 @@ class TasksViewModel(
     fun watchProjectTitle(list: Uuid): Flow<ProjectModel?> = db.watch(NotesTable.name) {
         projects.crud.get(list)
     }
+
+    fun watchLayout(list: Uuid): Flow<SavedLayoutModel?> = db.watch(NotesTable.name) { layouts.get(list) }
 
     private fun watchChildren(list: Uuid) = db.watch(ChildOfTable.name) {
         childOf.childrenOf(list).map { it.asTask() }
@@ -206,12 +212,32 @@ class TasksViewModel(
         db.mutate.childOf.move(id, toParent = Projects.projectRoot)
     }
 
+    fun saveLayout(layout: LayoutStructure) = viewModelScope.launch {
+        val id = db.mutate.layouts.create(SavedLayoutModel("Test", Json.encodeToJsonElement(layout)))
+        db.mutate.childOf.move(id, toParent = Projects.projectRoot)
+    }
+
+    fun updateLayout(id: Uuid, layout: LayoutStructure) {
+        viewModelScope.launch {
+            db.mutate.layouts.set(id, "$.layout", Json.encodeToJsonElement(layout))
+        }
+    }
+
     //TODO Is this breaking any compose practices? These could technically be emitted as flows but
     // that would mean reimplementing CachedUpdate for it, look around online.
     @Composable
     fun rememberUpdatedProjectState(id: ListId): ProjectState {
         val state by remember(id) { watchList(id) }.collectAsState()
         return state //TODO cached update for header rename
+    }
+
+    @Composable
+    fun rememberUpdatedEntityType(id: ListId): String? {
+        return remember(id) {
+            db.watch(NotesTable.name) {
+                notes.jsonGet(id.uuid, "$.type") { getText(0) }
+            }
+        }.collectAsState(initial = null).value
     }
 
     @Composable
