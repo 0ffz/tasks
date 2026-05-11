@@ -17,10 +17,6 @@ tasks.withType<ComposeHotRun>().configureEach {
     mainClass.set("MainKt")
 }
 
-kotlin {
-    jvmToolchain(21)
-}
-
 dependencies {
     implementation(libs.slf4j)
     implementation(libs.koin.core)
@@ -46,7 +42,8 @@ val appInstallerName = "$appName-" + when {
 compose.desktop {
     application {
         mainClass = "MainKt"
-        jvmArgs.addAll(listOf("-Dawt.toolkit.name=WLToolkit", "--enable-native-access=ALL-UNNAMED"))
+//        "-Dawt.toolkit.name=WLToolkit",
+        jvmArgs.addAll(listOf("--enable-native-access=ALL-UNNAMED"))
         buildTypes.release.proguard {
             isEnabled = false
         }

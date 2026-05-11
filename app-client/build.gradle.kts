@@ -10,6 +10,12 @@ composeCompiler {
     stabilityConfigurationFiles.addAll(project.layout.projectDirectory.file("compose_compiler_config.conf"))
 }
 
+compose {
+    resources {
+        generateResClass = always
+    }
+}
+
 kotlin {
     androidLibrary {
         namespace = "me.dvyy.tasks.dev"
@@ -89,7 +95,7 @@ kotlin {
                 implementation("me.dvyy.syncengine:core")
                 implementation("me.dvyy.syncengine:client")
                 implementation("me.dvyy.syncengine:json-actions")
-                implementation("me.dvyy:sqlite-kt:0.0.3-alpha.2")
+                implementation("me.dvyy.sqlite:sqlite-kt:0.0.3-alpha.2")
             }
         }
         val jvmMain by creating {

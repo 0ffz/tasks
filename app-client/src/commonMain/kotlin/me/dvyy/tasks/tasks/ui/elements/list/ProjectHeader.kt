@@ -3,22 +3,11 @@ package me.dvyy.tasks.tasks.ui.elements.list
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,20 +43,20 @@ fun ProjectHeader(
             verticalAlignment = Alignment.Bottom,
         ) {
             val monthTextStyle = when {
-                width < 140.dp -> MaterialTheme.typography.titleLargeEmphasized
-                width < 180.dp -> MaterialTheme.typography.headlineSmallEmphasized
+//                width < 140.dp -> MaterialTheme.typography.titleLargeEmphasized
+//                width < 180.dp -> MaterialTheme.typography.headlineSmallEmphasized
                 else -> MaterialTheme.typography.headlineMedium
             }
             when (header) {
                 is ProjectHeaderState.Date -> {
                     val weekdayTextStyle = when {
-                        width < 140.dp -> MaterialTheme.typography.titleLarge
+//                        width < 140.dp -> MaterialTheme.typography.titleLarge
                         else -> MaterialTheme.typography.headlineSmall
                     }
                     val date = header.date
                     val text = when {
-                        width < 130.dp -> "${date.day}"
-                        width < 160.dp -> "${date.month.name.take(1)}${date.day}"
+                        width < 140.dp -> "${date.day}"
+//                        width < 160.dp -> "${date.month.name.take(1)}${date.day}"
                         else -> "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)} ${date.day}"
                     }
                     if (width > 100.dp) Text(

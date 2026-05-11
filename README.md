@@ -19,6 +19,14 @@ A WIP app for managing tasks using a calendar-like week view.
 
 </div>
 
+## Development
+
+### Useful tasks
+
+- `gradle :targets:desktop:hotRun  --auto` Run jvm desktop app with hot reload
+- `gradle allTests` run sync engine tests
+- `gradle :app-server:jibDockerBuild` build server Docker image
+
 ## License
 
 Copyright (C) 2024 Danielle Voznyy

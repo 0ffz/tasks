@@ -7,7 +7,7 @@ pluginManagement {
         mavenLocal()
         maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
-//    includeBuild("../sqlite-kt")
+    includeBuild("../sqlite-kt")
 }
 
 plugins {
@@ -19,7 +19,7 @@ dependencyResolutionManagement {
 
     repositories {
         maven("https://repo.mineinabyss.com/releases")
-//        maven("https://repo.mineinabyss.com/snapshots")
+        maven("https://repo.mineinabyss.com/snapshots")
     }
 
     versionCatalogs {
@@ -33,4 +33,4 @@ dependencyResolutionManagement {
 include("app-client", "app-model", "app-server", "tests")
 include("targets:desktop", "targets:android")
 includeBuild("../syncengine")
-//includeBuild("../sqlite-kt")
+includeBuild("../sqlite-kt")
