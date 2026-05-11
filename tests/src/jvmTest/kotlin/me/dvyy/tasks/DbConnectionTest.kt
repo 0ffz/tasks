@@ -75,7 +75,7 @@ class DbConnectionTest : DbTest() {
         }
 
         val expected =
-            TaskModel(text = "hello world 2", parent = parent) to TaskModel(text = "hello world", parent = parent)
+            TaskModel(text = "hello world 2") to TaskModel(text = "hello world")
         serverTask shouldBe expected
         clientTask shouldBe expected
     }

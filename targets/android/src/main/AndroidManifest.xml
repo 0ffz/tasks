@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
             android:label="@string/app_name"
             android:icon="@mipmap/ic_launcher"
             android:supportsRtl="true"
             android:theme="@style/Theme.TasksApp"
-            android:name=".tasks.MainApplication">
+            android:name="me.dvyy.tasks.MainApplication">
         <activity
                 android:name="me.dvyy.tasks.MainActivity"
                 android:windowSoftInputMode="adjustResize"
                 android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <meta-data android:name="android.app.shortcuts"
-                       android:resource="@xml/shortcuts"/>
+            <meta-data
+                    android:name="android.app.shortcuts"
+                    android:resource="@xml/shortcuts" />
         </activity>
         <activity
-                android:name=".tasks.QuickAddActivity"
+                android:name="me.dvyy.tasks.QuickAddActivity"
+                android:exported="true"
                 android:theme="@style/Theme.QuickAdd"
-                android:excludeFromRecents="true"
-        >
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <!--        <service-->
         <!--                android:name=".tasks.CreateAndSyncTaskService"-->

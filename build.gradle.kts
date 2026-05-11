@@ -1,3 +1,5 @@
+import nl.littlerobots.vcu.plugin.versionSelector
+
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader
@@ -9,9 +11,8 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.composeHotReload) apply false
     alias(libs.plugins.jib) apply false
-//    alias(libs.plugins.stability.analyzer) apply false
-    id("com.github.ben-manes.versions") version "0.51.0"
-    id("nl.littlerobots.version-catalog-update") version "0.8.5"
+    alias(miaLibs.plugins.version.catalog.update)
+    alias(miaLibs.plugins.gradle.versions)
     id("me.dvyy.sqlite.codegen") version "0.0.3-alpha.2" apply false
 }
 
@@ -23,4 +24,22 @@ allprojects {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
+}
+
+tasks {
+    updateDaemonJvm {
+        languageVersion = JavaLanguageVersion.of(25)
+        vendor = JvmVendorSpec.JETBRAINS
+    }
+    versionCatalogUpdate {
+        keep {
+            keepUnusedVersions = true
+        }
+        versionSelector { !isNonStable(it.candidate.version) || isNonStable(it.currentVersion) }
+    }
+}
+
+fun isNonStable(version: String): Boolean {
+    val unstableKeywords = listOf("-beta", "-dev", "+dev", "x-", "-rc", "-alpha", "-SNAPSHOT")
+    return unstableKeywords.any { version.contains(it, ignoreCase = true) }
 }

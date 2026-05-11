@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-//    kotlin("android")
 }
 
 
@@ -13,12 +12,9 @@ kotlin {
 }
 dependencies {
     implementation(project(":app-client"))
-//    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.androidx.activity.compose)
-//    implementation(libs.androidx.glance.appwidget)
-//    implementation(libs.androidx.glance.material3)
-//    implementation("androidx.glance:glance-appwidget:1.1.1")
-//    implementation("androidx.glance:glance-material3:1.1.1")
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
     implementation(libs.kotlin.multiplatform.appdirs)
     implementation(libs.koin.android)
     implementation(libs.androidx.startup.runtime)
@@ -36,15 +32,16 @@ android {
         compose = true
     }
     compileSdk = 36
-    namespace = "me.dvyy"
+    namespace = "me.dvyy.tasks"
     defaultConfig {
-        applicationId = "me.dvyy.dev"
+        applicationId = "me.dvyy.tasks"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = version.toString()
 //        setProperty("archivesBaseName", "Tasks-$version")
     }
+
     signingConfigs {
         if (androidKeystoreFile != null) register("release") {
             properties["storeFile"]
@@ -60,7 +57,7 @@ android {
     }
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+//            applicationIdSuffix = ".debug"
         }
         release {
             isDebuggable = false

@@ -6,6 +6,7 @@ sealed interface ProjectHeaderState {
     data class Named(
         val displayName: String,
         val onRename: (String) -> Unit,
+        val canRename: Boolean = true,
     ) : ProjectHeaderState
 
     data class Date(val date: LocalDate) : ProjectHeaderState

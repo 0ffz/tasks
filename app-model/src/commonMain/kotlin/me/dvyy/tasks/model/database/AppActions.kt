@@ -49,8 +49,10 @@ class TaskActions(
     private val db: Database,
 ) {
     val json = JsonActions(db, appQueries.tasks, actions)
-    suspend fun create(task: TaskModel, parent: Uuid, atEnd: Boolean = true) {
-        actions.invoke(CreateTaskAction(Uuid.generateV7(), task, parent, atEnd))
+    suspend fun create(task: TaskModel, parent: Uuid, atEnd: Boolean = true): Uuid {
+        val id = Uuid.generateV7()
+        actions.invoke(CreateTaskAction(id, task, parent, atEnd))
+        return id
     }
 
     suspend fun update(id: Uuid, new: TaskModel) {

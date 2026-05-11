@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.model.Highlight
@@ -17,6 +18,7 @@ import me.dvyy.tasks.model.Highlight
 fun TaskSelectedSurface(
     visible: Boolean,
     highlight: Highlight,
+    shape: Shape? = null,
     content: @Composable () -> Unit,
 ) {
     val alpha by animateFloatAsState(if (visible) 1f else 0f)
@@ -29,7 +31,7 @@ fun TaskSelectedSurface(
     val animatedHighlight by animateColorAsState(highlightColor)
     Surface(
 //        modifier = modifier.padding(vertical = padding),
-        shape = RoundedCornerShape(cornerShape),
+        shape = shape ?: RoundedCornerShape(cornerShape),
         color = color,
         tonalElevation = UI.elevation.lv1,
     ) {

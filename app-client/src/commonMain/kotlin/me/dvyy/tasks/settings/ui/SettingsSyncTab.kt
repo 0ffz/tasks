@@ -5,7 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.ClearAll
-import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,6 +32,14 @@ fun SettingsSyncTab(
     val loginState by auth.loginState.collectAsState()
     val login = loginState // Smart casts
 
+
+    BoxedList("Sync") {
+        SettingItem("Unsynced actions", isLast = true) {
+            val count by sync.queuedActionCount.collectAsState("Unknown")
+            Text(count.toString())
+        }
+    }
+
     if (login !is LoginState.Success) {
         BoxedList {
             MultilineSettingItem(
@@ -38,13 +50,6 @@ fun SettingsSyncTab(
             }
         }
         return
-    }
-
-    BoxedList("Sync") {
-        SettingItem("Unsynced actions", isLast = true) {
-            val count by sync.queuedActionCount.collectAsState("Unknown")
-            Text(count.toString())
-        }
     }
 
     BoxedList("Account") {

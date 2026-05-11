@@ -46,6 +46,7 @@ val appInstallerName = "$appName-" + when {
 compose.desktop {
     application {
         mainClass = "MainKt"
+        jvmArgs.addAll(listOf("-Dawt.toolkit.name=WLToolkit", "--enable-native-access=ALL-UNNAMED"))
         buildTypes.release.proguard {
             isEnabled = false
         }

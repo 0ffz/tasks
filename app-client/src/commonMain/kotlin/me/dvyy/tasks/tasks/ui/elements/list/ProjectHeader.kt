@@ -3,11 +3,22 @@ package me.dvyy.tasks.tasks.ui.elements.list
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +39,7 @@ fun ProjectHeader(
     colored: Boolean,
     loading: Boolean = false,
     showDivider: Boolean = true,
-    addTask: () -> Unit,
+    addTask: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) = BoxWithConstraints {
     val width = maxWidth
@@ -82,6 +93,7 @@ fun ProjectHeader(
                     CachedUpdate(listId, header.displayName, header.onRename) { name, setName ->
                         BasicTextField(
                             name,
+                            enabled = header.canRename,
                             onValueChange = { setName(it) },
                             cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                             modifier = Modifier.weight(1f, true),
@@ -99,7 +111,7 @@ fun ProjectHeader(
                 }
             }
             // == Add task to top button
-            IconButton(onClick = addTask, modifier = Modifier.size(32.dp)) {
+            if (addTask != null) IconButton(onClick = addTask, modifier = Modifier.size(32.dp)) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = "Add task to top",

@@ -8,7 +8,7 @@
             android:shortcutDisabledMessage="@string/compose_disabled_message1">
         <intent
                 android:action="android.intent.action.VIEW"
-                android:targetPackage="me.dvyy"
+                android:targetPackage="me.dvyy.tasks"
                 android:targetClass="me.dvyy.tasks.QuickAddActivity"/>
         <!-- If your shortcut is associated with multiple intents, include them
              here. The last intent in the list determines what the user sees when

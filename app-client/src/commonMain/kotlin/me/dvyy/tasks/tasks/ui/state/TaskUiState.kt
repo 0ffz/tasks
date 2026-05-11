@@ -47,7 +47,7 @@ interface TaskMutations {
     fun onDelete() {}
     fun onKeyEvent(event: KeyEvent, uiState: TaskUiState): Boolean = false
     fun onSelect() {}
-    fun dropTaskOnThis(other: TaskId)
+    fun dropTaskOnThis(other: TaskId) {}
     fun selectNext(uiState: TaskUiState) {}
 }
 

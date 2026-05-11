@@ -13,7 +13,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LeadingIcon(icon: ImageVector?, contentDescription: String, content: @Composable (() -> Unit)) =
     Row(verticalAlignment = Alignment.CenterVertically) {
-        if(icon != null) {
+        if (icon
+            != null
+        ) {
             Icon(icon, contentDescription = contentDescription)
             Spacer(Modifier.width(8.dp))
         }

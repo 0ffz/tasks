@@ -1,59 +1,27 @@
-package me.dvyy.tasks.layout.ui
+package me.dvyy.tasks.layout.ui.layouts
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.layout.ui.layouts.*
+import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 
-@Composable
-fun Layout(
-    structure: LayoutStructure,
-    onLayoutUpdate: (LayoutStructure) -> Unit = {},
-) {
-//    if(structure is LayoutStructure.Tabbed || structure == LayoutStructure.Empty) {
-//        DropTarget(structure, onLayoutUpdate)
-//    }
-    when (structure) {
-        is LayoutStructure.Wrap -> {
-            structure.wrap { Layout(structure.child, onLayoutUpdate) }
-        }
-        is LayoutStructure.Scrollable -> ScrollableLayout(structure)
-
-        is LayoutStructure.Split -> SplitLayout(structure, onLayoutUpdate)
-
-        is LayoutStructure.Tabbed -> TabbedLayout(structure, onLayoutUpdate)
-
-        is LayoutStructure.Empty -> EmptyLayout(onLayoutUpdate)
-        is LayoutStructure.Single -> SingleLayout(structure, onLayoutUpdate)
-    }
-}
-
-@Composable
-fun EmptyLayout(
-    onLayoutUpdate: (LayoutStructure) -> Unit,
-) {
-    Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            "No tab is open",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        TextButton(onClick = { onLayoutUpdate(LayoutStructure.Single.WeekView()) }) {
-            Text("Open week view")
-        }
-    }
-}
 @Composable
 fun SingleLayout(
     structure: LayoutStructure.Single,
@@ -67,7 +35,7 @@ fun SingleLayout(
                         Spacer(Modifier.width(UI.padding.md))
                         LayoutTab(
                             structure,
-                            Modifier.weight(1f),
+//                            Modifier.weight(1f),
                             showCloseButton = false,
                             selected = false,
                             onClose = { onLayoutUpdate(LayoutStructure.Remove) },
