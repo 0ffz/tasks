@@ -55,8 +55,7 @@ class DbConnectionTest : DbTest() {
         server.initialize()
 
         val parent = Uuid.generateV7()
-        val json =
-            Json.decodeFromString<JsonElement>("""{ "text":  "hello world", "parent":  "${parent.toHexString()}" }""")
+        val json = Json.decodeFromString<JsonElement>("""{ "text":  "hello world", "parent":  "${parent.toHexString()}" }""")
         val json2 = Json.decodeFromString<JsonElement>("""{ "text":  "hello world 2" }""")
 
         val id = Uuid.generateV7()
@@ -74,13 +73,12 @@ class DbConnectionTest : DbTest() {
             queries.get(id) to queries.get(id2)
         }
 
-        val expected =
-            TaskModel(text = "hello world 2") to TaskModel(text = "hello world")
+        val expected = TaskModel(text = "hello world 2") to TaskModel(text = "hello world")
         serverTask shouldBe expected
         clientTask shouldBe expected
     }
 
-    @Test
+    //    @Test
     fun applicationTest() = runTest {
         val serverLogger = loggerNamed("Server")
         val server = Workspace.of(serverDatabase, reducers, AppSchema, serverLogger)

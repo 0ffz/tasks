@@ -1,6 +1,5 @@
 package me.dvyy.tasks.model.database.reducers
 
-import co.touchlab.kermit.Logger
 import me.dvyy.syncengine.reducers.MutableReducers
 import me.dvyy.tasks.model.database.AppQueries
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
@@ -17,12 +16,7 @@ fun MutableReducers.taskReducers(db: AppQueries) {
     }
     reduce<CreateTaskAction> {
         val list = it.parent
-//        val rank =
-//            (if (it.atEnd) db.childOf.getLastRankInList(list)?.let { RankFunctions.getRankAfter(it) }
-//            else db.childOf.getFirstRankInList(list)?.let { RankFunctions.getRankBefore(it) })
-//                ?: RankFunctions.middleChar.toString()
         db.tasks.create(it.uuid, it.task)
-        Logger.w { "TODO: Implement atEnd" }
-        db.childOf.moveTaskToList(it.uuid, list) //TODO atEnd
+        db.childOf.moveTaskToList(it.uuid, list, it.atEnd)
     }
 }

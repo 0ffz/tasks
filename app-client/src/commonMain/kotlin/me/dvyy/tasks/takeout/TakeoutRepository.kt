@@ -4,14 +4,17 @@ import co.touchlab.kermit.Logger
 import kotlinx.io.Sink
 import kotlinx.io.Source
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.io.decodeFromSource
 import kotlinx.serialization.json.io.encodeToSink
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import me.dvyy.sqlite.Database
 import me.dvyy.sqlite.statement.getUuid
-import me.dvyy.syncengine.jsonactions.actions.JsonCreateAction
 import me.dvyy.tasks.model.database.AppDatabase
-import me.dvyy.tasks.model.database.NotesTable
 import kotlin.uuid.Uuid
 
 class TakeoutRepository(
@@ -57,21 +60,17 @@ class TakeoutRepository(
 
     }
     @OptIn(ExperimentalSerializationApi::class)
-    suspend fun import(source: Source) {
+    suspend fun import(source: Source, onProgress: (current: Int, total: Int) -> Unit = { _, _ -> }) {
         Logger.v { "Starting database import" }
         val data = Json.decodeFromSource<Map<Uuid, JsonElement>>(source)
         val nonExisting = database.read {
             data.filter { (notes.get(it.key) == null) }
         }
         Logger.v { "Importing ${nonExisting.size}/${data.size} notes (skipping existing)" }
-        nonExisting.forEach {
-            database.mutate(
-                JsonCreateAction(
-                    NotesTable.name,
-                    it.key,
-                    it.value,
-                )
-            )
+        nonExisting.entries.forEachIndexed { index, entry ->
+            val jsonObject = entry.value as? JsonObject ?: return@forEachIndexed
+            database.import(entry.key, jsonObject)
+            onProgress(index + 1, nonExisting.size)
         }
         Logger.v { "Database import complete!" }
     }

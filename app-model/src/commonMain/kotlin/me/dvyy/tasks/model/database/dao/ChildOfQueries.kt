@@ -23,9 +23,10 @@ class ChildOfQueries(
         }
 
     context(tx: WriteTransaction)
-    fun moveTaskToList(uuid: Uuid, list: Uuid) {
+    fun moveTaskToList(uuid: Uuid, list: Uuid, atEnd: Boolean = true) {
+        val rank = if (atEnd) getRankAfterLast(list) else getRankBeforeFirst(list)
         if (queries.get(uuid)?.parent != list)
-            queries.upsert(uuid, ChildOfModel(list, getRankAfterLast(list)))
+            queries.upsert(uuid, ChildOfModel(list, rank))
 //        queries.jsonSet(uuid, "$.parent", "'${list.toHexDashString()}'")
     }
 
@@ -60,6 +61,12 @@ class ChildOfQueries(
     fun getRankAfterLast(list: Uuid): String = RankFunctions.getRankAfter(
         getLastRankInList(list) ?: RankFunctions.FIRST_CHAR.toString()
     )
+
+    context(tx: Transaction)
+    fun getRankBeforeFirst(list: Uuid): String = RankFunctions.getRankBefore(
+        getFirstRankInList(list) ?: RankFunctions.LAST_CHAR.toString()
+    )
+
     context(tx: WriteTransaction)
     fun moveToTask(task: Uuid, target: Uuid) {
         val taskRank = getRankFor(task) ?: return

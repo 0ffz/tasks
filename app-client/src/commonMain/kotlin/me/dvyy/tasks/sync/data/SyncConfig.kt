@@ -1,6 +1,9 @@
 package me.dvyy.tasks.sync.data
 
-import io.ktor.http.*
+import io.ktor.http.URLBuilder
+import io.ktor.http.URLProtocol
+import io.ktor.http.Url
+import io.ktor.http.isSecure
 
 class SyncConfig(
     val url: String,
@@ -9,14 +12,8 @@ class SyncConfig(
 ) {
     val websocketUrl = run {
         val url = Url(url)
-        when (url.protocolOrNull) {
-            URLProtocol.HTTPS -> buildUrl {
-                protocol = URLProtocol.WSS
-                host = url.host
-                port = url.port
-            }
-
-            else -> url
-        }
-    }.toString()
+        URLBuilder(url).apply {
+            protocol = if (url.protocol.isSecure()) URLProtocol.WSS else URLProtocol.WS
+        }.buildString()
+    }
 }
