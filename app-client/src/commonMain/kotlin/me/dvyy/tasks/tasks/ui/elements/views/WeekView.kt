@@ -1,6 +1,8 @@
 package me.dvyy.tasks.tasks.ui.elements.views
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,25 +34,25 @@ fun BoxWithConstraintsScope.WeekView(
 
     val scrollState = rememberScrollState()
     val today by time.today.collectAsState()
+    Box(Modifier.height(maxHeight)) {
+        NonlazyGrid(
+            columns = columns,
+            itemCount = takeDays,
+            modifier = Modifier.verticalScroll(scrollState).height(IntrinsicSize.Max)
+        ) { dayIndex ->
+            val day = weekStart.plus(DatePeriod(days = dayIndex))
+            val isToday = day == today
+            val listId = ListId.forDate(day)
 
-    NonlazyGrid(
-        columns = columns,
-        itemCount = takeDays,
-        modifier = Modifier.verticalScroll(scrollState).height(maxHeight)
-    ) { dayIndex ->
-        val day = weekStart.plus(DatePeriod(days = dayIndex))
-        val isToday = day == today
-        val listId = ListId.forDate(day)
-
-        Project(
-            listId,
-            displayOptions = rememberProjectDisplayOptions(
-                coloredHeader = isToday,
-                scrollable = false,
-                fullHeight = !isSmall,
-            ),
+            Project(
+                listId,
+                displayOptions = rememberProjectDisplayOptions(
+                    coloredHeader = isToday,
+                    scrollable = false,
+                    fullHeight = !isSmall,
+                ),
 //                modifier = Modifier.onGloballyPositioned { coords -> scrollToPosition = coords.positionInRoot().y }
-        )
+            )
 
 //            LaunchedEffect(Unit) {
 //                if (isToday && columns == 1) snapshotFlow { scrollToPosition }
@@ -58,5 +60,6 @@ fun BoxWithConstraintsScope.WeekView(
 //                    .take(1)
 //                    .collectLatest { scrollState.scrollTo(scrollToPosition.roundToInt()) }
 //            }
+        }
     }
 }
