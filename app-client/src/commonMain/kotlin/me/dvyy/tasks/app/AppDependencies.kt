@@ -1,5 +1,6 @@
 package me.dvyy.tasks.app
 
+import androidx.compose.material3.SnackbarHostState
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -65,6 +66,7 @@ fun coreModule() = module {
     single { AppFactories.createDatabase(this) }
     single { AppFactories.createAppSettings() }
     singleOf(::LocalPreferencesRepository)
+    single { SnackbarHostState() }
 }
 
 fun authModule() = module {

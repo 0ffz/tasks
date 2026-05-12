@@ -28,6 +28,7 @@ fun ReorderableTask(
     enabled: Boolean,
     key: TaskId,
     onDropTask: (TaskId) -> Unit,
+    draggableContent: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     Modifier/*.platformDragAndDropSource {
@@ -67,9 +68,7 @@ fun ReorderableTask(
             dropAnimationSpec = snap(0),
             dropStrategy = LeftDistance,
             state = LocalDragAndDropState.current, key = key, data = Dragged.Task(key.uuid),
-//            draggableContent = {
-//                 Box(Modifier.size(20.dp).background(Color.Red))
-//            }
+            draggableContent = draggableContent
         ) {
 
             content()

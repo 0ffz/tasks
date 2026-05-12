@@ -1,16 +1,29 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
-import kotlinx.collections.immutable.ImmutableList
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.model.ListId
@@ -19,8 +32,14 @@ import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.tasks.ui.elements.task.Task
+import me.dvyy.tasks.tasks.ui.elements.task.text.TaskHighlight
+import me.dvyy.tasks.tasks.ui.elements.task.text.TaskTextField
 import me.dvyy.tasks.tasks.ui.state.ProjectState
-import me.dvyy.tasks.utils.*
+import me.dvyy.tasks.utils.CachedUpdate
+import me.dvyy.tasks.utils.Dragged
+import me.dvyy.tasks.utils.LocalDragAndDropState
+import me.dvyy.tasks.utils.UiLogger
+import me.dvyy.tasks.utils.keyboardAsState
 
 @Composable
 fun Project(
@@ -48,15 +67,12 @@ fun Project(
         })
 
         // == Task list
-        Tasks(list, state.children, lazyColumn = displayOptions.scrollable && displayOptions.fullHeight)
 
-        // == Empty task slot for adding task below
-        Column(Modifier.clickableWithoutRipple {
-            state.mutate.addTask(atEnd = true)
-        }.then(listDropTarget)) {
-            Spacer(modifier = Modifier.height(UI.tasks.height))
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        }
+        val selected = tasksViewModel.selectedTask.collectAsState().value
+        val index = if (selected?.list == list.uuid) {
+            state.children.indexOf(selected.task.asTask())
+        } else -1
+        Tasks(list, state, lazyColumn = displayOptions.scrollable && displayOptions.fullHeight, selectedIndex = index, listDropTarget = listDropTarget)
 
         // == Drop target for rest of empty vertical space
         if (displayOptions.fullHeight) {
@@ -68,23 +84,42 @@ fun Project(
 @Composable
 private fun Tasks(
     list: ListId,
-    ids: ImmutableList<TaskId>,
+    projectState: ProjectState,
+    selectedIndex: Int,
     lazyColumn: Boolean = false,
+    listDropTarget: Modifier,
 ) {
+    val ids = projectState.children
+
     //TODO double check what this does
     val focusManager = LocalFocusManager.current
     val keyboardOpen by keyboardAsState()
+    val state = rememberLazyListState()
+    LaunchedEffect(selectedIndex) {
+        if (selectedIndex != -1) {
+            val isVisible = state.layoutInfo.visibleItemsInfo.any { it.index == selectedIndex }
+            if (!isVisible) state.animateScrollToItem(selectedIndex)
+        }
+    }
     LaunchedEffect(keyboardOpen) {
         if (!keyboardOpen) {
             focusManager.clearFocus()
         }
     }
-    if (lazyColumn) LazyColumn {
+    if (lazyColumn) LazyColumn(state = state) {
 //        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
         items(ids, key = { it.uuid }) { id ->
             TaskFromId(list, id)
             HorizontalDivider()
-
+        }
+        item {
+            // == Empty task slot for adding task below
+            Column(Modifier.clickableWithoutRipple {
+                projectState.mutate.addTask(atEnd = true)
+            }.then(listDropTarget)) {
+                Spacer(modifier = Modifier.height(UI.tasks.height))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            }
         }
     } else Column {
         for (id in ids) {
@@ -92,6 +127,13 @@ private fun Tasks(
                 TaskFromId(list, id)
                 HorizontalDivider()
             }
+        }
+        // == Empty task slot for adding task below
+        Column(Modifier.clickableWithoutRipple {
+            projectState.mutate.addTask(atEnd = true)
+        }.then(listDropTarget)) {
+            Spacer(modifier = Modifier.height(UI.tasks.height))
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -107,7 +149,13 @@ private fun TaskFromId(list: ListId, id: TaskId, viewModel: TasksViewModel = vie
     ReorderableTask(
         enabled = !task.selected,
         key = id,
-        onDropTask = { task.mutate.dropTaskOnThis(it) }
+        onDropTask = { task.mutate.dropTaskOnThis(it) },
+        draggableContent = {
+            Box(Modifier.widthIn(max = 400.dp), contentAlignment = Alignment.CenterStart) {
+                TaskHighlight(task.uiState)
+                TaskTextField(task)
+            }
+        }
     ) {
         CachedUpdate(id, task.uiState, task.setTask) { uiState, update ->
             val caching = task.copy(uiState = uiState, setTask = { update(it) })

@@ -1,7 +1,12 @@
 package me.dvyy.tasks.layout.ui.layouts
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,6 +18,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun DropTarget(
     structure: LayoutStructure.Single,
     onLayoutUpdate: (LayoutStructure) -> Unit,
+    splitTargets: Boolean = true,
     layoutViewModel: LayoutViewModel = koinViewModel(),
 ) = Box {
     fun update(select: LayoutStructure, structure: LayoutStructure) {
@@ -22,11 +28,13 @@ fun DropTarget(
 
     HoverBox(
         Modifier.fillMaxSize(),
-        hoverableModifier = { Modifier.align(Alignment.Center).fillMaxSize(0.33f) },
+        hoverableModifier = { Modifier.align(Alignment.Center).fillMaxSize(if (splitTargets) 0.33f else 1f) },
         onDropped = { new ->
 //            val tabbed = structure.withTab(new)
             update(new, new)
         })
+
+    if (!splitTargets) return@Box
 
     Column(Modifier.fillMaxSize()) {
         HoverBox(Modifier.weight(1f), onDropped = { new ->

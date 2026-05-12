@@ -10,6 +10,7 @@ data class MoveChildAction(
     val item: Uuid,
     val toParent: Uuid? = null,
     val atChild: Uuid? = null,
+    val preferredRank: String? = null,
 ) : Action {
     override fun reduce(previous: Action): Action? {
         if (previous !is MoveChildAction) return null

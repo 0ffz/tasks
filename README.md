@@ -26,6 +26,7 @@ A WIP app for managing tasks using a calendar-like week view.
 - `gradle :targets:desktop:hotRun  --auto` Run jvm desktop app with hot reload
 - `gradle allTests` run sync engine tests
 - `gradle :app-server:jibDockerBuild --no-configuration-cache` build server Docker image
+- `gradle targets:android:installRelease` install android release build with proguard optimizations
 -
 `./gradlew :app-server:jibDockerBuild -Djib.dockerClient.executable=$(which podman) --no-configuration-cache`
 build server image under Podman

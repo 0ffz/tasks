@@ -2,6 +2,7 @@ package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -51,6 +53,7 @@ import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.list.Project
 import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 import me.dvyy.tasks.tasks.ui.elements.views.AllProjectsView
+import me.dvyy.tasks.tasks.ui.elements.views.WeekView
 import org.koin.compose.viewmodel.koinViewModel
 
 object DpSerializer : KSerializer<Dp> {
@@ -170,7 +173,11 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-                me.dvyy.tasks.tasks.ui.elements.views.WeekView(startAtToday = startAtToday, takeDays = takeDays)
+                BoxWithConstraints {
+                    WeekView(
+                        startAtToday = startAtToday, takeDays = takeDays, isSmall = maxWidth < 600.dp
+                    )
+                }
             }
 
         }

@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
@@ -57,7 +56,7 @@ fun Task(
             }
     }
 
-    BoxWithConstraints(
+    Box(
         modifier = Modifier
             .onHoverIfAvailable(
                 onEnter = { isHovered = true },

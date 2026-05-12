@@ -18,6 +18,7 @@ package com.mohamedrejeb.compose.dnd.drop
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
@@ -144,18 +145,25 @@ private data class DropTargetNode<T>(
     }
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
-        if (isShadow) {
-            return
-        }
-
+        if (isShadow || !isAttached) return
         state.addDropTarget(key, dropTargetState)
 
         val size = coordinates.size.toSize()
-        dropTargetState.size = size
-        if (isAttached) {
-            val topLeft = coordinates.positionInRoot()
-            dropTargetState.topLeft = topLeft
+        val topLeft = coordinates.positionInRoot()
+
+        // Calculate clipped bounds by intersecting with parents
+        var visibleBounds = Rect(topLeft, size)
+        var current: LayoutCoordinates? = coordinates.parentLayoutCoordinates
+        while (current != null) {
+            val parentRect = Rect(current.positionInRoot(), current.size.toSize())
+            // Intersection ensures we don't detect drops in clipped areas of scrollable rows
+            visibleBounds = visibleBounds.intersect(parentRect)
+            if (visibleBounds.isEmpty) break
+            current = current.parentLayoutCoordinates
         }
+
+        dropTargetState.size = visibleBounds.size
+        dropTargetState.topLeft = visibleBounds.topLeft
     }
 
     override fun onRemeasured(size: IntSize) {

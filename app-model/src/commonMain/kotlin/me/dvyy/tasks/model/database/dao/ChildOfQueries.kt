@@ -7,7 +7,9 @@ import me.dvyy.syncengine.jsonactions.JsonDataQueries
 import me.dvyy.syncengine.schema.JsonTable
 import me.dvyy.syncengine.schema.JsonView
 import me.dvyy.tasks.model.components.ChildOfModel
+import me.dvyy.tasks.model.rank.Rank
 import me.dvyy.tasks.model.rank.RankFunctions
+import me.dvyy.tasks.model.rank.asRank
 import kotlin.uuid.Uuid
 
 class ChildOfQueries(
@@ -61,6 +63,23 @@ class ChildOfQueries(
     fun getRankAfterLast(list: Uuid): String = RankFunctions.getRankAfter(
         getLastRankInList(list) ?: RankFunctions.FIRST_CHAR.toString()
     )
+
+    /**
+     * @return The closest rank to the given [rank] not currently in the database for this [list].
+     */
+    context(tx: Transaction)
+    fun getRankClosestTo(list: Uuid, rank: Rank): Rank {
+        val existing = tx.select("SELECT rank FROM $view WHERE parent = ? AND rank = ?", list.toHexDashString(), rank.string)
+            .firstOrNull { getText(0) }
+
+        if (existing == null) return rank
+        val after = tx.select("SELECT rank FROM $view WHERE parent = ? AND rank > ? ORDER BY rank ASC LIMIT 1", list.toHexDashString(), rank.string)
+            .firstOrNull { getText(0) }
+            ?.asRank()
+
+        return if (after == null) rank.next()
+        else rank.between(after)
+    }
 
     context(tx: Transaction)
     fun getRankBeforeFirst(list: Uuid): String = RankFunctions.getRankBefore(

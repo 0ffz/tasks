@@ -29,5 +29,5 @@ fun EmptyLayout(
             Text("Open week view")
         }
     }
-    DropTarget(LayoutStructure.Empty, onLayoutUpdate)
+    DropTarget(LayoutStructure.Empty, onLayoutUpdate, splitTargets = false)
 }

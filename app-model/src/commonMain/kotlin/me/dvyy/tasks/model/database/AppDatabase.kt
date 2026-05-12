@@ -1,7 +1,7 @@
 package me.dvyy.tasks.model.database
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import me.dvyy.sqlite.Database
@@ -9,7 +9,6 @@ import me.dvyy.sqlite.Transaction
 import me.dvyy.syncengine.actions.Action
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.jsonactions.actions.JsonCreateAction
-import me.dvyy.tasks.model.serializers.UuidAsStringSerializer
 import kotlin.uuid.Uuid
 
 class AppDatabase(
@@ -32,21 +31,16 @@ class AppDatabase(
         actions.invoke(mutator)
     }
 
-    suspend fun import(uuid: Uuid, item: JsonObject) {
-        val parent = item["parent"]
-        mutate(
-            JsonCreateAction(
-                NotesTable.name,
-                uuid,
-                item,
-            )
-        )
-        if (parent != null) {
-            val parentUuid = Json.decodeFromJsonElement(UuidAsStringSerializer, parent)
-            mutate.childOf.move(uuid, parentUuid)
+    suspend fun import(uuid: Uuid, item: ExportedTask) {
+        // Create 'notes' entry
+        mutate(JsonCreateAction(NotesTable.name, uuid, item.notes))
+
+        // Insert childOf at preferred rank
+        item.childOf.forEach { (parentUuid, preferredRank) ->
+            mutate.childOf.move(uuid, parentUuid, preferredRank = preferredRank)
         }
 
-        if (item["type"]?.jsonPrimitive?.content == "project") {
+        if (item.notes["type"]?.jsonPrimitive?.content == "project") {
             mutate.childOf.move(uuid, toParent = Projects.projectRoot)
         }
     }
@@ -55,3 +49,9 @@ class AppDatabase(
         actions.invokeAsync(mutator)
     }
 }
+
+@Serializable
+data class ExportedTask(
+    val notes: JsonObject,
+    val childOf: Map<Uuid, String>,
+)
