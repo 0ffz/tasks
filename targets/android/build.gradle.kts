@@ -17,6 +17,8 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     implementation(libs.kotlin.multiplatform.appdirs)
     implementation(libs.koin.android)
+//    implementation(libs.koin.androidx.workmanager)
+    implementation(libs.kermit)
     implementation(libs.androidx.startup.runtime)
     implementation(libs.androidx.work.runtime.ktx)
 }

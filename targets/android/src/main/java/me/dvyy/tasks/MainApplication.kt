@@ -14,5 +14,14 @@ class MainApplication : Application(), KoinComponent {
             androidLogger()
             androidContext(this@MainApplication)
         }))
+//        loadKoinModules(module {
+//            worker { params ->
+//                SyncWorker(
+//                    context = params.get(),
+//                    workerParams = params.get(),
+//                    syncClient = get()
+//                )
+//            }
+//        })
     }
 }

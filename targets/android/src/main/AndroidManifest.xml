@@ -34,10 +34,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <!--        <service-->
-        <!--                android:name=".tasks.CreateAndSyncTaskService"-->
-        <!--                android:foregroundServiceType="dataSync"-->
-        <!--                android:exported="false">-->
-        <!--        </service>-->
+        <!--    Koin WorkManager configuration https://insert-koin.io/docs/reference/koin-android/workmanager/#add-dependencies   -->
+        <!--        <provider-->
+        <!--                android:name="androidx.startup.InitializationProvider"-->
+        <!--                android:authorities="${applicationId}.androidx-startup"-->
+        <!--                android:exported="false"-->
+        <!--                tools:node="merge">-->
+        <!--            <meta-data-->
+        <!--                    android:name="androidx.work.WorkManagerInitializer"-->
+        <!--                    android:value="androidx.startup"-->
+        <!--                    tools:node="remove" />-->
+        <!--        </provider>-->
     </application>
 </manifest>

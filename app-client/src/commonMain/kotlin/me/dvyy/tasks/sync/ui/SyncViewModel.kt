@@ -5,7 +5,12 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import me.dvyy.syncengine.client.sync.SyncClient
@@ -19,7 +24,7 @@ class SyncViewModel(
     val queuedActionCount = syncClient.changesMade
         .map { syncClient.getQueuedActionCount() }
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
-    private val syncEnabled = MutableStateFlow(false)
+    private val syncEnabled = MutableStateFlow(true)
 
     val syncState = viewModelScope.combinedStateFlow(syncClient.status, syncEnabled) { status, enabled ->
         when {

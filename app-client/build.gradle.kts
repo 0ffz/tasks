@@ -92,10 +92,10 @@ kotlin {
                 implementation(libs.kermit)
                 implementation("org.kodein.emoji:emoji-kt:2.0.1")
                 implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
-                implementation("me.dvyy.syncengine:core")
-                implementation("me.dvyy.syncengine:client")
                 implementation("me.dvyy.syncengine:json-actions")
-                implementation("me.dvyy.sqlite:sqlite-kt:0.0.3-alpha.2")
+                api("me.dvyy.syncengine:core")
+                api("me.dvyy.syncengine:client")
+                api("me.dvyy.sqlite:sqlite-kt:0.0.3-alpha.2")
             }
         }
         val jvmMain by creating {
