@@ -6,7 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import me.dvyy.tasks.layout.ui.LayoutStructure
@@ -35,6 +39,7 @@ fun HoverBox(
             val layout = (it.data as? Dragged.Layout)?.layout ?: return@dropTarget
             onDropped(layout)
         },
+        onHoverDraw = {}
 //        shouldStartDragAndDrop = { it.isOfType<LayoutStructure.Single>() },
 //        target = remember(onDropped) {
 //            object : DragAndDropTarget {

@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -49,6 +50,7 @@ fun Project(
     displayOptions: ProjectDisplayOptions = rememberProjectDisplayOptions(),
     state: ProjectState = tasksViewModel.rememberUpdatedProjectState(list),
 ) {
+    val taskHeight = UI.tasks.height
     val listDropTarget = Modifier.dropTarget(
         state = LocalDragAndDropState.current,
         shouldStartDragAndDrop = { it.data is Dragged.Task },
@@ -56,6 +58,9 @@ fun Project(
             UiLogger.v { "Reordering ${it.data}" }
             val task = (it.data as? Dragged.Task ?: return@dropTarget).uuid.asTask()
             state.mutate.moveTask(task)
+        },
+        onHoverDraw = {
+            drawRect(highlightColor, size = size.copy(height = taskHeight.toPx()))
         }
     )
     Column(
@@ -95,11 +100,15 @@ private fun Tasks(
     val focusManager = LocalFocusManager.current
     val keyboardOpen by keyboardAsState()
     val state = rememberLazyListState()
+    rememberCoroutineScope()
     LaunchedEffect(selectedIndex) {
         if (selectedIndex != -1) {
             val isVisible = state.layoutInfo.visibleItemsInfo.any { it.index == selectedIndex }
             if (!isVisible) state.animateScrollToItem(selectedIndex)
         }
+    }
+    LaunchedEffect(projectState.children.firstOrNull()) {
+        state.scrollToItem(0)
     }
     LaunchedEffect(keyboardOpen) {
         if (!keyboardOpen) {
@@ -139,7 +148,11 @@ private fun Tasks(
 }
 
 @Composable
-private fun TaskFromId(list: ListId, id: TaskId, viewModel: TasksViewModel = viewModel()) {
+private fun TaskFromId(
+    list: ListId,
+    id: TaskId,
+    viewModel: TasksViewModel = viewModel(),
+) {
     val task = remember(list, id) { viewModel.watchTask(list, id) }.collectAsState().value
     if (task == null) {
         Box(Modifier.fillMaxWidth().height(UI.tasks.height)) {}

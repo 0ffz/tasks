@@ -1,6 +1,11 @@
 package me.dvyy.tasks.layout.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -78,7 +83,7 @@ fun AppFileTree(
             val scope = rememberCoroutineScope()
             projects.forEach { key ->
                 add(file(LayoutStructure.Single.Project(key.id.asList()), onDropTask = {
-                    scope.launch { db.mutate.childOf.move(it.uuid, toParent = key.id) }
+                    scope.launch { db.mutate.childOf.move(it.uuid, toParent = key.id, atEnd = false) }
                 }, onDropList = {
                     scope.launch { db.mutate.childOf.move(it.uuid, Projects.projectRoot, atChild = key.id) }
                 }))

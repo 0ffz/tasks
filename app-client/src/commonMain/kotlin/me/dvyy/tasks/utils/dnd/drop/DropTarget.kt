@@ -20,9 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
@@ -54,6 +58,7 @@ fun <T> Modifier.dropTarget(
     dropOffset: Offset = Offset.Zero,
     dropAnimationEnabled: Boolean = false,
     shouldStartDragAndDrop: (state: DraggedItemState<T>) -> Boolean = { true },
+    onHoverDraw: (DropTargetHighlightScope.() -> Unit)? = null,
     onDragEnter: (state: DraggedItemState<T>) -> Unit = {},
     onDragExit: (state: DraggedItemState<T>) -> Unit = {},
     onDrop: (state: DraggedItemState<T>) -> Unit = {},
@@ -68,6 +73,7 @@ fun <T> Modifier.dropTarget(
         onDrop = onDrop,
         onDragEnter = onDragEnter,
         onDragExit = onDragExit,
+        onHoverDraw = onHoverDraw,
     )
 
 private data class DropTargetNodeElement<T>(
@@ -80,6 +86,7 @@ private data class DropTargetNodeElement<T>(
     val onDrop: (state: DraggedItemState<T>) -> Unit,
     val onDragEnter: (state: DraggedItemState<T>) -> Unit,
     val onDragExit: (state: DraggedItemState<T>) -> Unit,
+    val onHoverDraw: ((DropTargetHighlightScope) -> Unit)? = null,
 ) : ModifierNodeElement<DropTargetNode<T>>() {
     override fun create(): DropTargetNode<T> =
         DropTargetNode(
@@ -96,9 +103,11 @@ private data class DropTargetNodeElement<T>(
                 onDragExit = onDragExit,
             ),
             state = state,
+            onHoverDraw = onHoverDraw,
         )
 
     override fun update(node: DropTargetNode<T>) {
+        node.onHoverDraw = onHoverDraw
         node.apply {
             this.state = state
             dropTargetState.zIndex = zIndex
@@ -125,14 +134,29 @@ private data class DropTargetNodeElement<T>(
     }
 }
 
+class DropTargetHighlightScope(
+    val delegate: DrawScope,
+) : DrawScope by delegate {
+    val highlightColor = Color(0xFF2b7fff).copy(0.25f)
+}
+
 private data class DropTargetNode<T>(
     val dropTargetState: DropTargetState<T>,
     var state: DragAndDropState<T>,
+    var onHoverDraw: ((DropTargetHighlightScope) -> Unit)? = null,
 ) : Modifier.Node(),
     LayoutAwareModifierNode,
+    DrawModifierNode,
     CompositionLocalConsumerModifierNode {
     private var key: Long = -1
     private var isShadow = false
+
+    override fun ContentDrawScope.draw() {
+        drawContent()
+        val scope = DropTargetHighlightScope(delegate = this)
+        if (state.hoveredDropTargetKey == key)
+            onHoverDraw?.invoke(scope) ?: drawRect(scope.highlightColor)
+    }
 
     override fun onAttach() {
         isShadow = currentValueOf(LocalDragAndDropInfo).isShadow

@@ -1,166 +1,259 @@
 {
-  "resources":{
-  "includes":[{
-    "pattern":"\\QMETA-INF/maven/org.xerial/sqlite-jdbc/pom.properties\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/io.ktor.client.HttpClientEngineContainer\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/io.ktor.serialization.kotlinx.KotlinxSerializationExtensionProvider\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.awt.im.spi.InputMethodDescriptor\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.net.spi.InetAddressResolverProvider\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.nio.channels.spi.SelectorProvider\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.nio.charset.spi.CharsetProvider\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.sql.Driver\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/java.util.prefs.PreferencesFactory\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/javax.xml.transform.TransformerFactory\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/jdk.vm.ci.services.JVMCIServiceLocator\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/kotlinx.coroutines.internal.MainDispatcherFactory\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/org.slf4j.spi.SLF4JServiceProvider\\E"
-  }, {
-    "pattern": "\\QcomposeResources/me.dvyy.app_client.generated.resources/drawable/icon.png\\E"
-  }, {
-    "pattern": "\\QcomposeResources/me.dvyy.app_client.generated.resources/font/JetbrainsMono.ttf\\E"
-  }, {
-    "pattern": "\\QcomposeResources/me.dvyy.app_client.generated.resources/font/RobotoFlex.ttf\\E"
-  }, {
-    "pattern":"\\Qlibskiko-linux-x64.so.sha256\\E"
-  }, {
-    "pattern":"\\Qorg/sqlite/native/Linux/x86_64/libsqlitejdbc.so\\E"
-  }, {
-    "pattern":"\\Qsimplelogger.properties\\E"
-  }, {
-    "pattern":"composeResources/.*"
-  }, {
-    "pattern":"java.base:\\Qjava/lang/Boolean.class\\E"
-  }, {
-    "pattern":"java.base:\\Qjava/lang/Float.class\\E"
-  }, {
-    "pattern":"java.base:\\Qjava/lang/Integer.class\\E"
-  }, {
-    "pattern":"java.base:\\Qjava/lang/Long.class\\E"
-  }, {
-    "pattern":"java.base:\\Qjava/lang/Number.class\\E"
-  }, {
-    "pattern":"java.base:\\Qjava/lang/reflect/Modifier.class\\E"
-  }, {
-    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/nfkc.nrm\\E"
-  }, {
-    "pattern":"java.datatransfer:\\Qsun/datatransfer/resources/flavormap.properties\\E"
-  }, {
-    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/CopyDrop32x32.gif\\E"
-  }, {
-    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/LinkDrop32x32.gif\\E"
-  }, {
-    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/MoveDrop32x32.gif\\E"
-  }, {
-    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/cursors.properties\\E"
-  }, {
-    "pattern":"java.desktop:\\Qsun/awt/resources/cursors/invalid32x32.gif\\E"
-  }, {
-    "pattern":"java.xml:\\Qcom/sun/org/apache/xml/internal/serializer/Encodings.properties\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/ClassGetHubNode.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotAllocationSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotHashCodeSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotIsArraySnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotReplacementsUtil.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotSerialWriteBarrierSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/InstanceOfSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/LoadExceptionObjectSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/MonitorSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/ObjectCloneSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/ObjectSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/RegisterFinalizerSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/TypeCheckSnippetUtils.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/arraycopy/HotSpotArraycopySnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/stubs/ExceptionHandlerStub.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/stubs/ForeignCallSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/stubs/IntrinsicStubsGen.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/stubs/UnwindExceptionToCallerStub.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/nodes/PiNode.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/nodes/java/DynamicNewArrayNode.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/nodes/java/DynamicNewInstanceNode.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/nodes/java/NewArrayNode.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/AllocationSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/BoxingSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/IdentityHashCodeSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/IsArraySnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/ReplacementsUtil.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/SnippetCounter.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/SnippetIntegerHistogram.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/amd64/AMD64ConvertSnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/arraycopy/ArrayCopyCallNode.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/arraycopy/ArrayCopySnippets.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/arraycopy/ArrayCopyWithDelayedLoweringNode.class\\E"
-  }, {
-    "pattern":"jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/gc/SerialWriteBarrierSnippets.class\\E"
-  }, {
-    "pattern":"org.graalvm.word:\\Qorg/graalvm/word/LocationIdentity.class\\E"
-  }]},
-  "bundles":[{
-    "name":"com.sun.java.swing.plaf.gtk.resources.gtk",
-    "classNames":["com.sun.java.swing.plaf.gtk.resources.gtk"]
-  }, {
-    "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
-    "locales":["und"]
-  }, {
-    "name":"com.sun.swing.internal.plaf.basic.resources.basic",
-    "classNames":["com.sun.swing.internal.plaf.basic.resources.basic"]
-  }, {
-    "name":"com.sun.swing.internal.plaf.synth.resources.synth",
-    "classNames":["com.sun.swing.internal.plaf.synth.resources.synth"]
-  }, {
-    "name":"sun.awt.resources.awt",
-    "classNames":["sun.awt.resources.awt"]
-  }]
+  "resources": {
+    "includes": [
+      {
+        "pattern": "composeResources/.*"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/Boolean.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/Float.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/Integer.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/Long.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/Number.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjava/lang/reflect/Modifier.class\\E"
+      },
+      {
+        "pattern": "java.base:\\Qjdk/internal/icu/impl/data/icudt72b/nfkc.nrm\\E"
+      },
+      {
+        "pattern": "java.datatransfer:\\Qsun/datatransfer/resources/flavormap.properties\\E"
+      },
+      {
+        "pattern": "java.desktop:\\Qsun/awt/resources/cursors/CopyDrop32x32.gif\\E"
+      },
+      {
+        "pattern": "java.desktop:\\Qsun/awt/resources/cursors/LinkDrop32x32.gif\\E"
+      },
+      {
+        "pattern": "java.desktop:\\Qsun/awt/resources/cursors/MoveDrop32x32.gif\\E"
+      },
+      {
+        "pattern": "java.desktop:\\Qsun/awt/resources/cursors/cursors.properties\\E"
+      },
+      {
+        "pattern": "java.desktop:\\Qsun/awt/resources/cursors/invalid32x32.gif\\E"
+      },
+      {
+        "pattern": "java.xml:\\Qcom/sun/org/apache/xml/internal/serializer/Encodings.properties\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/ClassGetHubNode.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotAllocationSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotHashCodeSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotIsArraySnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotReplacementsUtil.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/HotSpotSerialWriteBarrierSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/InstanceOfSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/LoadExceptionObjectSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/MonitorSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/ObjectCloneSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/ObjectSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/RegisterFinalizerSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/TypeCheckSnippetUtils.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/replacements/arraycopy/HotSpotArraycopySnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/stubs/ExceptionHandlerStub.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/stubs/ForeignCallSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/stubs/IntrinsicStubsGen.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/hotspot/stubs/UnwindExceptionToCallerStub.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/nodes/PiNode.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/nodes/java/DynamicNewArrayNode.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/nodes/java/DynamicNewInstanceNode.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/nodes/java/NewArrayNode.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/AllocationSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/BoxingSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/IdentityHashCodeSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/IsArraySnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/ReplacementsUtil.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/SnippetCounter.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/SnippetIntegerHistogram.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/amd64/AMD64ConvertSnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/arraycopy/ArrayCopyCallNode.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/arraycopy/ArrayCopySnippets.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/arraycopy/ArrayCopyWithDelayedLoweringNode.class\\E"
+      },
+      {
+        "pattern": "jdk.internal.vm.compiler:\\Qorg/graalvm/compiler/replacements/gc/SerialWriteBarrierSnippets.class\\E"
+      },
+      {
+        "pattern": "org.graalvm.word:\\Qorg/graalvm/word/LocationIdentity.class\\E"
+      }
+    ]
+  },
+  "bundles": [
+    {
+      "name": "com.sun.java.swing.plaf.gtk.resources.gtk",
+      "classNames": [
+        "com.sun.java.swing.plaf.gtk.resources.gtk"
+      ]
+    },
+    {
+      "name": "com.sun.org.apache.xml.internal.serializer.XMLEntities",
+      "locales": [
+        "und"
+      ]
+    },
+    {
+      "name": "com.sun.swing.internal.plaf.basic.resources.basic",
+      "classNames": [
+        "com.sun.swing.internal.plaf.basic.resources.basic"
+      ]
+    },
+    {
+      "name": "com.sun.swing.internal.plaf.synth.resources.synth",
+      "classNames": [
+        "com.sun.swing.internal.plaf.synth.resources.synth"
+      ]
+    },
+    {
+      "name": "sun.awt.resources.awt",
+      "classNames": [
+        "sun.awt.resources.awt"
+      ]
+    }
+  ],
+  "globs": [
+    {
+      "glob": "META-INF/maven/org.xerial/sqlite-jdbc/pom.properties"
+    },
+    {
+      "glob": "META-INF/services/io.ktor.client.HttpClientEngineContainer"
+    },
+    {
+      "glob": "META-INF/services/io.ktor.serialization.kotlinx.KotlinxSerializationExtensionProvider"
+    },
+    {
+      "glob": "META-INF/services/java.awt.im.spi.InputMethodDescriptor"
+    },
+    {
+      "glob": "META-INF/services/java.lang.System$LoggerFinder"
+    },
+    {
+      "glob": "META-INF/services/java.net.spi.InetAddressResolverProvider"
+    },
+    {
+      "glob": "META-INF/services/java.net.spi.URLStreamHandlerProvider"
+    },
+    {
+      "glob": "META-INF/services/java.nio.channels.spi.SelectorProvider"
+    },
+    {
+      "glob": "META-INF/services/java.nio.charset.spi.CharsetProvider"
+    },
+    {
+      "glob": "META-INF/services/java.sql.Driver"
+    },
+    {
+      "glob": "META-INF/services/java.time.zone.ZoneRulesProvider"
+    },
+    {
+      "glob": "META-INF/services/java.util.prefs.PreferencesFactory"
+    },
+    {
+      "glob": "META-INF/services/javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "glob": "META-INF/services/javax.xml.transform.TransformerFactory"
+    },
+    {
+      "glob": "META-INF/services/jdk.vm.ci.services.JVMCIServiceLocator"
+    },
+    {
+      "glob": "META-INF/services/kotlinx.coroutines.internal.MainDispatcherFactory"
+    },
+    {
+      "glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"
+    },
+    {
+      "glob": "composeResources/me.dvyy.app_client.generated.resources/drawable/icon.png"
+    },
+    {
+      "glob": "composeResources/me.dvyy.app_client.generated.resources/font/JetbrainsMono.ttf"
+    },
+    {
+      "glob": "composeResources/me.dvyy.app_client.generated.resources/font/RobotoFlex.ttf"
+    },
+    {
+      "glob": "libskiko-linux-x64.so.sha256"
+    },
+    {
+      "glob": "org/sqlite/native/Linux/x86_64/libsqlitejdbc.so"
+    },
+    {
+      "glob": "simplelogger.properties"
+    }
+  ]
 }

@@ -38,12 +38,13 @@ class ChildActions(
         toParent: Uuid,
         atChild: Uuid? = null,
         preferredRank: String? = null,
+        atEnd: Boolean? = null,
     ) {
         // Don't invoke action if moving to the same position
         val currentParent = db.read { appQueries.childOf.getRankFor(item)?.parent }
         if (currentParent == toParent && atChild == null || atChild == item) return
         actions.invoke(
-            MoveChildAction(item, toParent, atChild, preferredRank)
+            MoveChildAction(item, toParent, atChild, preferredRank, atEnd)
         )
     }
 }

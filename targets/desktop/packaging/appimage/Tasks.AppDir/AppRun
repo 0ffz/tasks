@@ -1,5 +1,5 @@
 #!/bin/bash
 
 HERE="$(dirname $"$(readlink -f "${0}")")"
-EXEC="${HERE}/usr/tasks"
+EXEC="${HERE}/usr/bin/Tasks"
 exec "${EXEC}"

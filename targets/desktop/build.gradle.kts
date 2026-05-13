@@ -9,7 +9,8 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.composeHotReload)
     id("de.undercouch.download") version "5.3.1"
-//    id("org.graalvm.buildtools.native") version "0.10.4"
+    alias(miaLibs.plugins.shadowjar)
+//    alias(miaLibs.plugins.graalvm.nativeimage)
 }
 
 
@@ -22,8 +23,11 @@ dependencies {
     implementation(libs.koin.core)
     implementation(project(":app-client"))
     implementation(project(":app-model"))
-    implementation(compose.desktop.currentOs)
-    implementation(libs.graalvm.library.support)
+//    implementation(compose.desktop.currentOs)
+    implementation(compose.desktop.macos_arm64)
+    implementation(compose.desktop.windows_x64)
+    implementation(compose.desktop.linux_x64)
+//    implementation(libs.graalvm.library.support)
 
 }
 
@@ -41,11 +45,14 @@ val appInstallerName = "$appName-" + when {
 
 compose.desktop {
     application {
+        mainJar = tasks.shadowJar.get().archiveFile
         mainClass = "MainKt"
 //        "-Dawt.toolkit.name=WLToolkit",
         jvmArgs.addAll(listOf("--enable-native-access=ALL-UNNAMED"))
         buildTypes.release.proguard {
-            isEnabled = false
+            isEnabled = true
+            optimize = true
+            configurationFiles.from(project.file("proguard/custom.pro"))
         }
         nativeDistributions {
             when {
@@ -80,7 +87,6 @@ compose.desktop {
 }
 
 val linuxAppDir = project.file("packaging/appimage/$appName.AppDir")
-val appImageTool = project.file("packaging/deps/appimagetool.AppImage")
 val composePackageDir = "$buildDir/compose/binaries/main-release/${
     when {
         os.isMacOsX -> "dmg"
@@ -89,11 +95,25 @@ val composePackageDir = "$buildDir/compose/binaries/main-release/${
     }
 }"
 
-tasks {
-    register("runFix") {
-        dependsOn("run")
-    }
+interface InjectedExecOps {
+    @get:Inject
+    val execOps: ExecOperations
+}
 
+tasks {
+    shadowJar {
+        archiveBaseName = "tasks"
+        minimize {
+//            exclude { it.moduleGroup == "io.ktor" }
+//            exclude { it.moduleGroup == "androidx.compose.runtime" }
+//            exclude { it.moduleGroup == "org.jetbrains.skiko" }
+//            exclude(dependency(libs.kotlinx.coroutines.swing))
+            include { it.moduleGroup == "androidx.compose.material" }
+        }
+        manifest {
+            attributes("Main-Class" to "MainKt")
+        }
+    }
     val windowsRelease by registering(Copy::class) {
         dependsOn("packageReleaseDistributionForCurrentOS")
         from(composePackageDir)
@@ -112,11 +132,16 @@ tasks {
 
     // Appimage
     val downloadAppImageBuilder by registering(Download::class) {
-        onlyIf { !appImageTool.exists() }
+        val appImageTool = layout.projectDirectory.file("packaging/deps/appimagetool.AppImage")
+        outputs.file(appImageTool)
+        onlyIf { !appImageTool.asFile.exists() }
         src("https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage")
         dest(appImageTool)
+        val injected = project.objects.newInstance<InjectedExecOps>()
         doLast {
-            providers.exec { commandLine("chmod", "+x", appImageTool) }
+            injected.execOps.exec {
+                commandLine("chmod", "+x", appImageTool.asFile.absolutePath)
+            }
         }
     }
 
@@ -126,12 +151,15 @@ tasks {
 
     val copyBuildToPackaging by registering(Copy::class) {
 //        dependsOn(nativeCompile)
+        dependsOn("packageReleaseDistributionForCurrentOS")
         dependsOn(deleteOldAppDirFiles)
-        from("build/native/nativeCompile/")
+//        from("build/native/nativeCompile/")
+        from("build/compose/binaries/main-release/app/Tasks")
         into("$linuxAppDir/usr")
     }
 
     val executeAppImageBuilder by registering(Exec::class) {
+        val appImageTool = project.file("packaging/deps/appimagetool.AppImage")
         dependsOn(downloadAppImageBuilder)
         dependsOn(copyBuildToPackaging)
         environment("ARCH", "x86_64")
@@ -162,17 +190,17 @@ tasks {
 //            buildArgs(
 //                "-O2",
 //                "-Djava.awt.headless=false",
-//                "--strict-image-heap", // kotlin 2.0 fix
-//                "-H:+ReportExceptionStackTraces",
-//                "-R:MaxHeapSize=300M",
-//                "-H:+AddAllCharsets",
+////                "--strict-image-heap", // kotlin 2.0 fix
+////                "-H:+ReportExceptionStackTraces",
+////                "-R:MaxHeapSize=300M",
+////                "-H:+AddAllCharsets",
 //            )
-//
-//            // Don't open terminal when running exe on Windows
-//            if (os.isWindows) buildArgs.addAll(
-//                "-H:NativeLinkerOption=/SUBSYSTEM:WINDOWS",
-//                "-H:NativeLinkerOption=/ENTRY:mainCRTStartup",
-//            )
+////
+////            // Don't open terminal when running exe on Windows
+////            if (os.isWindows) buildArgs.addAll(
+////                "-H:NativeLinkerOption=/SUBSYSTEM:WINDOWS",
+////                "-H:NativeLinkerOption=/ENTRY:mainCRTStartup",
+////            )
 //            configurationFileDirectories.from("native-image/${os.familyName}")
 //        }
 //    }

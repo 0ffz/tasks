@@ -18,7 +18,14 @@ package com.mohamedrejeb.compose.dnd
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerId
@@ -78,7 +85,7 @@ class DragAndDropState<T>(
     /**
      * Key of the [DropTargetState] that is currently hovered
      */
-    var hoveredDropTargetKey by mutableStateOf<Long>(-1)
+    var hoveredDropTargetKey by mutableLongStateOf(-1)
         internal set
 
     internal fun getKey(): Long = currId++

@@ -11,6 +11,7 @@ data class MoveChildAction(
     val toParent: Uuid? = null,
     val atChild: Uuid? = null,
     val preferredRank: String? = null,
+    val atEnd: Boolean? = null,
 ) : Action {
     override fun reduce(previous: Action): Action? {
         if (previous !is MoveChildAction) return null
@@ -25,5 +26,5 @@ data class CreateTaskAction(
     val task: TaskModel,
     val parent: Uuid,
 //    val preferRank: String? = null,
-    val atEnd: Boolean,
+    val atEnd: Boolean? = null,
 ) : Action
