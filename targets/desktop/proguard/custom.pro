@@ -7,6 +7,8 @@
 -keep class org.sqlite.database.** { *; }
 -keep class kotlinx.coroutines.** { *; }
 -keep class io.ktor.** { *; }
+-keep class kotlinx.io.** { *; }
+-keep class androidx.sqlite.** { *; }
 
 -dontwarn org.slf4j.**
 
