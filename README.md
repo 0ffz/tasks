@@ -25,6 +25,7 @@ A WIP app for managing tasks using a calendar-like week view.
 
 - `gradle :targets:desktop:hotRun  --auto` Run jvm desktop app with hot reload
 - `gradle allTests` run sync engine tests
+- `gradle packageForRelease` Creates release for current OS
 - `gradle :app-server:jibDockerBuild --no-configuration-cache` build server Docker image
 - `gradle targets:android:installRelease` install android release build with proguard optimizations
 -

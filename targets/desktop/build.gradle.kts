@@ -52,6 +52,7 @@ compose.desktop {
         buildTypes.release.proguard {
             isEnabled = true
             optimize = true
+            joinOutputJars = true
             configurationFiles.from(project.file("proguard/custom.pro"))
         }
         nativeDistributions {
@@ -61,7 +62,6 @@ compose.desktop {
                 else -> targetFormats(TargetFormat.AppImage)
             }
 
-            modules("java.sql")
             packageName = appName
             packageVersion = "${project.version}"
             val strippedVersion = project.version.toString().substringBeforeLast("-")
@@ -145,29 +145,23 @@ tasks {
         }
     }
 
-    val deleteOldAppDirFiles by registering(Delete::class) {
-        delete("$linuxAppDir/usr/bin", "$linuxAppDir/usr/lib")
-    }
-
-    val copyBuildToPackaging by registering(Copy::class) {
-//        dependsOn(nativeCompile)
+    val copyBuildToPackaging by registering(Sync::class) {
         dependsOn("packageReleaseDistributionForCurrentOS")
-        dependsOn(deleteOldAppDirFiles)
-//        from("build/native/nativeCompile/")
         from("build/compose/binaries/main-release/app/Tasks")
-        into("$linuxAppDir/usr")
+        into(linuxAppDir.resolve("usr"))
+        filePermissions {
+            user { read = true; write = true; execute = true }
+        }
     }
 
     val executeAppImageBuilder by registering(Exec::class) {
         val appImageTool = project.file("packaging/deps/appimagetool.AppImage")
+        val outputFile = project.file("releases/$appInstallerName-${project.version}.AppImage")
+//        outputs.file(outputFile)
         dependsOn(downloadAppImageBuilder)
         dependsOn(copyBuildToPackaging)
         environment("ARCH", "x86_64")
-        commandLine(
-            appImageTool,
-            linuxAppDir.absolutePath,
-            project.file("releases/$appInstallerName-${project.version}.AppImage")
-        )
+        commandLine(appImageTool, linuxAppDir.absolutePath, outputFile)
     }
 
 

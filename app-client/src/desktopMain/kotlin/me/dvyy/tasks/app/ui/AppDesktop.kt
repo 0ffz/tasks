@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.rememberWindowState
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.platformLogWriter
@@ -47,7 +46,6 @@ fun ApplicationScope.AppDesktop(
 ) = KoinIsolatedContext(createAppKoinApplication(overrides = overrides)) {
     Logger.setLogWriters(platformLogWriter(ColoredFormatter))
     val windowState = rememberWindowState(
-        placement = WindowPlacement.Maximized,
         width = 1200.dp,
         height = 960.dp
     )
