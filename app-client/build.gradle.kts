@@ -1,11 +1,11 @@
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlinx.serialization)
-//    alias(libs.plugins.stability.analyzer)
+    alias(miaLibs.plugins.kotlin.multiplatform)
+    alias(miaLibs.plugins.jetbrainsCompose)
+    alias(miaLibs.plugins.compose.compiler)
+    alias(miaLibs.plugins.kotlinx.serialization)
 }
+
 composeCompiler {
     stabilityConfigurationFiles.addAll(project.layout.projectDirectory.file("compose_compiler_config.conf"))
 }
@@ -67,9 +67,9 @@ kotlin {
 //                implementation("app.cash.molecule:molecule-runtime:2.2.0")
 //                implementation("com.mohamedrejeb.dnd:compose-dnd:0.3.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.serialization.json)
-                implementation(libs.kotlinx.serialization.cbor)
+                implementation(miaLibs.kotlinx.datetime)
+                implementation(miaLibs.kotlinx.serialization.json)
+                implementation(miaLibs.kotlinx.serialization.cbor)
 //                implementation(libs.uuid)
 
                 implementation(libs.filekit.dialogs)
@@ -86,16 +86,16 @@ kotlin {
                 implementation(libs.navigation.compose)
 //                implementation(libs.lifecycle.viewmodel)
                 implementation(libs.lifecycle.viewmodel.compose)
-                implementation(libs.koin.compose)
-                implementation(libs.koin.compose.viewmodel)
-                implementation(libs.kotlin.result)
-                implementation(libs.kermit)
-                implementation("org.kodein.emoji:emoji-kt:2.0.1")
-                implementation("org.kodein.emoji:emoji-compose-m3:2.0.1")
-                implementation("me.dvyy.syncengine:json-actions")
-                api("me.dvyy.syncengine:core")
-                api("me.dvyy.syncengine:client")
-                api("me.dvyy.sqlite:sqlite-kt:0.0.3-alpha.2")
+                implementation(miaLibs.koin.compose)
+                implementation(miaLibs.koin.compose.viewmodel)
+//                implementation(libs.kotlin.result)
+                implementation(miaLibs.kermit)
+                implementation(libs.emoji.compose)
+                implementation(libs.emoji.compose.m3)
+                api(libs.syncengine.json.actions)
+                api(libs.syncengine.core)
+                api(libs.syncengine.client)
+                api(miaLibs.sqlite.kt)
             }
         }
         val jvmMain by creating {
@@ -107,7 +107,7 @@ kotlin {
         val desktopMain by getting {
             dependsOn(jvmMain)
             dependencies {
-                implementation(libs.kotlinx.coroutines.swing)
+                implementation(miaLibs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.cio)
             }
         }
@@ -119,7 +119,7 @@ kotlin {
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.ui)
                 implementation(libs.androidx.activity.compose)
-                implementation(libs.koin.android)
+                implementation(miaLibs.koin.android)
             }
         }
 

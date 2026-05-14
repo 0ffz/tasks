@@ -1,9 +1,9 @@
-import java.util.Properties
+import java.util.*
 
 plugins {
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.android.application)
+    alias(miaLibs.plugins.jetbrainsCompose)
+    alias(miaLibs.plugins.compose.compiler)
 }
 
 
@@ -16,9 +16,9 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     implementation(libs.kotlin.multiplatform.appdirs)
-    implementation(libs.koin.android)
+    implementation(miaLibs.koin.android)
 //    implementation(libs.koin.androidx.workmanager)
-    implementation(libs.kermit)
+    implementation(miaLibs.kermit)
     implementation(libs.androidx.startup.runtime)
     implementation(libs.androidx.work.runtime.ktx)
 }

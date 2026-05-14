@@ -3,26 +3,28 @@ import nl.littlerobots.vcu.plugin.versionSelector
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader
-    alias(libs.plugins.androidApplication) apply false
+    alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
-    alias(libs.plugins.jetbrainsCompose) apply false
-    alias(libs.plugins.kotlinJvm) apply false
-    alias(libs.plugins.kotlinMultiplatform) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.composeHotReload) apply false
-    alias(libs.plugins.jib) apply false
+    alias(miaLibs.plugins.jetbrainsCompose) apply false
+    alias(miaLibs.plugins.kotlin.jvm) apply false
+    alias(miaLibs.plugins.kotlin.multiplatform) apply false
+    alias(miaLibs.plugins.compose.compiler) apply false
+    alias(miaLibs.plugins.compose.hot.reload) apply false
+    alias(miaLibs.plugins.jib) apply false
     alias(miaLibs.plugins.version.catalog.update)
     alias(miaLibs.plugins.gradle.versions)
-    id("me.dvyy.sqlite.codegen") version "0.0.3-alpha.2" apply false
+    alias(miaLibs.plugins.sqlite.kt.codegen) apply false
 }
 
 allprojects {
     repositories {
         google()
-        mavenLocal()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://repo.mineinabyss.com/releases")
+        maven("https://repo.mineinabyss.com/snapshots")
+//        maven("https://oss.sonatype.org/content/repositories/snapshots")
+//        mavenLocal()
     }
 }
 

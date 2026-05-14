@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(miaLibs.plugins.kotlin.multiplatform)
+    alias(miaLibs.plugins.jetbrainsCompose)
+    alias(miaLibs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -30,7 +30,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":app-client"))
-                implementation(libs.koin.core)
+                implementation(miaLibs.koin.core)
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material3)

@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.kotlinx.serialization)
+    alias(miaLibs.plugins.kotlin.multiplatform)
+    alias(miaLibs.plugins.kotlinx.serialization)
     id("me.dvyy.sqlite.codegen")
 }
 
@@ -32,13 +32,13 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 compileOnly("com.github.skydoves:compose-stable-marker:1.0.7")
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kermit)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.json)
-                implementation(libs.koin.core)
-                api("me.dvyy.syncengine:core")
-                api("me.dvyy.syncengine:json-actions")
+                implementation(miaLibs.kotlinx.datetime)
+                implementation(miaLibs.kermit)
+                implementation(miaLibs.kotlinx.coroutines.core)
+                implementation(miaLibs.kotlinx.serialization.json)
+                implementation(miaLibs.koin.core)
+                api(libs.syncengine.core)
+                api(libs.syncengine.json.actions)
             }
         }
     }

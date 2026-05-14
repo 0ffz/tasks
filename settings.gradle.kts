@@ -4,10 +4,10 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         google()
-        mavenLocal()
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://repo.mineinabyss.com/releases")
+        maven("https://repo.mineinabyss.com/snapshots")
     }
-    includeBuild("../sqlite-kt")
+//    includeBuild("../sqlite-kt")
 }
 
 plugins {
@@ -15,7 +15,7 @@ plugins {
 }
 
 dependencyResolutionManagement {
-    val catalogVersion: String by settings
+    val miaLibs: String by settings
 
     repositories {
         maven("https://repo.mineinabyss.com/releases")
@@ -24,7 +24,7 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("miaLibs") {
-            from("com.mineinabyss:catalog:$catalogVersion")
+            from("com.mineinabyss:catalog:$miaLibs")
         }
     }
 }
@@ -32,5 +32,5 @@ dependencyResolutionManagement {
 
 include("app-client", "app-model", "app-server", "tests")
 include("targets:desktop", "targets:android")
-includeBuild("../syncengine")
-includeBuild("../sqlite-kt")
+//includeBuild("../syncengine")
+//includeBuild("../sqlite-kt")

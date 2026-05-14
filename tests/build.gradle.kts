@@ -1,7 +1,7 @@
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(miaLibs.plugins.kotlin.multiplatform)
+    alias(miaLibs.plugins.jetbrainsCompose)
+    alias(miaLibs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -20,27 +20,24 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
-                implementation(libs.kotest.assertions)
-                implementation(libs.kotest.property)
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.kotlinx.coroutines.test)
+                implementation(miaLibs.kotest.assertions)
+                implementation(miaLibs.kotest.property)
+                implementation(miaLibs.kotlinx.coroutines.test)
+                implementation(miaLibs.kotlinx.datetime)
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(libs.kermit)
                 implementation(compose.desktop.currentOs)
-                implementation(libs.koin.test)
+                implementation(miaLibs.kermit)
+                implementation(miaLibs.koin.test)
+                implementation(miaLibs.junit.jupiter)
+                implementation(miaLibs.kotlinx.serialization.json)
                 implementation(project(":app-model"))
                 implementation(project(":app-client"))
                 implementation(project(":app-server"))
-                implementation("me.dvyy.syncengine:client")
-                implementation("me.dvyy.syncengine:server")
-                implementation(libs.junit)
-//                implementation(libs.postgresql)
-//                implementation(libs.hikaricp)
-//                implementation(libs.testcontainers.postgresql)
-                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.syncengine.client)
+                implementation(libs.syncengine.server)
             }
         }
     }

@@ -4,10 +4,10 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.reload.gradle.ComposeHotRun
 
 plugins {
-    alias(libs.plugins.kotlinJvm)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.composeHotReload)
+    alias(miaLibs.plugins.kotlin.jvm)
+    alias(miaLibs.plugins.jetbrainsCompose)
+    alias(miaLibs.plugins.compose.compiler)
+    alias(miaLibs.plugins.compose.hot.reload)
     id("de.undercouch.download") version "5.3.1"
     alias(miaLibs.plugins.shadowjar)
 //    alias(miaLibs.plugins.graalvm.nativeimage)
@@ -20,7 +20,7 @@ tasks.withType<ComposeHotRun>().configureEach {
 
 dependencies {
     implementation(libs.slf4j)
-    implementation(libs.koin.core)
+    implementation(miaLibs.koin.core)
     implementation(project(":app-client"))
     implementation(project(":app-model"))
 //    implementation(compose.desktop.currentOs)
