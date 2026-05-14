@@ -1,3 +1,5 @@
+package me.dvyy.tasks
+
 import androidx.compose.ui.window.application
 import me.dvyy.tasks.app.ui.AppDesktop
 

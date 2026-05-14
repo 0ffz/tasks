@@ -4,3 +4,4 @@ Exec=tasks
 Icon=tasks
 Type=Application
 Categories=Utility
+StartupWMClass=me-dvyy-tasks-MainKt

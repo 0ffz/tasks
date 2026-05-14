@@ -15,7 +15,7 @@ plugins {
 
 
 tasks.withType<ComposeHotRun>().configureEach {
-    mainClass.set("MainKt")
+    mainClass.set("me.dvyy.tasks.MainKt")
 }
 
 dependencies {
@@ -46,7 +46,7 @@ val appInstallerName = "$appName-" + when {
 compose.desktop {
     application {
         mainJar = tasks.shadowJar.get().archiveFile
-        mainClass = "MainKt"
+        mainClass = "me.dvyy.tasks.MainKt"
 //        "-Dawt.toolkit.name=WLToolkit",
         jvmArgs.addAll(listOf("--enable-native-access=ALL-UNNAMED"))
         buildTypes.release.proguard {
@@ -179,7 +179,7 @@ tasks {
 //    toolchainDetection.set(false)
 //    binaries {
 //        named("main") {
-//            mainClass.set("MainKt")
+//            mainClass.set("me.dvyy.tasks.MainKt")
 //            imageName.set("tasks")
 //            buildArgs(
 //                "-O2",
