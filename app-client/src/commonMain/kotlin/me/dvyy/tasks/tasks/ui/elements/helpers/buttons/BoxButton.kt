@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
 
 @Composable
@@ -19,7 +20,7 @@ fun BoxButton(
     onClick: () -> Unit,
     color: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shape: Shape = RoundedCornerShape(UI.size.sm),
+    shape: Shape = RoundedCornerShape(8.dp),
     border: BorderStroke? = null,//BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)),
     modifier: Modifier = Modifier.Companion,
     content: @Composable () -> Unit,

@@ -100,7 +100,7 @@ fun FileEntry(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(UI.padding.sm)
+                modifier = Modifier.height(UI.tasks.height).padding(start = UI.padding.sm),
             ) {
                 when (file) {
                     is FileStructure.File -> {

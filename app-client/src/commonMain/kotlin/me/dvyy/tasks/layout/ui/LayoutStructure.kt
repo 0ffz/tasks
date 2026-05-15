@@ -1,32 +1,13 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarToday
-import androidx.compose.material.icons.outlined.CalendarViewDay
-import androidx.compose.material.icons.outlined.CalendarViewWeek
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Dashboard
-import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.Folder
-import androidx.compose.material.icons.outlined.GridView
-import androidx.compose.material.icons.outlined.HorizontalSplit
-import androidx.compose.material.icons.outlined.QuestionMark
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.movableContentOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -42,7 +23,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import me.dvyy.tasks.app.AppIcons
-import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.dialogs.AppDialog
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.app.ui.elements.WeekViewActions
@@ -50,6 +30,7 @@ import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.layout.ui.layouts.Layout
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.list.Project
 import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 import me.dvyy.tasks.tasks.ui.elements.views.AllProjectsView
@@ -240,9 +221,8 @@ sealed interface LayoutStructure {
                         DefaultTabLabel(icon, title ?: "Untitled")
                     }
                     if (location == Location.Sidebar) {
-                        IconButton(
+                        BoxButton(
                             onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
-                            modifier = Modifier.size(UI.size.md)
                         ) {
                             Icon(AppIcons.Close, "Delete project", tint = MaterialTheme.colorScheme.outline)
                         }
