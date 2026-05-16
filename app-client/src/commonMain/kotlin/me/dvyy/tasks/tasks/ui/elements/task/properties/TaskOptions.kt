@@ -97,7 +97,7 @@ fun TaskOptions(
             HighlightButtons(
                 onSelectHighlight = { new -> task.updateUi { it.copy(highlight = new) } },
                 ::toggleFocused,
-                Modifier.height(ui.tasks.checkboxSize).fillMaxWidth().horizontalScroll(rememberScrollState())
+                Modifier.height(ui.tasks.checkboxSize).fillMaxWidth()//.horizontalScroll(rememberScrollState())
             )
         }
     }

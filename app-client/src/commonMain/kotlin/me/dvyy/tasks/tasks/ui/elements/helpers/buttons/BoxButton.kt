@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.getBestTextColor
 
@@ -21,9 +22,10 @@ fun BoxButton(
     shape: Shape = UI.shapes.rounded,
     border: BorderStroke? = null,//BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)),
     modifier: Modifier = Modifier.Companion,
+    padded: Boolean = true,
     content: @Composable () -> Unit,
 ) = Surface(
-    modifier = modifier.size(UI.tasks.propertyButtonSize).padding(UI.padding.sm),
+    modifier = modifier.size(UI.tasks.propertyButtonSize).padding(if (padded) UI.padding.sm else 0.dp),
     onClick = onClick,
     color = color,
     shape = shape,

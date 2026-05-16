@@ -7,17 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.state.ProjectHeaderState
 import me.dvyy.tasks.utils.CachedUpdate
 
@@ -111,7 +105,7 @@ fun ProjectHeader(
             }
         }
         // == Add task to top button
-        if (addTask != null) IconButton(onClick = addTask, modifier = Modifier.size(32.dp)) {
+        if (addTask != null) BoxButton(onClick = addTask) {
             Icon(
                 imageVector = Icons.Rounded.Add,
                 contentDescription = "Add task to top",

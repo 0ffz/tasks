@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +24,7 @@ import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.settings.ui.RowOrBox
 import me.dvyy.tasks.settings.ui.SettingsScreen
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -90,14 +94,14 @@ fun ScreenContainer(
             exit = slideOutHorizontally() + fadeOut()
         ) {
             utilityPane?.let {
-                Surface(tonalElevation = if (ui.isSmall) UI.elevation.lv0 else 0.5f.dp) {
+                Surface(shape = UI.shapes.rounded, tonalElevation = if (ui.isSmall) UI.elevation.lv0 else 0.5f.dp) {
                     Column(Modifier.optional(!ui.isSmall) { sizeIn(maxWidth = 300.dp) }.fillMaxHeight()) {
                         TopBarContainer {
                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
                                 Spacer(Modifier.weight(1f))
                                 Text(utilityPaneText ?: "", fontWeight = FontWeight.SemiBold)
                                 Spacer(Modifier.weight(1f))
-                                if (ui.isSmall) IconButton(onClick = onClose) {
+                                if (ui.isSmall) BoxButton(onClick = onClose) {
                                     Icon(Icons.Rounded.Close, "Close")
                                 }
                             }
@@ -117,7 +121,7 @@ fun ScreenContainer(
                 TopBarContainer {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (ui.isSmall) {
-                            IconButton(onClick = { expanded = !expanded }) {
+                            BoxButton(onClick = { expanded = !expanded }) {
                                 Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Open menu")
                             }
                         }
@@ -125,7 +129,7 @@ fun ScreenContainer(
                         Spacer(Modifier.weight(1f))
                         Text(title, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.weight(1f))
-                        IconButton(onClick = onClose) {
+                        BoxButton(onClick = onClose) {
                             Icon(Icons.Rounded.Close, "Close")
                         }
                     }
