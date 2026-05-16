@@ -7,7 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -96,8 +96,11 @@ fun Task(
 @Composable
 fun Modifier.taskHighlight(highlight: Highlight, selected: Boolean, completed: Boolean) = composed {
     val adjustedHighlight by animateColorAsState(highlight.color.fade(if (completed) UI.tasks.completedFade else 1f))
-    drawBehind {
-        if (!selected)
-            drawRoundRect(adjustedHighlight, cornerRadius = CornerRadius(8.dp.toPx()), topLeft = Offset(-3.dp.toPx(), -1.dp.toPx()), size = size.copy(width = size.width + 6.dp.toPx(), height = size.height + 2.dp.toPx()))
+    drawWithCache {
+        onDrawBehind {
+            if (!selected)
+                drawRoundRect(adjustedHighlight, cornerRadius = CornerRadius(8.dp.toPx()), topLeft = Offset(-3.dp.toPx(), -1.dp.toPx()), size = size.copy(width = size.width + 6.dp.toPx(), height = size.height + 2.dp.toPx()))
+        }
+
     }
 }

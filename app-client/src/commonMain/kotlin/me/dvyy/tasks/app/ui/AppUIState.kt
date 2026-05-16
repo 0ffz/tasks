@@ -30,7 +30,7 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     val smallTopBar get() = !isSmall
 
     val taskHighlightHeight = 24.dp
-    val taskTextPadding = 4.dp
+    val taskTextPadding = 3.dp
     val horizontalTaskTextPadding = 4.dp
     val alwaysShowCheckbox get() = isSmall
 
