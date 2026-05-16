@@ -6,23 +6,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.isShiftPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
@@ -57,13 +48,29 @@ fun TaskTextField(
     }
     var selection by remember { mutableStateOf(TextRange(task.uiState.text.length)) }
     if (!task.selected) TaskTextPadding {
-        Text(
-            text = task.uiState.text,
-            style = textStyle,
+        Row(
             modifier = modifier,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        ) {
+            //TODO emoji tags
+//            Text(buildString {
+//                if (task.uiState.text.hashCode() % 3 == 0)
+//                    append("🔥")
+//                if (task.uiState.text.hashCode() % 2 == 0)
+//                    append("❗")
+//            }, modifier = Modifier.drawBehind {
+//                if (task.uiState.highlight != Highlight.Unmarked)
+//                    drawRect(Color.Black.copy(alpha = 0.3f), topLeft = Offset(-3.dp.toPx(), -1.dp.toPx()), size = size.copy(width = size.width + 4.dp.toPx(), height = size.height + 2.dp.toPx()))
+////                drawRect(Color.Black.copy(alpha = 0.3f), topLeft = Offset(-5.dp.toPx(), -5.dp.toPx()), size = size.copy(height = size.height + 10.dp.toPx()))
+//            })
+//            Spacer(Modifier.width(UI.padding.sm))
+
+            Text(
+                text = task.uiState.text,
+                style = textStyle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     } else BasicTextField(
         value = TextFieldValue(task.uiState.text, selection),
         readOnly = task.uiState.completed,

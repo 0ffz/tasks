@@ -1,24 +1,11 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -33,14 +20,10 @@ import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.task.ReorderableTask
 import me.dvyy.tasks.tasks.ui.elements.task.Task
-import me.dvyy.tasks.tasks.ui.elements.task.text.TaskHighlight
+import me.dvyy.tasks.tasks.ui.elements.task.taskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.text.TaskTextField
 import me.dvyy.tasks.tasks.ui.state.ProjectState
-import me.dvyy.tasks.utils.CachedUpdate
-import me.dvyy.tasks.utils.Dragged
-import me.dvyy.tasks.utils.LocalDragAndDropState
-import me.dvyy.tasks.utils.UiLogger
-import me.dvyy.tasks.utils.keyboardAsState
+import me.dvyy.tasks.utils.*
 
 @Composable
 fun Project(
@@ -165,8 +148,7 @@ private fun TaskFromId(
         onDropTask = { task.mutate.dropTaskOnThis(it) },
         draggableContent = {
             Box(Modifier.widthIn(max = 400.dp), contentAlignment = Alignment.CenterStart) {
-                TaskHighlight(task.uiState)
-                TaskTextField(task)
+                TaskTextField(task, modifier = Modifier.taskHighlight(task.uiState.highlight, task.selected, task.uiState.completed))
             }
         }
     ) {
@@ -176,79 +158,3 @@ private fun TaskFromId(
         }
     }
 }
-//@OptIn(ExperimentalFoundationApi::class)
-//@Composable
-//fun TaskList(
-//    listId: ListId,
-//    tasks: Loadable<List<Uuid>>, //TODO represent loading state explicitly?
-//    modifier: Modifier = Modifier,
-//    scrollable: Boolean = false,
-//    viewModel: TasksViewModel = viewModel(),
-//) {
-//    val ui = LocalUIState.current
-//
-//    Column(
-//        modifier.padding(top = 6.dp).fillMaxWidth()
-//    ) {
-//        val isLoading = tasks is Loadable.Loading
-//        val tasks = tasks.loadedOrNull() ?: return@Column
-////        println("Loading ${listId.date} with ${tasks.size}")
-//        val scrollState = rememberScrollState()
-//        if (scrollable) Modifier.verticalScroll(scrollState)
-//        else Modifier
-//
-//        fun String.isGroupToggle() = startsWith("--") || startsWith("==")
-//        Column {
-////            val selectedTask by viewModel.selectedTask.collectAsState()
-//            Column(Modifier.padding(horizontal = 6.dp)) {
-//                for ((index, taskId) in tasks.withIndex()) key(taskId) {
-////                    val selected = selectedTask?.task == taskId
-////                    val focusRequested = selected// && selectedTask?.requestFocus == true
-//                    val taskState = viewModel.watchTask(taskId).collectAsState().value
-//                    if (taskState == null) {
-//                        Box(Modifier.height(ui.tasks.height).fillMaxWidth())
-//                        continue
-//                    }
-//                    CachedUpdate(
-//                        key = taskId,
-//                        value = taskState,
-//                        onValueChanged = { viewModel.mutateTask(taskId, it) }
-//                    ) { cachedTask, setTask ->
-////                        val isGroupToggle = index == 0 && cachedTask.text.isGroupToggle()
-//
-////                                LaunchedEffect(cachedTask) {
-////                                    if (isGroupToggle) isGroupHidden = cachedTask.completed
-////                                }
-//
-//                        val taskInteractions = remember(cachedTask) {
-//                            viewModel.interactionsFor(listId.uuid, taskId)// TODO, listId, cachedTask, setTask)
-//                        }
-//
-////                                AnimatedVisibility(isGroupToggle || !isGroupHidden) {
-//                        Column {
-////                                Task(
-////                                    TaskUiState.fromModel(cachedTask),
-////                                    {
-////                                        setTask(
-////                                            TaskModel(
-////                                                text = it.text,
-////                                                done = it.completed,
-////                                                highlight = it.highlight,
-////                                                parent = listId.uuid
-////                                            )
-////                                        )
-////                                    },
-////                                    selected,
-////                                    taskInteractions,
-////                                    focusRequested = focusRequested,
-////                                    forceShowCheckbox = isGroupToggle,
-////                                    overrideCheckboxIcon = if (isGroupToggle) AppIcons.ArrowDropDown else null,
-////                                    overrideCheckboxCompletedIcon = if (isGroupToggle) AppIcons.ArrowDropUp else null,
-////                                )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}

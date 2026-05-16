@@ -73,7 +73,7 @@ fun TaskOptions(
                         onClick = { task.mutate.onDelete() },
 //                        shape = RoundedCornerShape(bottomEnd = 16.dp),
 //                        color = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     ) {
 
                         Icon(Icons.Outlined.Delete, contentDescription = "Delete", Modifier.size(18.dp))

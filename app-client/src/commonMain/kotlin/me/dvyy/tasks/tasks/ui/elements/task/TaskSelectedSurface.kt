@@ -3,11 +3,13 @@ package me.dvyy.tasks.tasks.ui.elements.task
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
@@ -23,14 +25,14 @@ fun TaskSelectedSurface(
 ) {
     val alpha by animateFloatAsState(if (visible) 1f else 0f)
     val color = MaterialTheme.colorScheme.surface.copy(alpha = alpha)
-    val fullCornerSize = 0.dp
+    val fullCornerSize = UI.shapes.roundedCornerSize
     val cornerShape by animateDpAsState(if (visible) fullCornerSize else 0.dp)
     val highlightColor = highlight.color
         .copy(alpha = 0.15f)
         .takeIf { visible && highlight != Highlight.Unmarked } ?: Color.Transparent
     val animatedHighlight by animateColorAsState(highlightColor)
     Surface(
-//        modifier = modifier.padding(vertical = padding),
+        modifier = Modifier.padding(vertical = cornerShape / 2f),
         shape = shape ?: RoundedCornerShape(cornerShape),
         color = color,
         tonalElevation = UI.elevation.lv1,

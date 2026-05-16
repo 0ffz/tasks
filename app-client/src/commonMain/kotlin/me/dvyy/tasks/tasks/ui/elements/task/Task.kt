@@ -1,37 +1,30 @@
 package me.dvyy.tasks.tasks.ui.elements.task
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
+import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.tasks.ui.elements.task.properties.TaskOptions
 import me.dvyy.tasks.tasks.ui.elements.task.text.TaskCheckBox
-import me.dvyy.tasks.tasks.ui.elements.task.text.TaskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.text.TaskTextField
 import me.dvyy.tasks.tasks.ui.state.TaskState
 
@@ -70,12 +63,17 @@ fun Task(
         TaskSelectedSurface(task.selected, task.uiState.highlight) {
             Column {
                 Row(
-                    verticalAlignment = Alignment.Top,
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(ui.horizontalTaskTextPadding),
                     modifier = Modifier.padding(start = ui.horizontalTaskTextPadding),
                 ) {
-                    Box(Modifier.weight(1f, true), contentAlignment = Alignment.CenterStart) {
-                        if (!task.selected) TaskHighlight(task.uiState)
-                        TaskTextField(task, focusRequested)
+//                    Text("🔥", modifier = Modifier.zIndex(0f).zIndex(1f).drawBehind {
+////                        drawRoundRect(Color(0xFF404040), cornerRadius = CornerRadius(8.dp.toPx()), topLeft = Offset(-2.dp.toPx(), -1.dp.toPx()), size = size.copy(width = size.width + 4.dp.toPx(), height = size.height + 2.dp.toPx()))
+//                    })
+//                    if(task.uiState.text.hashCode() % 4 == 0)
+//                        Text("❗")
+                    Box(Modifier.zIndex(0f).weight(1f, true), contentAlignment = Alignment.CenterStart) {
+                        TaskTextField(task, focusRequested, modifier = Modifier.taskHighlight(task.uiState.highlight, task.selected, task.uiState.completed))
                     }
                     val responsive = LocalUIState.current
 
@@ -92,5 +90,14 @@ fun Task(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun Modifier.taskHighlight(highlight: Highlight, selected: Boolean, completed: Boolean) = composed {
+    val adjustedHighlight by animateColorAsState(highlight.color.fade(if (completed) UI.tasks.completedFade else 1f))
+    drawBehind {
+        if (!selected)
+            drawRoundRect(adjustedHighlight, cornerRadius = CornerRadius(8.dp.toPx()), topLeft = Offset(-3.dp.toPx(), -1.dp.toPx()), size = size.copy(width = size.width + 6.dp.toPx(), height = size.height + 2.dp.toPx()))
     }
 }
