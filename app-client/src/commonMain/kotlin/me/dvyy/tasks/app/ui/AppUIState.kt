@@ -52,7 +52,7 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
     // Task lists
     val taskListWidth = 300.dp
 
-    val sideBarWidth = size.xxl
+    val sideBarWidth = 40.dp
     val bottomBarHeight = size.xxl
     val sideBarPadding = padding.sm
 

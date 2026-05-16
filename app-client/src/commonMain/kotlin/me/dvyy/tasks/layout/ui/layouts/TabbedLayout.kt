@@ -275,9 +275,9 @@ fun LayoutTab(
                 end = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Spacer(Modifier.width(UI.padding.sm))
-                        if (showCloseButton) IconButton(onClick = {
+                        if (showCloseButton) BoxButton(onClick = {
                             onClose()
-                        }, modifier = Modifier.size(UI.size.lg)) {
+                        }) {
                             Icon(
                                 AppIcons.Close,
                                 "Close tab",

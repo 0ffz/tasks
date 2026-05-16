@@ -6,11 +6,11 @@ import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncDisabled
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -25,7 +25,7 @@ fun SyncIndicator(
     }
     Crossfade(state) { state ->
         val color = if (state is SyncUiState.Connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-        IconButton(
+        BoxButton(
             onClick = { sync.toggleSync() },
         ) {
             Icon(icon, contentDescription = "Sync", tint = color)
