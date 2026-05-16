@@ -13,11 +13,10 @@ fun HighlightButton(
     highlight: Highlight,
     onClick: () -> Unit,
     modifier: Modifier = Modifier.Companion,
-    padded: Boolean = true,
     shape: Shape = UI.shapes.rounded,
     content: @Composable () -> Unit = {},
 ) {
-    BoxButton(onClick = onClick, highlight.color, modifier = modifier, padded = padded, shape = shape) {
+    BoxButton(onClick = onClick, highlight.color, modifier = modifier, shape = shape) {
         content()
     }
 }

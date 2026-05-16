@@ -16,12 +16,12 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 import me.dvyy.tasks.tasks.ui.state.TaskState
 import me.dvyy.tasks.time.TimeViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -44,8 +44,7 @@ fun TaskOptions(
     }
     Column {
         Box(Modifier.height(UI.tasks.propertyButtonSize)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            ButtonRow(
                 modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             ) {
                 // == Button that opens dropdown to select task highlight
@@ -97,7 +96,7 @@ fun TaskOptions(
             HighlightButtons(
                 onSelectHighlight = { new -> task.updateUi { it.copy(highlight = new) } },
                 ::toggleFocused,
-                Modifier.height(ui.tasks.checkboxSize).fillMaxWidth()//.horizontalScroll(rememberScrollState())
+                Modifier.fillMaxWidth()//.horizontalScroll(rememberScrollState())
             )
         }
     }

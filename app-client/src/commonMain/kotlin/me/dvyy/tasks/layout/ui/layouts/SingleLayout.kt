@@ -1,19 +1,8 @@
 package me.dvyy.tasks.layout.ui.layouts
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +11,7 @@ import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 
 @Composable
 fun SingleLayout(
@@ -44,9 +34,11 @@ fun SingleLayout(
                             onDropLayout = onLayoutUpdate,
                         )
 //                        WeekViewActions()
-                        structure.trailingOptions()
-                        BoxButton(onClick = { onLayoutUpdate(LayoutStructure.Remove) }) {
-                            Icon(AppIcons.Close, "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        ButtonRow {
+                            structure.trailingOptions()
+                            BoxButton(onClick = { onLayoutUpdate(LayoutStructure.Remove) }) {
+                                Icon(AppIcons.Close, "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                     }
                     HorizontalDivider()

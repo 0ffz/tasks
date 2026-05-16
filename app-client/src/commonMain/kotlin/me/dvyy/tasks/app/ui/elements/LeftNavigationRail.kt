@@ -14,6 +14,7 @@ import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.sync.ui.SyncIndicator
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonColumn
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -47,28 +48,32 @@ fun LeftNavigationRail(
 
             val buttons by layout.layoutButtonLocations.collectAsState()
             val selected by layout.leftSidebar.collectAsState()
-            buttons.left.forEach { button ->
-                val isSelected = button.structure == selected
-                LayoutToggleButton(button, isSelected) {
-                    layout.setLeftSidebar(
-                        if (isSelected) LayoutStructure.Remove
-                        else button.structure
-                    )
+            ButtonColumn {
+                buttons.left.forEach { button ->
+                    val isSelected = button.structure == selected
+                    LayoutToggleButton(button, isSelected) {
+                        layout.setLeftSidebar(
+                            if (isSelected) LayoutStructure.Remove
+                            else button.structure
+                        )
+                    }
                 }
             }
             Spacer(Modifier.weight(1f))
             val bottomSelected by layout.bottomBar.collectAsState()
-            buttons.bottom.forEach { button ->
-                val isSelected = button.structure == bottomSelected
-                LayoutToggleButton(button, isSelected) {
-                    layout.bottomBar.update {
-                        if (isSelected) LayoutStructure.Remove
-                        else button.structure
+            ButtonColumn {
+                buttons.bottom.forEach { button ->
+                    val isSelected = button.structure == bottomSelected
+                    LayoutToggleButton(button, isSelected) {
+                        layout.bottomBar.update {
+                            if (isSelected) LayoutStructure.Remove
+                            else button.structure
+                        }
                     }
                 }
+                SyncIndicator()
+                SettingsButton()
             }
-            SyncIndicator()
-            SettingsButton()
         }
     }
 }

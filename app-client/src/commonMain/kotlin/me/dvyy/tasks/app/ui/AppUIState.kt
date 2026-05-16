@@ -8,6 +8,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import me.dvyy.tasks.core.ui.PlatformSpecifics
 
 
 val UI @Composable @ReadOnlyComposable get() = LocalUIState.current
@@ -15,11 +16,16 @@ val UI @Composable @ReadOnlyComposable get() = LocalUIState.current
 val LocalUIState = compositionLocalOf<AppUIState> { error("No local responsive UI") }
 
 @Immutable
-class AppUIState(private val windowSizeClass: WindowSizeClass) {
+class AppUIState(
+    private val windowSizeClass: WindowSizeClass,
+    /** Drives most other UI properties, defines the minimum comfortable hit target size for this platform. */
+    val minHitTargetSize: Dp,
+) {
     // Window size
     val width get() = windowSizeClass.widthSizeClass
     val height get() = windowSizeClass.heightSizeClass
     val dateColumns get() = if (windowSizeClass.widthSizeClass > WindowWidthSizeClass.Medium) 7 else 1
+
 
     private val atMostSmall get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Compact
     private val atMostMedium get() = windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Medium
@@ -46,13 +52,13 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
 
 
     // Tabs
-    val tabHeight = 44.dp
+    val tabHeight = tasks.height
     val tabPadding = padding.md
 
     // Task lists
     val taskListWidth = 300.dp
 
-    val sideBarWidth = 40.dp
+    val sideBarWidth = tasks.height
     val bottomBarHeight = size.xxl
     val sideBarPadding = padding.sm
 
@@ -83,10 +89,9 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
         val lv5 = 12.dp
     }
 
-    class Tasks {
-        val height = 40.dp
-        val checkboxSize = 40.dp
-        val propertyButtonSize = 40.dp
+    inner class Tasks {
+        val height = minHitTargetSize
+        val propertyButtonSize = minHitTargetSize
 
         val completedFade = 0.3f
     }
@@ -102,5 +107,6 @@ class AppUIState(private val windowSizeClass: WindowSizeClass) {
 @Composable
 fun rememberAppUIState(): AppUIState {
     val windowSizeClass = calculateWindowSizeClass()
-    return remember(windowSizeClass) { AppUIState(windowSizeClass) }
+    val minHitSize = PlatformSpecifics.minHitSize
+    return remember(windowSizeClass) { AppUIState(windowSizeClass, minHitSize) }
 }
