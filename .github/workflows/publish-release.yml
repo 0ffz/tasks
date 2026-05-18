@@ -28,7 +28,7 @@ jobs:
         id: decode_keystore
         uses: timheuer/base64-to-file@308aa6b96aea57199c7c522d4ac1c3cdb1fd1c7a
         with:
-          fileName: 'keystore/keystore.jks'
+          fileName: 'keystore.jks'
           encodedString: ${{ secrets.KEYSTORE }}
 
       - name: Run gradle build
@@ -37,7 +37,7 @@ jobs:
           -PandroidKeystoreFile=${{ steps.decode_keystore.outputs.filePath }}
           -PandroidKeystorePassword=${{ secrets.SIGNING_KEY_PASSWORD }}
         env:
-          SIGNING_STORE_FILE: ${{ secrets.SIGNING_STORE_FILE }}
+          SIGNING_STORE_FILE: ${{ vars.SIGNING_STORE_FILE }}
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
