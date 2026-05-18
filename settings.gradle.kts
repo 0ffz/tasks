@@ -31,6 +31,7 @@ dependencyResolutionManagement {
 
 
 include("app-client", "app-model", "app-server", "tests")
-include("targets:desktop", "targets:android")
+include("targets:desktop")
+include("targets:android")
 //includeBuild("../syncengine")
 //includeBuild("../sqlite-kt")

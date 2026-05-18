@@ -24,10 +24,14 @@ dependencies {
 }
 
 val keystoreProperties = Properties().apply {
-    load(rootProject.file("local.properties").inputStream())
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(localPropertiesFile.inputStream())
+    }
 }
-val androidKeystoreFile: String? by keystoreProperties
-val androidKeystorePassword: String? by keystoreProperties
+
+val androidKeystoreFile: String? = keystoreProperties.getProperty("androidKeystoreFile")
+val androidKeystorePassword: String? = keystoreProperties.getProperty("androidKeystorePassword")
 
 base {
     archivesName.set("Tasks-$version")
