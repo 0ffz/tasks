@@ -1,4 +1,4 @@
-import java.util.Properties
+import java.util.*
 
 plugins {
     alias(libs.plugins.android.application)
@@ -54,7 +54,7 @@ android {
 
     signingConfigs {
         if (androidKeystoreFile != null) register("release") {
-            storeFile = file(androidKeystoreFile)
+            storeFile = rootProject.file(androidKeystoreFile)
             storePassword = androidKeystorePassword
             keyAlias = "upload"
             keyPassword = androidKeystorePassword
