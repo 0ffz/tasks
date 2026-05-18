@@ -16,7 +16,7 @@ import kotlin.time.ExperimentalTime
 /**
  * Date picker button, clicking opens a date selection dialog.
  */
-@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDatePicker(
     initialDate: LocalDate,

@@ -1,7 +1,6 @@
 package me.dvyy.tasks.app.ui.theme
 
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -10,7 +9,6 @@ import androidx.compose.runtime.getValue
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppTheme(prefs: PreferencesViewModel = koinViewModel(), content: @Composable () -> Unit) {
     val appTheme by prefs.appTheme.collectAsState()
@@ -55,7 +53,7 @@ fun AppTheme(prefs: PreferencesViewModel = koinViewModel(), content: @Composable
             )
         }
     }
-    MaterialExpressiveTheme(
+    MaterialTheme(
         colorScheme = colorScheme,
         typography = AppTypography(),
     ) {

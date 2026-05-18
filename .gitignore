@@ -24,5 +24,7 @@ wix*
 truckconfig.json
 
 *.db
+*-shm
+*-wal
 
 kotlin-js-store

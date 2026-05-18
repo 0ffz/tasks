@@ -25,7 +25,6 @@ import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.state.ProjectHeaderState
 import me.dvyy.tasks.utils.CachedUpdate
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProjectHeader(
     header: ProjectHeaderState,

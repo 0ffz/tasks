@@ -48,7 +48,6 @@ fun RowOrBox(isRow: Boolean, content: @Composable () -> Unit) {
     else Box(Modifier.fillMaxWidth()) { content() }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen() {
     val ui = LocalUIState.current

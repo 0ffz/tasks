@@ -6,17 +6,22 @@ androidx-activity-compose = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core-ktx = "1.18.0"
 androidx-glance = "1.1.1"
+androidx-startup-runtime = "1.2.0"
+androidx-work-runtime-ktx = "2.11.2"
 compose = "1.11.0"
+compose-material = "1.11.0-alpha07"
+compose-material-icons-extended = "1.7.3"
+emoji-compose = "2.4.0"
 filekit = "0.14.1"
 kotlinMultiplatformAppdirs = "2.0.0"
-ktor = "3.4.3"
+kotlinx-collections-immutable = "0.4.0"
+ktor = "3.5.0"
 lifecycleViewmodelCompose = "2.10.0"
 material3WindowSizeClassMultiplatform = "0.5.0"
 multiplatformSettings = "1.3.0"
 navigationCompose = "2.9.2"
-slf4j = "2.0.17"
-androidx-startup-runtime = "1.2.0"
-androidx-work-runtime-ktx = "2.11.2"
+rebugger = "1.0.1"
+slf4j = "2.0.18"
 syncengine = "0.1.2"
 
 [libraries]
@@ -29,8 +34,17 @@ androidx-startup-runtime = { module = "androidx.startup:startup-runtime", versio
 androidx-ui = "androidx.compose.ui:ui:1.11.1"
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work-runtime-ktx" }
 components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
+compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "compose-material-icons-extended" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose" }
+compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
+emoji-compose = { module = "org.kodein.emoji:emoji-kt", version.ref = "emoji-compose" }
+emoji-compose-m3 = { module = "org.kodein.emoji:emoji-compose-m3", version.ref = "emoji-compose" }
 filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 kotlin-multiplatform-appdirs = { module = "ca.gosyer:kotlin-multiplatform-appdirs", version.ref = "kotlinMultiplatformAppdirs" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
@@ -54,14 +68,13 @@ multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", vers
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+rebugger = { module = "io.github.theapache64:rebugger", version.ref = "rebugger" }
 slf4j = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
-syncengine-core = { module = "me.dvyy.syncengine:core", version.ref = "syncengine" }
 syncengine-client = { module = "me.dvyy.syncengine:client", version.ref = "syncengine" }
-syncengine-server = { module = "me.dvyy.syncengine:server", version.ref = "syncengine" }
+syncengine-core = { module = "me.dvyy.syncengine:core", version.ref = "syncengine" }
 syncengine-json-actions = { module = "me.dvyy.syncengine:json-actions", version.ref = "syncengine" }
-emoji-compose = "org.kodein.emoji:emoji-kt:2.0.1"
-emoji-compose-m3 = "org.kodein.emoji:emoji-compose-m3:2.0.1"
+syncengine-server = { module = "me.dvyy.syncengine:server", version.ref = "syncengine" }
 
 [plugins]
-android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }

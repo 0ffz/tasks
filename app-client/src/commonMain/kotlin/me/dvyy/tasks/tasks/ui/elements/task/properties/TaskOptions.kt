@@ -10,8 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Done
-import androidx.compose.material.icons.outlined.Tag
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material.icons.rounded.BorderColor
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +29,6 @@ import org.koin.compose.viewmodel.koinViewModel
  * Options for modifying a task.
  * Shown below the textbox, contains buttons for moving date, deleting, etc...
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TaskOptions(
     task: TaskState,
@@ -52,7 +50,7 @@ fun TaskOptions(
                     task.uiState.highlight,
                     onClick = { toggleFocused() }
                 ) {
-                    Icon(Icons.Outlined.Tag, contentDescription = "Tag", Modifier.size(18.dp))
+                    Icon(Icons.Rounded.BorderColor, contentDescription = "Tag", Modifier.size(18.dp))
                 }
 
                 // == Date picker button
