@@ -1,4 +1,4 @@
-import java.util.*
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -29,6 +29,9 @@ val keystoreProperties = Properties().apply {
 val androidKeystoreFile: String? by keystoreProperties
 val androidKeystorePassword: String? by keystoreProperties
 
+base {
+    archivesName.set("Tasks-$version")
+}
 android {
     buildFeatures {
         compose = true
@@ -41,7 +44,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = version.toString()
-//        setProperty("archivesBaseName", "Tasks-$version")
     }
 
     signingConfigs {

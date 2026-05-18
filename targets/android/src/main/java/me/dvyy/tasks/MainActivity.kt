@@ -9,7 +9,6 @@ import androidx.activity.enableEdgeToEdge
 import ca.gosyer.appdirs.impl.attachAppDirs
 import me.dvyy.tasks.app.ui.AppAndroid
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -17,7 +17,7 @@ compose {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "me.dvyy.tasks.dev"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
 //        sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
