@@ -33,7 +33,7 @@ jobs:
 
       - name: Run gradle build
         run: >
-          ./gradlew :app-android:assembleRelease
+          ./gradlew :targets:android:assembleRelease
           -PandroidKeystoreFile=${{ steps.decode_keystore.outputs.filePath }}
           -PandroidKeystorePassword=${{ secrets.SIGNING_KEY_PASSWORD }}
 
@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-android
-          path: 'app-android/build/outputs/apk/release/*.apk'
+          path: 'targets/android/build/outputs/apk/release/*.apk'
   build-desktop:
     runs-on: ${{ matrix.os }}
     strategy:
