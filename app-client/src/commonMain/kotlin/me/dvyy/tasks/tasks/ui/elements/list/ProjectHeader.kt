@@ -44,7 +44,7 @@ fun ProjectHeader(
     val colorFaded = color.fade(alpha = 0.6f)
     Row(
         modifier,//padding(horizontal = pd.md, vertical = pd.sm),
-        verticalAlignment = Alignment.Bottom,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         val monthTextStyle = when {
 //                width < 140.dp -> MaterialTheme.typography.titleLargeEmphasized
@@ -65,7 +65,7 @@ fun ProjectHeader(
                 }
                 if (width > 100.dp) Text(
                     text,
-                    Modifier.weight(1f, true),
+                    Modifier.weight(1f, true).alignByBaseline(),
                     style = monthTextStyle,
                     fontWeight = FontWeight.Bold,
                     color = color,
@@ -76,7 +76,7 @@ fun ProjectHeader(
                     style = weekdayTextStyle,
                     maxLines = 1,
                     overflow = TextOverflow.Visible,
-                    modifier = if (width > 100.dp) Modifier else Modifier.weight(1f, true),
+                    modifier = (if (width > 100.dp) Modifier else Modifier.weight(1f, true)).alignByBaseline(),
                     color = colorFaded
                 )
 

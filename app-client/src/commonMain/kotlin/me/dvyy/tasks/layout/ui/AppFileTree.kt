@@ -1,5 +1,6 @@
 package me.dvyy.tasks.layout.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,7 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,6 +26,7 @@ import me.dvyy.tasks.model.asList
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.Projects
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
 import org.koin.compose.koinInject
@@ -59,7 +60,8 @@ fun AppFileTree(
     )
 
     Column {
-        Text("Calendar", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(UI.padding.sm))
+        Text("Calendar", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = UI.padding.md, vertical = UI.padding.sm))
+
         FileList(
             listOf(
                 file(LayoutStructure.Single.WeekView()),
@@ -70,7 +72,7 @@ fun AppFileTree(
     }
 
     Column {
-        Text("Projects", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(UI.padding.sm))
+        Text("Projects", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = UI.padding.md, vertical = UI.padding.sm))
 
         FileList(
             buildList {
@@ -91,12 +93,13 @@ fun AppFileTree(
                 }
             }
         )
-    }
 
-    OutlinedButton(
-        onClick = { tasks.createProject() },
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-    ) {
-        Text("Create project", maxLines = 1)
+        BoxButton(
+            onClick = { tasks.createProject() },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f))
+        ) {
+            Text("Create project", maxLines = 1)
+        }
     }
 }

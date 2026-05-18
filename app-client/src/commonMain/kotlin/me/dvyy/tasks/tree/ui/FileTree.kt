@@ -96,11 +96,11 @@ fun FileEntry(
                             list != null -> file.onDropList?.let { it(list) }
                         }
                     }
-                }
+                },
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.height(UI.tasks.height).padding(start = UI.padding.sm),
+                modifier = Modifier.height(UI.tasks.height).padding(start = UI.padding.md),
             ) {
                 when (file) {
                     is FileStructure.File -> {

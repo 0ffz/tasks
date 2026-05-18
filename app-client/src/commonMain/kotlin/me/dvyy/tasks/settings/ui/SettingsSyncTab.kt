@@ -26,7 +26,7 @@ fun SettingsSyncTab(
     auth: AuthViewModel = koinViewModel(),
     dialogs: DialogViewModel = koinViewModel(),
     sync: SyncViewModel = koinViewModel(),
-) = Column(verticalArrangement = Arrangement.spacedBy(UI.padding.md)) {
+): Unit = Column(verticalArrangement = Arrangement.spacedBy(UI.padding.md)) {
     val loginState by auth.loginState.collectAsState()
     val login = loginState // Smart casts
 

@@ -49,7 +49,6 @@ fun AuthDialog(
                 Text("Connection error")
         },
         modifier = Modifier.fillMaxWidth(),
-        placeholder = { Text("https://") },
         label = { Text("Server URL") }
     )
     OutlinedTextField(

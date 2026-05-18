@@ -31,6 +31,7 @@ fun BoxButton(
     border: BorderStroke? = null,//BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)),
     modifier: Modifier = Modifier.Companion,
     properties: BoxButtonProps = LocalBoxButtonProps.current,
+    contentAlignment: Alignment = Alignment.Center,
     content: @Composable () -> Unit,
 ) {
     val hPad = properties.horizontalPadding ?: UI.padding.sm
@@ -49,7 +50,7 @@ fun BoxButton(
         border = border,
         contentColor = contentColor,
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(contentAlignment = contentAlignment) {
             content()
         }
     }

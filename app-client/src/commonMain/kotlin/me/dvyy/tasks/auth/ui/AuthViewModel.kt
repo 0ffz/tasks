@@ -26,9 +26,10 @@ class AuthViewModel(
     }
 
     suspend fun login(url: String, username: String, password: String): AuthResult {
-        val result = userRepo.login(url, username, password)
+        val prefixedUrl = if (url.startsWith("http://") || url.startsWith("https://")) url else "https://$url"
+        val result = userRepo.login(prefixedUrl, username, password)
         when (result) {
-            is AuthResult.Success -> _loginState.value = LoginState.Success(username, url)
+            is AuthResult.Success -> _loginState.value = LoginState.Success(username, prefixedUrl)
             AuthResult.ConnectionError -> _loginState.value = LoginState.Error.Connection
             AuthResult.InvalidCredentials -> _loginState.value = LoginState.Error.InvalidCredentials
         }
