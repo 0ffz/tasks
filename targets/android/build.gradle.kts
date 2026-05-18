@@ -29,13 +29,15 @@ val keystoreProperties = Properties().apply {
         load(localPropertiesFile.inputStream())
     }
 }
-
 val androidKeystoreFile: String? = keystoreProperties.getProperty("androidKeystoreFile")
+    ?: System.getenv("SIGNING_STORE_FILE")
 val androidKeystorePassword: String? = keystoreProperties.getProperty("androidKeystorePassword")
+    ?: System.getenv("SIGNING_STORE_PASSWORD")
 
 base {
     archivesName.set("Tasks-$version")
 }
+
 android {
     buildFeatures {
         compose = true
@@ -52,8 +54,7 @@ android {
 
     signingConfigs {
         if (androidKeystoreFile != null) register("release") {
-            properties["storeFile"]
-            storeFile = file(androidKeystoreFile!!)
+            storeFile = file(androidKeystoreFile)
             storePassword = androidKeystorePassword
             keyAlias = "upload"
             keyPassword = androidKeystorePassword
