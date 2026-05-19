@@ -15,9 +15,10 @@ class AppDatabase(
     @PublishedApi
     internal val db: Database,
     private val actions: Actions,
-    val query: AppQueries,
-    val mutate: AppActions,
 ) {
+    val query: AppQueries = AppQueries()
+    val mutate: AppActions = AppActions(db, query, actions)
+
     suspend inline fun <T> read(
         crossinline block: context(Transaction) AppQueries.() -> T,
     ): T = db.read { query.block() }

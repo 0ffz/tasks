@@ -71,7 +71,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
 
       - name: Run custom gradle package
-        run: ./gradlew :targets:desktop:packageForRelease --no-configuration-cache
+        run: ./gradlew :targets:desktop:packageForRelease
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
