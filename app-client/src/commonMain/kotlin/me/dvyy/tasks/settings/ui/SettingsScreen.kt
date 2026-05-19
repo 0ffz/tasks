@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,9 +36,13 @@ sealed interface SettingsTab {
         override val title = "Sync"
         override val icon = Icons.Outlined.Sync
     }
+    data object Update : SettingsTab {
+        override val title = "Update"
+        override val icon = Icons.Outlined.Update
+    }
 
     companion object {
-        val tabs = listOf(Sync, Theme, BulkAdd)
+        val tabs = listOf(Sync, Theme, BulkAdd, Update)
     }
 }
 
@@ -74,6 +79,7 @@ fun SettingsScreen() {
                 SettingsTab.Theme -> SettingsThemeTab()
                 SettingsTab.Sync -> SettingsSyncTab()
                 SettingsTab.BulkAdd -> SettingsBulkAddTab()
+                SettingsTab.Update -> SettingsUpdateTab()
             }
             Spacer(Modifier.height(16.dp))
         }

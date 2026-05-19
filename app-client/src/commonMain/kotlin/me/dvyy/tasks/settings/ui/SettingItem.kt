@@ -59,6 +59,17 @@ fun SettingToggle(
 }
 
 @Composable
+fun SettingButton(
+    name: String,
+    description: String? = null,
+    isLast: Boolean = false,
+    onClick: () -> Unit,
+) {
+    SettingItem(name, description, isLast, Modifier.clickable { onClick() }) {
+    }
+}
+
+@Composable
 fun SettingItem(
     name: String,
     description: String? = null,
