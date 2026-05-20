@@ -22,7 +22,7 @@ multiplatformSettings = "1.3.0"
 navigationCompose = "2.9.2"
 rebugger = "1.0.1"
 slf4j = "2.0.18"
-syncengine = "0.1.4"
+syncengine = "0.1.5"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }

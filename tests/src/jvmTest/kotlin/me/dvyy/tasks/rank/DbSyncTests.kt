@@ -1,7 +1,7 @@
 package me.dvyy.tasks.rank
 
 import kotlinx.coroutines.test.runTest
-import me.dvyy.tasks.ClientServerHelpers
+import me.dvyy.tasks.helpers.ClientServerHelpers
 
 class DbSyncTests {
     val app = ClientServerHelpers(
