@@ -14,8 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
-import co.touchlab.kermit.Logger
-import co.touchlab.kermit.platformLogWriter
 import me.dvyy.tasks.app.createAppKoinApplication
 import me.dvyy.tasks.app.data.TopbarViewModel
 import me.dvyy.tasks.app_client.generated.resources.Res
@@ -33,7 +31,6 @@ import org.koin.dsl.module
 fun ApplicationScope.AppDesktop(
     overrides: Module = module { },
 ) = KoinIsolatedContext(createAppKoinApplication(overrides = overrides)) {
-    Logger.setLogWriters(platformLogWriter(ColoredFormatter))
     val windowState = rememberWindowState(
         width = 1200.dp,
         height = 960.dp

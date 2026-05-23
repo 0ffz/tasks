@@ -1,9 +1,12 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+
 plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(miaLibs.plugins.kotlin.multiplatform)
     alias(miaLibs.plugins.jetbrainsCompose)
     alias(miaLibs.plugins.compose.compiler)
     alias(miaLibs.plugins.kotlinx.serialization)
+    id("com.codingfeline.buildkonfig") version "0.21.2"
 }
 
 composeCompiler {
@@ -95,6 +98,7 @@ kotlin {
                 api(libs.syncengine.core)
                 api(libs.syncengine.client)
                 api(miaLibs.sqlite.kt)
+                api(miaLibs.androidx.collection)
             }
         }
         val jvmMain by creating {
@@ -131,16 +135,15 @@ kotlin {
     }
 }
 
-//dependencies {
-//    implementation(libs.androidx.foundation.android)
-//}
+tasks {
+    assemble {
+        dependsOn(generateBuildKonfig)
+    }
+}
 
-//sqldelight {
-//    databases {
-//        create("Database") {
-//            packageName.set("me.dvyy.tasks.db.client")
-//            srcDirs("src/commonMain/sqldelight")
-//            generateAsync.set(true)
-//        }
-//    }
-//}
+buildkonfig {
+    packageName = "me.dvyy.tasks"
+    defaultConfigs {
+        buildConfigField(STRING, "version", "v" + project.version.toString())
+    }
+}

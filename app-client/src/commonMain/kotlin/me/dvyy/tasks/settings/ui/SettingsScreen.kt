@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.Update
@@ -36,13 +37,19 @@ sealed interface SettingsTab {
         override val title = "Sync"
         override val icon = Icons.Outlined.Sync
     }
+
     data object Update : SettingsTab {
         override val title = "Update"
         override val icon = Icons.Outlined.Update
     }
 
+    data object Logs : SettingsTab {
+        override val title = "Logs"
+        override val icon = Icons.AutoMirrored.Outlined.List
+    }
+
     companion object {
-        val tabs = listOf(Sync, Theme, BulkAdd, Update)
+        val tabs = listOf(Sync, Theme, BulkAdd, Update, Logs)
     }
 }
 
@@ -74,12 +81,17 @@ fun SettingsScreen() {
             )
         }
     }, utilityPaneText = "Settings") {
-        Column(Modifier.padding(horizontal = 16.dp).verticalScroll(rememberScrollState())) {
+        val scrollState = rememberScrollState()
+        val modifier = Modifier.padding(horizontal = 16.dp).let {
+            if (screen != SettingsTab.Logs) it.verticalScroll(scrollState) else it
+        }
+        Column(modifier) {
             when (screen) {
                 SettingsTab.Theme -> SettingsThemeTab()
                 SettingsTab.Sync -> SettingsSyncTab()
                 SettingsTab.BulkAdd -> SettingsBulkAddTab()
                 SettingsTab.Update -> SettingsUpdateTab()
+                SettingsTab.Logs -> LogsTab()
             }
             Spacer(Modifier.height(16.dp))
         }

@@ -1,4 +1,4 @@
-package me.dvyy.tasks.app.ui
+package me.dvyy.tasks.app.logging
 
 import co.touchlab.kermit.Message
 import co.touchlab.kermit.MessageStringFormatter

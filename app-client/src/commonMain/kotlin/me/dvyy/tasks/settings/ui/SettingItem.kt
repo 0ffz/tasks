@@ -19,10 +19,11 @@ import me.dvyy.tasks.layout.ui.layouts.TintedHorizontalDivider
 fun BoxedList(
     title: String? = null,
     description: String? = null,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) = Column(
     verticalArrangement = Arrangement.spacedBy(UI.padding.md),
-    modifier = Modifier.padding(top = UI.padding.md)
+    modifier = modifier.padding(top = UI.padding.md)
 ) {
     title?.let {
         Text(

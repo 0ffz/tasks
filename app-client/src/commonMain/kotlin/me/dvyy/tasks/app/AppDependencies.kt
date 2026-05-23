@@ -1,14 +1,25 @@
 package me.dvyy.tasks.app
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Logger
+import co.touchlab.kermit.Severity
+import co.touchlab.kermit.platformLogWriter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.client.mutators.ActionQueue
 import me.dvyy.syncengine.client.sync.SyncClient
 import me.dvyy.syncengine.sync.SyncService
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
+import me.dvyy.tasks.app.data.UpdateRepository
+import me.dvyy.tasks.app.logging.ColoredFormatter
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
@@ -59,8 +70,59 @@ fun appModule() = module(createdAtStart = true) {
     )
 }
 
+data class LogEntry(val severity: Severity, val message: AnnotatedString, val tag: String, val throwable: Throwable?)
+
+class TrackingLogWriter(
+    maxLogs: Int = 500,
+) : LogWriter() {
+    var enabled: Boolean = true
+    val logFlow = MutableSharedFlow<LogEntry>(replay = maxLogs, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    private fun severityToColor(severity: Severity): Color = when (severity) {
+        Severity.Verbose -> Color.Gray
+        Severity.Debug -> Color.Cyan
+        Severity.Info -> Color.Green
+        Severity.Warn -> Color.Yellow
+        Severity.Error -> Color.Red
+        Severity.Assert -> Color.Magenta
+    }
+
+    fun severityToString(severity: Severity) = when (severity) {
+        Severity.Verbose -> "TRACE"  // White
+        Severity.Debug -> "DEBUG"    // Cyan
+        Severity.Info -> "INFO "     // Green
+        Severity.Warn -> "WARN "     // Yellow
+        Severity.Error -> "ERROR"    // Red
+        Severity.Assert -> "ASSRT"   // Magenta
+    }
+
+    override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
+        if (!enabled) return
+        val annotatedMessage = buildAnnotatedString {
+            withStyle(style = androidx.compose.ui.text.SpanStyle(color = severityToColor(severity))) {
+                append(severityToString(severity))
+                if (tag.isNotEmpty()) append(" [$tag]")
+                append(" ")
+                append(message)
+            }
+            throwable?.let {
+                append("\n")
+                withStyle(style = androidx.compose.ui.text.SpanStyle(color = Color.Red)) {
+                    append(it.stackTraceToString())
+                }
+            }
+        }
+        logFlow.tryEmit(LogEntry(severity, annotatedMessage, tag, throwable))
+    }
+}
+
 fun coreModule() = module {
-    single<Logger> { Logger }
+    single<TrackingLogWriter> { TrackingLogWriter() }
+    single<Logger> {
+        Logger.apply {
+            setLogWriters(platformLogWriter(ColoredFormatter), get<TrackingLogWriter>())
+        }
+    }
     singleOf(::AppState)
     single { Dispatchers.Default }
     single { AppFactories.createDatabase(this) }
@@ -74,6 +136,7 @@ fun authModule() = module {
     singleOf(::AppHTTP)
     singleOf(::AuthAPI)
     singleOf(::AuthRepository)
+    singleOf(::UpdateRepository)
 }
 
 fun syncModule() = module(createdAtStart = true) {
