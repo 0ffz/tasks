@@ -16,7 +16,11 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,34 +32,41 @@ import dev.seyfarth.tablericons.outlined.Logs
 import dev.seyfarth.tablericons.outlined.Palette
 import dev.seyfarth.tablericons.outlined.Refresh
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.dialogs.ScreenContainer
 
+@Serializable
 sealed interface SettingsTab {
     val title: String
     val icon: ImageVector
 
+    @Serializable
     data object Theme : SettingsTab {
         override val title = "Theme"
         override val icon = TablerIcons.Outlined.Palette
     }
 
+    @Serializable
     data object BulkAdd : SettingsTab {
         override val title = "Bulk add"
         override val icon = TablerIcons.Outlined.FileUpload
     }
 
+    @Serializable
     data object Sync : SettingsTab {
         override val title = "Sync"
         override val icon = TablerIcons.Outlined.Refresh
     }
 
+    @Serializable
     data object Update : SettingsTab {
         override val title = "Update"
         override val icon = TablerIcons.Outlined.CloudDownload
     }
 
+    @Serializable
     data object Logs : SettingsTab {
         override val title = "Logs"
         override val icon = TablerIcons.Outlined.Logs
@@ -74,15 +85,20 @@ fun RowOrBox(isRow: Boolean, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun SettingsScreen(screen: SettingsTab, onChangeTab: (SettingsTab) -> Unit) {
+fun SettingsScreen(
+    startDestination: SettingsTab = SettingsTab.Sync,
+) {
     val ui = LocalUIState.current
     val scope = rememberCoroutineScope()
+    var screen by remember { mutableStateOf(startDestination) }
+    println(screen)
     ScreenContainer(screen.title, utilityPane = { setExpanded ->
         SettingsTab.tabs.forEach { tab ->
             NavigationDrawerItem(
                 selected = screen == tab && !ui.isSmall,
                 onClick = {
-                    onChangeTab(tab)
+                    println("Switching to $tab")
+                    screen = tab
                     if (ui.isSmall) scope.launch { setExpanded(false) }
                 },
                 icon = { Icon(tab.icon, tab.title) },
@@ -92,7 +108,7 @@ fun SettingsScreen(screen: SettingsTab, onChangeTab: (SettingsTab) -> Unit) {
                 colors = NavigationDrawerItemDefaults.colors(selectedContainerColor = MaterialTheme.colorScheme.primaryContainer)
             )
         }
-    }, utilityPaneText = "Settings") {
+    }, utilityPaneText = "Settings", onClose = {}) {
         val scrollState = rememberScrollState()
         val modifier = Modifier.padding(horizontal = 16.dp).let {
             if (screen != SettingsTab.Logs) it.verticalScroll(scrollState) else it

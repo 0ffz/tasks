@@ -2,29 +2,15 @@ package me.dvyy.tasks.core.ui.components.buttons
 
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import dev.seyfarth.tablericons.TablerIcons
 import dev.seyfarth.tablericons.outlined.Settings
-import kotlinx.coroutines.launch
-import me.dvyy.tasks.app.ui.AppState
-import me.dvyy.tasks.app.ui.dialogs.AppScreen
-import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
-import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsButton(
-    dialogs: DialogViewModel = koinViewModel(),
-    app: AppState = koinInject(),
+    navigateToSettings: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-    BoxButton(onClick = {
-        scope.launch {
-            dialogs.showScreen(AppScreen.Settings())
-            app.drawerState.close()
-        }
-    }) {
+    BoxButton(onClick = navigateToSettings) {
         Icon(TablerIcons.Outlined.Settings, contentDescription = "Settings")
     }
 }

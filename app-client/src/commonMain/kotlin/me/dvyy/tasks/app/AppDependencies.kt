@@ -22,7 +22,6 @@ import me.dvyy.tasks.app.data.UpdateViewModel
 import me.dvyy.tasks.app.logging.ColoredFormatter
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
-import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.data.AppHTTP
 import me.dvyy.tasks.auth.data.AuthAPI
 import me.dvyy.tasks.auth.data.AuthRepository
@@ -152,7 +151,6 @@ fun viewModelsModule() = module {
     viewModelOf(::TimeViewModel)
     viewModel { TasksViewModel(db = get<AppDatabase>()) }
     viewModelOf(::AuthViewModel)
-    viewModelOf(::DialogViewModel)
     viewModelOf(::PreferencesViewModel)
     viewModelOf(::LayoutViewModel)
     viewModelOf(::UpdateViewModel)

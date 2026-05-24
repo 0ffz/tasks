@@ -91,6 +91,7 @@ kotlin {
                 implementation(libs.lifecycle.viewmodel.compose)
                 implementation(miaLibs.koin.compose)
                 implementation(miaLibs.koin.compose.viewmodel)
+                implementation("io.insert-koin:koin-compose-viewmodel-navigation:${miaLibs.versions.koin.get()}")
 //                implementation(libs.kotlin.result)
                 implementation(miaLibs.kermit)
                 implementation(libs.emoji.compose)

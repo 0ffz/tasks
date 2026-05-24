@@ -28,8 +28,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -51,8 +49,6 @@ import dev.seyfarth.tablericons.outlined.Plus
 import dev.seyfarth.tablericons.outlined.X
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.app.ui.elements.AppDrawerIconButton
-import me.dvyy.tasks.app.ui.elements.AppTopBarActions
 import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.core.ui.modifiers.onMiddleMouseClick
@@ -119,9 +115,9 @@ fun TabbedLayout(
     onLayoutUpdate: (LayoutStructure) -> Unit = {},
     layoutViewModel: LayoutViewModel = koinViewModel(),
 ) {
-    val topRight by layoutViewModel.topRightLayout.collectAsState()
-    val topRow by layoutViewModel.topRow.collectAsState()
-    val topLeft by layoutViewModel.topLeftLayout.collectAsState()
+//    val topRight by layoutViewModel.topRightLayout.collectAsState()
+//    val topRow by layoutViewModel.topRow.collectAsState()
+//    val topLeft by layoutViewModel.topLeftLayout.collectAsState()
 
     val selectable = Modifier.optional(structure.selectable) {
         pointerInput(structure) {
@@ -138,18 +134,18 @@ fun TabbedLayout(
         Column {
             Surface(Modifier.fillMaxWidth(), tonalElevation = UI.elevation.lv1) {
                 Row(modifier = Modifier.height(UI.tabHeight)) {
-                    if (topLeft == structure && UI.isSmall) {
-                        AppDrawerIconButton()
-                    }
-                    if (structure in topRow)
-                        if (topRight != structure)
-                            Tabs(structure, onLayoutUpdate, layoutViewModel)
-                        else FixedEndLayout(end = { AppTopBarActions() }) {
-                            Row {
-                                Tabs(structure, onLayoutUpdate, layoutViewModel)
-                            }
-                        }
-                    else Tabs(structure, onLayoutUpdate, layoutViewModel)
+//                    if (topLeft == structure && UI.isSmall) {
+//                        AppDrawerIconButton()
+//                    }
+//                    if (structure in topRow)
+//                        if (topRight != structure)
+//                            Tabs(structure, onLayoutUpdate, layoutViewModel)
+//                        else FixedEndLayout(end = { AppTopBarActions() }) {
+//                            Row {
+//                                Tabs(structure, onLayoutUpdate, layoutViewModel)
+//                            }
+//                        }
+                    Tabs(structure, onLayoutUpdate, layoutViewModel)
                 }
             }
 
@@ -176,8 +172,6 @@ private fun Tabs(
     layoutViewModel: LayoutViewModel = koinViewModel(),
 ) = BoxWithConstraints {
     val ui = LocalUIState.current
-    val active by layoutViewModel.activeLayout.collectAsState()
-    structure == active
     val minTabWidth = 150.dp
     val maxTabWidth = 200.dp
 

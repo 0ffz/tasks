@@ -40,8 +40,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import me.dvyy.tasks.app.AppIcons
-import me.dvyy.tasks.app.ui.dialogs.AppDialog
-import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.app.ui.elements.WeekViewActions
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.layout.ui.layouts.Layout
@@ -69,8 +67,21 @@ sealed interface SplitAmount {
     data class Percent(val value: Float) : SplitAmount
 }
 
+class LayoutPath(val nodes: List<Node>) {
+    enum class Node {
+        FIRST, LAST
+    }
+
+    fun pop() = LayoutPath(nodes.drop(1))
+}
 @Serializable
 sealed interface LayoutStructure {
+    /**
+     * Returns a new structure, without the leaf structure at this [path]
+     */
+//    operator fun minus(path: LayoutPath): LayoutStructure {
+//
+//    }
     @Serializable
     data class Scrollable(
         val views: List<LayoutStructure>,
@@ -220,7 +231,6 @@ sealed interface LayoutStructure {
             @Composable
             override fun tabLabel(location: Location) {
                 val tasks: TasksViewModel = koinViewModel()
-                val dialogs: DialogViewModel = koinViewModel()
                 val title = tasks.watchProjectTitle(key.uuid).collectAsState(initial = null).value?.title
                 val icon = when {
                     //TODO reimplement
@@ -234,7 +244,7 @@ sealed interface LayoutStructure {
                     }
                     if (location == Location.Sidebar) {
                         BoxButton(
-                            onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
+                            onClick = { TODO("Open project remove dialog") /*dialogs.show(AppDialog.ConfirmDeleteProject(key))*/ },
                         ) {
                             Icon(TablerIcons.Outlined.X, "Delete project", tint = MaterialTheme.colorScheme.outline)
                         }

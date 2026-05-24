@@ -1,7 +1,6 @@
 package me.dvyy.tasks.app.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,32 +9,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import com.mohamedrejeb.compose.dnd.DragAndDropContainer
 import com.mohamedrejeb.compose.dnd.rememberDragAndDropState
-import me.dvyy.tasks.app.ui.dialogs.AppDialogs
-import me.dvyy.tasks.app.ui.dialogs.AppScreens
 import me.dvyy.tasks.app.ui.elements.AppDrawer
 import me.dvyy.tasks.app.ui.elements.AppTopBar
-import me.dvyy.tasks.app.ui.elements.LeftNavigationRail
-import me.dvyy.tasks.app.ui.elements.PlatformSpecificTopBarActions
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.PlatformSpecifics
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
-import me.dvyy.tasks.layout.ui.LayoutStructure
-import me.dvyy.tasks.layout.ui.LayoutViewModel
-import me.dvyy.tasks.layout.ui.layouts.Layout
-import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.utils.LocalDragAndDropState
@@ -51,63 +39,42 @@ fun App(
 ) = AppTheme {
     val ui = rememberAppUIState()
     val tasksViewModel = koinViewModel<TasksViewModel>()
-    val layoutViewModel = koinViewModel<LayoutViewModel>()
+
     CompositionLocalProvider(
         LocalUIState provides ui,
         LocalDragAndDropState provides rememberDragAndDropState(
             dragAfterLongPress = PlatformSpecifics.preferLongPressDrag
         ),
     ) {
+        val navController = rememberNavController()
+
         DragAndDropContainer(LocalDragAndDropState.current) {
             koinViewModel<SyncViewModel>() // Ensure sync inits at start
             val scrollBehavior = if (ui.isSmall)
                 TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
             else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-            AppDrawer {
+            AppDrawer(onNavigate = { navController.navigate(it) }) {
                 Scaffold(
                     topBar = { topBar(scrollBehavior) },
                     floatingActionButton = {
-                        TaskActionsToolbar()
+                        if (UI.isSmall) TaskActionsToolbar(onNavigateToTabSwitcher = { navController.navigate(TabSwitcher) })
                     },
                     floatingActionButtonPosition = FabPosition.Center,
                     snackbarHost = { SnackbarHost(koinInject<SnackbarHostState>()) },
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1),
                     modifier = contentModifier.fillMaxSize()
                 ) { paddingValues ->
-                    Box(
-                        Modifier
-                            .padding(paddingValues)
-                            .clickableWithoutRipple { tasksViewModel.selectTask(null) }
-                    ) {
-                        if (ui.isSmall) {
-                            val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Remove)
-                            Row {
-                                Layout(structure, onLayoutUpdate = { new ->
-                                    val main = (new as LayoutStructure.Split).first
-                                    layoutViewModel.setMainView(main)
-                                })
-                            }
-                        } else {
-                            val structure by layoutViewModel.desktopLayout.collectAsState(LayoutStructure.Remove)
-                            Row {
-                                LeftNavigationRail()
-                                TintedVerticalDivider(Modifier.padding(top = UI.tabHeight))
-                                Layout(structure, onLayoutUpdate = {
-                                    val main = ((it as? LayoutStructure.Split)?.first as? LayoutStructure.Split)?.second
-                                    if (main != null) layoutViewModel.setMainView(main)
-                                })
-                            }
-                        }
-                        Surface(
-                            Modifier.align(Alignment.TopEnd),
-                            tonalElevation = ui.elevation.lv1,
-                        ) {
-                            PlatformSpecificTopBarActions()
-                        }
+                    Box(Modifier.padding(paddingValues).clickableWithoutRipple { tasksViewModel.selectTask(null) }) {
+                        AppNavigation(navController) // Integration point for the NavHost
+//                        Surface(
+//                            Modifier.align(Alignment.TopEnd),
+//                            tonalElevation = ui.elevation.lv1,
+//                        ) {
+//                            PlatformSpecificTopBarActions()
+//                        }
                     }
                 }
-                AppScreens()
-                AppDialogs()
+//                AppScreens()
             }
         }
     }

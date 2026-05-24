@@ -86,9 +86,13 @@ fun BoxButton(
 
 
 @Composable
-fun ButtonRow(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) =
+fun ButtonRow(
+    modifier: Modifier = Modifier,
+    horizontalPadding: Dp = UI.padding.sm,
+    content: @Composable RowScope.() -> Unit,
+) =
     Row(
-        modifier.padding(horizontal = UI.padding.sm),
+        modifier.padding(horizontal = horizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)
     ) {

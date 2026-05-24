@@ -1,29 +1,28 @@
 package me.dvyy.tasks.auth.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.AppIcons
-import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
-import me.dvyy.tasks.auth.data.AuthResult
 import me.dvyy.tasks.auth.ui.LoginState.Error
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AuthDialog(
-    dialogs: DialogViewModel = koinViewModel(),
     auth: AuthViewModel = koinViewModel(),
 ) {
-    val scope = rememberCoroutineScope()
+    rememberCoroutineScope()
     var error by remember { mutableStateOf(false) }
 
     var serverUrl by remember { mutableStateOf("") }
@@ -31,9 +30,6 @@ fun AuthDialog(
     var password by remember { mutableStateOf("") }
     val loginState by auth.loginState.collectAsState()
 
-    fun dismiss() {
-        dialogs.dismiss()
-    }
 //    Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Login icon")
     OutlinedTextField(
         serverUrl,
@@ -79,14 +75,14 @@ fun AuthDialog(
         supportingText = { if (error) Text("Incorrect username or password") },
         label = { Text("Password") }
     )
-    FilledTonalButton(onClick = {
-        scope.launch {
-            if (auth.login(serverUrl, username, password) is AuthResult.Success)
-                dismiss()
-        }
-    }) {
-        Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Switch account")
-        Text(text = "Login")
-    }
+//    FilledTonalButton(onClick = {
+//        scope.launch {
+//            if (auth.login(serverUrl, username, password) is AuthResult.Success)
+//                dismiss()
+//        }
+//    }) {
+//        Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = "Switch account")
+//        Text(text = "Login")
+//    }
 //    TextButton(onClick = { dismiss() }) { Text("Dismiss") }
 }

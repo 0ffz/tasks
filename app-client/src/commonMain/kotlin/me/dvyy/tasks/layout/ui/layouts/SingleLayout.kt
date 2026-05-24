@@ -47,7 +47,7 @@ fun SingleLayout(
 //                        WeekViewActions()
                         ButtonRow {
                             structure.trailingOptions()
-                            BoxButton(onClick = { onLayoutUpdate(LayoutStructure.Remove) }) {
+                            BoxButton(onClick = { onLayoutUpdate(LayoutStructure.Empty) }) {
                                 Icon(TablerIcons.Outlined.X, "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }

@@ -5,26 +5,20 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,66 +27,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.elements.TopBarContainer
-import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.settings.ui.RowOrBox
-import me.dvyy.tasks.settings.ui.SettingsScreen
-import me.dvyy.tasks.settings.ui.SettingsTab
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
-import org.koin.compose.viewmodel.koinViewModel
 
-sealed interface AppScreen {
-    data class Settings(val tab: SettingsTab = SettingsTab.tabs.first()) : AppScreen
-}
 
 @Composable
-fun AppScreens(app: DialogViewModel = koinViewModel()) {
-    val ui = LocalUIState.current
-    val screenState by app.screen.collectAsState()
-    screenState ?: return
-
-    /*if (ui.isSmall) Surface {
-        Box(Modifier.systemBarsPadding()) {
-            Screens()
-        }
-    } else */Dialog(
-        onDismissRequest = { app.screen.update { null } },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Box(Modifier.fillMaxSize().clickableWithoutRipple { app.screen.update { null } })
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            val padding = if (ui.isSmall) 0.dp else 32.dp
-            Surface(
-                Modifier
-                    .widthIn(max = 1280.dp)
-                    .optional(!ui.isSmall) { heightIn(max = 1200.dp) }
-                    .optional(ui.isSmall) { padding(top = UI.tabHeight * 0.75f) }
-                    .fillMaxSize().padding(padding),
-                shape = MaterialTheme.shapes.medium,
-                shadowElevation = 1.dp
-            ) {
-                Screens()
-            }
-        }
-    }
+fun AppScreens() {
+    LocalUIState.current
+//    Dialog(
+//        onDismissRequest = { app.screen.update { null } },
+//        properties = DialogProperties(usePlatformDefaultWidth = false)
+//    ) {
+//        Box(Modifier.fillMaxSize().clickableWithoutRipple { app.screen.update { null } })
+//        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//            val padding = if (ui.isSmall) 0.dp else 32.dp
+//            Surface(
+//                Modifier
+//                    .widthIn(max = 1280.dp)
+//                    .optional(!ui.isSmall) { heightIn(max = 1200.dp) }
+//                    .optional(ui.isSmall) { padding(top = UI.tabHeight * 0.75f) }
+//                    .fillMaxSize().padding(padding),
+//                shape = MaterialTheme.shapes.medium,
+//                shadowElevation = 1.dp
+//            ) {
+//                Screens()
+//            }
+//        }
+//    }
 }
 
 @Composable
 private fun Screens(
-    app: DialogViewModel = koinViewModel(),
 ) {
-    val screenState by app.screen.collectAsState()
-    val screen = screenState ?: return
-    when (screen) {
-        is AppScreen.Settings -> SettingsScreen(screen.tab, onChangeTab = { app.showScreen(AppScreen.Settings(it)) })
-    }
+//    when (screen) {
+//        is AppScreen.Settings -> SettingsScreen(screen.tab, onChangeTab = { app.showScreen(AppScreen.Settings(it)) })
+//    }
 }
 
 @Composable
@@ -101,8 +75,7 @@ fun ScreenContainer(
     extraItems: @Composable RowScope.() -> Unit = {},
     utilityPane: (@Composable (setExpanded: (Boolean) -> Unit) -> Unit)? = null,
     utilityPaneText: String? = null,
-    app: DialogViewModel = koinViewModel(),
-    onClose: () -> Unit = { app.screen.update { null } },
+    onClose: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     val ui = UI

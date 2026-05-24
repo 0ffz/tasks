@@ -7,7 +7,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
 import me.dvyy.tasks.auth.ui.AuthDialog
 import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.auth.ui.LoginState
@@ -18,7 +17,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SettingsSyncTab(
     auth: AuthViewModel = koinViewModel(),
-    dialogs: DialogViewModel = koinViewModel(),
     sync: SyncViewModel = koinViewModel(),
 ) {
     val loginState by auth.loginState.collectAsState()

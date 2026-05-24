@@ -12,9 +12,6 @@ import dev.seyfarth.tablericons.outlined.Refresh
 import dev.seyfarth.tablericons.outlined.RefreshAlert
 import dev.seyfarth.tablericons.outlined.RefreshOff
 import me.dvyy.tasks.app.data.UpdateViewModel
-import me.dvyy.tasks.app.ui.dialogs.AppScreen
-import me.dvyy.tasks.app.ui.dialogs.DialogViewModel
-import me.dvyy.tasks.settings.ui.SettingsTab
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -41,13 +38,13 @@ fun SyncIndicator(
 @Composable
 fun UpdateIndicator(
     updates: UpdateViewModel = koinViewModel(),
-    dialogs: DialogViewModel = koinViewModel(),
 ) {
     val updateUrl by updates.updateUrl.collectAsState()
     if (updateUrl != null) {
         BoxButton(
             onClick = {
-                dialogs.showScreen(AppScreen.Settings(SettingsTab.Update))
+                TODO()
+//                dialogs.showScreen(AppScreen.Settings(SettingsTab.Update))
             },
         ) {
             Icon(TablerIcons.Outlined.CloudDownload, contentDescription = "App update available")

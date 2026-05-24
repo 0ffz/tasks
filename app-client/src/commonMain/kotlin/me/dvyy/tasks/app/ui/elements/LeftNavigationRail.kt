@@ -81,7 +81,7 @@ fun LeftNavigationRail(
                 }
                 UpdateIndicator()
                 SyncIndicator()
-                SettingsButton()
+                SettingsButton(navigateToSettings = {})
             }
         }
     }

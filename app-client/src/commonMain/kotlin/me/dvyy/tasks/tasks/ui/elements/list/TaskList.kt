@@ -1,16 +1,28 @@
 package me.dvyy.tasks.tasks.ui.elements.list
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
@@ -23,13 +35,18 @@ import me.dvyy.tasks.tasks.ui.elements.task.Task
 import me.dvyy.tasks.tasks.ui.elements.task.taskHighlight
 import me.dvyy.tasks.tasks.ui.elements.task.text.TaskTextField
 import me.dvyy.tasks.tasks.ui.state.ProjectState
-import me.dvyy.tasks.utils.*
+import me.dvyy.tasks.utils.CachedUpdate
+import me.dvyy.tasks.utils.Dragged
+import me.dvyy.tasks.utils.LocalDragAndDropState
+import me.dvyy.tasks.utils.UiLogger
+import me.dvyy.tasks.utils.keyboardAsState
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun Project(
     list: ListId,
     modifier: Modifier = Modifier,
-    tasksViewModel: TasksViewModel = viewModel(),
+    tasksViewModel: TasksViewModel = koinViewModel(),
     displayOptions: ProjectDisplayOptions = rememberProjectDisplayOptions(),
     state: ProjectState = tasksViewModel.rememberUpdatedProjectState(list),
 ) {
@@ -134,7 +151,7 @@ private fun Tasks(
 private fun TaskFromId(
     list: ListId,
     id: TaskId,
-    viewModel: TasksViewModel = viewModel(),
+    viewModel: TasksViewModel = koinViewModel(),
 ) {
     val task = remember(list, id) { viewModel.watchTask(list, id) }.collectAsState().value
     if (task == null) {

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.Settings
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.layout.ui.LayoutStructure
@@ -33,6 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppDrawer(
+    onNavigate: (Any) -> Unit,
     app: AppState = koinInject(),
     layout: LayoutViewModel = koinViewModel(),
     content: @Composable () -> Unit,
@@ -64,7 +66,7 @@ fun AppDrawer(
                             Spacer(Modifier.weight(1f))
                             UpdateIndicator()
                             SyncIndicator()
-                            SettingsButton()
+                            SettingsButton(navigateToSettings = { onNavigate(Settings) })
                         }
                     }
                 ) {
