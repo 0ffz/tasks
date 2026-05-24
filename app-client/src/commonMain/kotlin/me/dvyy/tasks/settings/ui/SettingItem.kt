@@ -1,7 +1,15 @@
 package me.dvyy.tasks.settings.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -9,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
@@ -39,9 +48,30 @@ fun BoxedList(
             color = MaterialTheme.colorScheme.onSurface.fade(0.8f),
         )
     }
-    Surface(tonalElevation = 0.75f.dp, shape = MaterialTheme.shapes.medium) {
+    Surface(tonalElevation = 0.75f.dp, shape = UI.shapes.rounded) {
         Column {
-            content()
+            SubcomposeLayout { constraints ->
+                val mainMeasurables = subcompose("content", content)
+                val dividerMeasurables = List(mainMeasurables.size - 1) {
+                    subcompose("divider$it") { TintedHorizontalDivider() }
+                }
+
+                val mainPlaceables = mainMeasurables.map { it.measure(constraints) }
+                val dividerPlaceables = dividerMeasurables.map { it.map { m -> m.measure(constraints) } }
+
+                val totalHeight = mainPlaceables.sumOf { it.height } + dividerPlaceables.flatten().sumOf { it.height }
+
+                layout(constraints.maxWidth, totalHeight) {
+                    var y = 0
+                    mainPlaceables.forEachIndexed { index, placeable ->
+                        placeable.placeRelative(0, y)
+                        y += placeable.height
+                        if (index < dividerPlaceables.size) {
+                            dividerPlaceables[index].forEach { d -> d.placeRelative(0, y); y += d.height }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -54,7 +84,7 @@ fun SettingToggle(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    SettingItem(name, description, isLast, Modifier.clickable { onCheckedChange(!checked) }) {
+    SettingItem(name, description, Modifier.clickable { onCheckedChange(!checked) }) {
         Switch(checked, onCheckedChange = onCheckedChange)
     }
 }
@@ -63,25 +93,29 @@ fun SettingToggle(
 fun SettingButton(
     name: String,
     description: String? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
     isLast: Boolean = false,
     onClick: () -> Unit,
 ) {
-    SettingItem(name, description, isLast, Modifier.clickable { onClick() }) {
-    }
+    SettingItem(name, description, Modifier.clickable { onClick() }, leadingIcon = leadingIcon) {}
 }
 
 @Composable
 fun SettingItem(
     name: String,
     description: String? = null,
-    isLast: Boolean = false,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    leadingIcon: (@Composable () -> Unit)? = null,
+    content: @Composable () -> Unit = {},
 ) {
     FlowRow(
         verticalArrangement = Arrangement.spacedBy(UI.padding.sm),
         modifier = modifier.padding(UI.padding.lg)
     ) {
+        if (leadingIcon != null) {
+            Box(modifier = Modifier.align(Alignment.CenterVertically)) { leadingIcon() }
+            Spacer(Modifier.width(UI.padding.md))
+        }
         Column(Modifier.weight(1f).align(Alignment.CenterVertically)) {
             Text(name, style = MaterialTheme.typography.titleMedium)
             description?.let {
@@ -95,7 +129,17 @@ fun SettingItem(
         Spacer(Modifier.width(UI.padding.sm))
         content()
     }
-    if (!isLast) TintedHorizontalDivider()
+}
+
+@Composable
+fun SettingsButtonGroup(
+    content: @Composable FlowRowScope.() -> Unit,
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(UI.padding.md)
+    ) {
+        content()
+    }
 }
 
 @Composable

@@ -5,7 +5,11 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.core.ui.PlatformSpecifics
@@ -100,6 +104,7 @@ class AppUIState(
     data class Shapes(
         val roundedCornerSize: Dp = 8.dp,
         val rounded: RoundedCornerShape = RoundedCornerShape(roundedCornerSize),
+        val roundedExtra: RoundedCornerShape = RoundedCornerShape(12.dp),
     )
 }
 

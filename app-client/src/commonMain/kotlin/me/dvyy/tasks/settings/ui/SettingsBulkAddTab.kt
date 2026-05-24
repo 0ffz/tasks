@@ -6,7 +6,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,43 +52,45 @@ fun SettingsBulkAddTab(
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = LocalTextStyle.current.copy(fontFamily = Fonts.monospaced()),
             )
-            TextButton(onClick = {
-                //TODO bulk add
+        }
+    }
+    SettingsButtonGroup {
+        PrimaryButton(onClick = {
+            //TODO bulk add
 //            tasks.bulkAdd(text.lines())
-                text = ""
-            }) {
-                Text("Done")
-            }
+            text = ""
+        }) {
+            Text("Done")
+        }
 
-            TextButton(onClick = {
-                takeout.startImport()
-            }, enabled = importProgress == null) {
-                Text("Import tasks")
+        SecondaryButton(onClick = {
+            takeout.startImport()
+        }, enabled = importProgress == null) {
+            Text("Import tasks")
+        }
+        importProgress?.let { progress ->
+            if (progress.total > 0) {
+                LinearProgressIndicator(
+                    progress = { progress.current.toFloat() / progress.total },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text("Importing ${progress.current} / ${progress.total}")
+            } else {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Text("Parsing file...")
             }
-            importProgress?.let { progress ->
-                if (progress.total > 0) {
-                    LinearProgressIndicator(
-                        progress = { progress.current.toFloat() / progress.total },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Text("Importing ${progress.current} / ${progress.total}")
-                } else {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    Text("Parsing file...")
-                }
-            }
+        }
 
-            TextButton(onClick = {
-                takeout.startExport()
-            }) {
-                Text("Export tasks")
-            }
+        SecondaryButton(onClick = {
+            takeout.startExport()
+        }) {
+            Text("Export tasks")
+        }
 
-            TextButton(onClick = {
-                takeout.migrateOldDatabase()
-            }) {
-                Text("Migrate tasks v1")
-            }
+        SecondaryButton(onClick = {
+            takeout.migrateOldDatabase()
+        }) {
+            Text("Migrate tasks v1")
         }
     }
 }

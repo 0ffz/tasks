@@ -18,7 +18,7 @@ import me.dvyy.syncengine.client.mutators.ActionQueue
 import me.dvyy.syncengine.client.sync.SyncClient
 import me.dvyy.syncengine.sync.SyncService
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
-import me.dvyy.tasks.app.data.UpdateRepository
+import me.dvyy.tasks.app.data.UpdateViewModel
 import me.dvyy.tasks.app.logging.ColoredFormatter
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.PreferencesViewModel
@@ -136,7 +136,6 @@ fun authModule() = module {
     singleOf(::AppHTTP)
     singleOf(::AuthAPI)
     singleOf(::AuthRepository)
-    singleOf(::UpdateRepository)
 }
 
 fun syncModule() = module(createdAtStart = true) {
@@ -156,4 +155,5 @@ fun viewModelsModule() = module {
     viewModelOf(::DialogViewModel)
     viewModelOf(::PreferencesViewModel)
     viewModelOf(::LayoutViewModel)
+    viewModelOf(::UpdateViewModel)
 }

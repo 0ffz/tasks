@@ -21,7 +21,7 @@ fun SettingsButton(
     val scope = rememberCoroutineScope()
     BoxButton(onClick = {
         scope.launch {
-            dialogs.showScreen(AppScreen.Settings)
+            dialogs.showScreen(AppScreen.Settings())
             app.drawerState.close()
         }
     }) {

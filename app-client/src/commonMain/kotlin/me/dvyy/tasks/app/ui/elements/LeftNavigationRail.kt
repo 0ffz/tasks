@@ -1,6 +1,13 @@
 package me.dvyy.tasks.app.ui.elements
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,6 +21,7 @@ import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.sync.ui.SyncIndicator
+import me.dvyy.tasks.sync.ui.UpdateIndicator
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonColumn
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -71,6 +79,7 @@ fun LeftNavigationRail(
                         }
                     }
                 }
+                UpdateIndicator()
                 SyncIndicator()
                 SettingsButton()
             }
