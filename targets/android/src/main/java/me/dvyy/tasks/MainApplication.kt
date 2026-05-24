@@ -2,26 +2,12 @@ package me.dvyy.tasks
 
 import android.app.Application
 import me.dvyy.tasks.app.createAppKoinApplication
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.component.KoinComponent
-import org.koin.core.context.startKoin
+import org.kodein.di.DI
+import org.kodein.di.DIAware
+import org.kodein.di.bindSingleton
 
-class MainApplication : Application(), KoinComponent {
-    override fun onCreate() {
-        super.onCreate()
-        startKoin(createAppKoinApplication(configure = {
-            androidLogger()
-            androidContext(this@MainApplication)
-        }))
-//        loadKoinModules(module {
-//            worker { params ->
-//                SyncWorker(
-//                    context = params.get(),
-//                    workerParams = params.get(),
-//                    syncClient = get()
-//                )
-//            }
-//        })
-    }
+class MainApplication : Application(), DIAware {
+    override val di: DI = createAppKoinApplication(DI.Module("android") {
+        bindSingleton { this@MainApplication.applicationContext }
+    })
 }

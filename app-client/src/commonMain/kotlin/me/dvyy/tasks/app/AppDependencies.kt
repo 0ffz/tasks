@@ -3,6 +3,7 @@ package me.dvyy.tasks.app
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import co.touchlab.kermit.LogWriter
@@ -36,12 +37,13 @@ import me.dvyy.tasks.takeout.takeoutModule
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.time.TimeViewModel
 import org.kodein.di.DI
+import org.kodein.di.LazyDI
 import org.kodein.di.bindSingleton
 import org.kodein.di.bindSingletonOf
 import org.kodein.di.delegate
 import org.kodein.di.instance
 
-fun createAppKoinApplication(vararg overrides: DI.Module) = DI {
+fun createAppKoinApplication(vararg overrides: DI.Module): LazyDI = DI.lazy {
     import(appModule())
     importAll(*overrides)
     onReady {
@@ -91,7 +93,7 @@ class TrackingLogWriter(
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
         if (!enabled) return
         val annotatedMessage = buildAnnotatedString {
-            withStyle(style = androidx.compose.ui.text.SpanStyle(color = severityToColor(severity))) {
+            withStyle(style = SpanStyle(color = severityToColor(severity))) {
                 append(severityToString(severity))
                 if (tag.isNotEmpty()) append(" [$tag]")
                 append(" ")
@@ -99,7 +101,7 @@ class TrackingLogWriter(
             }
             throwable?.let {
                 append("\n")
-                withStyle(style = androidx.compose.ui.text.SpanStyle(color = Color.Red)) {
+                withStyle(style = SpanStyle(color = Color.Red)) {
                     append(it.stackTraceToString())
                 }
             }

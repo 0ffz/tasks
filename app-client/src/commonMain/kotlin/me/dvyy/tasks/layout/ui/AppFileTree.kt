@@ -3,7 +3,9 @@ package me.dvyy.tasks.layout.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -103,5 +105,6 @@ fun AppFileTree() = Column(
         ) {
             Text("Create project", maxLines = 1)
         }
+        Spacer(Modifier.height(UI.tabHeight * 1.5f))
     }
 }

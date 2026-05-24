@@ -19,6 +19,7 @@ dependencies {
 //    implementation(libs.koin.androidx.workmanager)
     implementation(miaLibs.kermit)
     implementation(libs.androidx.startup.runtime)
+    implementation(libs.kodein.di.framework.android)
     implementation(libs.androidx.work.runtime.ktx)
 }
 

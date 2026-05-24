@@ -9,18 +9,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.mohamedrejeb.compose.dnd.DragAndDropContainer
 import com.mohamedrejeb.compose.dnd.rememberDragAndDropState
 import me.dvyy.tasks.app.ui.elements.AppDrawer
 import me.dvyy.tasks.app.ui.elements.AppTopBar
+import me.dvyy.tasks.app.ui.elements.PlatformSpecificTopBarActions
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.PlatformSpecifics
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
@@ -50,31 +51,30 @@ fun App(
 
         DragAndDropContainer(LocalDragAndDropState.current) {
             rememberViewModel<SyncViewModel>() // Ensure sync inits at start
-            val scrollBehavior = if (ui.isSmall)
-                TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-            else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-            AppDrawer(onNavigate = { navController.navigate(it) }) {
-                Scaffold(
-                    topBar = { topBar(scrollBehavior) },
-                    floatingActionButton = {
-                        if (UI.isSmall) TaskActionsToolbar(onNavigateToTabSwitcher = { navController.navigate(TabSwitcher) })
-                    },
-                    floatingActionButtonPosition = FabPosition.Center,
-                    snackbarHost = {
-                        val host by rememberInstance<SnackbarHostState>()
-                        SnackbarHost(host)
-                    },
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1),
-                    modifier = contentModifier.fillMaxSize()
-                ) { paddingValues ->
+            Scaffold(
+                floatingActionButton = {
+                    if (UI.isSmall) TaskActionsToolbar(
+                        onNavigateToTabSwitcher = { navController.navigate(TabSwitcher) },
+                        onNavigate = { navController.navigate(it) }
+                    )
+                },
+                floatingActionButtonPosition = FabPosition.Center,
+                snackbarHost = {
+                    val host by rememberInstance<SnackbarHostState>()
+                    SnackbarHost(host)
+                },
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1),
+                modifier = contentModifier.fillMaxSize()
+            ) { paddingValues ->
+                AppDrawer {
                     Box(Modifier.padding(paddingValues).clickableWithoutRipple { tasksViewModel.selectTask(null) }) {
-                        AppNavigation(navController) // Integration point for the NavHost
-//                        Surface(
-//                            Modifier.align(Alignment.TopEnd),
-//                            tonalElevation = ui.elevation.lv1,
-//                        ) {
-//                            PlatformSpecificTopBarActions()
-//                        }
+                        AppNavigation(navController, topBar) // Integration point for the NavHost
+                        Surface(
+                            Modifier.align(Alignment.TopEnd),
+                            tonalElevation = ui.elevation.lv1,
+                        ) {
+                            PlatformSpecificTopBarActions()
+                        }
                     }
                 }
 //                AppScreens()

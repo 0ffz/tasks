@@ -2,7 +2,13 @@ package me.dvyy.tasks.app.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -27,8 +33,12 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import me.dvyy.tasks.app.createAppKoinApplication
 import me.dvyy.tasks.app.data.TopbarViewModel
+import me.dvyy.tasks.app.ui.elements.AppIcon
+import me.dvyy.tasks.app.ui.elements.PlatformSpecificTopBarActions
+import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
 import me.dvyy.tasks.app_client.generated.resources.Res
 import me.dvyy.tasks.app_client.generated.resources.icon
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 import org.jetbrains.compose.resources.painterResource
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
@@ -88,11 +98,25 @@ fun ApplicationScope.AppDesktop(vararg overrides: DI.Module) = withDI(createAppK
                 Box(Modifier.border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RectangleShape)) {
                     App(
                         topBar = {
-//                    DesktopTopBar()
-                            val isFloating by rememberViewModel<TopbarViewModel>().value.floatingWindowSize.collectAsState()
-                            LaunchedEffect(isFloating) {
-                                resizable = isFloating == null
+                            Column {
+                                ButtonRow {
+                                    if (UI.isSmall) {
+                                        Spacer(Modifier.width(UI.size.sm))
+                                        AppIcon()
+                                    }
+                                    PlatformTopBarContainer(Modifier.fillMaxWidth().height(UI.tabHeight)) {
+                                        ButtonRow {
+                                            Spacer(Modifier.weight(1f))
+                                            PlatformSpecificTopBarActions()
+                                        }
+                                    }
+                                }
+                                val isFloating by rememberViewModel<TopbarViewModel>().value.floatingWindowSize.collectAsState()
+                                LaunchedEffect(isFloating) {
+                                    resizable = isFloating == null
+                                }
                             }
+                            HorizontalDivider()
                         }
                     )
                 }

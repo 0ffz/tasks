@@ -76,6 +76,7 @@ syncengine-core = { module = "me.dvyy.syncengine:core", version.ref = "syncengin
 syncengine-json-actions = { module = "me.dvyy.syncengine:json-actions", version.ref = "syncengine" }
 syncengine-server = { module = "me.dvyy.syncengine:server", version.ref = "syncengine" }
 kodein-di-framework-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodein" }
+kodein-di-framework-android = { module = "org.kodein.di:kodein-di-framework-android-core", version.ref = "kodein" }
 kodein-di = { module = "org.kodein.di:kodein-di", version.ref = "kodein" }
 
 [plugins]

@@ -7,13 +7,14 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import ca.gosyer.appdirs.impl.attachAppDirs
-import me.dvyy.tasks.app.createAppKoinApplication
 import me.dvyy.tasks.app.ui.AppAndroid
 import org.kodein.di.DI
 import org.kodein.di.DIAware
+import org.kodein.di.android.closestDI
 
 class MainActivity : ComponentActivity(), DIAware {
-    override val di: DI = createAppKoinApplication()
+    override val di: DI by closestDI()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(

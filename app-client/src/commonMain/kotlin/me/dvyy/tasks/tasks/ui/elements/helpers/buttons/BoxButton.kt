@@ -89,12 +89,13 @@ fun BoxButton(
 fun ButtonRow(
     modifier: Modifier = Modifier,
     horizontalPadding: Dp = UI.padding.sm,
+    spacedBy: Dp = UI.padding.sm,
     content: @Composable RowScope.() -> Unit,
 ) =
     Row(
         modifier.padding(horizontal = horizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(UI.padding.sm)
+        horizontalArrangement = Arrangement.spacedBy(spacedBy)
     ) {
         CompositionLocalProvider(LocalBoxButtonProps provides BoxButtonProps(horizontalPadding = 0.dp)) {
             content()

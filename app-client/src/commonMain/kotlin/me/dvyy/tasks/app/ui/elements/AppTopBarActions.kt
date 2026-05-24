@@ -5,9 +5,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.seyfarth.tablericons.TablerIcons
-import dev.seyfarth.tablericons.outlined.ArrowBack
-import dev.seyfarth.tablericons.outlined.ArrowForward
 import dev.seyfarth.tablericons.outlined.CalendarEvent
+import dev.seyfarth.tablericons.outlined.ChevronLeft
+import dev.seyfarth.tablericons.outlined.ChevronRight
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.time.TimeViewModel
 import org.kodein.di.compose.viewmodel.rememberViewModel
@@ -31,9 +31,9 @@ fun WeekViewActions() {
         Icon(TablerIcons.Outlined.CalendarEvent, contentDescription = "Today")
     }
     BoxButton(onClick = { time.goToPreviousWeek() }) {
-        Icon(TablerIcons.Outlined.ArrowBack, contentDescription = "Previous")
+        Icon(TablerIcons.Outlined.ChevronLeft, contentDescription = "Previous")
     }
     BoxButton(onClick = { time.goToNextWeek() }) {
-        Icon(TablerIcons.Outlined.ArrowForward, contentDescription = "Next")
+        Icon(TablerIcons.Outlined.ChevronRight, contentDescription = "Next")
     }
 }

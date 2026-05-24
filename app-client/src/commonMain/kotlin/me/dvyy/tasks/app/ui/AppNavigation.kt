@@ -1,7 +1,10 @@
 package me.dvyy.tasks.app.ui
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
@@ -9,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -60,11 +66,14 @@ sealed interface AppDialog {
 @Composable
 fun AppNavigation(
     navController: NavHostController,
+    topBar: @Composable (TopAppBarScrollBehavior) -> Unit,
 ) {
     val layoutViewModel: LayoutViewModel by rememberViewModel()
     NavHost(
         navController = navController,
-        startDestination = Home
+        startDestination = Home,
+        enterTransition = { fadeIn() },
+        exitTransition = { fadeOut() }
     ) {
         composable<Home> {
             val tab by layoutViewModel.activeTab.collectAsState()
@@ -95,14 +104,22 @@ fun AppNavigation(
                             tonalElevation = UI.elevation.lv1
                         ) { AppFileTree() }
                     },
+                    firstEnabled = !UI.isSmall,
                     second = {
-                        Layout(tab, onLayoutUpdate = { new ->
-                            layoutViewModel.replaceTab(new)
-                        })
+                        Column {
+                            val scrollBehavior = if (UI.isSmall)
+                                TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+                            else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                            val layoutViewModel: LayoutViewModel by rememberViewModel()
+
+                            topBar(scrollBehavior)
+                            Layout(tab, onLayoutUpdate = { new ->
+                                layoutViewModel.replaceTab(new)
+                            })
+                        }
                     }
                 )
             }
-//            }
         }
         composable<TabSwitcher> {
             val active by layoutViewModel.selectedTab.collectAsState()
