@@ -8,7 +8,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
 import me.dvyy.tasks.app.ui.UI
@@ -80,7 +89,7 @@ class LayoutViewModel(
     init {
         viewModelScope.launch {
             openFilesFlow.collectLatest { (content) ->
-                openTab(content)
+                replaceActive(content)
             }
         }
         layoutButtonLocations.update {
@@ -102,6 +111,13 @@ class LayoutViewModel(
     fun openTab(layout: LayoutStructure) {
         tabs.update {
             it.withTab(layout)
+        }
+    }
+
+    fun replaceActive(layout: LayoutStructure) {
+        tabs.update {
+            val replace = it.tabs[it.selected] is LayoutStructure.Single
+            it.withTab(layout, atIndex = it.selected, replace = replace)
         }
     }
 
