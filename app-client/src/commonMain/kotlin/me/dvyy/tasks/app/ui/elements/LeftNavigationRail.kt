@@ -15,7 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.update
+import me.dvyy.tasks.app.ui.Settings
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
 import me.dvyy.tasks.layout.ui.LayoutStructure
@@ -37,7 +37,9 @@ fun TopBarContainer(modifier: Modifier = Modifier, content: @Composable () -> Un
     })
 
 @Composable
-fun LeftNavigationRail() {
+fun LeftNavigationRail(
+    onNavigate: (Any) -> Unit,
+) {
     val layout: LayoutViewModel by rememberViewModel()
     Surface(
         Modifier.fillMaxHeight().width(UI.sideBarWidth),
@@ -52,36 +54,44 @@ fun LeftNavigationRail() {
                     AppIcon(Modifier.size(28.dp))
                 }
             }
-
-            val buttons by layout.layoutButtonLocations.collectAsState()
-            val selected by layout.leftSidebar.collectAsState()
             ButtonColumn {
-                buttons.left.forEach { button ->
-                    val isSelected = button.structure == selected
-                    LayoutToggleButton(button, isSelected) {
-                        layout.setLeftSidebar(
-                            if (isSelected) LayoutStructure.Remove
-                            else button.structure
-                        )
-                    }
-                }
+                NavigationButtons(spacer = { Spacer(Modifier.weight(1f)) }, onNavigate)
             }
-            Spacer(Modifier.weight(1f))
-            val bottomSelected by layout.bottomBar.collectAsState()
-            ButtonColumn {
-                buttons.bottom.forEach { button ->
-                    val isSelected = button.structure == bottomSelected
-                    LayoutToggleButton(button, isSelected) {
-                        layout.bottomBar.update {
-                            if (isSelected) LayoutStructure.Remove
-                            else button.structure
-                        }
-                    }
-                }
-                UpdateIndicator()
-                SyncIndicator()
-                SettingsButton(navigateToSettings = {})
-            }
+            //            ButtonColumn {
+//                buttons.bottom.forEach { button ->
+//                    val isSelected = button.structure == bottomSelected
+//                    LayoutToggleButton(button, isSelected) {
+//                        layout.bottomBar.update {
+//                            if (isSelected) LayoutStructure.Remove
+//                            else button.structure
+//                        }
+//                    }
+//                }
+//            }
         }
     }
+}
+
+@Composable
+fun NavigationButtons(
+    spacer: @Composable () -> Unit,
+    onNavigate: (Any) -> Unit,
+) {
+    val layout: LayoutViewModel by rememberViewModel()
+    val buttons by layout.layoutButtonLocations.collectAsState()
+    val selected by layout.mobileLeftSidebar.collectAsState()
+    buttons.left.forEach { button ->
+        val isSelected = button.structure == selected
+        LayoutToggleButton(button, isSelected) {
+            layout.setLeftSidebar(
+                if (isSelected) LayoutStructure.Remove
+                else button.structure
+            )
+        }
+    }
+    spacer()
+    UpdateIndicator()
+    SyncIndicator()
+    SettingsButton(navigateToSettings = { onNavigate(Settings) })
+
 }

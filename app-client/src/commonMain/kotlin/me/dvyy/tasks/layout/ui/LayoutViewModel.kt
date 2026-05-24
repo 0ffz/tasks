@@ -45,7 +45,7 @@ class LayoutViewModel(
     //    val tabs = prefs.serializable<LayoutStructure.Tabbed>(viewModelScope, "tabs", LayoutStructure.Tabbed(emptyList()))
     val tabs = MutableStateFlow<List<LayoutStructure>>(listOf(LayoutStructure.Empty))
     val selectedTab = MutableStateFlow(0)
-    val activeLayout = viewModelScope.combinedStateFlow(selectedTab, tabs) { selected, tabs ->
+    val activeTab = viewModelScope.combinedStateFlow(selectedTab, tabs) { selected, tabs ->
         tabs.getOrNull(selected) ?: LayoutStructure.Empty
     }
 //    val mainView = tabs.map { it.tabs.getOrNull(it.selected) ?: it.tabs.firstOrNull() ?: LayoutStructure.Empty }
@@ -75,7 +75,7 @@ class LayoutViewModel(
     init {
         viewModelScope.launch {
             openFilesFlow.collectLatest { (content) ->
-                setActiveLayout(content)
+                replaceTab(content)
             }
         }
         layoutButtonLocations.update {
@@ -90,7 +90,19 @@ class LayoutViewModel(
         openFilesChannel.trySend(file)
     }
 
+    private val _activeLayout = MutableStateFlow<LayoutStructure?>(null)
+
     fun setActiveLayout(layout: LayoutStructure) {
+        _activeLayout.update { layout }
+    }
+
+    fun switchTab(index: Int) = selectedTab.update { index }
+
+    fun closeTab(index: Int) = tabs.update {
+        if (index in it.indices) it.toMutableList().apply { removeAt(index) } else it
+    }
+
+    fun replaceTab(layout: LayoutStructure) {
         tabs.update { currentTabs ->
             val index = selectedTab.value
             if (index in currentTabs.indices) {
@@ -99,12 +111,6 @@ class LayoutViewModel(
                 currentTabs + layout
             }
         }
-    }
-
-    fun switchTab(index: Int) = selectedTab.update { index }
-
-    fun closeTab(index: Int) = tabs.update {
-        if (index in it.indices) it.toMutableList().apply { removeAt(index) } else it
     }
 
     fun openTab(layout: LayoutStructure): Int {
@@ -133,43 +139,4 @@ class LayoutViewModel(
     fun setLeftSidebar(layout: LayoutStructure.Single) {
         _leftSidebar.update { layout }
     }
-
-//    val mobileLayout = combine(mainView, bottomBar) { main, bottom ->
-//        LayoutStructure.Split(
-//            first = main,
-//            second = bottom,
-//            orientation = Orientation.Vertical,
-//            secondEnabled = bottom != LayoutStructure.Remove,
-//            mergeWhenEmpty = false,
-//        )
-//    }
-//    val desktopLayout = combine(leftSidebar, rightSidebar, bottomBar, mainView) { left, right, bottom, main ->
-//        LayoutStructure.Split(
-//            first = LayoutStructure.Split(
-//                first = LayoutStructure.Tabbed(
-//                    listOf(left),
-//                    fullWidth = true,
-//                    selectable = false,
-//                ).wrap {
-//                    androidx.compose.material3.Surface(
-//                        tonalElevation = UI.elevation.lv1,
-//                        modifier = Modifier.fillMaxSize()
-//                    ) { it() }
-//                },
-//                second = main,
-//                split = SplitAmount.Fixed(200.dp),
-//                orientation = Orientation.Horizontal,
-//                firstEnabled = left != LayoutStructure.Remove,
-//                mergeWhenEmpty = false,
-//            ),
-//            second = bottom,
-//            orientation = Orientation.Vertical,
-//            mergeWhenEmpty = false,
-//            secondEnabled = bottom != LayoutStructure.Remove,
-//        )
-//    }
-
-//    val topRow = desktopLayout
-//        .map { findTopRow(it) }
-//        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 }

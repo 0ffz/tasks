@@ -1,5 +1,6 @@
 package me.dvyy.tasks.app.ui
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,9 +26,12 @@ import androidx.navigation.compose.dialog
 import kotlinx.serialization.Serializable
 import me.dvyy.tasks.app.ui.elements.LeftNavigationRail
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
+import me.dvyy.tasks.layout.ui.AppFileTree
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.layout.ui.SplitAmount
 import me.dvyy.tasks.layout.ui.layouts.Layout
+import me.dvyy.tasks.layout.ui.layouts.Split
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.settings.ui.SettingsScreen
@@ -60,7 +67,7 @@ fun AppNavigation(
         startDestination = Home
     ) {
         composable<Home> {
-            val tab by layoutViewModel.activeLayout.collectAsState()
+            val tab by layoutViewModel.activeTab.collectAsState()
 //            if (UI.isSmall) {
 ////                val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Remove)
 //                Row {
@@ -74,14 +81,26 @@ fun AppNavigation(
 //                val structure by layoutViewModel.desktopLayout.collectAsState(LayoutStructure.Remove)
             Row {
                 if (!UI.isSmall) {
-                    LeftNavigationRail()
+                    LeftNavigationRail(onNavigate = { navController.navigate(it) })
                     TintedVerticalDivider(Modifier.padding(top = UI.tabHeight))
                 }
-                Layout(tab, onLayoutUpdate = { new ->
-                    layoutViewModel.setActiveLayout(new)
-//                        val main = ((it as? LayoutStructure.Split)?.first as? LayoutStructure.Split)?.second
-//                        if (main != null) layoutViewModel.setMainView(main)
-                })
+
+                var splitAmount: SplitAmount by remember { mutableStateOf(SplitAmount.Fixed(200.dp)) }
+                Split(
+                    splitAmount,
+                    onSplitAmountChange = { splitAmount = it },
+                    orientation = Orientation.Horizontal,
+                    first = {
+                        Surface(
+                            tonalElevation = UI.elevation.lv1
+                        ) { AppFileTree() }
+                    },
+                    second = {
+                        Layout(tab, onLayoutUpdate = { new ->
+                            layoutViewModel.replaceTab(new)
+                        })
+                    }
+                )
             }
 //            }
         }

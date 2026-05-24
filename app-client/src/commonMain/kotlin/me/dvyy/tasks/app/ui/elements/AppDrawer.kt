@@ -1,7 +1,6 @@
 package me.dvyy.tasks.app.ui.elements
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -14,21 +13,16 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.Settings
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
-import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.layouts.Layout
-import me.dvyy.tasks.sync.ui.SyncIndicator
-import me.dvyy.tasks.sync.ui.UpdateIndicator
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.viewmodel.rememberViewModel
 
@@ -51,22 +45,8 @@ fun AppDrawer(
                     containerColor = Color.Transparent,
                     bottomBar = {
                         HorizontalDivider()
-                        Row(Modifier.padding(UI.padding.sm)) {
-                            val buttons by layout.layoutButtonLocations.collectAsState()
-                            val selected by layout.mobileLeftSidebar.collectAsState()
-                            buttons.left.forEach { button ->
-                                val isSelected = button.structure == selected
-                                LayoutToggleButton(button, isSelected) {
-                                    layout.setLeftSidebar(
-                                        if (isSelected) LayoutStructure.Remove
-                                        else button.structure
-                                    )
-                                }
-                            }
-                            Spacer(Modifier.weight(1f))
-                            UpdateIndicator()
-                            SyncIndicator()
-                            SettingsButton(navigateToSettings = { onNavigate(Settings) })
+                        ButtonRow {
+                            NavigationButtons(spacer = { Spacer(Modifier.weight(1f)) }, onNavigate)
                         }
                     }
                 ) {

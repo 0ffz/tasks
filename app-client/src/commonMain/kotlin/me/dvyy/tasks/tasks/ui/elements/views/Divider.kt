@@ -8,8 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -22,10 +30,10 @@ import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 @Composable
 fun Divider(
     orientation: Orientation = Orientation.Vertical,
+    modifier: Modifier = Modifier,
     toggleable: Boolean = false,
     onToggle: (expanded: Boolean) -> Unit = {},
     applyHoverCursor: Boolean = true,
-    modifier: Modifier = Modifier,
 ) {
     val ver = orientation == Orientation.Vertical
     var expanded by remember { mutableStateOf(true) }
