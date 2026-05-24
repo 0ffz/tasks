@@ -20,7 +20,7 @@ class UpdateViewModel(
 ) : ViewModel() {
     private val apiUrl = "https://api.github.com/repos/0ffz/tasks/releases"
     private val _latestVersion = MutableStateFlow<String?>(null)
-    private val _latestVersionUrl = MutableStateFlow<String?>("test")
+    private val _latestVersionUrl = MutableStateFlow<String?>(null)
     val latestVersion = _latestVersion.asStateFlow()
     val updateUrl = _latestVersionUrl.asStateFlow()
     val currentVersion get() = BuildKonfig.version

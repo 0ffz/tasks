@@ -10,7 +10,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +69,7 @@ fun ProjectHeader(
                 }
                 if (width > 100.dp) Text(
                     text,
-                    Modifier.weight(1f, true).alignByBaseline(),
+                    Modifier.weight(1f, true),
                     style = monthTextStyle,
                     fontWeight = FontWeight.Bold,
                     color = color,
@@ -76,10 +80,9 @@ fun ProjectHeader(
                     style = weekdayTextStyle,
                     maxLines = 1,
                     overflow = TextOverflow.Visible,
-                    modifier = (if (width > 100.dp) Modifier else Modifier.weight(1f, true)).alignByBaseline(),
+                    modifier = (if (width > 100.dp) Modifier else Modifier.weight(1f, true)),
                     color = colorFaded
                 )
-
             }
 
             is ProjectHeaderState.Named -> {
