@@ -1,10 +1,9 @@
 package me.dvyy.tasks.takeout
 
-import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bindSingletonOf
 
-fun takeoutModule() = module {
-    singleOf(::TakeoutRepository)
-    viewModelOf(::TakeoutViewModel)
+fun takeoutModule() = DI.Module("takeout") {
+    bindSingletonOf(::TakeoutRepository)
+    bindSingletonOf(::TakeoutViewModel)
 }

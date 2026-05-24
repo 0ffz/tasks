@@ -7,14 +7,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.window.WindowScope
 import me.dvyy.tasks.app.data.TopbarViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 fun WindowScope.BetterWindowDraggableArea(
     modifier: Modifier = Modifier,
-    viewModel: TopbarViewModel = koinViewModel(),
     content: @Composable () -> Unit = {},
 ) {
+    val viewModel: TopbarViewModel by rememberViewModel()
+
     WindowDraggableArea(modifier.pointerInput(Unit) {
         detectDragGestures(onDragStart = { viewModel.ensureFloating() }) { _, _ -> }
     }) {

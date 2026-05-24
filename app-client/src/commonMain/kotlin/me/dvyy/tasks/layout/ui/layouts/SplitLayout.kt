@@ -36,7 +36,7 @@ import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.SplitAmount
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.tasks.ui.elements.views.Divider
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
@@ -44,8 +44,8 @@ import kotlin.time.Duration.Companion.seconds
 fun SplitLayout(
     structure: LayoutStructure.Split,
     onLayoutUpdate: (LayoutStructure) -> Unit = {},
-    layoutViewModel: LayoutViewModel = koinViewModel(),
 ) {
+    val layoutViewModel: LayoutViewModel by rememberViewModel()
     val ui = LocalUIState.current
     val hor = structure.orientation == Orientation.Horizontal
     var size by remember { mutableStateOf(0) }

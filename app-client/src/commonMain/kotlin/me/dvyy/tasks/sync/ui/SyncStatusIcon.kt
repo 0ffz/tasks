@@ -13,12 +13,11 @@ import dev.seyfarth.tablericons.outlined.RefreshAlert
 import dev.seyfarth.tablericons.outlined.RefreshOff
 import me.dvyy.tasks.app.data.UpdateViewModel
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
-fun SyncIndicator(
-    sync: SyncViewModel = koinViewModel(),
-) {
+fun SyncIndicator() {
+    val sync: SyncViewModel by rememberViewModel()
     val state by sync.syncState.collectAsState()
     val icon = when (state) {
         is SyncUiState.Error -> TablerIcons.Outlined.RefreshAlert
@@ -36,9 +35,8 @@ fun SyncIndicator(
 }
 
 @Composable
-fun UpdateIndicator(
-    updates: UpdateViewModel = koinViewModel(),
-) {
+fun UpdateIndicator() {
+    val updates: UpdateViewModel by rememberViewModel()
     val updateUrl by updates.updateUrl.collectAsState()
     if (updateUrl != null) {
         BoxButton(

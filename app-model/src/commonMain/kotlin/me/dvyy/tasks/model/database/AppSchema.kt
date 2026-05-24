@@ -1,6 +1,10 @@
 package me.dvyy.tasks.model.database
 
-import me.dvyy.syncengine.jsonactions.actions.*
+import me.dvyy.syncengine.jsonactions.actions.DeleteEntityAction
+import me.dvyy.syncengine.jsonactions.actions.DeleteRowAction
+import me.dvyy.syncengine.jsonactions.actions.JsonCreateAction
+import me.dvyy.syncengine.jsonactions.actions.JsonPatchAction
+import me.dvyy.syncengine.jsonactions.actions.JsonSetAction
 import me.dvyy.syncengine.jsonactions.reducers.jsonReducers
 import me.dvyy.syncengine.reducers.Reducers
 import me.dvyy.syncengine.reducers.reducers
@@ -12,8 +16,10 @@ import me.dvyy.syncengine.schema.view
 import me.dvyy.tasks.model.database.actions.CreateTaskAction
 import me.dvyy.tasks.model.database.actions.MoveChildAction
 import me.dvyy.tasks.model.database.reducers.taskReducers
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bindSingleton
+import org.kodein.di.bindSingletonOf
+import org.kodein.di.instance
 
 val NotesTable = jsonTable("notes") {
     index("parent", "data ->> 'parent'")
@@ -57,12 +63,12 @@ val AppSchema = schema(
     }
 )
 
-fun commonSyncModule() = module {
-    singleOf(::AppQueries)
-    single<Schema> { AppSchema }
-    single<Reducers> {
+fun commonSyncModule() = DI.Module("common sync") {
+    bindSingletonOf(::AppQueries)
+    bindSingleton<Schema> { AppSchema }
+    bindSingleton<Reducers> {
         reducers {
-            val queries = get<AppQueries>()
+            val queries = instance<AppQueries>()
             jsonReducers(listOf(queries.tasks, queries.childOf.queries))
             taskReducers(queries)
         }

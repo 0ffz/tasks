@@ -20,6 +20,7 @@ tasks.withType<ComposeHotRun>().configureEach {
 
 dependencies {
     implementation(libs.slf4j)
+    implementation(libs.kodein.di)
     implementation(miaLibs.koin.core)
     implementation(project(":app-client"))
     implementation(project(":app-model"))

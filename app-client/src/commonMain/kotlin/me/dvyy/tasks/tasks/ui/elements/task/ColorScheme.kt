@@ -10,7 +10,7 @@ import kotlinx.serialization.Transient
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.model.Highlight
 import me.dvyy.tasks.model.Highlight.Type
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Stable
 interface ColorScheme {
@@ -114,7 +114,7 @@ val DefaultColorScheme = EspressoLibreColorScheme
 val Highlight.color: Color
     @Composable
     get() {
-        val prefs = koinViewModel<PreferencesViewModel>()
+        val prefs: PreferencesViewModel by rememberViewModel()
         val theme by prefs.deserializedTheme.collectAsState()
         if (this == Highlight.Unmarked) return Color.Transparent
         val alpha = if (isLight || theme.lightAndDark) 1f else 0.5f

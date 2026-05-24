@@ -89,9 +89,6 @@ kotlin {
                 implementation(libs.navigation.compose)
 //                implementation(libs.lifecycle.viewmodel)
                 implementation(libs.lifecycle.viewmodel.compose)
-                implementation(miaLibs.koin.compose)
-                implementation(miaLibs.koin.compose.viewmodel)
-                implementation("io.insert-koin:koin-compose-viewmodel-navigation:${miaLibs.versions.koin.get()}")
 //                implementation(libs.kotlin.result)
                 implementation(miaLibs.kermit)
                 implementation(libs.emoji.compose)
@@ -101,6 +98,8 @@ kotlin {
                 api(libs.syncengine.client)
                 api(miaLibs.sqlite.kt)
                 api(miaLibs.androidx.collection)
+                api(libs.kodein.di)
+                api(libs.kodein.di.framework.compose)
             }
         }
         val jvmMain by creating {
@@ -124,7 +123,7 @@ kotlin {
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.ui)
                 implementation(libs.androidx.activity.compose)
-                implementation(miaLibs.koin.android)
+//                implementation(miaLibs.koin.android)
             }
         }
 

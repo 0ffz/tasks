@@ -29,8 +29,8 @@ import kotlinx.coroutines.launch
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
-import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.rememberInstance
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 //TODO test out vs inline toolbar on touchscreen
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -38,9 +38,9 @@ import org.koin.compose.viewmodel.koinViewModel
 fun TaskActionsToolbar(
     modifier: Modifier = Modifier,
     onNavigateToTabSwitcher: () -> Unit,
-    tasksViewModel: TasksViewModel = koinViewModel(),
-    app: AppState = koinInject(),
 ) {
+    val tasksViewModel: TasksViewModel by rememberViewModel()
+    val app: AppState by rememberInstance()
     var expanded by remember { mutableStateOf(true) }
     val selectedTask by tasksViewModel.selectedTask.collectAsState()
     val scope = rememberCoroutineScope()

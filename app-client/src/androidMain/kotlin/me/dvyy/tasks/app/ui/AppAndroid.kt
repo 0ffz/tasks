@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,14 +21,13 @@ fun AppAndroid() {
 
 
 @Composable
-fun TaskDeselectHandler(
-    viewModel: TasksViewModel = koinViewModel(),
-) {
-    val selectedTask by viewModel.selectedTask.collectAsState()
+fun TaskDeselectHandler() {
+    val tasks: TasksViewModel by rememberViewModel()
+    val selectedTask by tasks.selectedTask.collectAsState()
     val focusManager = LocalFocusManager.current
     BackHandler {
         if (selectedTask != null) {
-            viewModel.selectTask(null)
+            tasks.selectTask(null)
             focusManager.clearFocus()
         }
     }

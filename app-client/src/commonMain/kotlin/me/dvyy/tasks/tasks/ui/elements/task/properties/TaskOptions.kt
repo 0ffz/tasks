@@ -31,7 +31,7 @@ import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 import me.dvyy.tasks.tasks.ui.state.TaskState
 import me.dvyy.tasks.time.TimeViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 /**
  * Options for modifying a task.
@@ -41,8 +41,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun TaskOptions(
     task: TaskState,
     submitAction: (() -> Unit)? = null,
-    time: TimeViewModel = koinViewModel(),
 ) {
+    val time: TimeViewModel by rememberViewModel()
     LocalUIState.current
     var focused: FocusedOption by remember { mutableStateOf(FocusedOption.None) }
     fun toggleFocused() {

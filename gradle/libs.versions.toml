@@ -23,6 +23,7 @@ navigationCompose = "2.9.2"
 rebugger = "1.0.1"
 slf4j = "2.0.18"
 syncengine = "0.1.5"
+kodein = "7.30.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
@@ -74,6 +75,8 @@ syncengine-client = { module = "me.dvyy.syncengine:client", version.ref = "synce
 syncengine-core = { module = "me.dvyy.syncengine:core", version.ref = "syncengine" }
 syncengine-json-actions = { module = "me.dvyy.syncengine:json-actions", version.ref = "syncengine" }
 syncengine-server = { module = "me.dvyy.syncengine:server", version.ref = "syncengine" }
+kodein-di-framework-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodein" }
+kodein-di = { module = "org.kodein.di:kodein-di", version.ref = "kodein" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -40,13 +40,13 @@ import me.dvyy.tasks.utils.Dragged
 import me.dvyy.tasks.utils.LocalDragAndDropState
 import me.dvyy.tasks.utils.UiLogger
 import me.dvyy.tasks.utils.keyboardAsState
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 fun Project(
     list: ListId,
     modifier: Modifier = Modifier,
-    tasksViewModel: TasksViewModel = koinViewModel(),
+    tasksViewModel: TasksViewModel = rememberViewModel<TasksViewModel>().value,
     displayOptions: ProjectDisplayOptions = rememberProjectDisplayOptions(),
     state: ProjectState = tasksViewModel.rememberUpdatedProjectState(list),
 ) {
@@ -151,8 +151,8 @@ private fun Tasks(
 private fun TaskFromId(
     list: ListId,
     id: TaskId,
-    viewModel: TasksViewModel = koinViewModel(),
 ) {
+    val viewModel: TasksViewModel by rememberViewModel()
     val task = remember(list, id) { viewModel.watchTask(list, id) }.collectAsState().value
     if (task == null) {
         Box(Modifier.fillMaxWidth().height(UI.tasks.height)) {}

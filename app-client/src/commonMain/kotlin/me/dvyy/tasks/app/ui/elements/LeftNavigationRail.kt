@@ -23,7 +23,7 @@ import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.sync.ui.SyncIndicator
 import me.dvyy.tasks.sync.ui.UpdateIndicator
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonColumn
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 fun TopBarContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) = PlatformTopBarContainer(
@@ -37,9 +37,8 @@ fun TopBarContainer(modifier: Modifier = Modifier, content: @Composable () -> Un
     })
 
 @Composable
-fun LeftNavigationRail(
-    layout: LayoutViewModel = koinViewModel(),
-) {
+fun LeftNavigationRail() {
+    val layout: LayoutViewModel by rememberViewModel()
     Surface(
         Modifier.fillMaxHeight().width(UI.sideBarWidth),
         tonalElevation = UI.elevation.lv1,

@@ -10,19 +10,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.auth.ui.LoginState.Error
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
-fun AuthDialog(
-    auth: AuthViewModel = koinViewModel(),
-) {
-    rememberCoroutineScope()
+fun AuthDialog() {
+    val auth: AuthViewModel by rememberViewModel()
     var error by remember { mutableStateOf(false) }
 
     var serverUrl by remember { mutableStateOf("") }

@@ -36,7 +36,7 @@ kotlin {
                 implementation(miaLibs.kermit)
                 implementation(miaLibs.kotlinx.coroutines.core)
                 implementation(miaLibs.kotlinx.serialization.json)
-                implementation(miaLibs.koin.core)
+                implementation(libs.kodein.di)
                 api(libs.syncengine.core)
                 api(libs.syncengine.json.actions)
             }

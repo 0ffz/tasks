@@ -29,7 +29,7 @@ import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.settings.ui.SettingsScreen
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Serializable
 data object Home
@@ -54,7 +54,7 @@ sealed interface AppDialog {
 fun AppNavigation(
     navController: NavHostController,
 ) {
-    val layoutViewModel: LayoutViewModel = koinViewModel()
+    val layoutViewModel: LayoutViewModel by rememberViewModel()
     NavHost(
         navController = navController,
         startDestination = Home

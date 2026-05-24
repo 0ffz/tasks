@@ -1,4 +1,4 @@
-import java.util.*
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -16,7 +16,6 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
     implementation(libs.kotlin.multiplatform.appdirs)
-    implementation(miaLibs.koin.android)
 //    implementation(libs.koin.androidx.workmanager)
     implementation(miaLibs.kermit)
     implementation(libs.androidx.startup.runtime)

@@ -19,12 +19,11 @@ import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.data.UpdateViewModel
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.components.LeadingIcon
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
-fun SettingsUpdateTab(
-    updates: UpdateViewModel = koinViewModel(),
-): Unit = Column(verticalArrangement = Arrangement.spacedBy(UI.padding.md)) {
+fun SettingsUpdateTab(): Unit = Column(verticalArrangement = Arrangement.spacedBy(UI.padding.md)) {
+    val updates: UpdateViewModel by rememberViewModel()
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
     val releasesUrl = "https://github.com/0ffz/tasks/releases"

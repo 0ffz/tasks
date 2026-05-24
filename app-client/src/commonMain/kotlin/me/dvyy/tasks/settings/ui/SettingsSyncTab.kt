@@ -12,13 +12,12 @@ import me.dvyy.tasks.auth.ui.AuthViewModel
 import me.dvyy.tasks.auth.ui.LoginState
 import me.dvyy.tasks.core.ui.components.LeadingIcon
 import me.dvyy.tasks.sync.ui.SyncViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
-fun SettingsSyncTab(
-    auth: AuthViewModel = koinViewModel(),
-    sync: SyncViewModel = koinViewModel(),
-) {
+fun SettingsSyncTab() {
+    val auth: AuthViewModel by rememberViewModel()
+    val sync: SyncViewModel by rememberViewModel()
     val loginState by auth.loginState.collectAsState()
     val login = loginState // Smart casts
 

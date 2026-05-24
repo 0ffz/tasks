@@ -7,10 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import me.dvyy.tasks.app.ui.PreferencesViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
-fun AppTheme(prefs: PreferencesViewModel = koinViewModel(), content: @Composable () -> Unit) {
+fun AppTheme(content: @Composable () -> Unit) {
+    val prefs: PreferencesViewModel by rememberViewModel()
     val appTheme by prefs.appTheme.collectAsState()
     val darkMode by prefs.darkMode.collectAsState()
     val isDarkMode = when(darkMode) {

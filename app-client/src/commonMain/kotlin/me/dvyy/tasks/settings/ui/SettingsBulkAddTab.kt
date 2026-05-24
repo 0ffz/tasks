@@ -19,14 +19,11 @@ import androidx.compose.ui.text.withStyle
 import me.dvyy.tasks.app.ui.theme.Fonts
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.takeout.TakeoutViewModel
-import me.dvyy.tasks.tasks.ui.TasksViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
-fun SettingsBulkAddTab(
-    tasks: TasksViewModel = koinViewModel(),
-    takeout: TakeoutViewModel = koinViewModel(),
-) {
+fun SettingsBulkAddTab() {
+    val takeout: TakeoutViewModel by rememberViewModel()
     var text by remember { mutableStateOf("") }
     val importProgress by takeout.importProgress.collectAsState()
     BoxedList {

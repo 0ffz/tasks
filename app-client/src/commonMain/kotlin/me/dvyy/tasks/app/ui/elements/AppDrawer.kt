@@ -29,16 +29,16 @@ import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.layouts.Layout
 import me.dvyy.tasks.sync.ui.SyncIndicator
 import me.dvyy.tasks.sync.ui.UpdateIndicator
-import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.rememberInstance
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 fun AppDrawer(
     onNavigate: (Any) -> Unit,
-    app: AppState = koinInject(),
-    layout: LayoutViewModel = koinViewModel(),
     content: @Composable () -> Unit,
 ) {
+    val app: AppState by rememberInstance()
+    val layout: LayoutViewModel by rememberViewModel()
     val ui = LocalUIState.current
     ModalNavigationDrawer(
         // Prevent swipe to open on desktop, but allow swipe to close.
@@ -82,7 +82,8 @@ fun AppDrawer(
 }
 
 @Composable
-fun AppDrawerIconButton(app: AppState = koinInject()) {
+fun AppDrawerIconButton() {
+    val app: AppState by rememberInstance()
     val scope = rememberCoroutineScope()
     IconButton(
         onClick = {

@@ -24,12 +24,11 @@ import me.dvyy.tasks.app.TrackingLogWriter
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.components.DesktopHorizontalScrollbar
 import me.dvyy.tasks.core.ui.components.DesktopVerticalScrollbar
-import org.koin.compose.koinInject
+import org.kodein.di.compose.rememberInstance
 
 @Composable
-fun LogsTab(
-    logSource: TrackingLogWriter = koinInject(),
-) {
+fun LogsTab() {
+    val logSource: TrackingLogWriter by rememberInstance()
     val logs = remember { mutableStateListOf<LogEntry>() }
     val listState = rememberLazyListState()
 

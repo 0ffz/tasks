@@ -60,7 +60,7 @@ import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.utils.Dragged
 import me.dvyy.tasks.utils.LocalDragAndDropState
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 import kotlin.uuid.Uuid
 
 @Composable
@@ -113,8 +113,8 @@ fun TintedVerticalDivider(modifier: Modifier = Modifier) {
 fun TabbedLayout(
     structure: LayoutStructure.Tabbed,
     onLayoutUpdate: (LayoutStructure) -> Unit = {},
-    layoutViewModel: LayoutViewModel = koinViewModel(),
 ) {
+    val layoutViewModel: LayoutViewModel by rememberViewModel()
 //    val topRight by layoutViewModel.topRightLayout.collectAsState()
 //    val topRow by layoutViewModel.topRow.collectAsState()
 //    val topLeft by layoutViewModel.topLeftLayout.collectAsState()
@@ -145,7 +145,7 @@ fun TabbedLayout(
 //                                Tabs(structure, onLayoutUpdate, layoutViewModel)
 //                            }
 //                        }
-                    Tabs(structure, onLayoutUpdate, layoutViewModel)
+                    Tabs(structure, onLayoutUpdate)
                 }
             }
 
@@ -169,8 +169,8 @@ fun TabbedLayout(
 private fun Tabs(
     structure: LayoutStructure.Tabbed,
     onLayoutUpdate: (LayoutStructure) -> Unit = {},
-    layoutViewModel: LayoutViewModel = koinViewModel(),
 ) = BoxWithConstraints {
+    val layoutViewModel: LayoutViewModel by rememberViewModel()
     val ui = LocalUIState.current
     val minTabWidth = 150.dp
     val maxTabWidth = 200.dp

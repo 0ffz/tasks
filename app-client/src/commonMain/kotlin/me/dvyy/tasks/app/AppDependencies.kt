@@ -16,7 +16,6 @@ import kotlinx.coroutines.runBlocking
 import me.dvyy.syncengine.actions.Actions
 import me.dvyy.syncengine.client.mutators.ActionQueue
 import me.dvyy.syncengine.client.sync.SyncClient
-import me.dvyy.syncengine.sync.SyncService
 import me.dvyy.tasks.app.data.LocalPreferencesRepository
 import me.dvyy.tasks.app.data.UpdateViewModel
 import me.dvyy.tasks.app.logging.ColoredFormatter
@@ -36,31 +35,25 @@ import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.takeout.takeoutModule
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.time.TimeViewModel
-import org.koin.core.KoinApplication
-import org.koin.core.module.Module
-import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
-import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.bind
-import org.koin.dsl.binds
-import org.koin.dsl.koinApplication
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bindSingleton
+import org.kodein.di.bindSingletonOf
+import org.kodein.di.delegate
+import org.kodein.di.instance
 
-fun createAppKoinApplication(configure: KoinApplication.() -> Unit = {}, overrides: Module = module {}) =
-    koinApplication {
-        configure()
-        modules(appModule(), overrides)
-    }.also {
+fun createAppKoinApplication(vararg overrides: DI.Module) = DI {
+    import(appModule())
+    importAll(*overrides)
+    onReady {
         runBlocking {
-            //TODO loading screen
-            it.koin.get<SyncClient>().initialize()
-            //FIXME does calling here remove once we leave this scope?
-            it.koin.get<AuthViewModel>()
+            instance<SyncClient>().initialize()
+            instance<AuthViewModel>()
         }
     }
+}
 
-fun appModule() = module(createdAtStart = true) {
-    includes(
+fun appModule() = DI.Module("app") {
+    importAll(
         coreModule(),
         authModule(),
         syncModule(),
@@ -115,43 +108,44 @@ class TrackingLogWriter(
     }
 }
 
-fun coreModule() = module {
-    single<TrackingLogWriter> { TrackingLogWriter() }
-    single<Logger> {
+fun coreModule() = DI.Module("core") {
+    bindSingleton<TrackingLogWriter> { TrackingLogWriter() }
+    bindSingleton<Logger> {
         Logger.apply {
-            setLogWriters(platformLogWriter(ColoredFormatter), get<TrackingLogWriter>())
+            setLogWriters(platformLogWriter(ColoredFormatter), instance<TrackingLogWriter>())
         }
     }
-    singleOf(::AppState)
-    single { Dispatchers.Default }
-    single { AppFactories.createDatabase(this) }
-    single { AppFactories.createAppSettings() }
-    singleOf(::LocalPreferencesRepository)
-    single { SnackbarHostState() }
+    bindSingletonOf(::AppState)
+    bindSingleton { Dispatchers.Default }
+    bindSingleton { AppFactories.createDatabase(di) }
+    bindSingleton { AppFactories.createAppSettings() }
+    bindSingletonOf(::LocalPreferencesRepository)
+    bindSingleton { SnackbarHostState() }
 }
 
-fun authModule() = module {
-    singleOf(::CredentialsDataSource)
-    singleOf(::AppHTTP)
-    singleOf(::AuthAPI)
-    singleOf(::AuthRepository)
+fun authModule() = DI.Module("auth") {
+    bindSingletonOf(::CredentialsDataSource)
+    bindSingletonOf(::AppHTTP)
+    bindSingletonOf(::AuthAPI)
+    bindSingletonOf(::AuthRepository)
 }
 
-fun syncModule() = module(createdAtStart = true) {
-    includes(commonSyncModule(), authModule())
-    singleOf(::KtorSyncService) bind SyncService::class
-    singleOf(::ActionQueue) binds (arrayOf(Actions::class, ActionQueue::class))
-    singleOf(::AppActions)
-    singleOf(::SyncClient)
-    singleOf(::AppDatabase)
-    viewModelOf(::SyncViewModel)
+fun syncModule() = DI.Module("sync") {
+    importAll(commonSyncModule())
+    bindSingletonOf(::KtorSyncService)// bind SyncService::class
+    bindSingletonOf(::ActionQueue) //binds (arrayOf(Actions::class, ActionQueue::class))
+    bindSingletonOf(::AppActions)
+    bindSingletonOf(::SyncClient)
+    delegate<Actions>().to<SyncClient>()
+    bindSingletonOf(::AppDatabase)
+    bindSingletonOf(::SyncViewModel)
 }
 
-fun viewModelsModule() = module {
-    viewModelOf(::TimeViewModel)
-    viewModel { TasksViewModel(db = get<AppDatabase>()) }
-    viewModelOf(::AuthViewModel)
-    viewModelOf(::PreferencesViewModel)
-    viewModelOf(::LayoutViewModel)
-    viewModelOf(::UpdateViewModel)
+fun viewModelsModule() = DI.Module("viewModels") {
+    bindSingletonOf(::TimeViewModel)
+    bindSingleton { TasksViewModel(db = instance<AppDatabase>()) }
+    bindSingletonOf(::AuthViewModel)
+    bindSingletonOf(::PreferencesViewModel)
+    bindSingletonOf(::LayoutViewModel)
+    bindSingletonOf(::UpdateViewModel)
 }

@@ -23,18 +23,17 @@ import me.dvyy.tasks.tasks.ui.elements.helpers.NonlazyGrid
 import me.dvyy.tasks.tasks.ui.elements.list.Project
 import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 import me.dvyy.tasks.time.TimeViewModel
-import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.rememberInstance
+import org.kodein.di.compose.viewmodel.rememberViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun BoxWithConstraintsScope.WeekView(
-    app: AppState = koinInject(),
-    time: TimeViewModel = koinViewModel(),
     startAtToday: Boolean = false,
     takeDays: Int = 7,
     isSmall: Boolean,
 ) {
+    val time: TimeViewModel by rememberViewModel()
     val columns = if (isSmall) 1 else takeDays
     val weekStart by (if (startAtToday) time.today else time.weekStart).collectAsState()
 

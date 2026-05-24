@@ -16,12 +16,12 @@ import me.dvyy.tasks.app.data.TopbarViewModel
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.topbar.BetterWindowDraggableArea
 import me.dvyy.tasks.app.ui.topbar.WindowButton
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 actual fun PlatformSpecificTopBarActions() = PlatformTopBarContainer(Modifier, {
     Row(Modifier.height(UI.tabHeight)) {
-        val viewModel: TopbarViewModel = koinViewModel()
+        val viewModel: TopbarViewModel by rememberViewModel()
 
         VerticalDivider(Modifier.padding(UI.padding.md))
         WindowButton(TablerIcons.Outlined.Minus) {
@@ -38,7 +38,7 @@ actual fun PlatformSpecificTopBarActions() = PlatformTopBarContainer(Modifier, {
 
 @Composable
 actual fun PlatformTopBarContainer(modifier: Modifier, content: @Composable () -> Unit) {
-    val viewModel: TopbarViewModel = koinViewModel()
+    val viewModel: TopbarViewModel by rememberViewModel()
 
     viewModel.windowScope.BetterWindowDraggableArea(
         modifier.pointerInput(Unit) {

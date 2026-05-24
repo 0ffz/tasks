@@ -27,8 +27,8 @@ import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.utils.LocalDragAndDropState
-import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.rememberInstance
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +38,7 @@ fun App(
     extras: @Composable () -> Unit = { },
 ) = AppTheme {
     val ui = rememberAppUIState()
-    val tasksViewModel = koinViewModel<TasksViewModel>()
+    val tasksViewModel by rememberViewModel<TasksViewModel>()
 
     CompositionLocalProvider(
         LocalUIState provides ui,
@@ -49,7 +49,7 @@ fun App(
         val navController = rememberNavController()
 
         DragAndDropContainer(LocalDragAndDropState.current) {
-            koinViewModel<SyncViewModel>() // Ensure sync inits at start
+            rememberViewModel<SyncViewModel>() // Ensure sync inits at start
             val scrollBehavior = if (ui.isSmall)
                 TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
             else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -60,7 +60,10 @@ fun App(
                         if (UI.isSmall) TaskActionsToolbar(onNavigateToTabSwitcher = { navController.navigate(TabSwitcher) })
                     },
                     floatingActionButtonPosition = FabPosition.Center,
-                    snackbarHost = { SnackbarHost(koinInject<SnackbarHostState>()) },
+                    snackbarHost = {
+                        val host by rememberInstance<SnackbarHostState>()
+                        SnackbarHost(host)
+                    },
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1),
                     modifier = contentModifier.fillMaxSize()
                 ) { paddingValues ->

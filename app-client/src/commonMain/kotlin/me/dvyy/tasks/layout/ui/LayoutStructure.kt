@@ -50,7 +50,7 @@ import me.dvyy.tasks.tasks.ui.elements.list.Project
 import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 import me.dvyy.tasks.tasks.ui.elements.views.AllProjectsView
 import me.dvyy.tasks.tasks.ui.elements.views.WeekView
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 object DpSerializer : KSerializer<Dp> {
     override val descriptor = Float.serializer().descriptor
@@ -74,6 +74,7 @@ class LayoutPath(val nodes: List<Node>) {
 
     fun pop() = LayoutPath(nodes.drop(1))
 }
+
 @Serializable
 sealed interface LayoutStructure {
     /**
@@ -230,7 +231,7 @@ sealed interface LayoutStructure {
         ) : Single() {
             @Composable
             override fun tabLabel(location: Location) {
-                val tasks: TasksViewModel = koinViewModel()
+                val tasks: TasksViewModel by rememberViewModel()
                 val title = tasks.watchProjectTitle(key.uuid).collectAsState(initial = null).value?.title
                 val icon = when {
                     //TODO reimplement
@@ -254,7 +255,7 @@ sealed interface LayoutStructure {
 
             @Composable
             override fun content() {
-                val tasksViewModel = koinViewModel<TasksViewModel>()
+                val tasksViewModel: TasksViewModel by rememberViewModel()
                 val type = tasksViewModel.rememberUpdatedEntityType(key)
                 when (type) {
                     "project" -> {

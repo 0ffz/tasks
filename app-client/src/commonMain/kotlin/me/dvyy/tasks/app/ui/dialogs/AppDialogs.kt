@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 
 //@Composable
@@ -30,8 +30,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ConfirmDeleteProjectDialog(
     key: ListId,
     onDismiss: () -> Unit,
-    tasks: TasksViewModel = koinViewModel(),
 ) {
+    val tasks: TasksViewModel by rememberViewModel()
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(AppIcons.Delete, contentDescription = "Delete") },

@@ -4,10 +4,21 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -19,25 +30,23 @@ import me.dvyy.tasks.app.data.TopbarViewModel
 import me.dvyy.tasks.app_client.generated.resources.Res
 import me.dvyy.tasks.app_client.generated.resources.icon
 import org.jetbrains.compose.resources.painterResource
-import org.koin.compose.KoinIsolatedContext
-import org.koin.compose.getKoin
-import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.module.Module
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bindSingleton
+import org.kodein.di.compose.rememberInstance
+import org.kodein.di.compose.subDI
+import org.kodein.di.compose.viewmodel.rememberViewModel
+import org.kodein.di.compose.withDI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApplicationScope.AppDesktop(
-    overrides: Module = module { },
-) = KoinIsolatedContext(createAppKoinApplication(overrides = overrides)) {
+fun ApplicationScope.AppDesktop(vararg overrides: DI.Module) = withDI(createAppKoinApplication(overrides = overrides)) {
     val windowState = rememberWindowState(
         width = 1200.dp,
         height = 960.dp
     )
     val icon = painterResource(Res.drawable.icon)
     var resizable by remember { mutableStateOf(true) }
-    val prefs = koinInject<PreferencesViewModel>()
+    val prefs by rememberInstance<PreferencesViewModel>()
     val density by prefs.density.collectAsState()
     Window(
         onCloseRequest = ::exitApplication,
@@ -66,29 +75,27 @@ fun ApplicationScope.AppDesktop(
             }
         }
     ) {
-        getKoin().loadModules(remember {
-            listOf(module {
-//                single<Database> { createClientDatabase() }
-                single {
-                    TopbarViewModel(
-                        windowState = windowState,
-                        windowScope = this@Window,
-                        onClose = { exitApplication() }
+        subDI(diBuilder = {
+            bindSingleton {
+                TopbarViewModel(
+                    windowState = windowState,
+                    windowScope = this@Window,
+                    onClose = { exitApplication() }
+                )
+            }
+        }) {
+            CompositionLocalProvider(LocalDensity provides Density(density)) {
+                Box(Modifier.border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RectangleShape)) {
+                    App(
+                        topBar = {
+//                    DesktopTopBar()
+                            val isFloating by rememberViewModel<TopbarViewModel>().value.floatingWindowSize.collectAsState()
+                            LaunchedEffect(isFloating) {
+                                resizable = isFloating == null
+                            }
+                        }
                     )
                 }
-            })
-        })
-        CompositionLocalProvider(LocalDensity provides Density(density)) {
-            Box(Modifier.border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RectangleShape)) {
-                App(
-                    topBar = {
-//                    DesktopTopBar()
-                        val isFloating by koinViewModel<TopbarViewModel>().floatingWindowSize.collectAsState()
-                        LaunchedEffect(isFloating) {
-                            resizable = isFloating == null
-                        }
-                    }
-                )
             }
         }
     }

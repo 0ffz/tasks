@@ -10,7 +10,7 @@ import dev.seyfarth.tablericons.outlined.ArrowForward
 import dev.seyfarth.tablericons.outlined.CalendarEvent
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.time.TimeViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 fun AppTopBarActions() = Row {
@@ -25,7 +25,8 @@ expect fun PlatformSpecificTopBarActions()
 expect fun PlatformTopBarContainer(modifier: Modifier, content: @Composable () -> Unit)
 
 @Composable
-fun WeekViewActions(time: TimeViewModel = koinViewModel()) {
+fun WeekViewActions() {
+    val time: TimeViewModel by rememberViewModel()
     BoxButton(onClick = { time.goToThisWeek() }) {
         Icon(TablerIcons.Outlined.CalendarEvent, contentDescription = "Today")
     }

@@ -30,18 +30,18 @@ import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButtonProps
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
-import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.rememberInstance
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
-fun AppFileTree(
-    tasks: TasksViewModel = koinViewModel(),
-    db: AppDatabase = koinInject(),
-    app: AppState = koinInject(),
-) = Column(
+fun AppFileTree() = Column(
     Modifier.padding(top = UI.padding.sm).verticalScroll(rememberScrollState()),
     verticalArrangement = Arrangement.spacedBy(UI.padding.md),
 ) {
+    //TODO should not access from composable
+    val db: AppDatabase by rememberInstance()
+    val tasks: TasksViewModel by rememberViewModel()
+    val app: AppState by rememberInstance()
     val drawer = app.drawerState
     val scope = rememberCoroutineScope()
     fun closeDrawer() {

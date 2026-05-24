@@ -12,15 +12,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 fun DropTarget(
     structure: LayoutStructure.Single,
     onLayoutUpdate: (LayoutStructure) -> Unit,
     splitTargets: Boolean = true,
-    layoutViewModel: LayoutViewModel = koinViewModel(),
 ) = Box {
+    val layoutViewModel: LayoutViewModel by rememberViewModel()
     fun update(select: LayoutStructure, structure: LayoutStructure) {
         onLayoutUpdate(structure)
         layoutViewModel.setActiveLayout(select)

@@ -21,7 +21,7 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.time.TimeViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.kodein.di.compose.viewmodel.rememberViewModel
 import kotlin.time.ExperimentalTime
 
 /**
@@ -32,8 +32,8 @@ import kotlin.time.ExperimentalTime
 fun TaskDatePicker(
     initialDate: LocalDate,
     onChangeDate: (LocalDate) -> Unit,
-    time: TimeViewModel = koinViewModel(),
 ) {
+    val time: TimeViewModel by rememberViewModel()
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialDate.atStartOfDayIn(time.timezone).toEpochMilliseconds()
