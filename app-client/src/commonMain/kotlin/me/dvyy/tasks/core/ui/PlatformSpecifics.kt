@@ -10,5 +10,6 @@ enum class OS(
 expect object PlatformSpecifics {
     val preferLongPressDrag: Boolean
     val minHitSize: Dp
+    val paddingInnerSize: Dp
     val currentOS: OS
 }

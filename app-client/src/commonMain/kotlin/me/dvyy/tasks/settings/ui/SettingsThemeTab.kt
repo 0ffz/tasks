@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.outlined.AutoMode
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -23,8 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.Moon
+import dev.seyfarth.tablericons.outlined.Sun
+import dev.seyfarth.tablericons.outlined.SunMoon
 import kotlinx.coroutines.flow.update
-import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.theme.DarkModePref
@@ -75,9 +75,9 @@ fun SettingsThemeTab(
                         weight = 1f,
                         icon = { Icon(icon, "Mode indicator") }
                     )
-                option(DarkModePref.AUTO, "Auto", AppIcons.AutoMode, 0, 3)
-                option(DarkModePref.DARK, "Dark", AppIcons.DarkMode, 1, 3)
-                option(DarkModePref.LIGHT, "Light", AppIcons.LightMode, 2, 3)
+                option(DarkModePref.AUTO, "Auto", TablerIcons.Outlined.SunMoon, 0, 3)
+                option(DarkModePref.DARK, "Dark", TablerIcons.Outlined.Moon, 1, 3)
+                option(DarkModePref.LIGHT, "Light", TablerIcons.Outlined.Sun, 2, 3)
             }
         }
 

@@ -1,13 +1,22 @@
 package me.dvyy.tasks.layout.ui
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -15,6 +24,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.Calendar
+import dev.seyfarth.tablericons.outlined.CalendarMonth
+import dev.seyfarth.tablericons.outlined.CalendarWeek
+import dev.seyfarth.tablericons.outlined.FileDescription
+import dev.seyfarth.tablericons.outlined.Folder
+import dev.seyfarth.tablericons.outlined.LayoutCards
+import dev.seyfarth.tablericons.outlined.X
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -135,9 +152,9 @@ sealed interface LayoutStructure {
         ) : Single() {
             override val icon
                 get() = when (takeDays) {
-                    7 -> AppIcons.CalendarViewWeek
-                    3 -> AppIcons.CalendarViewDay
-                    else -> AppIcons.CalendarToday
+                    7 -> TablerIcons.Outlined.CalendarWeek
+                    3 -> TablerIcons.Outlined.CalendarMonth
+                    else -> TablerIcons.Outlined.Calendar
                 }
 
             override val text
@@ -165,7 +182,7 @@ sealed interface LayoutStructure {
 
         @Serializable
         data object FileTree : Single() {
-            override val icon = AppIcons.Folder
+            override val icon = TablerIcons.Outlined.Folder
             override val text = "File tree"
             override val hasDropTargets: Boolean = false
             override val showsTopBar: Boolean = false
@@ -182,12 +199,7 @@ sealed interface LayoutStructure {
             val horizontal: Boolean = false,
             val projects: List<ListId>? = null,
         ) : Single() {
-            override val icon
-                get() = when {
-                    horizontal -> AppIcons.HorizontalSplit
-                    staggered -> AppIcons.Dashboard
-                    else -> AppIcons.GridView
-                }
+            override val icon get() = TablerIcons.Outlined.LayoutCards
             override val text get() = "All Projects"
 
             @Composable
@@ -214,7 +226,7 @@ sealed interface LayoutStructure {
                     //TODO reimplement
 //                    props.displayName?.contains(emojiRegex) == true -> null
 //                    props.displayName == "Inbox" -> AppIcons.Inbox
-                    else -> AppIcons.Description
+                    else -> TablerIcons.Outlined.FileDescription
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.weight(1f)) {
@@ -224,7 +236,7 @@ sealed interface LayoutStructure {
                         BoxButton(
                             onClick = { dialogs.show(AppDialog.ConfirmDeleteProject(key)) },
                         ) {
-                            Icon(AppIcons.Close, "Delete project", tint = MaterialTheme.colorScheme.outline)
+                            Icon(TablerIcons.Outlined.X, "Delete project", tint = MaterialTheme.colorScheme.outline)
                         }
                     }
                 }

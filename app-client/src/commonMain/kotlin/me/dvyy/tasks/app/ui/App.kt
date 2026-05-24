@@ -4,7 +4,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -56,6 +66,10 @@ fun App(
             AppDrawer {
                 Scaffold(
                     topBar = { topBar(scrollBehavior) },
+                    floatingActionButton = {
+                        TaskActionsToolbar()
+                    },
+                    floatingActionButtonPosition = FabPosition.Center,
                     snackbarHost = { SnackbarHost(koinInject<SnackbarHostState>()) },
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1),
                     modifier = contentModifier.fillMaxSize()

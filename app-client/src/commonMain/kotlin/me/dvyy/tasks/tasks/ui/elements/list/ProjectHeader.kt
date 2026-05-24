@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -23,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.Plus
 import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
@@ -109,7 +109,7 @@ fun ProjectHeader(
         // == Add task to top button
         if (addTask != null) BoxButton(onClick = addTask) {
             Icon(
-                imageVector = Icons.Rounded.Add,
+                imageVector = TablerIcons.Outlined.Plus,
                 contentDescription = "Add task to top",
                 tint = colorFaded,
             )

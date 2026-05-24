@@ -1,8 +1,22 @@
 package me.dvyy.tasks.tasks.ui.elements.helpers.buttons
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -13,11 +27,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.core.ui.PlatformSpecifics
 import me.dvyy.tasks.core.ui.getBestTextColor
 
 data class BoxButtonProps(
     val verticalPadding: Dp? = null,
     val horizontalPadding: Dp? = null,
+    val innerPadding: Dp? = null,
 )
 
 val LocalBoxButtonProps = compositionLocalOf { BoxButtonProps() }
@@ -28,6 +44,7 @@ fun BoxButton(
     color: Color = Color.Transparent,
     contentColor: Color = color.getBestTextColor(),
     shape: Shape = UI.shapes.rounded,
+    tooltip: String? = null,
     border: BorderStroke? = null,//BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)),
     modifier: Modifier = Modifier.Companion,
     properties: BoxButtonProps = LocalBoxButtonProps.current,
@@ -50,8 +67,19 @@ fun BoxButton(
         border = border,
         contentColor = contentColor,
     ) {
-        Box(contentAlignment = contentAlignment) {
-            content()
+        val innerPadding = properties.innerPadding ?: PlatformSpecifics.paddingInnerSize
+        Box(contentAlignment = contentAlignment, modifier = Modifier.padding(innerPadding)) {
+            if (tooltip == null) content()
+            else TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above
+                    ),
+                tooltip = { PlainTooltip { Text(tooltip) } },
+                state = rememberTooltipState(),
+            ) {
+                content()
+            }
         }
     }
 }

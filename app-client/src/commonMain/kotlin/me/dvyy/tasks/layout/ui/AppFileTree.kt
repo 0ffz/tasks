@@ -27,6 +27,7 @@ import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.Projects
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButtonProps
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
 import org.koin.compose.koinInject
@@ -97,6 +98,7 @@ fun AppFileTree(
         BoxButton(
             onClick = { tasks.createProject() },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            properties = BoxButtonProps(innerPadding = 0.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f))
         ) {
             Text("Create project", maxLines = 1)

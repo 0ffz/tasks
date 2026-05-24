@@ -1,10 +1,10 @@
 package me.dvyy.tasks.core.ui.components.buttons
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.Settings
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.dialogs.AppScreen
@@ -25,6 +25,6 @@ fun SettingsButton(
             app.drawerState.close()
         }
     }) {
-         Icon(Icons.Outlined.Settings, contentDescription = "Settings")
+        Icon(TablerIcons.Outlined.Settings, contentDescription = "Settings")
     }
 }

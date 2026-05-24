@@ -1,13 +1,13 @@
 package me.dvyy.tasks.app.ui.elements
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
-import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.ArrowBack
+import dev.seyfarth.tablericons.outlined.ArrowForward
+import dev.seyfarth.tablericons.outlined.CalendarEvent
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.time.TimeViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -27,12 +27,12 @@ expect fun PlatformTopBarContainer(modifier: Modifier, content: @Composable () -
 @Composable
 fun WeekViewActions(time: TimeViewModel = koinViewModel()) {
     BoxButton(onClick = { time.goToThisWeek() }) {
-        Icon(Icons.Outlined.Today, contentDescription = "Today")
+        Icon(TablerIcons.Outlined.CalendarEvent, contentDescription = "Today")
     }
     BoxButton(onClick = { time.goToPreviousWeek() }) {
-        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Previous")
+        Icon(TablerIcons.Outlined.ArrowBack, contentDescription = "Previous")
     }
     BoxButton(onClick = { time.goToNextWeek() }) {
-        Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = "Next")
+        Icon(TablerIcons.Outlined.ArrowForward, contentDescription = "Next")
     }
 }

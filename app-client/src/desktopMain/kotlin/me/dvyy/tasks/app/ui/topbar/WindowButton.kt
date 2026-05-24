@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.UI
 
 @Composable
@@ -22,8 +23,8 @@ fun WindowButton(icon: ImageVector, onClick: () -> Unit) {
         contentColor = MaterialTheme.colorScheme.onSurface,
         color = Color.Transparent
     ) {
-        Box(Modifier.size(UI.size.lg), contentAlignment = Alignment.Center) {
-            Icon(icon, "", Modifier)
+        Box(Modifier, contentAlignment = Alignment.Center) {
+            Icon(icon, "", Modifier.size(20.dp))
         }
     }
 }

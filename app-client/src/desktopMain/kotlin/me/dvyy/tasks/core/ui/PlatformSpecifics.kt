@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 actual object PlatformSpecifics {
     actual val preferLongPressDrag = false
     actual val minHitSize = 40.dp
+    actual val paddingInnerSize = 5.dp
     actual val currentOS: OS
         get() {
             val osName = System.getProperty("os.name").lowercase()

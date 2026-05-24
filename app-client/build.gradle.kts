@@ -64,6 +64,7 @@ kotlin {
                 implementation(libs.compose.ui.tooling.preview)
                 implementation(libs.compose.material3)
                 implementation(libs.compose.material.icons.extended)
+                implementation("dev.seyfarth:tabler-icons-kmp:1.0.0")
                 implementation(libs.compose.ui)
                 implementation(libs.rebugger)
 //                implementation("app.cash.molecule:molecule-runtime:2.2.0")

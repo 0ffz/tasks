@@ -10,12 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Sync
-import androidx.compose.material.icons.outlined.Update
-import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
@@ -27,6 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.CloudDownload
+import dev.seyfarth.tablericons.outlined.FileUpload
+import dev.seyfarth.tablericons.outlined.Logs
+import dev.seyfarth.tablericons.outlined.Palette
+import dev.seyfarth.tablericons.outlined.Refresh
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
@@ -38,27 +38,27 @@ sealed interface SettingsTab {
 
     data object Theme : SettingsTab {
         override val title = "Theme"
-        override val icon = Icons.Outlined.Palette
+        override val icon = TablerIcons.Outlined.Palette
     }
 
     data object BulkAdd : SettingsTab {
         override val title = "Bulk add"
-        override val icon = Icons.Outlined.UploadFile
+        override val icon = TablerIcons.Outlined.FileUpload
     }
 
     data object Sync : SettingsTab {
         override val title = "Sync"
-        override val icon = Icons.Outlined.Sync
+        override val icon = TablerIcons.Outlined.Refresh
     }
 
     data object Update : SettingsTab {
         override val title = "Update"
-        override val icon = Icons.Outlined.Update
+        override val icon = TablerIcons.Outlined.CloudDownload
     }
 
     data object Logs : SettingsTab {
         override val title = "Logs"
-        override val icon = Icons.AutoMirrored.Outlined.List
+        override val icon = TablerIcons.Outlined.Logs
     }
 
     companion object {

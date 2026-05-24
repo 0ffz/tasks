@@ -5,18 +5,26 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Done
-import androidx.compose.material.icons.rounded.BorderColor
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.Check
+import dev.seyfarth.tablericons.outlined.Highlight
+import dev.seyfarth.tablericons.outlined.Trash
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
@@ -35,7 +43,7 @@ fun TaskOptions(
     submitAction: (() -> Unit)? = null,
     time: TimeViewModel = koinViewModel(),
 ) {
-    val ui = LocalUIState.current
+    LocalUIState.current
     var focused: FocusedOption by remember { mutableStateOf(FocusedOption.None) }
     fun toggleFocused() {
         focused = if (focused == FocusedOption.Highlight) FocusedOption.None else FocusedOption.Highlight
@@ -50,7 +58,7 @@ fun TaskOptions(
                     task.uiState.highlight,
                     onClick = { toggleFocused() }
                 ) {
-                    Icon(Icons.Rounded.BorderColor, contentDescription = "Tag", Modifier.size(18.dp))
+                    Icon(TablerIcons.Outlined.Highlight, contentDescription = "Tag")
                 }
 
                 // == Date picker button
@@ -63,7 +71,7 @@ fun TaskOptions(
                 // == Submit button on right hand side (for widget)
                 if (submitAction != null) {
                     FilledIconButton(onClick = submitAction) {
-                        Icon(Icons.Outlined.Done, contentDescription = "Submit")
+                        Icon(TablerIcons.Outlined.Check, contentDescription = "Submit")
                     }
                 } else {
                     BoxButton(
@@ -73,7 +81,7 @@ fun TaskOptions(
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     ) {
 
-                        Icon(Icons.Outlined.Delete, contentDescription = "Delete", Modifier.size(18.dp))
+                        Icon(TablerIcons.Outlined.Trash, contentDescription = "Delete")
                     }
 //                    FilledTonalIconButton(
 //
