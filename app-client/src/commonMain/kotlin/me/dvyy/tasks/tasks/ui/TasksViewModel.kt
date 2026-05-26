@@ -24,9 +24,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
-import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.asTask
@@ -231,16 +228,16 @@ class TasksViewModel(
         db.mutate.childOf.move(id, toParent = Projects.projectRoot)
     }
 
-    fun saveLayout(layout: LayoutStructure) = viewModelScope.launch {
-        val id = db.mutate.layouts.create(SavedLayoutModel("Test", Json.encodeToJsonElement(layout)))
-        db.mutate.childOf.move(id, toParent = Projects.projectRoot)
-    }
+//    fun saveLayout(layout: LayoutStructure) = viewModelScope.launch {
+//        val id = db.mutate.layouts.create(SavedLayoutModel("Test", Json.encodeToJsonElement(layout)))
+//        db.mutate.childOf.move(id, toParent = Projects.projectRoot)
+//    }
 
-    fun updateLayout(id: Uuid, layout: LayoutStructure) {
-        viewModelScope.launch {
-            db.mutate.layouts.set(id, "$.layout", Json.encodeToJsonElement(layout))
-        }
-    }
+//    fun updateLayout(id: Uuid, layout: LayoutStructure) {
+//        viewModelScope.launch {
+//            db.mutate.layouts.set(id, "$.layout", Json.encodeToJsonElement(layout))
+//        }
+//    }
 
     //TODO Is this breaking any compose practices? These could technically be emitted as flows but
     // that would mean reimplementing CachedUpdate for it, look around online.

@@ -1,4 +1,4 @@
-package me.dvyy.tasks.app.ui.dialogs
+package me.dvyy.tasks.app.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -27,47 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import me.dvyy.tasks.app.ui.LocalUIState
-import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.elements.TopBarContainer
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.settings.ui.RowOrBox
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
-
-
-@Composable
-fun AppScreens() {
-    LocalUIState.current
-//    Dialog(
-//        onDismissRequest = { app.screen.update { null } },
-//        properties = DialogProperties(usePlatformDefaultWidth = false)
-//    ) {
-//        Box(Modifier.fillMaxSize().clickableWithoutRipple { app.screen.update { null } })
-//        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//            val padding = if (ui.isSmall) 0.dp else 32.dp
-//            Surface(
-//                Modifier
-//                    .widthIn(max = 1280.dp)
-//                    .optional(!ui.isSmall) { heightIn(max = 1200.dp) }
-//                    .optional(ui.isSmall) { padding(top = UI.tabHeight * 0.75f) }
-//                    .fillMaxSize().padding(padding),
-//                shape = MaterialTheme.shapes.medium,
-//                shadowElevation = 1.dp
-//            ) {
-//                Screens()
-//            }
-//        }
-//    }
-}
-
-@Composable
-private fun Screens(
-) {
-//    when (screen) {
-//        is AppScreen.Settings -> SettingsScreen(screen.tab, onChangeTab = { app.showScreen(AppScreen.Settings(it)) })
-//    }
-}
 
 @Composable
 fun ScreenContainer(

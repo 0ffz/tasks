@@ -1,4 +1,4 @@
-package me.dvyy.tasks.layout.ui.layouts
+package me.dvyy.tasks.layout.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
-import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import me.dvyy.tasks.utils.Dragged
 import me.dvyy.tasks.utils.LocalDragAndDropState
@@ -22,7 +21,7 @@ import me.dvyy.tasks.utils.LocalDragAndDropState
 @Composable
 fun HoverBox(
     modifier: Modifier = Modifier,
-    onDropped: (LayoutStructure) -> Unit = {},
+    onDrop: (Dragged.Layout) -> Unit = {},
     hoverableModifier: BoxScope.() -> Modifier = { Modifier.fillMaxSize() },
 ) {
     var dragTargetVisible by remember { mutableStateOf(false) }
@@ -36,8 +35,8 @@ fun HoverBox(
         onDragExit = { dragTargetVisible = false },
         onDrop = {
             dragTargetVisible = false
-            val layout = (it.data as? Dragged.Layout)?.layout ?: return@dropTarget
-            onDropped(layout)
+            val layout = (it.data as? Dragged.Layout) ?: return@dropTarget
+            onDrop(layout)
         },
         onHoverDraw = {}
 //        shouldStartDragAndDrop = { it.isOfType<LayoutStructure.Single>() },

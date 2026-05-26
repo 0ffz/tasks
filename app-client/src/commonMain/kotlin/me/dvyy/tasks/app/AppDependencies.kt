@@ -38,6 +38,8 @@ import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.time.TimeViewModel
 import org.kodein.di.DI
 import org.kodein.di.LazyDI
+import org.kodein.di.bindProvider
+import org.kodein.di.bindProviderOf
 import org.kodein.di.bindSingleton
 import org.kodein.di.bindSingletonOf
 import org.kodein.di.delegate
@@ -140,14 +142,14 @@ fun syncModule() = DI.Module("sync") {
     bindSingletonOf(::SyncClient)
     delegate<Actions>().to<SyncClient>()
     bindSingletonOf(::AppDatabase)
-    bindSingletonOf(::SyncViewModel)
+    bindProviderOf(::SyncViewModel)
 }
 
 fun viewModelsModule() = DI.Module("viewModels") {
-    bindSingletonOf(::TimeViewModel)
-    bindSingleton { TasksViewModel(db = instance<AppDatabase>()) }
-    bindSingletonOf(::AuthViewModel)
-    bindSingletonOf(::PreferencesViewModel)
-    bindSingletonOf(::LayoutViewModel)
-    bindSingletonOf(::UpdateViewModel)
+    bindProviderOf(::TimeViewModel)
+    bindProvider { TasksViewModel(db = instance<AppDatabase>()) }
+    bindProviderOf(::AuthViewModel)
+    bindProviderOf(::PreferencesViewModel)
+    bindProviderOf(::LayoutViewModel)
+    bindProviderOf(::UpdateViewModel)
 }

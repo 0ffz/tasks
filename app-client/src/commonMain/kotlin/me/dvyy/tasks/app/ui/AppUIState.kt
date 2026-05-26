@@ -58,6 +58,7 @@ class AppUIState(
     // Tabs
     val tabHeight = tasks.height
     val tabPadding = padding.md
+    val paddedTabHeight = tasks.height + tabPadding + tabPadding
 
     // Task lists
     val taskListWidth = 300.dp

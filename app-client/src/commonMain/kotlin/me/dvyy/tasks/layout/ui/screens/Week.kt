@@ -1,6 +1,7 @@
-package me.dvyy.tasks.tasks.ui.elements.views
+package me.dvyy.tasks.layout.ui.screens
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
@@ -8,27 +9,70 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.Calendar
+import dev.seyfarth.tablericons.outlined.CalendarEvent
+import dev.seyfarth.tablericons.outlined.CalendarMonth
+import dev.seyfarth.tablericons.outlined.CalendarWeek
+import dev.seyfarth.tablericons.outlined.ChevronLeft
+import dev.seyfarth.tablericons.outlined.ChevronRight
 import kotlinx.coroutines.delay
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
-import me.dvyy.tasks.app.ui.AppState
+import me.dvyy.tasks.layout.ui.screens.builder.ScreenDest
+import me.dvyy.tasks.layout.ui.screens.builder.screen
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.tasks.ui.elements.helpers.NonlazyGrid
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.list.Project
 import me.dvyy.tasks.tasks.ui.elements.list.rememberProjectDisplayOptions
 import me.dvyy.tasks.time.TimeViewModel
-import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.viewmodel.rememberViewModel
 import kotlin.time.Duration.Companion.seconds
 
+
+fun weekScreen(screen: ScreenDest.Week) = screen(
+    icon = when (screen.takeDays) {
+        7 -> TablerIcons.Outlined.CalendarWeek
+        3 -> TablerIcons.Outlined.CalendarMonth
+        else -> TablerIcons.Outlined.Calendar
+    },
+    tabLabel = {
+        val text = when (screen.takeDays) {
+            7 -> "Week view"
+            3 -> "3-day view"
+            else -> "Today"
+        }
+        Text(text)
+    },
+    trailingOptions = { WeekActions() },
+) { BoxWithConstraints { WeekScreen(screen.startAtToday, screen.takeDays, isSmall = maxWidth < 600.dp) } }
+
 @Composable
-fun BoxWithConstraintsScope.WeekView(
+private fun WeekActions() {
+    val time: TimeViewModel by rememberViewModel()
+    BoxButton(onClick = { time.goToThisWeek() }) {
+        Icon(TablerIcons.Outlined.CalendarEvent, contentDescription = "Today")
+    }
+    BoxButton(onClick = { time.goToPreviousWeek() }) {
+        Icon(TablerIcons.Outlined.ChevronLeft, contentDescription = "Previous")
+    }
+    BoxButton(onClick = { time.goToNextWeek() }) {
+        Icon(TablerIcons.Outlined.ChevronRight, contentDescription = "Next")
+    }
+}
+
+@Composable
+private fun BoxWithConstraintsScope.WeekScreen(
     startAtToday: Boolean = false,
     takeDays: Int = 7,
     isSmall: Boolean,

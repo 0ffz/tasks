@@ -34,8 +34,8 @@ import dev.seyfarth.tablericons.outlined.Refresh
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import me.dvyy.tasks.app.ui.LocalUIState
+import me.dvyy.tasks.app.ui.ScreenContainer
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.app.ui.dialogs.ScreenContainer
 
 @Serializable
 sealed interface SettingsTab {

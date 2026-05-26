@@ -1,4 +1,4 @@
-package me.dvyy.tasks.layout.ui.layouts
+package me.dvyy.tasks.layout.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,11 +9,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import me.dvyy.tasks.layout.ui.LayoutStructure
+import me.dvyy.tasks.layout.ui.layouts.LayoutDefinition
+import me.dvyy.tasks.layout.ui.screens.builder.ScreenDest
+import me.dvyy.tasks.layout.ui.screens.builder.screen
+
+fun emptyScreen() = screen(
+    tabLabel = { Text("New tab") }
+) {
+    EmptyScreen(onLayoutChange)
+}
 
 @Composable
-fun EmptyLayout(
-    onLayoutUpdate: (LayoutStructure) -> Unit,
+private fun EmptyScreen(
+    onLayoutUpdate: (LayoutDefinition) -> Unit,
 ) {
     Column(
         Modifier.fillMaxSize(),
@@ -25,9 +33,9 @@ fun EmptyLayout(
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        TextButton(onClick = { onLayoutUpdate(LayoutStructure.Single.WeekView()) }) {
+        TextButton(onClick = { onLayoutUpdate(LayoutDefinition.of(ScreenDest.Week())) }) {
             Text("Open week view")
         }
     }
-    DropTarget(LayoutStructure.Empty, onLayoutUpdate, splitTargets = false)
+//    DropTarget(LayoutStructure.Empty, onLayoutUpdate, splitTargets = false)
 }

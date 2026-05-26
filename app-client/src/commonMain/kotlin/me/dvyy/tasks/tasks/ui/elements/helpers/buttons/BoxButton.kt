@@ -41,12 +41,12 @@ val LocalBoxButtonProps = compositionLocalOf { BoxButtonProps() }
 @Composable
 fun BoxButton(
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     color: Color = Color.Transparent,
     contentColor: Color = color.getBestTextColor(),
     shape: Shape = UI.shapes.rounded,
     tooltip: String? = null,
     border: BorderStroke? = null,//BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)),
-    modifier: Modifier = Modifier.Companion,
     properties: BoxButtonProps = LocalBoxButtonProps.current,
     contentAlignment: Alignment = Alignment.Center,
     content: @Composable () -> Unit,

@@ -10,7 +10,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,17 +18,15 @@ import kotlinx.coroutines.launch
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.app.ui.rememberGlobalViewModel
 import me.dvyy.tasks.layout.ui.LayoutViewModel
-import me.dvyy.tasks.layout.ui.layouts.Layout
 import org.kodein.di.compose.rememberInstance
-import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 fun AppDrawer(
     content: @Composable () -> Unit,
 ) {
     val app: AppState by rememberInstance()
-    val layout: LayoutViewModel by rememberViewModel()
     val ui = LocalUIState.current
     DismissibleNavigationDrawer(
         // Prevent swipe to open on desktop, but allow swipe to close.
@@ -42,7 +39,7 @@ fun AppDrawer(
                     containerColor = Color.Transparent,
                 ) {
                     Box(Modifier.padding(it)) {
-                        Layout(layout.mobileLeftSidebar.collectAsState().value)
+//                        Layout(layout.mobileLeftSidebar.collectAsState().value)
                     }
                 }
             }

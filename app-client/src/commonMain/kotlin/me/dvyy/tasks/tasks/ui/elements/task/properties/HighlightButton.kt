@@ -16,7 +16,7 @@ fun HighlightButton(
     shape: Shape = UI.shapes.rounded,
     content: @Composable () -> Unit = {},
 ) {
-    BoxButton(onClick = onClick, highlight.color, modifier = modifier, shape = shape) {
+    BoxButton(onClick = onClick, modifier, highlight.color, shape = shape) {
         content()
     }
 }

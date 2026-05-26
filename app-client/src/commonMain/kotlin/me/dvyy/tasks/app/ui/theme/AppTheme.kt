@@ -6,7 +6,11 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import me.dvyy.tasks.app.ui.PreferencesViewModel
+import org.kodein.di.bindSingleton
+import org.kodein.di.compose.subDI
 import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
@@ -58,6 +62,11 @@ fun AppTheme(content: @Composable () -> Unit) {
         colorScheme = colorScheme,
         typography = AppTypography(),
     ) {
-        content()
+        val globalViewModelStore = LocalViewModelStoreOwner.current
+        subDI(diBuilder = {
+            if (globalViewModelStore != null) bindSingleton<ViewModelStoreOwner>("global") { globalViewModelStore }
+        }) {
+            content()
+        }
     }
 }

@@ -64,6 +64,7 @@ kotlin {
                 implementation(libs.compose.ui.tooling.preview)
                 implementation(libs.compose.material3)
                 implementation(libs.compose.material.icons.extended)
+                implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.5.0-beta01")
                 implementation("dev.seyfarth:tabler-icons-kmp:1.0.0")
                 implementation(libs.compose.ui)
                 implementation(libs.rebugger)

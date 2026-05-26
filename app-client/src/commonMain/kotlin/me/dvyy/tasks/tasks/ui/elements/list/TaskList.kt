@@ -18,7 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -77,7 +76,7 @@ fun Project(
         val index = if (selected?.list == list.uuid) {
             state.children.indexOf(selected.task.asTask())
         } else -1
-        Tasks(list, state, lazyColumn = displayOptions.scrollable && displayOptions.fullHeight, selectedIndex = index, listDropTarget = listDropTarget)
+        Tasks(list, state, lazyColumn = displayOptions.scrollable && displayOptions.fullHeight, selectedIndex = index, listDropTarget = listDropTarget, modifier = modifier)
 
         // == Drop target for rest of empty vertical space
         if (displayOptions.fullHeight) {
@@ -93,6 +92,7 @@ private fun Tasks(
     selectedIndex: Int,
     lazyColumn: Boolean = false,
     listDropTarget: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     val ids = projectState.children
 
@@ -100,7 +100,6 @@ private fun Tasks(
     val focusManager = LocalFocusManager.current
     val keyboardOpen by keyboardAsState()
     val state = rememberLazyListState()
-    rememberCoroutineScope()
     LaunchedEffect(selectedIndex) {
         if (selectedIndex != -1) {
             val isVisible = state.layoutInfo.visibleItemsInfo.any { it.index == selectedIndex }
@@ -115,7 +114,27 @@ private fun Tasks(
             focusManager.clearFocus()
         }
     }
-    if (lazyColumn) LazyColumn(state = state) {
+    if (lazyColumn) LazyColumn(modifier, state = state) {
+//        item {
+//            Image(
+//                painter = painterResource(Res.drawable.banner),
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .height(UI.paddedTabHeight * 2)
+//                    .graphicsLayer { alpha = 0.99f }
+//                    .drawWithContent {
+//                        drawContent()
+//                        drawRect(
+//                            brush = Brush.verticalGradient(
+//                                0f to Color.Black,
+//                                1.0f to Color.Transparent
+//                            ),
+//                            blendMode = BlendMode.DstIn
+//                        )
+//                    },
+//                contentScale = ContentScale.Crop
+//            )
+//        }
 //        Rebugger(mapOf("list" to list, "ids" to ids, "viewModel" to viewModel), composableName = "List ${list.uuid}")
         items(ids, key = { it.uuid }) { id ->
             TaskFromId(list, id)

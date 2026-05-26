@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.DividerDefaults
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.Cursors
@@ -51,18 +53,16 @@ fun Divider(
         modifier
             .optional(applyHoverCursor) { pointerHoverIcon(icon) }
             .onHoverIfAvailable(onEnter = { color = hover }, onExit = { color = surface })
+            .sizeIn(minWidth = 8.dp, minHeight = 8.dp)
             .then(clickable),
     ) {
         if (toggleable) Box(Modifier.align(Alignment.TopEnd)) {
             val rotation by animateFloatAsState(if (expanded) 180f else 0f)
             Icon(Icons.Rounded.ArrowDropDown, "Toggle", modifier = Modifier.rotate(rotation))
         }
-        Box(
-            Modifier.align(Alignment.Center)
-        ) {
-            val animatedColor by animateColorAsState(color)
-            if (ver) HorizontalDivider(Modifier.padding(end = padding), color = animatedColor)
-            else VerticalDivider(Modifier.padding(top = padding), color = animatedColor)
+        Box(Modifier.align(Alignment.Center)) {
+            if (ver) HorizontalDivider(Modifier.padding(end = padding), color = Color.Transparent)
+            else VerticalDivider(Modifier.padding(top = padding), color = Color.Transparent)
         }
     }
 }

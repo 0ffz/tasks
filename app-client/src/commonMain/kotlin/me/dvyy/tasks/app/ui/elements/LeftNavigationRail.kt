@@ -17,13 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.dvyy.tasks.app.ui.Settings
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.app.ui.rememberGlobalViewModel
 import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
-import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.sync.ui.SyncIndicator
 import me.dvyy.tasks.sync.ui.UpdateIndicator
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonColumn
-import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 fun TopBarContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) = PlatformTopBarContainer(
@@ -40,7 +39,6 @@ fun TopBarContainer(modifier: Modifier = Modifier, content: @Composable () -> Un
 fun LeftNavigationRail(
     onNavigate: (Any) -> Unit,
 ) {
-    val layout: LayoutViewModel by rememberViewModel()
     Surface(
         Modifier.fillMaxHeight().width(UI.sideBarWidth),
         tonalElevation = UI.elevation.lv1,
@@ -77,18 +75,18 @@ fun NavigationButtons(
     spacer: @Composable () -> Unit,
     onNavigate: (Any) -> Unit,
 ) {
-    val layout: LayoutViewModel by rememberViewModel()
-    val buttons by layout.layoutButtonLocations.collectAsState()
-    val selected by layout.mobileLeftSidebar.collectAsState()
-    buttons.left.forEach { button ->
-        val isSelected = button.structure == selected
-        LayoutToggleButton(button, isSelected) {
-            layout.setLeftSidebar(
-                if (isSelected) LayoutStructure.Remove
-                else button.structure
-            )
-        }
-    }
+    val layout: LayoutViewModel by rememberGlobalViewModel()
+    //FIXme add back
+//    val selected by layout.mobileLeftSidebar.collectAsState()
+//    buttons.left.forEach { button ->
+//        val isSelected = button.structure == selected
+//        LayoutToggleButton(button, isSelected) {
+//            layout.setLeftSidebar(
+//                if (isSelected) LayoutStructure.Remove
+//                else button.structure
+//            )
+//        }
+//    }
     spacer()
     UpdateIndicator()
     SyncIndicator()

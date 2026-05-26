@@ -8,15 +8,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,22 +30,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import kotlinx.serialization.Serializable
-import me.dvyy.tasks.app.ui.elements.LeftNavigationRail
+import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.layout.ui.AppFileTree
-import me.dvyy.tasks.layout.ui.LayoutStructure
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.SplitAmount
-import me.dvyy.tasks.layout.ui.layouts.Layout
+import me.dvyy.tasks.layout.ui.layouts.CalculateLayout
 import me.dvyy.tasks.layout.ui.layouts.Split
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.settings.ui.SettingsScreen
+import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import org.kodein.di.compose.viewmodel.rememberViewModel
 
@@ -54,13 +60,7 @@ object TabSwitcher
 data object Settings
 
 @Serializable
-sealed interface AppDialog {
-    @Serializable
-    data object Auth : AppDialog
-
-    @Serializable
-    data class ConfirmDeleteProject(val key: ListId) : AppDialog
-}
+data class ConfirmDeleteProject(val key: ListId)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +68,7 @@ fun AppNavigation(
     navController: NavHostController,
     topBar: @Composable (TopAppBarScrollBehavior) -> Unit,
 ) {
-    val layoutViewModel: LayoutViewModel by rememberViewModel()
+    val layoutViewModel: LayoutViewModel by rememberGlobalViewModel()
     NavHost(
         navController = navController,
         startDestination = Home,
@@ -76,21 +76,9 @@ fun AppNavigation(
         exitTransition = { fadeOut() }
     ) {
         composable<Home> {
-            val tab by layoutViewModel.activeTab.collectAsState()
-//            if (UI.isSmall) {
-////                val structure by layoutViewModel.mobileLayout.collectAsState(LayoutStructure.Remove)
-//                Row {
-//                    Layout(tab, onLayoutUpdate = { new ->
-//                        layoutViewModel.setTab(tabId, new)
-////                        val main = (new as LayoutStructure.Split).first
-////                        layoutViewModel.setMainView(main)
-//                    })
-//                }
-//            } else {
-//                val structure by layoutViewModel.desktopLayout.collectAsState(LayoutStructure.Remove)
             Row {
                 if (!UI.isSmall) {
-                    LeftNavigationRail(onNavigate = { navController.navigate(it) })
+//                    LeftNavigationRail(onNavigate = { navController.navigate(it) })
                     TintedVerticalDivider(Modifier.padding(top = UI.tabHeight))
                 }
 
@@ -110,29 +98,29 @@ fun AppNavigation(
                             val scrollBehavior = if (UI.isSmall)
                                 TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
                             else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                            val layoutViewModel: LayoutViewModel by rememberViewModel()
-
+                            val layoutViewModel: LayoutViewModel by rememberGlobalViewModel()
+//                            val list = LayoutDefinition.Empty.replace(
+//                                0,
+//                                LayoutOperation.Split(SplitAmount.Percent(0.5f), Orientation.Vertical),
+//                                ScreenDest.Week(),
+//                                ScreenDest.Projects(horizontal = true, staggered = false)
+//                            )
+                            val list by layoutViewModel.activeTab.collectAsStateWithLifecycle()
                             topBar(scrollBehavior)
-                            Layout(tab, onLayoutUpdate = { new ->
-                                layoutViewModel.replaceTab(new)
-                            })
+                            CalculateLayout(0, list, onLayoutChange = { layoutViewModel.replaceTab(it) }) //TODO on layout change
                         }
                     }
                 )
             }
         }
         composable<TabSwitcher> {
-            val active by layoutViewModel.selectedTab.collectAsState()
-            val tabs by layoutViewModel.tabs.collectAsState()
+            val active by layoutViewModel.selectedTab.collectAsStateWithLifecycle()
+            val tabs by layoutViewModel.tabs.collectAsStateWithLifecycle()
             TabSwitcherScreen(
                 tabs = tabs,
-                activeTabIndex = active,
+                selectedTab = active,
                 onNavigateToTab = {
                     layoutViewModel.switchTab(it)
-                    navController.popBackStack()
-                }, onOpenNewTab = {
-                    val index = layoutViewModel.openTab(LayoutStructure.Empty)
-                    layoutViewModel.switchTab(index)
                     navController.popBackStack()
                 }, onCloseTab = {
                     layoutViewModel.closeTab(it)
@@ -160,4 +148,28 @@ fun AppNavigation(
             }
         }
     }
+}
+
+@Composable
+fun ConfirmDeleteProjectDialog(
+    key: ListId,
+    onDismiss: () -> Unit,
+) {
+    val tasks: TasksViewModel by rememberViewModel()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(AppIcons.Delete, contentDescription = "Delete") },
+        title = { Text("Delete project") },
+        text = { Text("This will delete the projects and any tasks in it. Are you sure?") },
+        confirmButton = {
+            TextButton(onClick = {
+                onDismiss()
+                tasks.deleteProject(key.uuid)
+            }) { Text("Delete") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Dismiss") }
+        },
+        modifier = Modifier.imePadding()
+    )
 }
