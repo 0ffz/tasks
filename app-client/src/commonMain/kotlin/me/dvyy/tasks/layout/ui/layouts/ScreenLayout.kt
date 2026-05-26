@@ -17,7 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.drag.DraggableItem
 import dev.seyfarth.tablericons.TablerIcons
@@ -85,6 +87,7 @@ fun ScreenLayout(
         }
         val cornerSize = 6.dp
         if (rootLayout.operations.size > 1 && hovered) Surface(
+            Modifier.align(Alignment.TopCenter).alpha(0.8f),
             shape = RoundedCornerShape(bottomStart = cornerSize, bottomEnd = cornerSize),
             tonalElevation = 0.dp
         ) {
