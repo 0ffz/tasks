@@ -5,8 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.model.Highlight
-import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
-import me.dvyy.tasks.tasks.ui.elements.task.color
 
 @Composable
 fun HighlightButton(
@@ -16,7 +14,8 @@ fun HighlightButton(
     shape: Shape = UI.shapes.rounded,
     content: @Composable () -> Unit = {},
 ) {
-    BoxButton(onClick = onClick, modifier, highlight.color, shape = shape) {
-        content()
-    }
+    //TODO
+//    BoxButton(onClick = onClick, modifier, highlight.color, tooltip = "Highlight", shape = shape) {
+//        content()
+//    }
 }

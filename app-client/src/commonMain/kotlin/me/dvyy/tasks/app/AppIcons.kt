@@ -1,7 +1,5 @@
 package me.dvyy.tasks.app
 
-import androidx.compose.material.icons.Icons
+import dev.seyfarth.tablericons.TablerIcons
 
-val AppIcons = Icons.Outlined
-
-val AppIconsMirrored = Icons.AutoMirrored.Outlined
+val AppIcons = TablerIcons.Outlined

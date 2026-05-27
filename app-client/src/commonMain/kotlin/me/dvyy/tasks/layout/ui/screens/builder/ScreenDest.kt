@@ -1,6 +1,7 @@
 package me.dvyy.tasks.layout.ui.screens.builder
 
 import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.serialization.Serializable
 import me.dvyy.tasks.layout.ui.screens.allProjectsScreen
 import me.dvyy.tasks.layout.ui.screens.emptyScreen
@@ -20,7 +21,7 @@ sealed interface ScreenDest {
 
     @Serializable
     data class Projects(
-        val projects: List<ListId>? = null,
+        val projects: ImmutableList<ListId>? = null,
         val horizontal: Boolean = true,
         val staggered: Boolean = false,
     ) : ScreenDest

@@ -14,16 +14,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import me.dvyy.tasks.app.ui.AppDest
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
-import me.dvyy.tasks.app.ui.rememberGlobalViewModel
-import me.dvyy.tasks.layout.ui.LayoutViewModel
+import me.dvyy.tasks.layout.ui.AppFileTree
 import org.kodein.di.compose.rememberInstance
 
 @Composable
 fun AppDrawer(
+    navController: NavController,
     content: @Composable () -> Unit,
 ) {
     val app: AppState by rememberInstance()
@@ -39,7 +41,7 @@ fun AppDrawer(
                     containerColor = Color.Transparent,
                 ) {
                     Box(Modifier.padding(it)) {
-//                        Layout(layout.mobileLeftSidebar.collectAsState().value)
+                        AppFileTree(onPromptDeleteProject = { navController.navigate(AppDest.ConfirmDeleteProject(it.uuid.toString())) })
                     }
                 }
             }

@@ -25,6 +25,7 @@ import dev.seyfarth.tablericons.TablerIcons
 import dev.seyfarth.tablericons.outlined.Check
 import dev.seyfarth.tablericons.outlined.Highlight
 import dev.seyfarth.tablericons.outlined.Trash
+import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
@@ -74,21 +75,7 @@ fun TaskOptions(
                         Icon(TablerIcons.Outlined.Check, contentDescription = "Submit")
                     }
                 } else {
-                    BoxButton(
-                        onClick = { task.mutate.onDelete() },
-//                        shape = RoundedCornerShape(bottomEnd = 16.dp),
-//                        color = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    ) {
-
-                        Icon(TablerIcons.Outlined.Trash, contentDescription = "Delete")
-                    }
-//                    FilledTonalIconButton(
-//
-//                        colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-//                        modifier = Modifier.height(UI.tasks.checkboxSize)
-//                    ) {
-//                    }
+                    BoxButton(AppIcons.Trash, onClick = { task.mutate.onDelete() }, "Delete", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

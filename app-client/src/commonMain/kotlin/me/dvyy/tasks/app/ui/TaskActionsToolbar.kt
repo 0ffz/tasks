@@ -3,7 +3,6 @@ package me.dvyy.tasks.app.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -11,7 +10,6 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,21 +20,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.seyfarth.tablericons.TablerIcons
-import dev.seyfarth.tablericons.outlined.ChevronLeft
-import dev.seyfarth.tablericons.outlined.ChevronRight
-import dev.seyfarth.tablericons.outlined.Menu2
+import dev.seyfarth.tablericons.outlined.Home
+import dev.seyfarth.tablericons.outlined.LayoutSidebarLeftCollapse
+import dev.seyfarth.tablericons.outlined.LayoutSidebarLeftExpand
 import dev.seyfarth.tablericons.outlined.SquareNumber1
 import dev.seyfarth.tablericons.outlined.SquarePlus
 import kotlinx.coroutines.launch
+import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.elements.NavigationButtons
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.layouts.LayoutDefinition
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
-import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 import org.kodein.di.compose.rememberInstance
-import org.kodein.di.compose.viewmodel.rememberViewModel
 
 //TODO test out vs inline toolbar on touchscreen
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -57,61 +54,52 @@ fun TaskActionsToolbar(
 
     val showMiddleActions = !isTabOverviewOpen && !isDrawerOpen
 
-    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+    Row(modifier, horizontalArrangement = Arrangement.Center) {
         AnimatedVisibility(isDrawerOpen) {
 //            FloatingSurface(Modifier.padding(end = UI.padding.sm)) {
             ButtonRow {
+                BoxButton(
+                    icon = AppIcons.LayoutSidebarLeftCollapse,
+                    onClick = { scope.launch { app.drawerState.close() } },
+                    tooltip = "Close Menu"
+                )
                 NavigationButtons(spacer = { TintedVerticalDivider(Modifier.height(UI.tabHeight * 0.5f)) }, onNavigate = onNavigate)
             }
 //            }
         }
 //        FloatingSurface {
-        ButtonRow(spacedBy = 0.dp) {
+        Row {
             AnimatedVisibility(showMiddleActions) {
-                BoxButton(onClick = {
-                    scope.launch {
-                        if (app.drawerState.isOpen) app.drawerState.close() else app.drawerState.open()
-                    }
-                }, modifier = Modifier.padding(end = UI.padding.sm)) {
-//                Box(modifier = Modifier.rotate(rotation)) {
-//                    if (rotation > 90f) {
-//                    } else {
-                    Icon(TablerIcons.Outlined.Menu2, contentDescription = "Open Menu")
-//                    }
-                }
+                BoxButton(
+                    icon = AppIcons.LayoutSidebarLeftExpand,
+                    onClick = {
+                        scope.launch {
+                            if (app.drawerState.isOpen) app.drawerState.close() else app.drawerState.open()
+                        }
+                    },
+                    tooltip = "Open Menu",
+                    modifier = Modifier.padding(end = UI.padding.sm)
+                )
             }
 //            AnimatedVisibility(selectedTask != null) {
 //                ButtonRow(horizontalPadding = 0.dp) {
-//                    BoxButton(onClick = { expanded = !expanded }) {
-//                        Icon(Icons.Outlined.FormatBold, contentDescription = "Add task")
-//                    }
-//                    BoxButton(onClick = { expanded = !expanded }) {
-//                        Icon(Icons.Outlined.FormatItalic, contentDescription = "Add task")
-//                    }
-//                    BoxButton(onClick = { expanded = !expanded }) {
-//                        Icon(Icons.Outlined.FormatUnderlined, contentDescription = "Add task")
-//                    }
+//                    BoxButton(icon = Icons.Outlined.FormatBold, onClick = { expanded = !expanded }, contentDescription = "Format Bold")
+//                    BoxButton(icon = Icons.Outlined.FormatItalic, onClick = { expanded = !expanded }, contentDescription = "Format Italic")
+//                    BoxButton(icon = Icons.Outlined.FormatUnderlined, onClick = { expanded = !expanded }, contentDescription = "Format Underlined")
 //                }
 //            }
             AnimatedVisibility(showMiddleActions) {
                 ButtonRow(horizontalPadding = 0.dp) {
-                    BoxButton(onClick = { expanded = !expanded }) {
-                        Icon(Icons.Outlined.Search, contentDescription = "Add task")
-                    }
-                    BoxButton(onClick = { scope.launch { onNavigateToTabSwitcher() } }) {
-                        Icon(TablerIcons.Outlined.SquareNumber1, contentDescription = "Add task")
-                    }
-                }
-            }
-
-            AnimatedVisibility(isDrawerOpen) {
-                BoxButton(onClick = { scope.launch { app.drawerState.close() } }) {
-                    Icon(TablerIcons.Outlined.ChevronRight, contentDescription = "Close Menu")
-                }
-            }
-            AnimatedVisibility(isTabOverviewOpen) {
-                BoxButton(onClick = { scope.launch { onBack() } }) {
-                    Icon(TablerIcons.Outlined.ChevronLeft, contentDescription = "Close Menu")
+                    BoxButton(
+                        icon = Icons.Outlined.Search,
+                        onClick = { expanded = !expanded },
+                        tooltip = "Search"
+                    )
+                    BoxButton(
+                        icon = TablerIcons.Outlined.SquareNumber1,
+                        onClick = { scope.launch { onNavigateToTabSwitcher() } },
+                        tooltip = "Tab Switcher"
+                    )
                 }
             }
         }
@@ -124,9 +112,17 @@ fun TaskActionsToolbar(
 //                        layoutViewModel.switchTab(index)
 //                        navController.popBackStack()
 //                    }
-                BoxButton(onClick = { layout.openTab(LayoutDefinition.Empty) }, color = MaterialTheme.colorScheme.secondaryContainer) {
-                    Icon(TablerIcons.Outlined.SquarePlus, contentDescription = "New tab")
-                }
+                BoxButton(
+                    icon = TablerIcons.Outlined.SquarePlus,
+                    onClick = { layout.openTab(LayoutDefinition.Empty) },
+                    tooltip = "New tab",
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                )
+                BoxButton(
+                    icon = TablerIcons.Outlined.Home,
+                    onClick = { scope.launch { onBack() } },
+                    tooltip = "Home"
+                )
             }
 //            }
         }

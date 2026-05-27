@@ -5,11 +5,14 @@ import androidx.compose.ui.unit.Dp
 enum class OS(
     val extension: String,
 ) {
-    ANDROID("apk"), LINUX("AppImage"), WINDOWS("msi"), MACOS("dmg"), UNKNOWN("error")
+    ANDROID("apk"), LINUX("AppImage"), WINDOWS("msi"), MACOS("dmg"), UNKNOWN("error");
+
+    fun isMobile() = this == ANDROID
 }
 expect object PlatformSpecifics {
     val preferLongPressDrag: Boolean
     val minHitSize: Dp
     val paddingInnerSize: Dp
     val currentOS: OS
+    val hoverAvailable: Boolean
 }

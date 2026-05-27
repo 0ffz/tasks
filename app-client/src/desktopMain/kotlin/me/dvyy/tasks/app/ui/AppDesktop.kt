@@ -1,15 +1,13 @@
 package me.dvyy.tasks.app.ui
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -18,8 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -31,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.dvyy.tasks.app.createAppKoinApplication
 import me.dvyy.tasks.app.data.TopbarViewModel
-import me.dvyy.tasks.app.ui.elements.AppIcon
 import me.dvyy.tasks.app.ui.elements.PlatformSpecificTopBarActions
 import me.dvyy.tasks.app.ui.elements.PlatformTopBarContainer
 import me.dvyy.tasks.app_client.generated.resources.Res
@@ -94,24 +92,23 @@ fun ApplicationScope.AppDesktop(vararg overrides: DI.Module) = withDI(createAppK
             }
         }) {
             CompositionLocalProvider(LocalDensity provides Density(density)) {
-                Box(Modifier.border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RectangleShape)) {
+                Box {
                     App(
                         topBar = {
-                            PlatformTopBarContainer(Modifier) {
+                            PlatformTopBarContainer(Modifier.height(UI.tabHeight)) {
                                 Column {
-                                    Row {
-                                        if (UI.isSmall) {
-                                            Spacer(Modifier.width(UI.size.sm))
-                                            AppIcon()
-                                        }
-                                        AppTabBar(Modifier.weight(1f))
-                                        PlatformTopBarContainer(Modifier.height(UI.tabHeight)) {
-                                            Row {
-                                                PlatformSpecificTopBarActions()
-                                            }
-                                        }
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+//                                        if (UI.isSmall) {
+//                                            Spacer(Modifier.width(UI.size.md))
+//                                            AppIcon()
+//                                            Spacer(Modifier.width(UI.size.sm))
+//                                        }
+                                        val startPadding = if (UI.isSmall) UI.padding.sm else 0.dp
+                                        AppTabBar(Modifier.weight(1f).padding(start = startPadding))
+                                        VerticalDivider(Modifier.padding(vertical = UI.padding.md))
+                                        PlatformSpecificTopBarActions()
                                     }
-                                    val isFloating by rememberViewModel<TopbarViewModel>().value.floatingWindowSize.collectAsState()
+                                    val isFloating by rememberViewModel<TopbarViewModel>().value.floatingWindowSize.collectAsStateWithLifecycle()
                                     LaunchedEffect(isFloating) {
                                         resizable = isFloating == null
                                     }

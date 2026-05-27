@@ -12,7 +12,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seyfarth.tablericons.TablerIcons
 import dev.seyfarth.tablericons.outlined.Moon
 import dev.seyfarth.tablericons.outlined.Sun
@@ -27,16 +27,16 @@ import dev.seyfarth.tablericons.outlined.SunMoon
 import kotlinx.coroutines.flow.update
 import me.dvyy.tasks.app.ui.PreferencesViewModel
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.app.ui.rememberGlobalViewModel
 import me.dvyy.tasks.app.ui.theme.DarkModePref
 import me.dvyy.tasks.app.ui.theme.Fonts
 import me.dvyy.tasks.app.ui.theme.TaskAppTheme
-import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsThemeTab() {
-    val prefs: PreferencesViewModel by rememberViewModel()
-    val prefsTheme by prefs.theme.collectAsState()
+    val prefs: PreferencesViewModel by rememberGlobalViewModel()
+    val prefsTheme by prefs.theme.collectAsStateWithLifecycle()
     var theme by remember { mutableStateOf(prefsTheme) }
     BoxedList {
         var checked by remember { mutableStateOf(prefs.appTheme.value == TaskAppTheme.Material) }
@@ -56,7 +56,7 @@ fun SettingsThemeTab() {
         )
 
         SettingItem("Theme style") {
-            val darkModePref by prefs.darkMode.collectAsState()
+            val darkModePref by prefs.darkMode.collectAsStateWithLifecycle()
             ButtonGroup(
                 overflowIndicator = { menuState ->
                     ButtonGroupDefaults.OverflowIndicator(menuState = menuState)

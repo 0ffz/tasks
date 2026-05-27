@@ -2,7 +2,6 @@ package me.dvyy.tasks.settings.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalUriHandler
+import dev.seyfarth.tablericons.outlined.Rotate
 import kotlinx.coroutines.launch
 import me.dvyy.tasks.BuildKonfig
 import me.dvyy.tasks.app.AppIcons
@@ -40,7 +40,7 @@ fun SettingsUpdateTab(): Unit = Column(verticalArrangement = Arrangement.spacedB
     SettingsButtonGroup {
         updateUrl?.let {
             PrimaryButton(onClick = { uriHandler.openUri(it) }) {
-                LeadingIcon(AppIcons.Update, "Update available") {
+                LeadingIcon(AppIcons.Rotate, "Update available") {
                     Text(text = "Download Update")
                 }
             }

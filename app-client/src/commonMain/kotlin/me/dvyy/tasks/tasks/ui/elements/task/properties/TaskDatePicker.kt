@@ -3,7 +3,6 @@ package me.dvyy.tasks.tasks.ui.elements.task.properties
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -12,13 +11,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import dev.seyfarth.tablericons.TablerIcons
 import dev.seyfarth.tablericons.outlined.CalendarMonth
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
+import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
 import me.dvyy.tasks.time.TimeViewModel
 import org.kodein.di.compose.viewmodel.rememberViewModel
@@ -39,12 +38,7 @@ fun TaskDatePicker(
         initialSelectedDateMillis = initialDate.atStartOfDayIn(time.timezone).toEpochMilliseconds()
     )
 
-    BoxButton(
-        onClick = { showDatePicker = true },
-        tooltip = "Move to date",
-    ) {
-        Icon(TablerIcons.Outlined.CalendarMonth, contentDescription = "Move task")
-    }
+    BoxButton(AppIcons.CalendarMonth, onClick = { showDatePicker = true }, tooltip = "Move to date")
 
     if (showDatePicker) DatePickerDialog(
         onDismissRequest = { showDatePicker = false },

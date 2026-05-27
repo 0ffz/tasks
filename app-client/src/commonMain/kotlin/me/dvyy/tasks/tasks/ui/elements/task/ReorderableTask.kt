@@ -3,9 +3,6 @@ package me.dvyy.tasks.tasks.ui.elements.task
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material.icons.outlined.DragIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -15,8 +12,6 @@ import com.mohamedrejeb.compose.dnd.drag.DraggableItem
 import com.mohamedrejeb.compose.dnd.drag.DropStrategy
 import com.mohamedrejeb.compose.dnd.drop.DropTargetState
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
-import me.dvyy.tasks.app.AppIcons
-import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.model.TaskId
 import me.dvyy.tasks.model.asTask
 import me.dvyy.tasks.utils.Dragged
@@ -81,16 +76,6 @@ fun ReorderableTask(
     }
 }
 
-
-@Composable
-fun DragHandle(modifier: Modifier = Modifier) {
-    Icon(
-        AppIcons.DragIndicator,
-        "Drag handle",
-        modifier = modifier,
-        tint = MaterialTheme.colorScheme.onSurface.fade(0.5f)
-    )
-}
 
 object LeftDistance : DropStrategy {
     override fun <T> getHoveredDropTarget(

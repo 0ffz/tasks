@@ -12,10 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.ChevronLeft
+import dev.seyfarth.tablericons.outlined.X
 import me.dvyy.tasks.app.ui.elements.TopBarContainer
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
 import me.dvyy.tasks.settings.ui.RowOrBox
@@ -58,9 +57,11 @@ fun ScreenContainer(
                                 Spacer(Modifier.weight(1f))
                                 Text(utilityPaneText ?: "", fontWeight = FontWeight.SemiBold)
                                 Spacer(Modifier.weight(1f))
-                                if (ui.isSmall) BoxButton(onClick = onClose) {
-                                    Icon(Icons.Rounded.Close, "Close")
-                                }
+                                if (ui.isSmall) BoxButton(
+                                    TablerIcons.Outlined.X,
+                                    onClick = onClose,
+                                    "Close"
+                                )
                             }
                         }
                         it({ expanded = it })
@@ -78,17 +79,21 @@ fun ScreenContainer(
                 TopBarContainer {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (ui.isSmall) {
-                            BoxButton(onClick = { expanded = !expanded }) {
-                                Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Open menu")
-                            }
+                            BoxButton(
+                                TablerIcons.Outlined.ChevronLeft,
+                                onClick = { expanded = !expanded },
+                                "Open menu"
+                            )
                         }
                         extraItems()
                         Spacer(Modifier.weight(1f))
                         Text(title, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.weight(1f))
-                        BoxButton(onClick = onClose) {
-                            Icon(Icons.Rounded.Close, "Close")
-                        }
+                        BoxButton(
+                            TablerIcons.Outlined.X,
+                            onClick = onClose,
+                            "Close"
+                        )
                     }
                 }
                 Column {

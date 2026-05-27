@@ -1,38 +1,28 @@
 package me.dvyy.tasks.app.ui.elements
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import dev.seyfarth.tablericons.TablerIcons
+import dev.seyfarth.tablericons.outlined.Crop11
 import dev.seyfarth.tablericons.outlined.Minus
-import dev.seyfarth.tablericons.outlined.Square
 import dev.seyfarth.tablericons.outlined.X
 import me.dvyy.tasks.app.data.TopbarViewModel
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.topbar.BetterWindowDraggableArea
-import me.dvyy.tasks.app.ui.topbar.WindowButton
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
 actual fun PlatformSpecificTopBarActions() = PlatformTopBarContainer(Modifier, {
-    Row(Modifier.height(UI.tabHeight)) {
+    ButtonRow(Modifier.height(UI.tabHeight)) {
         val viewModel: TopbarViewModel by rememberViewModel()
-
-        VerticalDivider(Modifier.padding(UI.padding.md))
-        WindowButton(TablerIcons.Outlined.Minus) {
-            viewModel.minimize()
-        }
-        WindowButton(TablerIcons.Outlined.Square) {
-            viewModel.toggleMaximized()
-        }
-        WindowButton(TablerIcons.Outlined.X) {
-            viewModel.closeWindow()
-        }
+        BoxButton(TablerIcons.Outlined.Minus, onClick = { viewModel.minimize() }, "Minimize")
+        BoxButton(TablerIcons.Outlined.Crop11, onClick = { viewModel.toggleMaximized() }, "Maximize")
+        BoxButton(TablerIcons.Outlined.X, onClick = { viewModel.closeWindow() }, "Close")
     }
 })
 

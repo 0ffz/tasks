@@ -1,7 +1,6 @@
 package me.dvyy.tasks.auth.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -13,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import dev.seyfarth.tablericons.outlined.Link
 import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.auth.ui.LoginState.Error
 import org.kodein.di.compose.viewmodel.rememberViewModel

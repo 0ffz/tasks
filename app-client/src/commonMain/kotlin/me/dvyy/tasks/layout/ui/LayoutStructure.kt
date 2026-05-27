@@ -3,7 +3,6 @@ package me.dvyy.tasks.layout.ui
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.QuestionMark
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -16,8 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import co.touchlab.kermit.Logger
 import dev.seyfarth.tablericons.TablerIcons
-import dev.seyfarth.tablericons.outlined.Folder
-import dev.seyfarth.tablericons.outlined.LayoutCards
 import dev.seyfarth.tablericons.outlined.Plus
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -129,47 +126,12 @@ private sealed interface LayoutStructure {
         abstract fun content()
 
         @Serializable
-        data object FileTree : Single() {
-            override val icon = TablerIcons.Outlined.Folder
-            override val text = "File tree"
-            override val hasDropTargets: Boolean = false
-            override val showsTopBar: Boolean = false
-
-            @Composable
-            override fun content() {
-                AppFileTree()
-            }
-        }
-
-        @Serializable
-        data class Projects(
-            val staggered: Boolean = false,
-            val horizontal: Boolean = false,
-            val projects: List<ListId>? = null,
-        ) : Single() {
-            override val icon get() = TablerIcons.Outlined.LayoutCards
-            override val text get() = "All Projects"
-
-            @Composable
-            override fun content() {
-//                AllProjectsScreen(
-//                    horizontal = horizontal,
-//                    projects = projects,
-//                    staggered = staggered,
-//                    modifier = if (staggered) Modifier.fillMaxHeight() else Modifier
-//                )
-            }
-        }
-
-        @Serializable
         data class Project(
             val key: ListId,
         ) : Single() {
             @Composable
             override fun trailingOptions() {
-                BoxButton(onClick = {}) {
-                    Icon(TablerIcons.Outlined.Plus, "Add to top")
-                }
+                BoxButton(TablerIcons.Outlined.Plus, onClick = {}, "Add to top")
             }
 
             @Composable

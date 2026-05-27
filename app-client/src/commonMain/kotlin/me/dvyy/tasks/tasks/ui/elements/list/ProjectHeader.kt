@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -107,13 +106,12 @@ fun ProjectHeader(
             }
         }
         // == Add task to top button
-        if (addTask != null) BoxButton(onClick = addTask) {
-            Icon(
-                imageVector = TablerIcons.Outlined.Plus,
-                contentDescription = "Add task to top",
-                tint = colorFaded,
-            )
-        }
+        if (addTask != null) BoxButton(
+            TablerIcons.Outlined.Plus,
+            onClick = addTask,
+            "Add task to top",
+            tint = colorFaded,
+        )
     }
 
     // == Loading indicator and divider

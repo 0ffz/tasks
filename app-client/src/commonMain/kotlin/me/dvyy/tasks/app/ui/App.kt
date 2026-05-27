@@ -1,11 +1,8 @@
 package me.dvyy.tasks.app.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mohamedrejeb.compose.dnd.DragAndDropContainer
@@ -28,6 +24,7 @@ import me.dvyy.tasks.app.ui.elements.AppTopBar
 import me.dvyy.tasks.app.ui.theme.AppTheme
 import me.dvyy.tasks.core.ui.PlatformSpecifics
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
+import me.dvyy.tasks.layout.ui.components.FloatingSurface
 import me.dvyy.tasks.sync.ui.SyncViewModel
 import me.dvyy.tasks.tasks.ui.TasksViewModel
 import me.dvyy.tasks.utils.LocalDragAndDropState
@@ -52,33 +49,31 @@ fun App(
     ) {
         val navController = rememberNavController()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val isTabOverviewOpen = navBackStackEntry?.destination?.route == TabSwitcher::class.qualifiedName
+        val isTabOverviewOpen = navBackStackEntry?.destination?.route == AppDest.TabSwitcher::class.qualifiedName
 
         DragAndDropContainer(LocalDragAndDropState.current) {
-            rememberViewModel<SyncViewModel>() // Ensure sync inits at start
+            rememberViewModel<SyncViewModel>().value // Ensure sync inits at start
             Scaffold(
-                floatingActionButton = {
-                },
                 floatingActionButtonPosition = FabPosition.Center,
                 snackbarHost = {
                     val host by rememberInstance<SnackbarHostState>()
                     SnackbarHost(host)
                 },
-                bottomBar = {
-                    if (UI.isSmall) BottomAppBar(modifier = Modifier.height(UI.tabHeight), actions = {
+                floatingActionButton = {
+                    if (UI.isSmall) FloatingSurface {
                         TaskActionsToolbar(
                             isTabOverviewOpen = isTabOverviewOpen,
-                            onNavigateToTabSwitcher = { navController.navigate(TabSwitcher) },
+                            onNavigateToTabSwitcher = { navController.navigate(AppDest.TabSwitcher) },
                             onBack = { navController.popBackStack() },
                             onNavigate = { navController.navigate(it) }
                         )
 
-                    }, contentPadding = PaddingValues(0.dp))
+                    }
                 },
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(UI.elevation.lv1),
                 modifier = contentModifier.fillMaxSize()
             ) { paddingValues ->
-                AppDrawer {
+                AppDrawer(navController) {
                     Box(Modifier.padding(paddingValues).clickableWithoutRipple { tasksViewModel.selectTask(null) }) {
                         AppNavigation(navController, topBar) // Integration point for the NavHost
 //                        Surface(

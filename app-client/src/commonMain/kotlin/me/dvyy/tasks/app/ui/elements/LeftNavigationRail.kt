@@ -10,12 +10,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.dvyy.tasks.app.ui.Settings
+import me.dvyy.tasks.app.ui.AppDest
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.app.ui.rememberGlobalViewModel
 import me.dvyy.tasks.core.ui.components.buttons.SettingsButton
@@ -53,7 +51,7 @@ fun LeftNavigationRail(
                 }
             }
             ButtonColumn {
-                NavigationButtons(spacer = { Spacer(Modifier.weight(1f)) }, onNavigate)
+                NavigationButtons(onNavigate, spacer = { Spacer(Modifier.weight(1f)) })
             }
             //            ButtonColumn {
 //                buttons.bottom.forEach { button ->
@@ -72,10 +70,9 @@ fun LeftNavigationRail(
 
 @Composable
 fun NavigationButtons(
-    spacer: @Composable () -> Unit,
     onNavigate: (Any) -> Unit,
+    spacer: @Composable () -> Unit,
 ) {
-    val layout: LayoutViewModel by rememberGlobalViewModel()
     //FIXme add back
 //    val selected by layout.mobileLeftSidebar.collectAsState()
 //    buttons.left.forEach { button ->
@@ -90,6 +87,5 @@ fun NavigationButtons(
     spacer()
     UpdateIndicator()
     SyncIndicator()
-    SettingsButton(navigateToSettings = { onNavigate(Settings) })
-
+    SettingsButton(navigateToSettings = { onNavigate(AppDest.Settings) })
 }

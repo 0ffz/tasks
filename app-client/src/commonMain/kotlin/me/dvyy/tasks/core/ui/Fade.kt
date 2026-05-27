@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 
 @Composable
-fun Color.fade(alpha: Float): Color {
+fun Color.fade(alpha: Float = 0.75f): Color {
     val background = MaterialTheme.colorScheme.background
     return background.copy(alpha = 1f - alpha).compositeOver(this)
 }

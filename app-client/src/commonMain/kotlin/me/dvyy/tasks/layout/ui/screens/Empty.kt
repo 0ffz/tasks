@@ -9,12 +9,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import me.dvyy.tasks.layout.ui.layouts.LayoutDefinition
 import me.dvyy.tasks.layout.ui.screens.builder.ScreenDest
 import me.dvyy.tasks.layout.ui.screens.builder.screen
 
 fun emptyScreen() = screen(
-    tabLabel = { Text("New tab") }
+    tabLabel = { AnnotatedString("New tab") }
 ) {
     EmptyScreen(onLayoutChange)
 }

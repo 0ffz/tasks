@@ -1,6 +1,5 @@
 package me.dvyy.tasks.layout.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,11 +16,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.seyfarth.tablericons.outlined.Plus
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.app.ui.AppState
 import me.dvyy.tasks.app.ui.UI
+import me.dvyy.tasks.core.ui.components.LeadingIcon
+import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.layout.ui.screens.builder.ScreenDest
 import me.dvyy.tasks.model.ListId
 import me.dvyy.tasks.model.TaskId
@@ -30,15 +33,17 @@ import me.dvyy.tasks.model.asList
 import me.dvyy.tasks.model.database.AppDatabase
 import me.dvyy.tasks.model.database.Projects
 import me.dvyy.tasks.tasks.ui.TasksViewModel
-import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
-import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButtonProps
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButtonContainer
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonColumn
 import me.dvyy.tasks.tree.ui.FileList
 import me.dvyy.tasks.tree.ui.FileStructure
 import org.kodein.di.compose.rememberInstance
 import org.kodein.di.compose.viewmodel.rememberViewModel
 
 @Composable
-fun AppFileTree() = Box {
+fun AppFileTree(
+    onPromptDeleteProject: (ListId) -> Unit,
+) = Box {
     Column(
         Modifier.padding(top = UI.padding.sm).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(UI.padding.md),
@@ -69,21 +74,21 @@ fun AppFileTree() = Box {
             Text("Calendar", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = UI.padding.md, vertical = UI.padding.sm))
 
             FileList(
-                listOf(
+                persistentListOf(
                     file(ScreenDest.Week()),
                     file(ScreenDest.Week(startAtToday = true, takeDays = 3)),
                     file(ScreenDest.Week(startAtToday = true, takeDays = 1)),
-                )
+                ), onPromptDeleteProject
             )
         }
 
-        Column {
+        ButtonColumn {
             Text("Projects", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = UI.padding.md, vertical = UI.padding.sm))
 
             FileList(
                 buildList {
                     add(file(ScreenDest.Projects(horizontal = true)))
-                    add(FileStructure.Element { HorizontalDivider() })
+//                    add(FileStructure.Element { HorizontalDivider() })
 
                     //TODO add back project list
                     val projects by tasks.projects.collectAsStateWithLifecycle()
@@ -95,16 +100,18 @@ fun AppFileTree() = Box {
                             scope.launch { db.mutate.childOf.move(it.uuid, Projects.projectRoot, atChild = key.id) }
                         }))
                     }
-                }
+                }.toImmutableList(),
+                onPromptDeleteProject
             )
 
-            BoxButton(
+            BoxButtonContainer(
                 onClick = { tasks.createProject() },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                properties = BoxButtonProps(innerPadding = 0.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f))
+                modifier = Modifier.fillMaxWidth(),
+                tint = MaterialTheme.colorScheme.onSurface.fade()
             ) {
-                Text("Create project", maxLines = 1)
+                LeadingIcon(icon = AppIcons.Plus, "Add") {
+                    Text("Create project", maxLines = 1)
+                }
             }
             Spacer(Modifier.height(UI.tabHeight * 1.5f))
         }

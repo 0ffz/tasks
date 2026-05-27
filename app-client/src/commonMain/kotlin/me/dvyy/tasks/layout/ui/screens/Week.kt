@@ -9,7 +9,6 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,6 +16,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.seyfarth.tablericons.TablerIcons
 import dev.seyfarth.tablericons.outlined.Calendar
@@ -28,6 +29,7 @@ import dev.seyfarth.tablericons.outlined.ChevronRight
 import kotlinx.coroutines.delay
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
+import me.dvyy.tasks.app.AppIcons
 import me.dvyy.tasks.layout.ui.screens.builder.ScreenDest
 import me.dvyy.tasks.layout.ui.screens.builder.screen
 import me.dvyy.tasks.model.ListId
@@ -46,29 +48,27 @@ fun weekScreen(screen: ScreenDest.Week) = screen(
         3 -> TablerIcons.Outlined.CalendarMonth
         else -> TablerIcons.Outlined.Calendar
     },
+    leadingInfo = {
+        Text("23 tasks this week", maxLines = 1, overflow = TextOverflow.Ellipsis)
+    },
     tabLabel = {
         val text = when (screen.takeDays) {
             7 -> "Week view"
             3 -> "3-day view"
             else -> "Today"
         }
-        Text(text)
+        AnnotatedString(text)
     },
     trailingOptions = { WeekActions() },
 ) { BoxWithConstraints { WeekScreen(screen.startAtToday, screen.takeDays, isSmall = maxWidth < 600.dp) } }
 
 @Composable
-private fun WeekActions() {
+fun WeekActions() {
     val time: TimeViewModel by rememberViewModel()
-    BoxButton(onClick = { time.goToThisWeek() }) {
-        Icon(TablerIcons.Outlined.CalendarEvent, contentDescription = "Today")
-    }
-    BoxButton(onClick = { time.goToPreviousWeek() }) {
-        Icon(TablerIcons.Outlined.ChevronLeft, contentDescription = "Previous")
-    }
-    BoxButton(onClick = { time.goToNextWeek() }) {
-        Icon(TablerIcons.Outlined.ChevronRight, contentDescription = "Next")
-    }
+//    BoxButton(AppIcons.Filter, onClick = { time.goToThisWeek() }, tooltip = "Filter")
+    BoxButton(AppIcons.CalendarEvent, onClick = { time.goToThisWeek() }, tooltip = "Today")
+    BoxButton(AppIcons.ChevronLeft, onClick = { time.goToPreviousWeek() }, tooltip = "Previous week")
+    BoxButton(AppIcons.ChevronRight, onClick = { time.goToNextWeek() }, tooltip = "Next week")
 }
 
 @Composable

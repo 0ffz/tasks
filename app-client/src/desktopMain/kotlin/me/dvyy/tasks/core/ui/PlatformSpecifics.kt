@@ -16,4 +16,5 @@ actual object PlatformSpecifics {
                 else -> OS.UNKNOWN
             }
         }
+    actual val hoverAvailable: Boolean = true
 }

@@ -1,7 +1,6 @@
 package me.dvyy.tasks.sync.ui
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,11 +25,7 @@ fun SyncIndicator() {
     }
     Crossfade(state) { state ->
         val color = if (state is SyncUiState.Connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-        BoxButton(
-            onClick = { sync.toggleSync() },
-        ) {
-            Icon(icon, contentDescription = "Sync", tint = color)
-        }
+        BoxButton(icon, onClick = { sync.toggleSync() }, "Sync", tint = color)
     }
 }
 
@@ -40,13 +35,13 @@ fun UpdateIndicator() {
     val updateUrl by updates.updateUrl.collectAsState()
     if (updateUrl != null) {
         BoxButton(
+            TablerIcons.Outlined.CloudDownload,
             onClick = {
                 TODO()
 //                dialogs.showScreen(AppScreen.Settings(SettingsTab.Update))
             },
-        ) {
-            Icon(TablerIcons.Outlined.CloudDownload, contentDescription = "App update available")
-        }
+            "App update available"
+        )
     }
 }
 

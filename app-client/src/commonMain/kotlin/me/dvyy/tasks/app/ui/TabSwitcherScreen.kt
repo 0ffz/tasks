@@ -29,7 +29,7 @@ fun TabSwitcherScreen(
             .padding(8.dp)
     ) {
         itemsIndexed(tabs) { index, tab ->
-            LayoutTab(selected = index == selectedTab, tab) //TODO is selected
+            LayoutTab(selected = index == selectedTab, tab, onClick = {}) //TODO is selected
         }
     }
 }

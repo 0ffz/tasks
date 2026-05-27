@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.drag.DraggableItem
 import dev.seyfarth.tablericons.TablerIcons
@@ -27,10 +27,8 @@ import dev.seyfarth.tablericons.outlined.GripHorizontal
 import dev.seyfarth.tablericons.outlined.X
 import me.dvyy.tasks.app.ui.UI
 import me.dvyy.tasks.core.ui.modifiers.onHoverIfAvailable
-import me.dvyy.tasks.layout.ui.components.FloatingSurface
 import me.dvyy.tasks.layout.ui.screens.builder.ScreenDest
 import me.dvyy.tasks.layout.ui.screens.builder.ScreenScope
-import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 import me.dvyy.tasks.utils.Dragged
 import me.dvyy.tasks.utils.LocalDragAndDropState
 import kotlin.uuid.Uuid
@@ -45,7 +43,7 @@ fun ScreenLayout(
 ) {
     val screen = remember(dest) { dest.toScreen() }
     var hovered by remember { mutableStateOf(false) }
-    Box(modifier = modifier.onHoverIfAvailable(onEnter = { hovered = true }, onExit = { hovered = false })) {
+    Box(modifier = modifier.clip(UI.shapes.rounded).onHoverIfAvailable(onEnter = { hovered = true }, onExit = { hovered = false })) {
         Scaffold(
             contentWindowInsets = WindowInsets(0.dp),
             floatingActionButton = {
@@ -62,18 +60,7 @@ fun ScreenLayout(
 //                }
 //            }
 //            Spacer(Modifier.weight(1f))
-                FloatingSurface {
-                    ButtonRow(Modifier.height(UI.tabHeight)) {
-                        screen.trailingOptions()
-//                    BoxButton(onClick = { onLayoutUpdate(LayoutStructure.Empty) }) {
-//                        Icon(TablerIcons.Outlined.X, "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-//                    }
-//                    BoxButton(onClick = {}, modifier = Modifier.width(24.dp)) {
-//                        Icon(TablerIcons.Outlined.GripVertical, "Drag", Modifier)
-//                    }
-                    }
-                }
-            }
+            },
         ) {
             Box(Modifier.padding(it)) {
                 val scope = ScreenScope(
@@ -84,6 +71,13 @@ fun ScreenLayout(
                 screen.content(scope)
 //            screen.cachedContent()
             }
+//            Box(Modifier.align(Alignment.BottomEnd).padding(UI.tabPadding)) {
+//                FloatingSurface {
+//                    ButtonRow(Modifier.height(UI.tabHeight)) {
+//                        screen.trailingOptions()
+//                    }
+//                }
+//            }
         }
         val cornerSize = 6.dp
         if (rootLayout.operations.size > 1 && hovered) Surface(

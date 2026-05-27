@@ -6,15 +6,20 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,32 +41,46 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
+import androidx.navigation.toRoute
+import dev.seyfarth.tablericons.outlined.Search
+import dev.seyfarth.tablericons.outlined.Trash
 import kotlinx.serialization.Serializable
 import me.dvyy.tasks.app.AppIcons
+import me.dvyy.tasks.core.ui.PlatformSpecifics
+import me.dvyy.tasks.core.ui.fade
 import me.dvyy.tasks.core.ui.modifiers.clickableWithoutRipple
 import me.dvyy.tasks.layout.ui.AppFileTree
 import me.dvyy.tasks.layout.ui.LayoutViewModel
 import me.dvyy.tasks.layout.ui.SplitAmount
 import me.dvyy.tasks.layout.ui.layouts.CalculateLayout
+import me.dvyy.tasks.layout.ui.layouts.LayoutOperation
 import me.dvyy.tasks.layout.ui.layouts.Split
 import me.dvyy.tasks.layout.ui.layouts.TintedVerticalDivider
+import me.dvyy.tasks.layout.ui.screens.builder.Screen
 import me.dvyy.tasks.model.ListId
+import me.dvyy.tasks.model.asList
 import me.dvyy.tasks.settings.ui.SettingsScreen
 import me.dvyy.tasks.tasks.ui.TasksViewModel
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.BoxButton
+import me.dvyy.tasks.tasks.ui.elements.helpers.buttons.ButtonRow
 import me.dvyy.tasks.tasks.ui.elements.helpers.optional
 import org.kodein.di.compose.viewmodel.rememberViewModel
+import kotlin.uuid.Uuid
 
-@Serializable
-data object Home
+interface AppDest {
+    @Serializable
+    data object Home
 
-@Serializable
-object TabSwitcher
+    @Serializable
+    object TabSwitcher
 
-@Serializable
-data object Settings
+    @Serializable
+    data object Settings
 
-@Serializable
-data class ConfirmDeleteProject(val key: ListId)
+    @Serializable
+    data class ConfirmDeleteProject(val key: String)
+
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,11 +91,11 @@ fun AppNavigation(
     val layoutViewModel: LayoutViewModel by rememberGlobalViewModel()
     NavHost(
         navController = navController,
-        startDestination = Home,
+        startDestination = AppDest.Home,
         enterTransition = { fadeIn() },
         exitTransition = { fadeOut() }
     ) {
-        composable<Home> {
+        composable<AppDest.Home> {
             Row {
                 if (!UI.isSmall) {
 //                    LeftNavigationRail(onNavigate = { navController.navigate(it) })
@@ -90,7 +110,7 @@ fun AppNavigation(
                     first = {
                         Surface(
                             tonalElevation = UI.elevation.lv1
-                        ) { AppFileTree() }
+                        ) { AppFileTree(onPromptDeleteProject = { navController.navigate(AppDest.ConfirmDeleteProject(it.uuid.toString())) }) }
                     },
                     firstEnabled = !UI.isSmall,
                     second = {
@@ -99,21 +119,36 @@ fun AppNavigation(
                                 TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
                             else TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                             val layoutViewModel: LayoutViewModel by rememberGlobalViewModel()
-//                            val list = LayoutDefinition.Empty.replace(
-//                                0,
-//                                LayoutOperation.Split(SplitAmount.Percent(0.5f), Orientation.Vertical),
-//                                ScreenDest.Week(),
-//                                ScreenDest.Projects(horizontal = true, staggered = false)
-//                            )
                             val list by layoutViewModel.activeTab.collectAsStateWithLifecycle()
-                            topBar(scrollBehavior)
-                            CalculateLayout(0, list, onLayoutChange = { layoutViewModel.replaceTab(it) }) //TODO on layout change
+                            val endPadding = if (UI.isSmall) 0.dp else UI.padding.sm
+                            val smallPadding = if (!PlatformSpecifics.currentOS.isMobile() && UI.isSmall) UI.padding.sm else 0.dp
+                            Column {
+                                topBar(scrollBehavior)
+                                Surface(
+                                    tonalElevation = 1.dp, modifier = Modifier.padding(
+                                        bottom = UI.padding.sm,
+                                        end = endPadding
+                                    ).padding(horizontal = smallPadding)
+                                ) {
+                                    val platformElevation = if (PlatformSpecifics.currentOS.isMobile()) 0.dp else (-1).dp
+                                    Surface(tonalElevation = platformElevation, shape = UI.shapes.rounded) {
+                                        val screen = remember(list) { list.placeOperations.filterIsInstance<LayoutOperation.Place>().firstOrNull()?.destination?.toScreen() }
+                                        InfoBar(screen = screen)
+                                    }
+                                }
+                            }
+                            CalculateLayout(
+                                0,
+                                list,
+                                onLayoutChange = { layoutViewModel.replaceTab(it) },
+                                Modifier.padding(end = endPadding, bottom = endPadding).padding(horizontal = smallPadding).padding(bottom = smallPadding)
+                            ) //TODO on layout change
                         }
                     }
                 )
             }
         }
-        composable<TabSwitcher> {
+        composable<AppDest.TabSwitcher> {
             val active by layoutViewModel.selectedTab.collectAsStateWithLifecycle()
             val tabs by layoutViewModel.tabs.collectAsStateWithLifecycle()
             TabSwitcherScreen(
@@ -127,7 +162,11 @@ fun AppNavigation(
                 }
             )
         }
-        dialog<Settings>(dialogProperties = DialogProperties(usePlatformDefaultWidth = false)) {
+        dialog<AppDest.ConfirmDeleteProject> {
+            val id = Uuid.parse(it.toRoute<AppDest.ConfirmDeleteProject>().key).asList()
+            ConfirmDeleteProjectDialog(id, onDismiss = { navController.popBackStack() })
+        }
+        dialog<AppDest.Settings>(dialogProperties = DialogProperties(usePlatformDefaultWidth = false)) {
             val ui = UI
             Box(Modifier.fillMaxSize().clickableWithoutRipple {
                 navController.popBackStack()
@@ -151,6 +190,28 @@ fun AppNavigation(
 }
 
 @Composable
+fun InfoBar(
+    screen: Screen?,
+) = Row(Modifier.height(UI.tabHeight).fillMaxWidth()) {
+//    BoxButton(AppIcons.Menu2, onClick = {}, "Menu")
+    Surface(Modifier.weight(1f), shape = UI.shapes.rounded) {
+        ButtonRow(Modifier.fillMaxHeight()) {
+            ProvideTextStyle(TextStyle(color = MaterialTheme.colorScheme.onSurface.fade())) {
+                if (screen != null) Icon(screen.icon, "Icon", Modifier.size(20.dp))//ScreenTab(screen)
+//                TintedVerticalDivider(Modifier.padding(vertical = UI.padding.md))
+                screen?.leadingInfo()
+            }
+        }
+    }
+//    BoxButtonContainer(onClick = {}, Modifier.weight(1f)) {
+//    }
+    BoxButton(AppIcons.Search, onClick = {}, "Search")
+//    Spacer(Modifier.weight(1f))
+//    WeekActions()
+    screen?.trailingOptions()
+}
+
+@Composable
 fun ConfirmDeleteProjectDialog(
     key: ListId,
     onDismiss: () -> Unit,
@@ -158,7 +219,7 @@ fun ConfirmDeleteProjectDialog(
     val tasks: TasksViewModel by rememberViewModel()
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(AppIcons.Delete, contentDescription = "Delete") },
+        icon = { Icon(AppIcons.Trash, contentDescription = "Delete") },
         title = { Text("Delete project") },
         text = { Text("This will delete the projects and any tasks in it. Are you sure?") },
         confirmButton = {

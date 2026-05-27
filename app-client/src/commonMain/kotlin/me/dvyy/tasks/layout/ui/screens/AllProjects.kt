@@ -1,7 +1,6 @@
 package me.dvyy.tasks.layout.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -19,7 +18,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,12 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTarget
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.text.AnnotatedString
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.seyfarth.tablericons.TablerIcons
 import dev.seyfarth.tablericons.outlined.FileDescription
 import dev.seyfarth.tablericons.outlined.LayoutCards
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import me.dvyy.tasks.app.ui.LocalUIState
 import me.dvyy.tasks.layout.ui.screens.builder.ScreenDest
@@ -57,7 +56,7 @@ fun projectScreen(screen: ScreenDest.Project) = screen(
 ////                    props.displayName == "Inbox" -> AppIcons.Inbox
 //        else -> TablerIcons.Outlined.FileDescription
 //    }
-        Text(title ?: "No title")
+        androidx.compose.ui.text.AnnotatedString(title ?: "No title")
 //    Row(verticalAlignment = Alignment.CenterVertically) {
 //        Box(Modifier.weight(1f)) {
 //            Text(icon, title ?: "Untitled")
@@ -78,21 +77,22 @@ fun allProjectsScreen(
     screen: ScreenDest.Projects,
 ) = screen(
     icon = TablerIcons.Outlined.LayoutCards,
-    tabLabel = { Text("All Projects") }
+    tabLabel = { AnnotatedString("All projects") }
 ) {
-    AllProjectsScreen(screen.projects, screen.horizontal, screen.staggered)
+    AllProjectsScreen(screen.horizontal, screen.staggered, screen.projects)
 }
 
 @Composable
 private fun AllProjectsScreen(
-    projects: List<ListId>? = null,
     horizontal: Boolean,
     staggered: Boolean,
-    tasksViewModel: TasksViewModel = viewModel(),
+    projects: ImmutableList<ListId>? = null,
 ) {
+    val tasksViewModel by rememberViewModel<TasksViewModel>()
     val ui = LocalUIState.current
-    val projects = projects ?: tasksViewModel.projects.collectAsState().value.map { it.id.asList() }
-    ProjectLayout(Modifier, horizontal, staggered, projects, key = { it.uuid }) { listId ->
+    val projectList by tasksViewModel.projects.collectAsStateWithLifecycle()
+    val projects = remember(projects, projectList) { projects ?: projectList.map { it.id.asList() }.toImmutableList() }
+    ProjectLayout(horizontal, staggered, items = projects, key = { it.uuid }, itemContent = { listId ->
         Project(
             listId,
             Modifier.width(ui.taskListWidth),
@@ -101,17 +101,17 @@ private fun AllProjectsScreen(
                 fullHeight = horizontal,
             )
         )
-    }
+    })
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun <T> ProjectLayout(
-    modifier: Modifier = Modifier,
     horizontal: Boolean,
     staggered: Boolean,
-    items: List<T>,
+    items: ImmutableList<T>,
     key: (T) -> Any,
+    modifier: Modifier = Modifier,
     itemContent: @Composable (T) -> Unit,
 ) {
     val ui = LocalUIState.current
@@ -160,26 +160,6 @@ private fun <T> ProjectLayout(
                 delay(5)
             }
         }
-
-        @Composable
-        fun scroll(amount: Float) = Modifier.dragAndDropTarget(
-            shouldStartDragAndDrop = { true },
-            target = remember {
-                object : DragAndDropTarget {
-                    override fun onDrop(event: DragAndDropEvent): Boolean {
-                        return false
-                    }
-
-                    override fun onEntered(event: DragAndDropEvent) {
-                        scrollBy = amount
-                    }
-
-                    override fun onExited(event: DragAndDropEvent) {
-                        scrollBy = 0f
-                    }
-                }
-            }
-        )
 
         val alignment = if (horizontal) Alignment.CenterEnd else Alignment.BottomCenter
         val width = if (horizontal) 0.1f else 1f
